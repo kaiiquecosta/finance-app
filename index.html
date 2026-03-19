@@ -7933,16 +7933,25 @@ function requirePro(featureName) {
   return false;
 }
 
+function _resetCheckoutBtns() {
+  ['month', 'year'].forEach(iv => {
+    const b = document.getElementById('checkout-btn-' + iv);
+    if (b) { b.disabled = false; b.textContent = 'Assinar'; }
+  });
+}
+
 async function startCheckout(interval) {
   if (!_currentUser) { showAlert('Faça login para assinar.', 'Login necessário', '🔒'); return; }
 
   const btn = document.getElementById('checkout-btn-' + interval);
-  if (btn) { btn.disabled = true; btn.textContent = 'Aguarde...'; }
+  if (btn) { btn.textContent = 'Abrindo...'; }
+
+  // Auto-reset após 8s caso o usuário volte sem completar
+  const resetTimer = setTimeout(_resetCheckoutBtns, 8000);
 
   try {
     const priceId = interval === 'year' ? STRIPE_PRICE_YEARLY : STRIPE_PRICE_MONTHLY;
 
-    // Obter token atualizado
     const { data: sessionData, error: sessionError } = await sb.auth.getSession();
     if (sessionError || !sessionData?.session) {
       throw new Error('Sessão expirada. Faça login novamente.');
@@ -7966,15 +7975,19 @@ async function startCheckout(interval) {
 
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    if (data.url) window.location.href = data.url;
+    if (data.url) {
+      // Abrir Stripe em nova aba em vez de redirecionar
+      window.open(data.url, '_blank');
+      // Resetar botões imediatamente pois ficamos na mesma página
+      clearTimeout(resetTimer);
+      setTimeout(_resetCheckoutBtns, 1000);
+    }
 
   } catch (err) {
+    clearTimeout(resetTimer);
     console.error('Checkout error:', err);
     showAlert(err.message || 'Erro ao processar pagamento. Tente novamente.', 'Erro', '❌');
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = interval === 'year' ? 'Assinar Anual' : 'Assinar Mensal';
-    }
+    _resetCheckoutBtns();
   }
 }
 
