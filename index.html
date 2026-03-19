@@ -7987,13 +7987,26 @@ async function cancelSubscription() {
   showAlert('Para cancelar, acesse o portal de faturamento do Stripe. Funcionalidade em breve!', 'Cancelar assinatura', 'ℹ️');
 }
 
+function closeUpgradeModal() {
+  const modal = document.getElementById('m-upgrade');
+  if (modal) modal.classList.remove('open');
+  // Resetar botões
+  ['month', 'year'].forEach(interval => {
+    const btn = document.getElementById('checkout-btn-' + interval);
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = interval === 'year' ? 'Assinar' : 'Assinar';
+    }
+  });
+}
+
 function showUpgradeModal(feature) {
   const modal = document.getElementById('m-upgrade');
   if (modal) {
     const el = document.getElementById('upgrade-feature-name');
     if (el) el.textContent = feature || 'esta funcionalidade';
     modal.classList.add('open');
-    modal.onclick = e => { if (e.target === modal) modal.classList.remove('open'); };
+    modal.onclick = e => { if (e.target === modal) closeUpgradeModal(); };
   }
 }
 
@@ -8050,7 +8063,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 <!-- ── MODAL UPGRADE PRO ── -->
 <div class="overlay" id="m-upgrade">
   <div class="sheet" style="position:relative;text-align:center;padding:32px 24px;max-width:400px">
-    <button class="m-close" onclick="document.getElementById('m-upgrade').classList.remove('open')">✕</button>
+    <button class="m-close" onclick="closeUpgradeModal()">✕</button>
 
     <div style="font-size:48px;margin-bottom:12px">⚡</div>
     <div class="m-ttl" style="text-align:center">Finance Pro</div>
