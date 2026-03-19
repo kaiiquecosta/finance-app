@@ -7943,19 +7943,15 @@ function _resetCheckoutBtns() {
 async function startCheckout(interval) {
   if (!_currentUser) { showAlert('Faça login para assinar.', 'Login necessário', '🔒'); return; }
 
+  // Mostrar loading mas NUNCA desabilitar o botão
   const btn = document.getElementById('checkout-btn-' + interval);
-  if (btn) { btn.textContent = 'Abrindo...'; }
-
-  // Auto-reset após 8s caso o usuário volte sem completar
-  const resetTimer = setTimeout(_resetCheckoutBtns, 8000);
+  if (btn) btn.textContent = 'Buscando link...';
 
   try {
     const priceId = interval === 'year' ? STRIPE_PRICE_YEARLY : STRIPE_PRICE_MONTHLY;
 
     const { data: sessionData, error: sessionError } = await sb.auth.getSession();
-    if (sessionError || !sessionData?.session) {
-      throw new Error('Sessão expirada. Faça login novamente.');
-    }
+    if (sessionError || !sessionData?.session) throw new Error('Sessão expirada.');
     const token = sessionData.session.access_token;
 
     const res = await fetch(`${SUPABASE_URL}/functions/v1/stripe-checkout`, {
@@ -7968,6 +7964,9 @@ async function startCheckout(interval) {
       body: JSON.stringify({ priceId, interval })
     });
 
+    // Resetar botões ANTES de redirecionar
+    _resetCheckoutBtns();
+
     if (!res.ok) {
       const errText = await res.text();
       throw new Error(`Erro ${res.status}: ${errText}`);
@@ -7975,19 +7974,14 @@ async function startCheckout(interval) {
 
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    if (data.url) {
-      // Abrir Stripe em nova aba em vez de redirecionar
-      window.open(data.url, '_blank');
-      // Resetar botões imediatamente pois ficamos na mesma página
-      clearTimeout(resetTimer);
-      setTimeout(_resetCheckoutBtns, 1000);
-    }
+
+    // Redirecionar na mesma aba (mais confiável que window.open)
+    if (data.url) window.location.href = data.url;
 
   } catch (err) {
-    clearTimeout(resetTimer);
-    console.error('Checkout error:', err);
-    showAlert(err.message || 'Erro ao processar pagamento. Tente novamente.', 'Erro', '❌');
     _resetCheckoutBtns();
+    console.error('Checkout error:', err);
+    showAlert(err.message || 'Erro ao processar pagamento.', 'Erro', '❌');
   }
 }
 
