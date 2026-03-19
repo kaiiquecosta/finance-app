@@ -85,7 +85,7 @@ input, select { font-family: var(--font); }
 .nav-tab .ti { font-size: 14px; }
 
 /* MAIN */
-.main { margin-top: var(--nav-h); padding: 24px 20px 80px; max-width: 1200px; width: 100%; margin-left: auto; margin-right: auto; }
+.main { margin-top: var(--nav-h); padding: 24px 20px 100px; max-width: 1200px; width: 100%; margin-left: auto; margin-right: auto; }
 .page { display: none; }
 .page.active { display: block; }
 
@@ -585,7 +585,8 @@ input, select { font-family: var(--font); }
 .m-close { position:absolute; top:16px; right:16px; background:rgba(255,255,255,.08); border:none; border-radius:8px; width:30px; height:30px; color:#fff; font-size:16px; display:flex; align-items:center; justify-content:center; }
 
 /* MOBILE BOTTOM NAV */
-.mobile-nav { display:none; position:fixed; bottom:0; left:0; right:0; background:var(--card); backdrop-filter:blur(20px); border-top:1px solid var(--border); padding:8px 0 20px; z-index:100; }
+.mobile-nav {
+  padding-bottom: env(safe-area-inset-bottom, 0px); display:none; position:fixed; bottom:0; left:0; right:0; background:var(--card); backdrop-filter:blur(20px); border-top:1px solid var(--border); padding:8px 0 20px; z-index:100; }
 .mobile-nav-inner { display:flex; justify-content:space-around; }
 .m-nav-btn { display:flex; flex-direction:column; align-items:center; gap:3px; background:none; border:none; padding:4px 12px; }
 .m-nav-btn .mni { font-size:20px; opacity:.45; transition:opacity .2s; }
@@ -739,6 +740,15 @@ align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:rgba(3
 @keyframes slideDown
 
 /* RESPONSIVE */
+
+/* ── ESPAÇAMENTO GLOBAL ── */
+.page { padding-bottom: 24px; }
+.card + .card { margin-top: 0; }
+.fadein:last-child { margin-bottom: 0 !important; }
+#inst-list > .card:last-child,
+#inv-list > .card:last-child,
+#goals-list > .card:last-child { margin-bottom: 0 !important; }
+
   </style>
   <!-- Tema antes do render (evita flash) -->
   <script>
@@ -7013,7 +7023,7 @@ const STOCKS_DATA = {
     {symbol:'MGLU3',shortName:'Magazine Luiza', regularMarketPrice:7.23,  regularMarketChangePercent:-2.43, currency:'BRL'},
     {symbol:'B3SA3',shortName:'B3 SA',          regularMarketPrice:11.95, regularMarketChangePercent:-0.54, currency:'BRL'},
   ],
-  _dateRef: '14/03/2026'
+  _dateRef: new Date().toLocaleDateString('pt-BR')
 };
 
 async function loadMarketData(manual=false){
@@ -7778,6 +7788,111 @@ document.addEventListener('DOMContentLoaded', async () => {
     if(step) step.style.display = 'block';
   }
 });
+
+
+// ══════════════════════════════════════════
+// ── PERFIL DO USUÁRIO ──
+// ══════════════════════════════════════════
+
+function toggleEditProfile(){
+  const form = document.getElementById('profile-edit-form');
+  const isOpen = form.style.display !== 'none';
+  if(isOpen){ form.style.display='none'; return; }
+  const name  = _userProfile?.name  || _currentUser?.user_metadata?.full_name || '';
+  const phone = _userProfile?.phone || '';
+  document.getElementById('profile-edit-name').value  = name;
+  document.getElementById('profile-edit-phone').value = phone;
+  form.style.display = 'block';
+  document.getElementById('profile-edit-name').focus();
+}
+
+async function saveProfileEdit(){
+  const name  = document.getElementById('profile-edit-name').value.trim();
+  const phone = document.getElementById('profile-edit-phone').value.trim();
+  if(!name || !_currentUser) return;
+  const { error } = await sb.from('profiles').update({ name, phone }).eq('id', _currentUser.id);
+  if(error){ showSaveToast('Erro ao salvar','var(--red)','❌ Erro',''); return; }
+  if(!_userProfile) _userProfile = {};
+  _userProfile.name  = name;
+  _userProfile.phone = phone;
+  document.getElementById('profile-modal-name').textContent  = name;
+  document.getElementById('profile-modal-phone').textContent = phone;
+  document.getElementById('profile-edit-form').style.display = 'none';
+  updateNavBadge();
+  showSaveToast('Perfil salvo','var(--green)','✅ Salvo','');
+}
+
+function openProfileModal(){
+  if(!_currentUser) return;
+  const name  = _userProfile?.name  || _currentUser.user_metadata?.full_name || _currentUser.email?.split('@')[0] || 'Você';
+  const phone = _userProfile?.phone || '';
+  const photo = _userProfile?.avatar_url || _currentUser.user_metadata?.avatar_url || null;
+  const emoji = _userProfile?.emoji || '😊';
+  const c     = _userProfile?.color || '#22c55e';
+
+  const header = document.getElementById('profile-header');
+  if(header) header.style.background = `linear-gradient(160deg,${c}18 0%,rgba(10,10,15,0) 70%)`;
+
+  const big = document.getElementById('profile-avatar-big');
+  if(big){
+    big.style.borderColor = c+'80';
+    big.style.background  = c+'14';
+    big.style.boxShadow   = `0 0 0 6px ${c}10, 0 8px 32px rgba(0,0,0,0.4)`;
+    big.innerHTML = photo
+      ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
+      : emoji;
+  }
+
+  const nameEl  = document.getElementById('profile-modal-name');
+  const phoneEl = document.getElementById('profile-modal-phone');
+  if(nameEl)  nameEl.textContent  = name;
+  if(phoneEl) phoneEl.textContent = phone;
+
+  const emojis = ['😊','😎','🦁','🐯','🦊','🐼','🦋','⚡','🌟','🎯','🚀','🔥','💎','👑','🎸','🏆','🌈','🐉','🦅','🎭','🌺','🍀','⚽','🎮'];
+  const grid = document.getElementById('emoji-grid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  emojis.forEach(em=>{
+    const isActive = !photo && emoji===em;
+    const btn = document.createElement('button');
+    btn.textContent = em;
+    btn.style.cssText = `font-size:20px;background:${isActive ? c+'22' : 'rgba(255,255,255,0.04)'};border:${isActive ? '2px solid '+c : '1px solid rgba(255,255,255,0.07)'};border-radius:10px;padding:5px 2px;cursor:pointer;transition:all .15s;aspect-ratio:1`;
+    btn.onmouseenter = ()=>{ if(!isActive) btn.style.background='rgba(255,255,255,0.09)'; };
+    btn.onmouseleave = ()=>{ if(!isActive) btn.style.background='rgba(255,255,255,0.04)'; };
+    btn.onclick = () => setEmoji(em);
+    grid.appendChild(btn);
+  });
+}
+
+function setEmoji(em){
+  if(!_currentUser) return;
+  if(!_userProfile) _userProfile = {};
+  _userProfile.emoji = em;
+  _userProfile.avatar_url = null;
+  sb.from('profiles').update({ emoji: em, avatar_url: null }).eq('id', _currentUser.id);
+  updateNavBadge();
+  openProfileModal();
+}
+
+function uploadAvatar(event){
+  const file = event.target.files[0];
+  if(!file || !_currentUser) return;
+  const reader = new FileReader();
+  reader.onload = async function(e){
+    const base64 = e.target.result;
+    if(!_userProfile) _userProfile = {};
+    _userProfile.avatar_url = base64;
+    _userProfile.emoji = null;
+    // Salvar no Supabase
+    await sb.from('profiles').update({ avatar_url: base64, emoji: null }).eq('id', _currentUser.id);
+    updateNavBadge();
+    openProfileModal();
+  };
+  reader.readAsDataURL(file);
+}
+
+// Abrir modal de perfil ao clicar no openM('m-profile')
+const _origOpenM = window.openM;
 
 </script>
 
