@@ -7934,32 +7934,47 @@ function requirePro(featureName) {
 }
 
 async function startCheckout(interval) {
-  if (!_currentUser) return;
+  if (!_currentUser) { showAlert('Faça login para assinar.', 'Login necessário', '🔒'); return; }
 
   const btn = document.getElementById('checkout-btn-' + interval);
   if (btn) { btn.disabled = true; btn.textContent = 'Aguarde...'; }
 
   try {
     const priceId = interval === 'year' ? STRIPE_PRICE_YEARLY : STRIPE_PRICE_MONTHLY;
-    const { data: { session: authSession } } = await sb.auth.getSession();
+
+    // Obter token atualizado
+    const { data: sessionData, error: sessionError } = await sb.auth.getSession();
+    if (sessionError || !sessionData?.session) {
+      throw new Error('Sessão expirada. Faça login novamente.');
+    }
+    const token = sessionData.session.access_token;
 
     const res = await fetch(`${SUPABASE_URL}/functions/v1/stripe-checkout`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authSession.access_token}`
+        'Authorization': `Bearer ${token}`,
+        'apikey': SUPABASE_ANON
       },
       body: JSON.stringify({ priceId, interval })
     });
 
-    const { url, error } = await res.json();
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`Erro ${res.status}: ${errText}`);
+    }
 
-    if (error) throw new Error(error);
-    if (url) window.location.href = url;
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    if (data.url) window.location.href = data.url;
 
   } catch (err) {
-    showAlert('Erro ao processar pagamento. Tente novamente.', 'Erro', '❌');
-    if (btn) { btn.disabled = false; btn.textContent = interval === 'year' ? 'Assinar Anual' : 'Assinar Mensal'; }
+    console.error('Checkout error:', err);
+    showAlert(err.message || 'Erro ao processar pagamento. Tente novamente.', 'Erro', '❌');
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = interval === 'year' ? 'Assinar Anual' : 'Assinar Mensal';
+    }
   }
 }
 
