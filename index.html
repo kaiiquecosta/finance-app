@@ -67,7 +67,7 @@ input, select { font-family: var(--font); }
   background: var(--card); backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
   height: var(--nav-h);
-  display: flex; align-items: center; padding: 0 20px; gap: 8px;
+  display: flex; align-items: center; padding: 0 24px; gap: 8px;
   overflow-x: auto;
 }
 .topnav::-webkit-scrollbar { height: 0; }
@@ -85,7 +85,7 @@ input, select { font-family: var(--font); }
 .nav-tab .ti { font-size: 14px; }
 
 /* MAIN */
-.main { margin-top: var(--nav-h); padding: 24px 20px 100px; max-width: 1200px; width: 100%; margin-left: auto; margin-right: auto; }
+.main { margin-top: var(--nav-h); padding: 28px 32px 120px; max-width: 1200px; width: 100%; margin-left: auto; margin-right: auto; }
 .page { display: none; }
 .page.active { display: block; }
 
@@ -586,7 +586,7 @@ input, select { font-family: var(--font); }
 
 /* MOBILE BOTTOM NAV */
 .mobile-nav {
-  padding-bottom: env(safe-area-inset-bottom, 0px); display:none; position:fixed; bottom:0; left:0; right:0; background:var(--card); backdrop-filter:blur(20px); border-top:1px solid var(--border); padding:8px 0 20px; z-index:100; }
+  padding-bottom: env(safe-area-inset-bottom, 8px); display:none; position:fixed; bottom:0; left:0; right:0; background:var(--card); backdrop-filter:blur(20px); border-top:1px solid var(--border); padding:10px 0 calc(20px + env(safe-area-inset-bottom, 0px)); z-index:100; }
 .mobile-nav-inner { display:flex; justify-content:space-around; }
 .m-nav-btn { display:flex; flex-direction:column; align-items:center; gap:3px; background:none; border:none; padding:4px 12px; }
 .m-nav-btn .mni { font-size:20px; opacity:.45; transition:opacity .2s; }
@@ -691,9 +691,13 @@ align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:rgba(3
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
+  .card { padding: 16px; border-radius: 14px; }
+  .sheet { border-radius: 18px; padding: 20px; }
+  .grid2, .grid3 { grid-template-columns: 1fr; gap: 12px; }
+
   .topnav { display:none; }
   .mobile-nav { display:block; }
-  .main { padding:14px 12px 96px; margin-top:0; }
+  .main { padding:16px 16px 110px; margin-top:0; }
   .grid2 { grid-template-columns: 1fr; }
   .grid3 { grid-template-columns: 1fr; }
   .col-span2 { grid-column: span 1; }
@@ -715,7 +719,7 @@ align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:rgba(3
   .inst-row { flex-wrap:wrap; gap:6px; }
 }
 @media (max-width: 400px) {
-  .main { padding:12px 10px 96px; }
+  .main { padding:14px 14px 110px; }
   .card { padding:12px 11px; }
   .mnl { font-size:8px !important; }
 }
@@ -731,7 +735,7 @@ align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:rgba(3
   .hide-desktop { display:none !important; }
 }
 @media (min-width: 1024px) {
-  .main { padding: 32px 32px 48px; }
+  .main { padding: 36px 48px 80px; }
 }
 
     /* ── animations.css ── */
@@ -1031,7 +1035,7 @@ align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:rgba(3
         <div class="card-title" style="margin-bottom:4px"><span class="icon">📊</span> Visão anual</div>
         <div style="display:flex;align-items:baseline;gap:8px">
           <div class="num-lg" id="ov-annual-spent" style="color:#60a5fa">—</div>
-          <div style="color:var(--muted);font-size:12px" id="ov-annual-year-lbl">gastos em 2025</div>
+          <div style="color:var(--muted);font-size:12px" id="ov-annual-year-lbl">gastos em 2026</div>
         </div>
       </div>
       <div style="padding:0 20px 18px">
@@ -1200,7 +1204,7 @@ align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:rgba(3
         style="color:#fff;font-weight:700;font-size:15px;font-family:var(--num);cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;transition:background .15s;user-select:none"
         onmouseenter="this.style.background='rgba(255,255,255,0.07)'"
         onmouseleave="this.style.background='transparent'"
-      >Março de 2025 <span style="font-size:11px;color:var(--muted)">▾</span></div>
+      >Selecionar mês <span style="font-size:11px;color:var(--muted)">▾</span></div>
       <div style="color:var(--muted);font-size:11px;margin-top:2px">Soma das faturas</div>
       <!-- Calendário picker -->
       <div id="card-month-picker" style="
