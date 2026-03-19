@@ -9,7 +9,7 @@
   <!-- Stripe.js -->
   <script src="https://js.stripe.com/v3/"></script>
   <!-- Supabase SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 
   <style>
 
@@ -2160,7 +2160,17 @@ html, body { overflow-x: hidden; }
 
 const SUPABASE_URL  = 'https://rxireyhmphkybjvqbawf.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4aXJleWhtcGhreWJqdnFiYXdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NjkxMDgsImV4cCI6MjA4OTM0NTEwOH0.uwielq2GvpDUCMnY8U8lU3st7qY_7rpj49djs7C-SIc';
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+// Garantir que SDK carregou antes de criar o cliente
+if (!window.supabase) {
+  console.error('Supabase SDK não carregou!');
+}
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+});
 
 const STRIPE_PK            = 'pk_test_51TCj4HFmF5xwdR3NGQCqFuniSfqIqbFulTyLJQfpBSER9du175cFE6zGCsaEtIxtLdyMsv6H2QL23AZzqsonscxg00AAHCskCs';
 const STRIPE_PRICE_MONTHLY = 'price_1TCj92FmF5xwdR3Nanj1fmB7';
@@ -7949,10 +7959,13 @@ async function startCheckout(interval) {
 
   try {
     const priceId = interval === 'year' ? STRIPE_PRICE_YEARLY : STRIPE_PRICE_MONTHLY;
+    console.log('1. priceId:', priceId);
 
     const { data: sessionData, error: sessionError } = await sb.auth.getSession();
+    console.log('2. session:', sessionData?.session ? 'OK' : 'NULL', sessionError);
     if (sessionError || !sessionData?.session) throw new Error('Sessão expirada.');
     const token = sessionData.session.access_token;
+    console.log('3. token obtido, chamando Edge Function...');
 
     const res = await fetch(`${SUPABASE_URL}/functions/v1/stripe-checkout`, {
       method: 'POST',
@@ -7964,19 +7977,22 @@ async function startCheckout(interval) {
       body: JSON.stringify({ priceId, interval })
     });
 
-    // Resetar botões ANTES de redirecionar
+    console.log('4. resposta status:', res.status);
     _resetCheckoutBtns();
 
     if (!res.ok) {
       const errText = await res.text();
+      console.log('5. erro:', errText);
       throw new Error(`Erro ${res.status}: ${errText}`);
     }
 
     const data = await res.json();
+    console.log('5. data:', data);
     if (data.error) throw new Error(data.error);
-
-    // Redirecionar na mesma aba (mais confiável que window.open)
-    if (data.url) window.location.href = data.url;
+    if (data.url) {
+      console.log('6. redirecionando para:', data.url);
+      window.location.href = data.url;
+    }
 
   } catch (err) {
     _resetCheckoutBtns();
