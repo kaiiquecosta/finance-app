@@ -1,0 +1,173 @@
+<!-- views/overview.html -->
+
+<div class="page active" id="page-overview">
+  <div class="page-hdr" style="display:flex;align-items:center;justify-content:space-between">
+    <div>
+      <div class="sec-ttl">Visão geral</div>
+      <div class="sec-sub" id="ov-date"></div>
+    </div>
+    <button onclick="openM('m-add')" class="hide-desktop" style="background:var(--green);border:none;border-radius:10px;padding:10px 16px;color:#000;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font);box-shadow:0 0 16px rgba(34,197,94,0.5),0 2px 8px rgba(0,0,0,0.3);white-space:nowrap">＋ Gasto rápido</button>
+  </div>
+
+  <!-- ── RENDAS FIXADAS NO TOPO ── -->
+  <div class="card" style="margin-bottom:16px;background:linear-gradient(135deg,rgba(34,197,94,0.08) 0%,rgba(10,10,15,0) 70%);border-color:rgba(34,197,94,0.15)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="icon">💰</span>
+        <span style="font-size:14px;font-weight:600;color:#fff">Minhas rendas</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button id="btn-add-renda" onclick="openRendaModal()" style="background:var(--green);border:none;border-radius:8px;padding:6px 12px;color:#000;font-size:12px;font-weight:700;cursor:pointer">＋ Renda</button>
+      </div>
+    </div>
+    <div id="ov-incomes-list"></div>
+    <div id="ov-incomes-total" style="display:none;padding-top:12px;margin-top:4px;border-top:1px solid rgba(255,255,255,0.06)"></div>
+  </div>
+
+  <!-- Hero insight -->
+  <div class="overview-hero" style="margin-bottom:16px">
+    <div style="color:var(--green);font-size:13px;font-weight:600;margin-bottom:8px">Vamos descobrir para onde seu dinheiro está indo?</div>
+    <div style="color:var(--muted);font-size:13px;line-height:1.6" id="ov-insight">Analisando seus padrões de gastos...</div>
+    <div style="display:flex;gap:24px;margin-top:18px;flex-wrap:wrap">
+      <div><div style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Gasto do mês</div><div class="num-md" id="ov-spent-hero">—</div></div>
+      <div><div style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">vs. mês anterior</div><div id="ov-vs-prev" class="num-md">—</div></div>
+      <div><div style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Maior gasto</div><div class="num-md" id="ov-top-cat">—</div></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:16px">
+    <!-- Saldo / contas -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🏦</span> Contas correntes <span class="card-link" style="cursor:pointer" onclick="openM('m-bank')">gerenciar →</span></div>
+      <div class="num-lg" id="ov-balance">R$ 0,00</div>
+      <div style="color:var(--muted);font-size:12px;margin-top:4px">saldo total</div>
+      <div class="divider"></div>
+      <div class="stat-row"><span class="stat-label">↑ Receitas</span><span class="stat-val num-green" id="ov-inc">—</span></div>
+      <div class="stat-row"><span class="stat-label">↓ Gastos</span><span class="stat-val num-red" id="ov-spt">—</span></div>
+      <div class="stat-row"><span class="stat-label">✦ Sobrou</span><span class="stat-val" id="ov-left" style="color:#fff">—</span></div>
+    </div>
+
+    <!-- Gastos por categoria / pizza -->
+    <div class="card" style="display:flex;flex-direction:column">
+      <div class="card-title"><span class="icon">🍩</span> Gastos por categoria <span class="card-link" style="cursor:pointer" onclick="goPage('transactions')">ver todas →</span></div>
+      <!-- Donut centralizado -->
+      <div id="ov-donut-wrap" style="display:flex;flex-direction:column;align-items:center;gap:14px">
+        <div style="position:relative;width:140px;height:140px;flex-shrink:0">
+          <svg id="ov-donut-svg" viewBox="0 0 36 36" style="width:140px;height:140px;transform:rotate(-90deg)"></svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none;gap:2px">
+            <div style="color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.8px">total</div>
+            <div id="ov-donut-total" style="font-family:var(--num);font-size:13px;font-weight:700;color:#fff;line-height:1.1">—</div>
+          </div>
+        </div>
+        <!-- Grid de categorias -->
+        <div id="ov-donut-legend" style="width:100%;display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+      <div id="ov-donut-empty" style="display:none;color:var(--muted);font-size:12px;text-align:center;padding:20px 0">Nenhum gasto este mês ainda.</div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:16px">
+    <!-- Limite cartão -->
+    <div class="card">
+      <div class="card-title"><span class="icon">💳</span> Limite disponível <span class="card-link" style="cursor:pointer" onclick="goPage('cards')">ver detalhes →</span></div>
+      <div class="num-lg num-green" id="ov-credit-avail">—</div>
+      <div style="color:var(--muted);font-size:12px;margin-top:2px" id="ov-credit-sub">disponível</div>
+      <div class="divider"></div>
+      <div id="ov-cards-mini"></div>
+    </div>
+
+    <!-- Principais categorias -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🏷</span> Principais categorias <span class="card-link" style="cursor:pointer" onclick="goPage('overview')">ver mais →</span></div>
+      <div id="ov-cats"></div>
+    </div>
+  </div>
+
+  <!-- Fatura do cartão de crédito -->
+  <div class="card" id="ov-cc-bill-card" style="margin-bottom:16px;display:none;border-color:rgba(239,68,68,0.25);background:linear-gradient(135deg,rgba(239,68,68,0.05) 0%,rgba(10,10,15,0) 60%)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:16px">💳</span>
+        <span style="font-size:14px;font-weight:600;color:#fff">Fatura do cartão</span>
+        <span style="font-size:11px;color:var(--muted)">este mês</span>
+      </div>
+      <span style="font-size:11px;color:var(--muted);cursor:pointer" onclick="goPage('bills')">pagar → Contas fixas</span>
+    </div>
+    <div id="ov-cc-bill-list"></div>
+    <div style="border-top:1px solid rgba(255,255,255,0.06);margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--muted);font-size:12px">Total das faturas</span>
+      <span id="ov-cc-bill-total" style="color:var(--red);font-family:var(--num);font-weight:800;font-size:16px">—</span>
+    </div>
+  </div>
+
+  <!-- Transações recentes -->
+  <div class="card">
+    <div class="card-title"><span class="icon">↕</span> Transações recentes <span class="card-link" style="cursor:pointer" onclick="goPage('transactions')">ver todas →</span></div>
+    <div id="ov-recent-tx"></div>
+  </div>
+
+  <!-- Gastos previstos próximos meses (contas fixas) -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-title"><span class="icon">📅</span> Gastos previstos — contas fixas <span class="card-link" style="cursor:pointer" onclick="goPage('bills')">gerenciar →</span></div>
+    <div id="ov-upcoming-bills"></div>
+  </div>
+
+  <!-- Visão Anual + Potencial de Investimento -->
+  <div class="grid2" style="margin-top:16px;margin-bottom:16px">
+
+    <!-- Visão Anual -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:18px 20px 14px;background:linear-gradient(135deg,rgba(59,130,246,0.12) 0%,rgba(10,10,15,0) 80%)">
+        <div class="card-title" style="margin-bottom:4px"><span class="icon">📊</span> Visão anual</div>
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <div class="num-lg" id="ov-annual-spent" style="color:#60a5fa">—</div>
+          <div style="color:var(--muted);font-size:12px" id="ov-annual-year-lbl">gastos em 2025</div>
+        </div>
+      </div>
+      <div style="padding:0 20px 18px">
+        <!-- Barras mensais -->
+        <div id="ov-annual-bars" style="display:flex;align-items:flex-end;gap:4px;height:60px;margin:14px 0 8px"></div>
+        <!-- Labels dos meses -->
+        <div id="ov-annual-labels" style="display:flex;gap:4px"></div>
+        <div style="height:1px;background:rgba(255,255,255,0.06);margin:14px 0"></div>
+        <!-- Stats anuais -->
+        <div class="stat-row"><span class="stat-label">💰 Receitas totais</span><span class="stat-val num-green" id="ov-annual-inc">—</span></div>
+        <div class="stat-row"><span class="stat-label">📉 Gastos totais</span><span class="stat-val num-red" id="ov-annual-spt">—</span></div>
+        <div class="stat-row"><span class="stat-label">✦ Saldo líquido</span><span class="stat-val" id="ov-annual-bal">—</span></div>
+        <div class="stat-row"><span class="stat-label">📅 Média mensal</span><span class="stat-val" id="ov-annual-avg" style="color:#60a5fa">—</span></div>
+      </div>
+    </div>
+
+    <!-- Potencial de Investimento -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:18px 20px 14px;background:linear-gradient(135deg,rgba(34,197,94,0.12) 0%,rgba(10,10,15,0) 80%)">
+        <div class="card-title" style="margin-bottom:4px"><span class="icon">🌱</span> Potencial de investimento</div>
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <div class="num-lg num-green" id="ov-invest-pot">—</div>
+          <div style="color:var(--muted);font-size:12px">disponível/mês</div>
+        </div>
+      </div>
+      <div style="padding:0 20px 18px">
+        <div style="height:1px;background:rgba(255,255,255,0.06);margin:14px 0 12px"></div>
+
+        <!-- Projeção 12 meses -->
+        <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px">Se investir o potencial mensal</div>
+        <div id="ov-invest-scenarios"></div>
+
+        <div style="height:1px;background:rgba(255,255,255,0.06);margin:14px 0 12px"></div>
+
+        <!-- Breakdown -->
+        <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px">Como foi calculado</div>
+        <div class="stat-row"><span class="stat-label">💵 Receita média</span><span class="stat-val num-green" id="ov-invest-inc">—</span></div>
+        <div class="stat-row"><span class="stat-label">📉 Gasto médio</span><span class="stat-val num-red" id="ov-invest-spt">—</span></div>
+        <div class="stat-row"><span class="stat-label">🏠 Contas fixas</span><span class="stat-val num-red" id="ov-invest-fixed">—</span></div>
+        <div class="stat-row" style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06)">
+          <span class="stat-label" style="color:#fff;font-weight:600">🌱 Potencial</span>
+          <span class="stat-val num-green" style="font-weight:700" id="ov-invest-result">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TRANSACTIONS ── -->

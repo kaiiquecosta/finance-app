@@ -1,0 +1,61 @@
+<!-- modals/installments.html -->
+
+<div class="overlay" id="m-inst">
+  <div class="sheet" style="position:relative">
+    <button class="m-close" onclick="closeM('m-inst')">✕</button>
+    <div class="m-ttl">Novo parcelamento</div>
+    <input class="m-inp" id="i-name" placeholder="Descrição (ex: iPhone 15)"/>
+    <input class="m-inp" id="i-total" type="text" inputmode="numeric" placeholder="Valor total (ex: 3.600,00)" oninput="maskMoney(this)" />
+    <input class="m-inp" id="i-parcels" type="number" placeholder="Número de parcelas (ex: 12)" min="2"/>
+    <input class="m-inp" id="i-paid" type="number" placeholder="Parcelas pagas (ex: 3)" min="0"/>
+    <button class="m-btn" onclick="addInst()">Adicionar</button>
+  </div>
+</div>
+
+<div class="overlay" id="m-advance">
+  <div class="sheet" style="position:relative">
+    <button class="m-close" onclick="closeM('m-advance')">✕</button>
+    <div class="m-ttl">⚡ Adiantar parcelas</div>
+
+    <!-- Info do parcelamento -->
+    <div id="advance-info" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;margin-bottom:16px">
+      <div id="advance-name" style="color:#fff;font-size:14px;font-weight:700;margin-bottom:6px"></div>
+      <div style="display:flex;gap:20px">
+        <div><div style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px">Valor/parcela</div><div id="advance-amt" style="font-family:var(--num);font-weight:700;font-size:14px;color:var(--blue)">—</div></div>
+        <div><div style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px">Restam</div><div id="advance-remaining" style="font-family:var(--num);font-weight:700;font-size:14px;color:var(--text)">—</div></div>
+      </div>
+    </div>
+
+    <!-- Quantas adiantar -->
+    <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px">Quantas parcelas adiantar?</div>
+
+    <!-- Botões rápidos de quantidade -->
+    <div id="advance-qty-btns" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"></div>
+
+    <!-- Slider -->
+    <input type="range" id="advance-slider" min="1" value="1"
+      style="width:100%;accent-color:var(--green);margin-bottom:10px"
+      oninput="updateAdvancePreview(parseInt(this.value))"/>
+
+    <!-- Preview -->
+    <div id="advance-preview" style="border-radius:12px;padding:14px 16px;margin-bottom:16px;display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="color:var(--muted);font-size:13px">Total a pagar agora</span>
+        <span id="advance-preview-total" style="font-family:var(--num);font-weight:800;font-size:18px;color:#fff">—</span>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:8px"></div>
+      <div id="advance-preview-months" style="display:flex;flex-direction:column;gap:4px"></div>
+      <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(34,197,94,0.15);display:flex;align-items:center;gap:8px">
+        <span style="color:#4ade80;font-size:18px">↑</span>
+        <span style="color:#4ade80;font-size:13px;font-weight:600">Limite liberado: <span id="advance-limit-freed" style="font-family:var(--num)">—</span></span>
+      </div>
+    </div>
+
+    <!-- Conta de débito -->
+    <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">🏦 De qual conta sai o dinheiro?</div>
+    <div id="advance-account-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px"></div>
+    <div id="advance-account-err" style="display:none;color:#f87171;font-size:12px;font-weight:500;margin-bottom:10px">⚠️ Selecione a conta para débito.</div>
+
+    <button class="m-btn" onclick="confirmAdvance()" style="background:var(--green);color:#000;font-weight:700">Confirmar adianto</button>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+/* variables.css — Design tokens */
+
+:root {
+  --bg: #0a0a0f;
+  --card: #111118;
+  --card2: #16161f;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --green: #22c55e;
+  --green-d: #16a34a;
+  --red: #ef4444;
+  --amber: #f59e0b;
+  --blue: #3b82f6;
+  --purple: #8b5cf6;
+  --text: #f1f5f9;
+  --muted: #64748b;
+  --muted2: #334155;
+  --font: 'Inter', sans-serif;
+  --num: 'Bricolage Grotesque', sans-serif;
+  --nav-h: 56px;
+  --sidebar-w: 220px;
+}
+[data-theme="light"] {
+  --bg: #f0f2f5;
+  --card: #ffffff;
+  --card2: #f8f9fb;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.14);
+  --text: #0f172a;
+  --muted: #64748b;
+  --muted2: #cbd5e1;
+  --green: #16a34a;
+  --green-d: #15803d;
+  --red: #dc2626;
+  --amber: #d97706;
+  --blue: #2563eb;
+  --purple: #7c3aed;
+}

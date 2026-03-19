@@ -1,0 +1,103 @@
+<!-- modals/cards.html -->
+
+<div class="overlay" id="m-card">
+  <div class="sheet" style="position:relative">
+    <button class="m-close" onclick="closeM('m-card')">✕</button>
+    <div class="m-ttl">Novo cartão</div>
+
+    <!-- Picker de banco -->
+    <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Banco / Instituição</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px" id="card-bank-presets"></div>
+    <input class="m-inp" id="c-name" placeholder="Ou digite o nome do cartão..." style="margin-bottom:12px"/>
+
+    <!-- Cor do cartão -->
+    <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Cor do cartão</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="card-color-dots"></div>
+
+    <input class="m-inp" id="c-limit" type="text" inputmode="numeric" placeholder="Limite (ex: 5.000,00)" oninput="maskMoney(this)" />
+    <input class="m-inp" id="c-close" type="number" placeholder="Dia de fechamento (ex: 6)" min="1" max="31"/>
+    <input class="m-inp" id="c-due" type="number" placeholder="Dia de vencimento (ex: 12)" min="1" max="31"/>
+    <button class="m-btn" onclick="addCard()">Adicionar cartão</button>
+  </div>
+</div>
+
+<div class="overlay" id="m-bill">
+  <div class="sheet" style="position:relative;max-height:90vh;overflow-y:auto">
+    <button class="m-close" onclick="closeM('m-bill')">✕</button>
+    <div class="m-ttl" id="bill-ttl">Lançar na fatura</div>
+
+    <!-- Tipo de lançamento -->
+    <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Tipo de lançamento</div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button onclick="setBillType('simples')"   id="btype-simples"   class="freq-btn active-freq" style="flex:1">Crédito à vista</button>
+      <button onclick="setBillType('parcelado')" id="btype-parcelado" class="freq-btn" style="flex:1">Parcelado</button>
+      <button onclick="setBillType('assinatura')" id="btype-assinatura" class="freq-btn" style="flex:1">Assinatura</button>
+    </div>
+
+    <input class="m-inp" id="b-desc" placeholder="Descrição (ex: PlayStation Plus, iPhone...)"/>
+    <div style="position:relative;margin-bottom:12px">
+      <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;font-weight:600;pointer-events:none;font-family:var(--num)">R$</span>
+      <input class="m-inp" id="b-amt" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoneyBR(this);checkCardLimit(this)" style="padding-left:38px;margin-bottom:0"/>
+    </div>
+    <div id="bill-limit-warn" style="display:none;padding:10px 14px;border-radius:10px;margin-bottom:10px;font-size:13px;font-weight:600"></div>
+    <input class="m-inp" id="b-date" type="date"/>
+
+    <!-- Campos para parcelado -->
+    <div id="b-parcels-wrap" style="display:none">
+      <input class="m-inp" id="b-parcels" type="number" placeholder="Número total de parcelas (ex: 12)" min="2"/>
+      <!-- Parcelas já pagas -->
+      <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:12px 14px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="font-size:16px">📦</span>
+          <div>
+            <div style="color:#fff;font-size:13px;font-weight:600">Parcelas já pagas</div>
+            <div style="color:var(--muted);font-size:11px">Se você já pagou algumas antes de usar o app</div>
+          </div>
+        </div>
+        <input class="m-inp" id="b-paid" type="number" placeholder="Quantas já foram pagas? (ex: 3)" min="0" style="margin-bottom:0"/>
+      </div>
+    </div>
+
+    <!-- Campos para assinatura -->
+    <div id="b-sub-wrap" style="display:none">
+      <input class="m-inp" id="b-sub-day" type="number" placeholder="Dia de cobrança mensal (ex: 15)" min="1" max="31"/>
+    </div>
+
+    <button class="m-btn" onclick="addBill()">Lançar na fatura</button>
+  </div>
+</div>
+
+<div class="overlay" id="m-limit">
+  <div class="sheet" style="position:relative">
+    <button class="m-close" onclick="closeM('m-limit')">✕</button>
+    <div class="m-ttl">Ajustar limite</div>
+    <div id="m-limit-card-name" style="color:var(--muted);font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:8px">
+      <span style="font-size:18px">💳</span><span></span>
+    </div>
+
+    <!-- Limite atual -->
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+      <span style="color:var(--muted);font-size:13px">Limite atual</span>
+      <span id="m-limit-current" style="font-family:var(--num);font-size:16px;font-weight:700;color:#fff">—</span>
+    </div>
+
+    <!-- Botões rápidos -->
+    <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Ajuste rápido</div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <button onclick="quickLimit(-500)"  class="freq-btn" style="flex:1;color:#f87171">− R$ 500</button>
+      <button onclick="quickLimit(-1000)" class="freq-btn" style="flex:1;color:#f87171">− R$ 1k</button>
+      <button onclick="quickLimit(500)"   class="freq-btn" style="flex:1;color:#4ade80">+ R$ 500</button>
+      <button onclick="quickLimit(1000)"  class="freq-btn" style="flex:1;color:#4ade80">+ R$ 1k</button>
+    </div>
+
+    <!-- Valor manual -->
+    <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Ou defina um novo limite</div>
+    <div style="position:relative;margin-bottom:14px">
+      <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;font-weight:600;pointer-events:none;font-family:var(--num)">R$</span>
+      <input class="m-inp" id="limit-new-val" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoneyBR(this);previewLimit(this)" style="padding-left:38px;margin-bottom:0"/>
+    </div>
+    <div id="limit-preview" style="display:none;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px;font-weight:600;color:#4ade80"></div>
+
+    <button class="m-btn" onclick="saveLimit()">Salvar limite</button>
+  </div>
+</div>

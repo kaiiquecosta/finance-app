@@ -1,0 +1,39 @@
+<!-- views/subscriptions.html -->
+
+<!-- ── SUBSCRIPTIONS ── -->
+<div class="page" id="page-subscriptions">
+  <div class="page-hdr">
+    <div class="sec-hdr">
+      <div><div class="sec-ttl">Assinaturas</div><div class="sec-sub">Serviços recorrentes e projeção anual</div></div>
+      <span style="font-size:11px;color:var(--muted);background:rgba(255,255,255,0.05);padding:6px 12px;border-radius:8px;border:1px solid var(--border)">Somente leitura</span>
+    </div>
+  </div>
+
+  <!-- Resumo top 4 stats -->
+  <div id="sub-stats-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+    <div class="card card-sm" style="text-align:center">
+      <div class="card-label">📺 Assinaturas</div>
+      <div class="num-md" id="sub-count" style="color:#a78bfa">0</div>
+      <div style="color:var(--muted);font-size:11px;margin-top:2px">ativas</div>
+    </div>
+    <div class="card card-sm" style="text-align:center">
+      <div class="card-label">Gasto mensal</div>
+      <div class="num-md num-red" id="sub-total">R$ 0,00</div>
+    </div>
+    <div class="card card-sm" style="text-align:center">
+      <div class="card-label">Projeção anual</div>
+      <div class="num-md" id="sub-annual" style="color:#f59e0b">R$ 0,00</div>
+    </div>
+    <div class="card card-sm" style="text-align:center">
+      <div class="card-label">Média/serviço</div>
+      <div class="num-md" id="sub-avg" style="color:var(--green)">R$ 0,00</div>
+    </div>
+  </div>
+
+
+  <!-- Lista de assinaturas -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🔁</span> Suas assinaturas</div>
+    <div id="sub-list"></div>
+  </div>
+</div>
