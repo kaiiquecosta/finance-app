@@ -932,7 +932,7 @@ html, body { overflow-x: hidden; }
       Carregar
       <input type="file" accept=".json" onchange="importData(event)" style="display:none"/>
     </label>
-    <button onclick="openM('m-add')" style="background:var(--green);border:none;border-radius:8px;padding:8px 16px;color:#000;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;box-shadow:0 0 16px rgba(34,197,94,0.45),0 2px 8px rgba(0,0,0,0.2)">＋ Gasto rápido</button>
+    <button onclick="openM('m-add')" style="background:var(--green);border:none;border-radius:999px;padding:8px 20px;color:#000;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;box-shadow:0 0 16px rgba(34,197,94,0.45),0 2px 8px rgba(0,0,0,0.2);white-space:nowrap;flex-shrink:0">＋ Gasto rápido</button>
   </div>
 </nav>
 
@@ -3931,7 +3931,7 @@ function renderAnnualView(){
   document.getElementById('ov-annual-spt').textContent   = fmt(totalSpt);
   const balEl = document.getElementById('ov-annual-bal');
   balEl.textContent = fmt(bal);
-  balEl.style.color = bal >= 0 ? 'var(--green)' : 'var(--red)';
+  balEl.style.color = bal >= 0 ? 'var(--text)' : 'var(--red)';
   document.getElementById('ov-annual-avg').textContent = fmt(totalSpt / monthsWithData);
 
   // Barras
@@ -6628,7 +6628,7 @@ function renderOverviewBankAccounts(){
 
   if(!bankAccounts.length){
     balEl.textContent = 'R$ 0,00';
-    balEl.style.color = '#fff';
+    balEl.style.color = 'var(--text)';
     const mini = document.getElementById('ov-bank-mini');
     if(mini) mini.innerHTML = '<div style="color:var(--muted);font-size:12px">Nenhuma conta cadastrada</div>';
     return;
@@ -6660,7 +6660,7 @@ function renderOverviewBankAccounts(){
     const bal   = acc.initialBalance+txTot;
     const row   = document.createElement('div');
     row.style.cssText='display:flex;align-items:center;gap:7px;padding:3px 0';
-    row.innerHTML=`<span style="width:8px;height:8px;border-radius:50%;background:${acc.clr};flex-shrink:0;display:inline-block"></span><span style="color:var(--muted);font-size:12px;flex:1">${acc.name}</span><span style="color:${bal>=0?'#fff':'var(--red)'};font-size:12px;font-family:var(--num);font-weight:600">${fmt(bal)}</span>`;
+    row.innerHTML=`<span style="width:8px;height:8px;border-radius:50%;background:${acc.clr};flex-shrink:0;display:inline-block"></span><span style="color:var(--muted);font-size:12px;flex:1">${acc.name}</span><span style="color:${bal>=0?'var(--text)':'var(--red)'};font-size:12px;font-family:var(--num);font-weight:600">${fmt(bal)}</span>`;
     miniEl.appendChild(row);
   });
 }
