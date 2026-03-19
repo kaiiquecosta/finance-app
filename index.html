@@ -8005,6 +8005,13 @@ function showUpgradeModal(feature) {
   if (modal) {
     const el = document.getElementById('upgrade-feature-name');
     if (el) el.textContent = feature || 'esta funcionalidade';
+
+    // Sempre resetar botões ao abrir
+    ['month', 'year'].forEach(interval => {
+      const btn = document.getElementById('checkout-btn-' + interval);
+      if (btn) { btn.disabled = false; btn.textContent = 'Assinar'; }
+    });
+
     modal.classList.add('open');
     modal.onclick = e => { if (e.target === modal) closeUpgradeModal(); };
   }
