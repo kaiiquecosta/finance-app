@@ -6,6 +6,8 @@
   <title>Finance</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 
+  <!-- Stripe.js -->
+  <script src="https://js.stripe.com/v3/"></script>
   <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -907,7 +909,8 @@ html, body { overflow-x: hidden; }
 <nav class="topnav">
   <!-- Avatar + nome do usuário (populado no enterApp) -->
   <button id="theme-toggle-btn" onclick="toggleTheme()" title="Alternar tema" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:background .2s" onmouseenter="this.style.opacity='.8'" onmouseleave="this.style.opacity='1'">🌙</button>
-  <div id="user-badge" onclick="openM('m-profile');openProfileModal()" style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:4px 10px 4px 4px;border-radius:40px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);transition:background .2s;flex-shrink:0" onmouseenter="this.style.background='rgba(255,255,255,0.07)'" onmouseleave="this.style.background='rgba(255,255,255,0.03)'">
+  <div id="plan-badge" onclick="isPro() ? null : showUpgradeModal()" style="font-size:10px;font-weight:700;letter-spacing:.8px;padding:3px 8px;border-radius:6px;cursor:pointer;transition:all .2s;background:rgba(255,255,255,0.06);color:var(--muted);border:1px solid rgba(255,255,255,0.1)">FREE</div>
+  <div id="user-badge" onclick="openM('m-profile')";openProfileModal()" style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:4px 10px 4px 4px;border-radius:40px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);transition:background .2s;flex-shrink:0" onmouseenter="this.style.background='rgba(255,255,255,0.07)'" onmouseleave="this.style.background='rgba(255,255,255,0.03)'">
     <div id="nav-avatar" style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden;background:rgba(34,197,94,0.15);border:2px solid rgba(34,197,94,0.3)">😊</div>
     <div style="line-height:1.2">
       <div id="nav-username" style="color:#fff;font-size:13px;font-weight:600">Você</div>
@@ -2158,11 +2161,29 @@ html, body { overflow-x: hidden; }
    Dashboard → Settings → API
    ============================================================= */
 
+// ── Stripe ──────────────────────────────────────────────────
+// Substitua pela sua Publishable Key do Stripe Dashboard
+const STRIPE_PK = 'pk_live_SUA_PUBLISHABLE_KEY';
+
+// Preços (IDs criados no Stripe Dashboard → Products)
+const STRIPE_PRICES = {
+  monthly: 'price_ID_MENSAL',   // R$ 14,90/mês
+  yearly:  'price_ID_ANUAL',    // R$ 160,92/ano
+};
+
+// ── Supabase ─────────────────────────────────────────────────
+// ── Supabase ──
 const SUPABASE_URL  = 'https://rxireyhmphkybjvqbawf.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4aXJleWhtcGhreWJqdnFiYXdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NjkxMDgsImV4cCI6MjA4OTM0NTEwOH0.uwielq2GvpDUCMnY8U8lU3st7qY_7rpj49djs7C-SIc';
 
 // Inicializa o cliente Supabase (SDK carregado via CDN no index.html)
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ── Stripe ──
+const STRIPE_PK        = 'pk_test_51TCj4HFmF5xwdR3NGQCqFuniSfqIqbFulTyLJQfpBSER9du175cFE6zGCsaEtIxtLdyMsv6H2QL23AZzqsonscxg00AAHCskCs';
+const STRIPE_PRICE_MONTHLY = 'price_1TCj92FmF5xwdR3Nanj1fmB7';
+const STRIPE_PRICE_YEARLY  = 'price_1TCj92FmF5xwdR3NJLcXPrvV';
+const stripeClient = Stripe(STRIPE_PK);
 
 </script>
 <script>
@@ -2173,8 +2194,10 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
    ============================================================= */
 
 // ── Estado de auth ────────────────────────────────────────────
-let _currentUser  = null;   // objeto do Supabase Auth
+let _currentUser  = null;
+let _userPlan     = 'free'; // 'free' | 'pro'   // objeto do Supabase Auth
 let _userProfile  = null;   // linha da tabela profiles
+let _userPlan     = 'free'; // 'free' | 'pro'
 
 // ── Inicialização ─────────────────────────────────────────────
 async function initAuth() {
@@ -2219,12 +2242,23 @@ function _updateLoginTitle(returning) {
 // ── Carregar perfil do usuário ─────────────────────────────────
 async function loadUserProfile() {
   if (!_currentUser) return;
-  const { data } = await sb
-    .from('profiles')
-    .select('*')
-    .eq('id', _currentUser.id)
-    .single();
-  _userProfile = data;
+
+  const [profileRes, planRes] = await Promise.all([
+    sb.from('profiles').select('*').eq('id', _currentUser.id).single(),
+    sb.from('plans').select('*').eq('user_id', _currentUser.id).single()
+  ]);
+
+  _userProfile = profileRes.data;
+
+  if (planRes.data) {
+    const isPro = planRes.data.plan === 'pro' &&
+                  planRes.data.status === 'active' &&
+                  (!planRes.data.current_period_end ||
+                   new Date(planRes.data.current_period_end) > new Date());
+    _userPlan = isPro ? 'pro' : 'free';
+  } else {
+    _userPlan = 'free';
+  }
 }
 
 // ── Login com email/senha ──────────────────────────────────────
@@ -2424,6 +2458,7 @@ async function _launchApp() {
   try { await loadUserData(); } catch(e) { console.warn('Erro ao carregar dados:', e); }
   if (loadingEl) loadingEl.style.display = 'none';
   updateNavBadge();
+  updatePlanUI();
   initApp();
 }
 
@@ -3507,8 +3542,14 @@ function goPage(p){
   if(p==='subscriptions') renderSubs();
   if(p==='cards')         { renderCards(); initCardMonthPicker(); }
   if(p==='bills')         renderBills();
-  if(p==='goals')         renderGoals();
-  if(p==='investments')   { renderInvestments(); fetchCDI(); fetchIPCA(); loadMarketData(); }
+  if(p==='goals')         {
+    if(!requirePro('Metas financeiras')) return;
+    renderGoals();
+  }
+  if(p==='investments')   {
+    if(!requirePro('Investimentos')) return;
+    renderInvestments(); fetchCDI(); fetchIPCA(); loadMarketData();
+  }
 }
 
 // Navegação entre abas com seta esquerda/direita
@@ -7897,6 +7938,104 @@ document.addEventListener('keydown', function(e){
 
 </script>
 <script>
+
+// ══════════════════════════════════════════
+// ── PLANOS E STRIPE ──
+// ══════════════════════════════════════════
+
+function isPro() {
+  return _userPlan === 'pro';
+}
+
+function requirePro(featureName) {
+  if (isPro()) return true;
+  showUpgradeModal(featureName);
+  return false;
+}
+
+async function startCheckout(interval) {
+  if (!_currentUser) return;
+
+  const btn = document.getElementById('checkout-btn-' + interval);
+  if (btn) { btn.disabled = true; btn.textContent = 'Aguarde...'; }
+
+  try {
+    const priceId = interval === 'year' ? STRIPE_PRICE_YEARLY : STRIPE_PRICE_MONTHLY;
+    const { data: { session: authSession } } = await sb.auth.getSession();
+
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/stripe-checkout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authSession.access_token}`
+      },
+      body: JSON.stringify({ priceId, interval })
+    });
+
+    const { url, error } = await res.json();
+
+    if (error) throw new Error(error);
+    if (url) window.location.href = url;
+
+  } catch (err) {
+    showAlert('Erro ao processar pagamento. Tente novamente.', 'Erro', '❌');
+    if (btn) { btn.disabled = false; btn.textContent = interval === 'year' ? 'Assinar Anual' : 'Assinar Mensal'; }
+  }
+}
+
+async function cancelSubscription() {
+  if (!confirm('Tem certeza que quer cancelar? Você continuará com Pro até o fim do período pago.')) return;
+
+  const { data: plan } = await sb.from('plans').select('stripe_sub_id').eq('user_id', _currentUser.id).single();
+  if (!plan?.stripe_sub_id) return;
+
+  showAlert('Para cancelar, acesse o portal de faturamento do Stripe. Funcionalidade em breve!', 'Cancelar assinatura', 'ℹ️');
+}
+
+function showUpgradeModal(feature) {
+  const modal = document.getElementById('m-upgrade');
+  if (modal) {
+    const el = document.getElementById('upgrade-feature-name');
+    if (el) el.textContent = feature || 'esta funcionalidade';
+    modal.classList.add('open');
+    modal.onclick = e => { if (e.target === modal) modal.classList.remove('open'); };
+  }
+}
+
+// Verificar retorno do Stripe (success/canceled)
+(function checkStripeReturn() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('payment') === 'success') {
+    // Limpar URL
+    window.history.replaceState({}, '', window.location.pathname);
+    // Aguardar webhook processar e recarregar plano
+    setTimeout(async () => {
+      await loadUserProfile();
+      showSaveToast('Bem-vindo ao Finance Pro! 🎉', 'var(--green)', '✅ Assinatura ativada!', '');
+      updatePlanUI();
+    }, 2000);
+  } else if (params.get('payment') === 'canceled') {
+    window.history.replaceState({}, '', window.location.pathname);
+    showSaveToast('Pagamento cancelado.', 'var(--amber)', 'Ops!', '');
+  }
+})();
+
+function updatePlanUI() {
+  // Atualizar badge de plano na nav
+  const badge = document.getElementById('plan-badge');
+  if (badge) {
+    badge.textContent = isPro() ? 'PRO' : 'FREE';
+    badge.style.background = isPro() ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.06)';
+    badge.style.color = isPro() ? 'var(--green)' : 'var(--muted)';
+    badge.style.border = isPro() ? '1px solid rgba(34,197,94,0.3)' : '1px solid rgba(255,255,255,0.1)';
+  }
+  // Mostrar/esconder abas bloqueadas
+  const investTab = document.getElementById('nt-investments');
+  const goalsTab  = document.getElementById('nt-goals');
+  if (investTab) investTab.style.opacity = isPro() ? '1' : '0.5';
+  if (goalsTab)  goalsTab.style.opacity  = isPro() ? '1' : '0.5';
+}
+
 /* ═══ Boot ═══ */
 document.addEventListener('DOMContentLoaded', async () => {
   try {
@@ -7911,6 +8050,61 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 </script>
+
+
+<!-- ── MODAL UPGRADE PRO ── -->
+<div class="overlay" id="m-upgrade">
+  <div class="sheet" style="position:relative;text-align:center;padding:32px 24px;max-width:400px">
+    <button class="m-close" onclick="document.getElementById('m-upgrade').classList.remove('open')">✕</button>
+
+    <div style="font-size:48px;margin-bottom:12px">⚡</div>
+    <div class="m-ttl" style="text-align:center">Finance Pro</div>
+    <div style="color:var(--muted);font-size:14px;margin-bottom:8px">
+      <span id="upgrade-feature-name">Esta funcionalidade</span> é exclusiva do plano Pro
+    </div>
+
+    <!-- O que inclui -->
+    <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:12px;padding:16px;margin:20px 0;text-align:left">
+      <div style="color:var(--green);font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px">Tudo no Pro</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:13px"><span style="color:var(--green)">✓</span> 📈 Investimentos completos</div>
+        <div style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:13px"><span style="color:var(--green)">✓</span> 🎯 Metas financeiras</div>
+        <div style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:13px"><span style="color:var(--green)">✓</span> 📊 Todos os relatórios</div>
+        <div style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:13px"><span style="color:var(--green)">✓</span> 🔔 Lembretes avançados</div>
+        <div style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:13px"><span style="color:var(--green)">✓</span> ☁️ Sync em tempo real</div>
+      </div>
+    </div>
+
+    <!-- Preços -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+      <!-- Mensal -->
+      <div style="border:1px solid var(--border2);border-radius:12px;padding:14px;text-align:center">
+        <div style="color:var(--muted);font-size:11px;margin-bottom:4px">MENSAL</div>
+        <div style="font-family:var(--num);font-size:22px;font-weight:800;color:#fff">R$14<span style="font-size:13px;font-weight:500">,90</span></div>
+        <div style="color:var(--muted);font-size:11px;margin-bottom:10px">por mês</div>
+        <button id="checkout-btn-month" onclick="startCheckout('month')"
+          style="width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font)">
+          Assinar
+        </button>
+      </div>
+      <!-- Anual -->
+      <div style="border:2px solid var(--green);border-radius:12px;padding:14px;text-align:center;position:relative;background:rgba(34,197,94,0.04)">
+        <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--green);color:#000;font-size:10px;font-weight:800;padding:2px 10px;border-radius:99px;white-space:nowrap">2 MESES GRÁTIS</div>
+        <div style="color:var(--green);font-size:11px;margin-bottom:4px">ANUAL</div>
+        <div style="font-family:var(--num);font-size:22px;font-weight:800;color:#fff">R$13<span style="font-size:13px;font-weight:500">,41</span></div>
+        <div style="color:var(--muted);font-size:11px;margin-bottom:10px">por mês · R$160,92/ano</div>
+        <button id="checkout-btn-year" onclick="startCheckout('year')"
+          style="width:100%;background:var(--green);border:none;border-radius:8px;padding:8px;color:#000;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">
+          Assinar
+        </button>
+      </div>
+    </div>
+
+    <div style="color:var(--muted);font-size:11px">
+      Cancele quando quiser · Pagamento seguro via Stripe
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
