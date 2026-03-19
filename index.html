@@ -8051,6 +8051,24 @@ function updatePlanUI() {
   if (goalsTab)  goalsTab.style.opacity  = isPro() ? '1' : '0.5';
 }
 
+/* ── Reset botões ao voltar para a aba ── */
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    ['month', 'year'].forEach(interval => {
+      const btn = document.getElementById('checkout-btn-' + interval);
+      if (btn) { btn.disabled = false; btn.textContent = 'Assinar'; }
+    });
+  }
+});
+
+/* ── Reset ao focar na janela ── */
+window.addEventListener('focus', () => {
+  ['month', 'year'].forEach(interval => {
+    const btn = document.getElementById('checkout-btn-' + interval);
+    if (btn) { btn.disabled = false; btn.textContent = 'Assinar'; }
+  });
+});
+
 /* ═══ Boot ═══ */
 document.addEventListener('DOMContentLoaded', async () => {
   try {
