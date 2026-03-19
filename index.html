@@ -2154,36 +2154,18 @@ html, body { overflow-x: hidden; }
 </div>
 
 <!-- ═══ JS ═══ -->
+
 <script>
-/* =============================================================
-   assets/js/supabase.config.js
-   ⚠️  SUBSTITUA os valores abaixo pelos do seu projeto Supabase:
-   Dashboard → Settings → API
-   ============================================================= */
+/* ── Supabase + Stripe Config ── */
 
-// ── Stripe ──────────────────────────────────────────────────
-// Substitua pela sua Publishable Key do Stripe Dashboard
-
-// Preços (IDs criados no Stripe Dashboard → Products)
-const STRIPE_PRICES = {
-  monthly: 'price_ID_MENSAL',   // R$ 14,90/mês
-  yearly:  'price_ID_ANUAL',    // R$ 160,92/ano
-};
-
-// ── Supabase ─────────────────────────────────────────────────
-// ── Supabase ──
 const SUPABASE_URL  = 'https://rxireyhmphkybjvqbawf.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4aXJleWhtcGhreWJqdnFiYXdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NjkxMDgsImV4cCI6MjA4OTM0NTEwOH0.uwielq2GvpDUCMnY8U8lU3st7qY_7rpj49djs7C-SIc';
-
-// Inicializa o cliente Supabase (SDK carregado via CDN no index.html)
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-// ── Stripe ──
-const STRIPE_PK        = 'pk_test_51TCj4HFmF5xwdR3NGQCqFuniSfqIqbFulTyLJQfpBSER9du175cFE6zGCsaEtIxtLdyMsv6H2QL23AZzqsonscxg00AAHCskCs';
+const STRIPE_PK            = 'pk_test_51TCj4HFmF5xwdR3NGQCqFuniSfqIqbFulTyLJQfpBSER9du175cFE6zGCsaEtIxtLdyMsv6H2QL23AZzqsonscxg00AAHCskCs';
 const STRIPE_PRICE_MONTHLY = 'price_1TCj92FmF5xwdR3Nanj1fmB7';
 const STRIPE_PRICE_YEARLY  = 'price_1TCj92FmF5xwdR3NJLcXPrvV';
-const stripeClient = Stripe(STRIPE_PK);
-
+const stripeClient         = Stripe(STRIPE_PK);
 </script>
 <script>
 /* =============================================================
@@ -2193,7 +2175,6 @@ const stripeClient = Stripe(STRIPE_PK);
    ============================================================= */
 
 // ── Estado de auth ────────────────────────────────────────────
-let _currentUser  = null;
 let _currentUser  = null;   // objeto do Supabase Auth
 let _userProfile  = null;   // linha da tabela profiles
 let _userPlan     = 'free'; // 'free' | 'pro'
