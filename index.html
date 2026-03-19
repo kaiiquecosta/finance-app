@@ -2163,7 +2163,6 @@ html, body { overflow-x: hidden; }
 
 // ── Stripe ──────────────────────────────────────────────────
 // Substitua pela sua Publishable Key do Stripe Dashboard
-const STRIPE_PK = 'pk_live_SUA_PUBLISHABLE_KEY';
 
 // Preços (IDs criados no Stripe Dashboard → Products)
 const STRIPE_PRICES = {
@@ -2195,7 +2194,7 @@ const stripeClient = Stripe(STRIPE_PK);
 
 // ── Estado de auth ────────────────────────────────────────────
 let _currentUser  = null;
-let _userPlan     = 'free'; // 'free' | 'pro'   // objeto do Supabase Auth
+let _currentUser  = null;   // objeto do Supabase Auth
 let _userProfile  = null;   // linha da tabela profiles
 let _userPlan     = 'free'; // 'free' | 'pro'
 
