@@ -7943,10 +7943,7 @@ function requirePro(featureName) {
   return false;
 }
 
-let _checkoutBusy = false;
-
 function _resetCheckoutBtns() {
-  _checkoutBusy = false;
   ['month', 'year'].forEach(iv => {
     const b = document.getElementById('checkout-btn-' + iv);
     if (b) { b.textContent = 'Assinar'; }
@@ -7954,10 +7951,11 @@ function _resetCheckoutBtns() {
 }
 
 async function startCheckout(interval) {
-  if (_checkoutBusy) { _resetCheckoutBtns(); return; }
   if (!_currentUser) { showAlert('Faça login para assinar.', 'Login necessário', '🔒'); return; }
 
-  _checkoutBusy = true;
+  // Sempre resetar antes de começar — garante estado limpo
+  _resetCheckoutBtns();
+
   const btn = document.getElementById('checkout-btn-' + interval);
   if (btn) btn.textContent = 'Aguarde...';
 
