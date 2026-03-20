@@ -8014,10 +8014,7 @@ async function startCheckout(interval) {
 
     if (data.url) {
       _resetCheckoutBtns();
-      // Fechar modal
-      const modal = document.getElementById('m-upgrade');
-      if (modal) modal.classList.remove('open');
-      // Abrir Stripe em nova aba
+      // Abrir Stripe em nova aba — modal permanece aberto
       window.open(data.url, '_blank', 'noopener');
     }
 
@@ -8211,9 +8208,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     <div style="color:var(--muted);font-size:11px">
       Cancele quando quiser · Pagamento seguro via Stripe
     </div>
-    <div style="color:var(--muted);font-size:10px;margin-top:8px;background:rgba(255,255,255,0.03);border-radius:8px;padding:8px">
-      💡 O pagamento abre em nova aba — após concluir, <strong style="color:var(--text)">feche a aba do Stripe</strong> e volte aqui
-    </div>
+
   </div>
 </div>
 
