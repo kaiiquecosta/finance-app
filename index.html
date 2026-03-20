@@ -7943,29 +7943,29 @@ function requirePro(featureName) {
   return false;
 }
 
+let _checkoutBusy = false;
+
 function _resetCheckoutBtns() {
+  _checkoutBusy = false;
   ['month', 'year'].forEach(iv => {
     const b = document.getElementById('checkout-btn-' + iv);
-    if (b) { b.disabled = false; b.textContent = 'Assinar'; }
+    if (b) { b.textContent = 'Assinar'; }
   });
 }
 
 async function startCheckout(interval) {
+  if (_checkoutBusy) { _resetCheckoutBtns(); return; }
   if (!_currentUser) { showAlert('Faça login para assinar.', 'Login necessário', '🔒'); return; }
 
-  // Mostrar loading mas NUNCA desabilitar o botão
+  _checkoutBusy = true;
   const btn = document.getElementById('checkout-btn-' + interval);
-  if (btn) btn.textContent = 'Buscando link...';
+  if (btn) btn.textContent = 'Aguarde...';
 
   try {
     const priceId = interval === 'year' ? STRIPE_PRICE_YEARLY : STRIPE_PRICE_MONTHLY;
-    console.log('1. priceId:', priceId);
-
     const { data: sessionData, error: sessionError } = await sb.auth.getSession();
-    console.log('2. session:', sessionData?.session ? 'OK' : 'NULL', sessionError);
     if (sessionError || !sessionData?.session) throw new Error('Sessão expirada.');
     const token = sessionData.session.access_token;
-    console.log('3. token obtido, chamando Edge Function...');
 
     const res = await fetch(`${SUPABASE_URL}/functions/v1/stripe-checkout`, {
       method: 'POST',
@@ -7977,34 +7977,13 @@ async function startCheckout(interval) {
       body: JSON.stringify({ priceId, interval })
     });
 
-    console.log('4. resposta status:', res.status);
-    _resetCheckoutBtns();
-
-    if (!res.ok) {
-      const errText = await res.text();
-      console.log('5. erro:', errText);
-      throw new Error(`Erro ${res.status}: ${errText}`);
-    }
-
+    if (!res.ok) throw new Error(`Erro ${res.status}`);
     const data = await res.json();
-    console.log('5. data:', data);
     if (data.error) throw new Error(data.error);
-    if (data.url) {
-      console.log('6. abrindo Stripe:', data.url);
-      _resetCheckoutBtns();
 
-      // Mostrar botão de link direto (evita bloqueio de popup)
-      const btnM = document.getElementById('checkout-btn-month');
-      const btnY = document.getElementById('checkout-btn-year');
-      const targetBtn = interval === 'year' ? btnY : btnM;
-      if (targetBtn) {
-        targetBtn.textContent = '🔗 Abrir pagamento';
-        targetBtn.onclick = () => {
-          window.location.href = data.url;
-          targetBtn.textContent = 'Assinar';
-          targetBtn.onclick = () => startCheckout(interval);
-        };
-      }
+    if (data.url) {
+      _resetCheckoutBtns();
+      window.location.href = data.url;
     }
 
   } catch (err) {
@@ -8013,6 +7992,9 @@ async function startCheckout(interval) {
     showAlert(err.message || 'Erro ao processar pagamento.', 'Erro', '❌');
   }
 }
+
+// Resetar ao voltar pelo botão "← Voltar" do browser
+window.addEventListener('pageshow', (e) => { if (e.persisted) _resetCheckoutBtns(); });
 
 async function cancelSubscription() {
   if (!confirm('Tem certeza que quer cancelar? Você continuará com Pro até o fim do período pago.')) return;
