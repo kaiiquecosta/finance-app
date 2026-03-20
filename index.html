@@ -8106,6 +8106,14 @@ window.addEventListener('focus', () => {
 });
 
 /* ═══ Boot ═══ */
+// Detectar quando usuário volta pelo botão "← Voltar" do browser
+window.addEventListener('pageshow', function(e) {
+  // persisted = true significa que veio do cache (botão voltar)
+  if (e.persisted) {
+    _resetCheckoutBtns();
+  }
+});
+
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     await initAuth();
