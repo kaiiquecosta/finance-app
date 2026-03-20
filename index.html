@@ -7963,8 +7963,27 @@ async function startCheckout(interval) {
 
   try {
     const priceId = interval === 'year' ? STRIPE_PRICE_YEARLY : STRIPE_PRICE_MONTHLY;
-    const { data: sessionData, error: sessionError } = await sb.auth.getSession();
-    if (sessionError || !sessionData?.session) throw new Error('Sessão expirada.');
+
+    // Timeout de 3s — se Supabase travar (bfcache), recarrega a página
+    const sessionPromise = sb.auth.getSession();
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('TIMEOUT')), 3000)
+    );
+
+    let sessionData, sessionError;
+    try {
+      ({ data: sessionData, error: sessionError } = await Promise.race([sessionPromise, timeoutPromise]));
+    } catch(e) {
+      if (e.message === 'TIMEOUT') {
+        // Salvar intenção e recarregar
+        sessionStorage.setItem('pending_checkout', interval);
+        window.location.reload();
+        return;
+      }
+      throw e;
+    }
+
+    if (sessionError || !sessionData?.session) throw new Error('Sessão expirada. Faça login novamente.');
     const token = sessionData.session.access_token;
 
     const res = await fetch(`${SUPABASE_URL}/functions/v1/stripe-checkout`, {
@@ -8116,6 +8135,16 @@ window.addEventListener('pageshow', function(e) {
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Verificar checkout pendente (após reload por timeout do Supabase)
+  const pendingCheckout = sessionStorage.getItem('pending_checkout');
+  if (pendingCheckout) {
+    sessionStorage.removeItem('pending_checkout');
+    // Aguardar app carregar e reabrir modal
+    setTimeout(() => {
+      showUpgradeModal();
+      setTimeout(() => startCheckout(pendingCheckout), 500);
+    }, 2000);
+  }
   try {
     await initAuth();
   } catch(e) {
