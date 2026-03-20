@@ -7980,13 +7980,17 @@ async function startCheckout(interval) {
     if (data.error) throw new Error(data.error);
 
     if (data.url) {
-      // Fechar o modal ANTES de abrir o Stripe
-      // Isso força o browser a re-renderizar o botão na próxima abertura
-      closeUpgradeModal();
-      // Pequeno delay para garantir que o modal fechou
+      // Forçar fechamento do modal e reset visual
+      const upgradeModal = document.getElementById('m-upgrade');
+      if (upgradeModal) {
+        upgradeModal.classList.remove('open');
+        upgradeModal.style.display = 'none';
+        setTimeout(() => { upgradeModal.style.display = ''; }, 500);
+      }
+      _resetCheckoutBtns();
       setTimeout(() => {
         window.open(data.url, '_blank', 'noopener,noreferrer');
-      }, 100);
+      }, 150);
     }
 
   } catch (err) {
