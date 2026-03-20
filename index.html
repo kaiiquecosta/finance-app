@@ -7981,7 +7981,8 @@ async function startCheckout(interval) {
 
     if (data.url) {
       _resetCheckoutBtns();
-      window.location.href = data.url;
+      // Abre Stripe em nova aba — Finance permanece aberto e funcional
+      window.open(data.url, '_blank', 'noopener,noreferrer');
     }
 
   } catch (err) {
