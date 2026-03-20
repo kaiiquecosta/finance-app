@@ -8088,22 +8088,23 @@ function updatePlanUI() {
 }
 
 /* ── Reset botões ao voltar para a aba ── */
-document.addEventListener('visibilitychange', () => {
+// Quando usuário volta para a aba — reinicializar Supabase e resetar botões
+document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState === 'visible') {
-    ['month', 'year'].forEach(interval => {
-      const btn = document.getElementById('checkout-btn-' + interval);
-      if (btn) { btn.disabled = false; btn.textContent = 'Assinar'; }
-    });
+    _resetCheckoutBtns();
+    // Reinicializar cliente Supabase para evitar conexão travada
+    try {
+      await sb.auth.getSession();
+    } catch(e) {
+      // Se falhou, recriar o cliente
+      window._sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+        auth: { persistSession: true, autoRefreshToken: true }
+      });
+    }
   }
 });
 
-/* ── Reset ao focar na janela ── */
-window.addEventListener('focus', () => {
-  ['month', 'year'].forEach(interval => {
-    const btn = document.getElementById('checkout-btn-' + interval);
-    if (btn) { btn.disabled = false; btn.textContent = 'Assinar'; }
-  });
-});
+window.addEventListener('focus', () => { _resetCheckoutBtns(); });
 
 /* ═══ Boot ═══ */
 // Detectar quando usuário volta pelo botão "← Voltar" do browser
@@ -8179,6 +8180,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     <div style="color:var(--muted);font-size:11px">
       Cancele quando quiser · Pagamento seguro via Stripe
+    </div>
+    <div style="color:var(--muted);font-size:10px;margin-top:8px;background:rgba(255,255,255,0.03);border-radius:8px;padding:8px">
+      💡 O pagamento abre em nova aba — após concluir, <strong style="color:var(--text)">feche a aba do Stripe</strong> e volte aqui
     </div>
   </div>
 </div>
