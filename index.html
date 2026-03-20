@@ -7980,9 +7980,13 @@ async function startCheckout(interval) {
     if (data.error) throw new Error(data.error);
 
     if (data.url) {
-      _resetCheckoutBtns();
-      // Abre Stripe em nova aba — Finance permanece aberto e funcional
-      window.open(data.url, '_blank', 'noopener,noreferrer');
+      // Fechar o modal ANTES de abrir o Stripe
+      // Isso força o browser a re-renderizar o botão na próxima abertura
+      closeUpgradeModal();
+      // Pequeno delay para garantir que o modal fechou
+      setTimeout(() => {
+        window.open(data.url, '_blank', 'noopener,noreferrer');
+      }, 100);
     }
 
   } catch (err) {
