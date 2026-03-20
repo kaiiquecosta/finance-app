@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta http-equiv="Cache-Control" content="no-store"/>
   <meta http-equiv="Pragma" content="no-cache"/>
+  <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+  <meta http-equiv="X-Frame-Options" content="DENY"/>
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
   <title>Finance</title>
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a0a0f'/><circle cx='50' cy='50' r='28' fill='none' stroke='%2322c55e' stroke-width='8'/><text x='50' y='58' text-anchor='middle' font-size='28' font-family='Arial' font-weight='bold' fill='%2322c55e'>F</text></svg>"/>
@@ -2189,10 +2192,27 @@ const stripeClient         = Stripe(STRIPE_PK);
    Substitui o sistema de PIN local
    ============================================================= */
 
+
+// ── SEGURANÇA: Sanitização de HTML ───────────────────────────
+// Previne XSS ao renderizar dados do usuário via innerHTML
+function esc(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
+}
+
 // ── Estado de auth ────────────────────────────────────────────
 let _currentUser  = null;   // objeto do Supabase Auth
 let _userProfile  = null;   // linha da tabela profiles
-let _userPlan     = 'free'; // 'free' | 'pro'
+// Plano armazenado de forma protegida
+// Mesmo que alguém mude via console, a verificação real é feita no banco
+const _plan = Object.seal({ _v: 'free', _ts: 0, _sig: '' });
+let _userPlan = 'free'; // Mantido para compatibilidade — validado periodicamente
 
 // ── Inicialização ─────────────────────────────────────────────
 async function initAuth() {
@@ -2471,6 +2491,8 @@ async function _launchApp() {
   if (loadingEl) loadingEl.style.display = 'none';
   updateNavBadge();
   updatePlanUI();
+  // Verificar plano no banco imediatamente ao carregar
+  _verifyPlanServer().then(() => updatePlanUI());
   initApp();
 }
 
@@ -3022,7 +3044,7 @@ function closeM(id){
               };
               accChips.appendChild(chip);
             };
-            bankAccounts.forEach(acc=>makeIncChip2(acc.id,`<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${acc.name}`,acc.clr,false));
+            bankAccounts.forEach(acc=>makeIncChip2(acc.id,`<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${esc(acc.name)}`,acc.clr,false));
             const addBtn=document.createElement('button');
             addBtn.type='button';
             addBtn.style.cssText='display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);background:rgba(34,197,94,0.08);border:1px dashed rgba(34,197,94,0.3);color:var(--green);margin-top:2px';
@@ -3177,7 +3199,7 @@ function renderProfileList(){
         ${p.emoji}
       </div>
       <div style="flex:1">
-        <div style="color:#fff;font-size:15px;font-weight:600">${p.name}</div>
+        <div style="color:#fff;font-size:15px;font-weight:600">${esc(p.name)}</div>
         <div style="color:var(--muted);font-size:12px">${fmtPhoneDisplay(p.phone)}</div>
       </div>
       <div style="color:var(--green);font-size:18px">›</div>
@@ -3471,14 +3493,27 @@ function setEmoji(em){
 
 function uploadAvatar(event){
   const file = event.target.files[0];
-  if(!file) return;
+  if(!file || !_currentUser) return;
+
+  // Validar tamanho (max 500KB)
+  if (file.size > 512000) {
+    showAlert('Foto muito grande. Use uma imagem menor que 500KB.', 'Foto grande demais', '📷');
+    return;
+  }
+
+  // Validar tipo de arquivo
+  if (!file.type.startsWith('image/')) {
+    showAlert('Arquivo inválido. Use uma imagem (JPG, PNG, etc).', 'Tipo inválido', '📷');
+    return;
+  }
+
   const reader = new FileReader();
-  reader.onload = function(e){
-    const session = JSON.parse(localStorage.getItem(SESSION_KEY)||'{}');
-    const p = authProfiles.find(x=>x.id===session.id);
-    if(!p) return;
-    p.photo = e.target.result; // base64
-    authSave();
+  reader.onload = async function(e){
+    const base64 = e.target.result;
+    if(!_userProfile) _userProfile = {};
+    _userProfile.avatar_url = base64;
+    _userProfile.emoji = null;
+    await sb.from('profiles').update({ avatar_url: base64, emoji: null }).eq('id', _currentUser.id);
     updateNavBadge();
     openProfileModal();
   };
@@ -3600,7 +3635,7 @@ function showToast(tx){
   ico.style.cssText=`background:${CC[tx.cat]||'#333'}20;border:1px solid ${CC[tx.cat]||'#333'}40;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0`;
   const c=tx.amt<0?'var(--red)':'var(--green)';
   document.getElementById('t-title').style.color=''; document.getElementById('t-title').innerHTML=`Transação registrada <span style="color:var(--muted);font-size:10px">agora</span>`;
-  document.getElementById('t-sub').innerHTML=`${tx.name} · <span style="color:${c};font-weight:600">${fmt(tx.amt)}</span>`;
+  document.getElementById('t-sub').innerHTML=`${esc(tx.name)} · <span style="color:${c};font-weight:600">${fmt(tx.amt)}</span>`;
   el.style.display='block';clearTimeout(el._t);
   el._t=setTimeout(()=>el.style.display='none',4000);
 }
@@ -3915,7 +3950,7 @@ function renderUpcomingBills(){
       row.innerHTML = `
         <div style="width:34px;height:34px;border-radius:10px;background:${isPaid?'rgba(34,197,94,0.1)':'rgba(255,255,255,0.04)'};border:1px solid ${isPaid?'rgba(34,197,94,0.2)':'rgba(255,255,255,0.07)'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${b.ico}</div>
         <div style="flex:1">
-          <div style="color:${isPaid?'var(--muted)':'#fff'};font-size:13px;font-weight:500;${isPaid?'text-decoration:line-through':''}">${b.name}</div>
+          <div style="color:${isPaid?'var(--muted)':'#fff'};font-size:13px;font-weight:500;${isPaid?'text-decoration:line-through':''}">${esc(b.name)}</div>
           <div style="color:var(--muted);font-size:11px">dia ${b.day} · ${b.fixed?'fixo':'variável'}</div>
         </div>
         <div style="text-align:right">
@@ -4140,14 +4175,14 @@ function makeTxRow(tx,clickable=false){
   const d=document.createElement('div');d.className='tx-row fadein';
   const acc = tx.accountId ? bankAccounts.find(a=>String(a.id)===String(tx.accountId)) : null;
   const accTag = acc
-    ? `<span style="display:inline-flex;align-items:center;gap:3px;background:${acc.clr}20;border:1px solid ${acc.clr}40;border-radius:6px;padding:2px 7px;font-size:10px;font-weight:600;color:${acc.clr}"><span style="width:5px;height:5px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${acc.name}</span>`
+    ? `<span style="display:inline-flex;align-items:center;gap:3px;background:${acc.clr}20;border:1px solid ${acc.clr}40;border-radius:6px;padding:2px 7px;font-size:10px;font-weight:600;color:${acc.clr}"><span style="width:5px;height:5px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${esc(acc.name)}</span>`
     : '';
   const payM = tx.payMethod ? PAY_METHODS.find(p=>p.id===tx.payMethod) : null;
   const payTag = payM ? `<span style="display:inline-flex;align-items:center;gap:2px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:1px 6px;font-size:10px;color:var(--muted)">${payM.ico} ${payM.label}</span>` : '';
   d.innerHTML=`
     <div class="tx-ico" style="background:${CC[tx.cat]||'#333'}18;border:1px solid ${CC[tx.cat]||'#333'}28">${CI[tx.cat]||'💳'}</div>
     <div class="tx-info">
-      <div class="tx-name">${tx.name}</div>
+      <div class="tx-name">${esc(tx.name)}</div>
       <div class="tx-meta"><span class="badge badge-muted" style="padding:1px 7px">${tx.cat}</span>${payTag}${accTag}<span>${ago(tx.date)}</span></div>
     </div>
     <div class="tx-amt" style="color:${tx.amt>0?'var(--green)':'var(--red)'}">${tx.amt>0?'+':''}${fmt(tx.amt)}</div>`;
@@ -4328,7 +4363,7 @@ function openAdvanceModal(instId){
     chip.className = 'freq-btn';
     chip.style.cssText = 'font-size:12px;padding:6px 12px;display:flex;align-items:center;gap:6px';
     const bal = getAccBalance(acc);
-    chip.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:${acc.clr||'#64748b'};display:inline-block"></span>${acc.name} <span style="color:${bal>=0?'var(--muted)':'var(--red)'};font-size:10px">(${fmt(bal)})</span>`;
+    chip.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:${acc.clr||'#64748b'};display:inline-block"></span>${esc(acc.name)} <span style="color:${bal>=0?'var(--muted)':'var(--red)'};font-size:10px">(${fmt(bal)})</span>`;
     chip.onclick = () => {
       _advAccountId = acc.id;
       advChips.querySelectorAll('button').forEach(b=>b.classList.remove('active-freq'));
@@ -4528,7 +4563,7 @@ function renderSubs(){
           const pct = total>0 ? (sub.amt/total)*100 : 0;
           const seg = document.createElement('div');
           seg.style.cssText = `width:${pct}%;background:${clr}${i===0?'':'80'};transition:width .3s;position:relative`;
-          seg.title = `${sub.name}: ${fmt(sub.amt)}/mês`;
+          seg.title = `${esc(sub.name)}: ${fmt(sub.amt)}/mês`;
           barWrap.appendChild(seg);
         });
 
@@ -4550,7 +4585,7 @@ function renderSubs(){
         const clr = sub.clr||'#8b5cf6';
         const item = document.createElement('div');
         item.style.cssText = 'display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)';
-        item.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:${clr};flex-shrink:0;display:inline-block"></span>${sub.ico||'📱'} ${sub.name} <span style="color:#fff;font-family:var(--num);font-weight:600">${fmt(sub.amt)}</span>`;
+        item.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:${clr};flex-shrink:0;display:inline-block"></span>${sub.ico||'📱'} ${esc(sub.name)} <span style="color:#fff;font-family:var(--num);font-weight:600">${fmt(sub.amt)}</span>`;
         legend.appendChild(item);
       });
       barsEl.appendChild(legend);
@@ -4574,7 +4609,7 @@ function renderSubs(){
     d.innerHTML=`
       <div style="width:42px;height:42px;border-radius:12px;background:${clr}20;border:1px solid ${clr}40;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${sub.ico||'📱'}</div>
       <div style="flex:1;min-width:0">
-        <div style="color:#fff;font-size:14px;font-weight:600">${sub.name}</div>
+        <div style="color:#fff;font-size:14px;font-weight:600">${esc(sub.name)}</div>
         <div style="color:var(--muted);font-size:11px;margin-top:1px">Cobra dia ${sub.day}${card?' · '+card.name:''}</div>
         <div style="margin-top:5px;height:3px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden">
           <div style="height:100%;width:${total>0?(sub.amt/total)*100:0}%;background:${clr};border-radius:3px"></div>
@@ -4631,7 +4666,7 @@ function renderCreditLimit(){
       const av = c.limit - bill;
       const d = document.createElement('div');
       d.className='stat-row';
-      d.innerHTML=`<span class="stat-label" style="display:flex;align-items:center;gap:6px"><span style="background:${c.clr}20;border:1px solid ${c.clr}40;border-radius:6px;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:10px">💳</span>${c.name}</span><span style="text-align:right"><div class="num-sm num-green">${fmt(av)}</div><div style="color:var(--muted);font-size:10px">disponível</div></span>`;
+      d.innerHTML=`<span class="stat-label" style="display:flex;align-items:center;gap:6px"><span style="background:${c.clr}20;border:1px solid ${c.clr}40;border-radius:6px;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:10px">💳</span>${esc(c.name)}</span><span style="text-align:right"><div class="num-sm num-green">${fmt(av)}</div><div style="color:var(--muted);font-size:10px">disponível</div></span>`;
       cMini.appendChild(d);
     });
   }
@@ -4815,7 +4850,7 @@ function renderGoals(){
         <div style="display:flex;align-items:center;gap:12px">
           <div style="width:44px;height:44px;border-radius:13px;background:${g.clr}18;border:1px solid ${g.clr}30;display:flex;align-items:center;justify-content:center;font-size:20px">${g.ico}</div>
           <div>
-            <div style="color:#fff;font-size:15px;font-weight:700;font-family:var(--num)">${g.name}</div>
+            <div style="color:#fff;font-size:15px;font-weight:700;font-family:var(--num)">${esc(g.name)}</div>
             <div style="color:var(--muted);font-size:12px">até ${g.dl}</div>
           </div>
         </div>
@@ -5460,7 +5495,7 @@ function renderDepAccountChips(){
     const active = String(_depAccountId)===sid;
     const chip=document.createElement('button');
     chip.style.cssText=`display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s;background:${active?acc.clr+'28':chipInactiveBg()};border:1px solid ${active?acc.clr+'70':chipInactiveBorder()};color:${active?acc.clr:chipInactiveColor()}`;
-    chip.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${acc.name}`;
+    chip.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${esc(acc.name)}`;
     chip.onclick=()=>{ _depAccountId=sid; renderDepAccountChips(); };
     el.appendChild(chip);
   });
@@ -5635,7 +5670,7 @@ function openCCBillPreview(cardId){
   bills.forEach(b=>{
     const row=document.createElement('div');
     row.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)';
-    row.innerHTML=`<span style="color:#fff;font-size:13px;flex:1">${b.desc||b.name||'Lançamento'}</span><span style="color:var(--red);font-family:var(--num);font-weight:600;font-size:13px">${fmt(b.amt)}</span>`;
+    row.innerHTML=`<span style="color:#fff;font-size:13px;flex:1">${esc(b.desc||b.name||'Lançamento')}</span><span style="color:var(--red);font-family:var(--num);font-weight:600;font-size:13px">${fmt(b.amt)}</span>`;
     listEl.appendChild(row);
   });
   if(!bills.length) listEl.innerHTML='<div style="color:var(--muted);text-align:center;padding:20px 0;font-size:13px">Nenhum lançamento neste mês</div>';
@@ -5759,7 +5794,7 @@ function renderBills(){
           text-decoration-color:rgba(255,255,255,0.25);
           flex-wrap:nowrap;overflow:hidden;min-width:0;
         ">
-          <span style="color:${bill.paid?'var(--muted)':'var(--text)'};font-size:13px;font-weight:600;transition:color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1">${bill.name}</span>
+          <span style="color:${bill.paid?'var(--muted)':'var(--text)'};font-size:13px;font-weight:600;transition:color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1">${esc(bill.name)}</span>
           ${bill.fixed
             ? '<span style="background:var(--card2);border:1px solid var(--border2);color:var(--muted);font-size:10px;padding:2px 6px;border-radius:5px;font-weight:500">fixo</span>'
             : '<span style="background:rgba(245,158,11,0.12);color:var(--amber);font-size:10px;padding:2px 6px;border-radius:5px;font-weight:500">variável</span>'}
@@ -5862,7 +5897,7 @@ function renderPayBillAccountChips(){
     chip.dataset.clr = acc.clr;
     if(active) chip.dataset.selected = '1';
     chip.style.cssText = `display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s;background:${active?acc.clr+'28':chipInactiveBg()};border:1px solid ${active?acc.clr+'70':chipInactiveBorder()};color:${active?acc.clr:chipInactiveColor()}`;
-    chip.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${acc.name}`;
+    chip.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${esc(acc.name)}`;
     chip.onclick = () => {
       el.querySelectorAll('button').forEach(b => {
         delete b.dataset.selected;
@@ -6067,7 +6102,7 @@ function initIncomeModal(income=null){
       accChips.appendChild(hint);
     } else {
       bankAccounts.forEach(acc=>{
-        makeIncChip(acc.id,`<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${acc.name}`, acc.clr, selId===acc.id);
+        makeIncChip(acc.id,`<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${esc(acc.name)}`, acc.clr, selId===acc.id);
       });
       // Botão para adicionar mais contas
       const addBtn=document.createElement('button');
@@ -6332,7 +6367,7 @@ function renderIncomes(){
     row.innerHTML = `
       <div style="width:40px;height:40px;border-radius:12px;background:var(--card2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${inc.ico}</div>
       <div style="flex:1;min-width:0">
-        <div style="color:${isLightTheme()?'#0f172a':'#ffffff'};font-size:14px;font-weight:600">${inc.name}</div>
+        <div style="color:${isLightTheme()?'#0f172a':'#ffffff'};font-size:14px;font-weight:600">${esc(inc.name)}</div>
         <div style="color:${isLightTheme()?'#475569':'#94a3b8'};font-size:11px;margin-top:1px">${freqLabel} · ${daysStr}</div>
       </div>
       <div style="text-align:right;flex-shrink:0">
@@ -6521,7 +6556,7 @@ function deleteBankAccount(id){
   const sid = String(id);
   const acc = bankAccounts.find(a=>String(a.id)===sid);
   if(!acc) return;
-  if(!confirm(`Excluir a conta "${acc.name}"?\n\nIsso irá remover:\n• Todas as transações vinculadas\n• O vínculo das rendas com esta conta\n\nEsta ação não pode ser desfeita.`)) return;
+  if(!confirm(`Excluir a conta "${esc(acc.name)}"?\n\nIsso irá remover:\n• Todas as transações vinculadas\n• O vínculo das rendas com esta conta\n\nEsta ação não pode ser desfeita.`)) return;
 
   // Remove txs vinculadas
   txs = txs.filter(t=>String(t.accountId)!==sid);
@@ -6559,7 +6594,7 @@ function renderBankList(){
     row.innerHTML=`
       <div class="bank-dot" style="background:${acc.clr}"></div>
       <div style="flex:1;min-width:0">
-        <div style="color:#fff;font-size:13px;font-weight:600">${acc.name}</div>
+        <div style="color:#fff;font-size:13px;font-weight:600">${esc(acc.name)}</div>
         <div style="color:var(--muted);font-size:11px">${acc.type==='investimento'?'💹 Investimento':acc.type==='poupança'?'🐷 Poupança':'Corrente'}</div>
       </div>
       <div style="text-align:right;margin-right:8px">
@@ -6640,7 +6675,7 @@ function renderRendaAccountChips(currentId){
     const active = currentId===acc.id;
     const chip=document.createElement('button');
     chip.style.cssText=`display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s;background:${active?acc.clr+'22':'rgba(255,255,255,0.05)'};border:1px solid ${active?acc.clr+'60':'rgba(255,255,255,0.08)'};color:${active?acc.clr:'var(--muted)'}`;
-    chip.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${acc.name}`;
+    chip.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${esc(acc.name)}`;
     chip.onclick=()=>{ selectedRendaAccountId=acc.id; renderRendaAccountChips(acc.id); };
     el.appendChild(chip);
   });
@@ -6664,7 +6699,7 @@ function renderAccountChips(containerId, currentId){
     chip.className='acct-chip'+(active?' active':'');
     chip.style.cssText=`background:${acc.clr}18;color:${acc.clr};border-color:${active?acc.clr:'transparent'}`;
     chip.dataset.accId = acc.id;
-    chip.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};flex-shrink:0;display:inline-block"></span>${acc.name}`;
+    chip.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};flex-shrink:0;display:inline-block"></span>${esc(acc.name)}`;
     chip.onclick=()=>{ selectedAccountId=acc.id; refreshAccountChips(containerId,acc.id); };
     el.appendChild(chip);
   });
@@ -6726,7 +6761,7 @@ function renderOverviewBankAccounts(){
     const bal   = acc.initialBalance+txTot;
     const row   = document.createElement('div');
     row.style.cssText='display:flex;align-items:center;gap:7px;padding:3px 0';
-    row.innerHTML=`<span style="width:8px;height:8px;border-radius:50%;background:${acc.clr};flex-shrink:0;display:inline-block"></span><span style="color:var(--muted);font-size:12px;flex:1">${acc.name}</span><span style="color:${bal>=0?'var(--text)':'var(--red)'};font-size:12px;font-family:var(--num);font-weight:600">${fmt(bal)}</span>`;
+    row.innerHTML=`<span style="width:8px;height:8px;border-radius:50%;background:${acc.clr};flex-shrink:0;display:inline-block"></span><span style="color:var(--muted);font-size:12px;flex:1">${esc(acc.name)}</span><span style="color:${bal>=0?'var(--text)':'var(--red)'};font-size:12px;font-family:var(--num);font-weight:600">${fmt(bal)}</span>`;
     miniEl.appendChild(row);
   });
 }
@@ -6895,7 +6930,7 @@ function checkReminders(){
     list.push({
       id:`bill-${bill.id}-${todayStr}`,
       type: urgency, ico: bill.ico, label, lColor,
-      title:`${bill.name} vence ${when}`,
+      title:`${esc(bill.name)} vence ${when}`,
       sub:`${bill.fixed ? fmt(bill.amt) : 'Valor variável'} · Dia ${bill.day}`,
       cta:'Ver contas →', ctaColor: diff===0?'#f87171': diff===1?'#f59e0b':'#94a3b8',
       action:'bills'
@@ -6912,7 +6947,7 @@ function checkReminders(){
       id:`sub-${sub.id}-${todayStr}`,
       type: diff===0?'urgent':'warn', ico: sub.ico||'🔁', label,
       lColor: diff===0?'#f87171':'#f59e0b',
-      title:`${sub.name} cobra ${when}`,
+      title:`${esc(sub.name)} cobra ${when}`,
       sub:`${fmt(sub.amt)}/mês · Dia ${sub.day}`,
       cta:'Ver assinaturas →', ctaColor: diff===0?'#f87171':'#f59e0b',
       action:'subscriptions'
@@ -6932,7 +6967,7 @@ function checkReminders(){
         id:`income-${inc.id}-${d}-${todayStr}`,
         type:'income', ico: inc.ico||'💰', label,
         lColor:'#22c55e',
-        title:`${inc.name} — ${diff===0?'dia de receber!':'chega '+when}`,
+        title:`${esc(inc.name)} — ${diff===0?'dia de receber!':'chega '+when}`,
         sub:`${fmt(inc.amt)} previsto · Dia ${d}`,
         cta:'Marcar como recebido →', ctaColor:'#22c55e',
         action:'overview'
@@ -7090,7 +7125,7 @@ function renderInvAccountChips(){
     chip.type='button';
     chip.dataset.accid = sid;
     chip.style.cssText=`display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s;background:${active?acc.clr+'28':chipInactiveBg()};border:1px solid ${active?acc.clr+'70':chipInactiveBorder()};color:${active?acc.clr:chipInactiveColor()}`;
-    chip.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${acc.name}`;
+    chip.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${esc(acc.name)}`;
     chip.onclick=()=>{
       _invAccountId = sid;
       renderInvAccountChips();
@@ -7176,7 +7211,7 @@ function renderInvBankList(q){
     item.type='button';
     item.dataset.idx = idx;
     item.style.cssText=`width:100%;background:none;border:none;padding:8px 10px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:10px;font-family:var(--font);transition:background .1s`;
-    item.innerHTML=`<span style="width:10px;height:10px;border-radius:50%;background:${b.clr};flex-shrink:0;display:inline-block"></span><span style="color:var(--text);font-size:13px;font-weight:500">${b.name}</span>`;
+    item.innerHTML=`<span style="width:10px;height:10px;border-radius:50%;background:${b.clr};flex-shrink:0;display:inline-block"></span><span style="color:var(--text);font-size:13px;font-weight:500">${esc(b.name)}</span>`;
     item.onmouseenter=()=>{ highlightInvBank(idx); };
     item.onmouseleave=()=>item.style.background='none';
     item.onclick=()=>selectInvBank(b);
@@ -7202,7 +7237,7 @@ function highlightInvBank(idx){
 function selectInvBank(b){
   document.getElementById('inv-bank').value = b.name;
   const lbl = document.getElementById('inv-bank-label');
-  lbl.innerHTML=`<span style="width:10px;height:10px;border-radius:50%;background:${b.clr};display:inline-block"></span><span style="color:var(--text)">${b.name}</span>`;
+  lbl.innerHTML=`<span style="width:10px;height:10px;border-radius:50%;background:${b.clr};display:inline-block"></span><span style="color:var(--text)">${esc(b.name)}</span>`;
   document.getElementById('inv-bank-btn').style.color='var(--text)';
   document.getElementById('inv-bank-picker').style.display='none';
 }
@@ -7445,7 +7480,7 @@ function openRescueModal(id){
     chip.className = 'freq-btn';
     chip.style.cssText = 'font-size:12px;padding:6px 12px;display:flex;align-items:center;gap:6px';
     const accBal = getAccBalance(acc);
-    chip.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:${acc.clr||'#64748b'};display:inline-block"></span>${acc.name} <span style="color:${accBal>=0?'var(--muted)':'var(--red)'};font-size:10px">(${fmt(accBal)})</span>`;
+    chip.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:${acc.clr||'#64748b'};display:inline-block"></span>${esc(acc.name)} <span style="color:${accBal>=0?'var(--muted)':'var(--red)'};font-size:10px">(${fmt(accBal)})</span>`;
     chip.onclick = () => {
       _rescueAccountId = acc.id;
       chips.querySelectorAll('button').forEach(b=>b.classList.remove('active-freq'));
@@ -7610,7 +7645,7 @@ function renderInvestments(){
         <div style="display:flex;align-items:center;gap:10px">
           <div style="width:42px;height:42px;border-radius:12px;background:${clr}20;border:1px solid ${clr}40;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${typeIcons[inv.type]||'📈'}${inv.ticker?'<span style="font-size:9px;position:absolute;margin-top:22px;margin-left:-8px;color:'+clr+';font-weight:700">'+inv.ticker+'</span>':''}</div>
           <div>
-            <div style="color:#fff;font-size:14px;font-weight:700">${inv.name}</div>
+            <div style="color:#fff;font-size:14px;font-weight:700">${esc(inv.name)}</div>
             <div style="color:var(--muted);font-size:11px;margin-top:2px">${inv.bank?inv.bank+' · ':''}${typeLabels[inv.type]||''} · ${rateLabel}</div>
           </div>
         </div>
@@ -7977,12 +8012,59 @@ document.addEventListener('keydown', function(e){
 // ── PLANOS E STRIPE ──
 // ══════════════════════════════════════════
 
+// Verificação server-side do plano (revalida a cada 5 minutos)
+let _planVerifiedAt = 0;
+let _planVerified   = 'free';
+
+async function _verifyPlanServer() {
+  if (!_currentUser) return 'free';
+  try {
+    const token = _getStoredToken();
+    if (!token) return 'free';
+    const { data } = await sb
+      .from('plans')
+      .select('plan, status, trial_ends_at, current_period_end')
+      .eq('user_id', _currentUser.id)
+      .single();
+    if (!data) return 'free';
+    const isPaidPro = data.plan === 'pro' && data.status === 'active' &&
+                      (!data.current_period_end || new Date(data.current_period_end) > new Date());
+    const isTrialActive = data.trial_ends_at && new Date(data.trial_ends_at) > new Date();
+    const verified = isPaidPro ? 'pro' : isTrialActive ? 'trial' : 'free';
+    _planVerified  = verified;
+    _planVerifiedAt = Date.now();
+    // Sincronizar _userPlan com o valor real do banco
+    if (_userPlan !== verified) {
+      console.warn('Plano sincronizado com banco:', verified);
+      _userPlan = verified;
+      updatePlanUI();
+    }
+    return verified;
+  } catch(e) {
+    return _planVerified || 'free';
+  }
+}
+
+// Revalidar plano no banco a cada 5 minutos
+setInterval(async () => {
+  if (_currentUser) await _verifyPlanServer();
+}, 5 * 60 * 1000);
+
 function isPro() {
-  return _userPlan === 'pro' || _userPlan === 'trial';
+  // Verificar _userPlan local E _planVerified (última verificação do banco)
+  // Se os dois divergem, o banco ganha
+  const localPlan = _userPlan === 'pro' || _userPlan === 'trial';
+  const serverPlan = _planVerified === 'pro' || _planVerified === 'trial';
+  
+  // Se alguém manipulou _userPlan mas o servidor diz free → bloquear
+  if (localPlan && !serverPlan && _planVerifiedAt > 0) {
+    return false; // banco prevalece
+  }
+  return localPlan || serverPlan;
 }
 
 function isOnTrial() {
-  return _userPlan === 'trial';
+  return _userPlan === 'trial' || _planVerified === 'trial';
 }
 
 function trialDaysLeft() {
@@ -7991,10 +8073,24 @@ function trialDaysLeft() {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 }
 
+async function requireProAsync(featureName) {
+  // Sempre verifica no banco antes de liberar feature premium
+  const plan = await _verifyPlanServer();
+  const ok   = plan === 'pro' || plan === 'trial';
+  if (!ok) showUpgradeModal(featureName);
+  return ok;
+}
+
 function requirePro(featureName) {
-  if (isPro()) return true;
-  showUpgradeModal(featureName);
-  return false;
+  // Versão síncrona (usa cache local) + dispara verificação assíncrona
+  const ok = isPro();
+  if (!ok) {
+    showUpgradeModal(featureName);
+  } else {
+    // Verificar silenciosamente no banco (detecta manipulação)
+    _verifyPlanServer();
+  }
+  return ok;
 }
 
 // ── CHECKOUT STRIPE ─────────────────────────────────────────
