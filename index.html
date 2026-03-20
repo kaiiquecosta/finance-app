@@ -2251,7 +2251,9 @@ async function loadUserProfile() {
                       (!p.current_period_end || new Date(p.current_period_end) > new Date());
 
     // Verificar se está em trial ativo
-    const isOnTrial = p.trial_ends_at && new Date(p.trial_ends_at) > new Date();
+    const trialEnd = p.trial_ends_at ? new Date(p.trial_ends_at) : null;
+    const isOnTrial = trialEnd && trialEnd > new Date();
+    console.log('Plan data:', p.plan, '| Trial ends:', p.trial_ends_at, '| isOnTrial:', isOnTrial);
 
     if (isPaidPro) {
       _userPlan = 'pro';
