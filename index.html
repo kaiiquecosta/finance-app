@@ -7994,7 +7994,10 @@ async function startCheckout(interval) {
 }
 
 // Resetar ao voltar pelo botão "← Voltar" do browser
-window.addEventListener('pageshow', (e) => { if (e.persisted) _resetCheckoutBtns(); });
+// Forçar reload ao voltar pelo botão "← Voltar" — garante estado limpo
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) window.location.reload();
+});
 
 async function cancelSubscription() {
   if (!confirm('Tem certeza que quer cancelar? Você continuará com Pro até o fim do período pago.')) return;
