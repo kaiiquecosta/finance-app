@@ -7945,46 +7945,58 @@ function requirePro(featureName) {
   return false;
 }
 
+// ── CHECKOUT STRIPE ─────────────────────────────────────────
+
 function _resetCheckoutBtns() {
   ['month', 'year'].forEach(iv => {
     const b = document.getElementById('checkout-btn-' + iv);
-    if (b) { b.textContent = 'Assinar'; }
+    if (b) { b.textContent = 'Assinar'; b.disabled = false; }
   });
 }
 
+function _getStoredToken() {
+  // Ler token direto do localStorage (sem SDK) — funciona mesmo com bfcache
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
+      try {
+        const val = JSON.parse(localStorage.getItem(key));
+        if (val?.access_token) return val.access_token;
+      } catch(e) {}
+    }
+  }
+  return null;
+}
+
 async function startCheckout(interval) {
-  if (!_currentUser) { showAlert('Faça login para assinar.', 'Login necessário', '🔒'); return; }
+  if (!_currentUser) {
+    showAlert('Faça login para assinar.', 'Login necessário', '🔒');
+    return;
+  }
 
-  // Sempre resetar antes de começar — garante estado limpo
   _resetCheckoutBtns();
-
   const btn = document.getElementById('checkout-btn-' + interval);
   if (btn) btn.textContent = 'Aguarde...';
 
   try {
     const priceId = interval === 'year' ? STRIPE_PRICE_YEARLY : STRIPE_PRICE_MONTHLY;
 
-    // Timeout de 3s — se Supabase travar (bfcache), recarrega a página
-    const sessionPromise = sb.auth.getSession();
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('TIMEOUT')), 3000)
-    );
-
-    let sessionData, sessionError;
+    // Tentar via SDK primeiro, com fallback para localStorage
+    let token = null;
     try {
-      ({ data: sessionData, error: sessionError } = await Promise.race([sessionPromise, timeoutPromise]));
-    } catch(e) {
-      if (e.message === 'TIMEOUT') {
-        // Salvar intenção e recarregar
-        sessionStorage.setItem('pending_checkout', interval);
-        window.location.reload();
-        return;
-      }
-      throw e;
-    }
+      const result = await Promise.race([
+        sb.auth.getSession(),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 2000))
+      ]);
+      token = result?.data?.session?.access_token;
+    } catch(e) {}
 
-    if (sessionError || !sessionData?.session) throw new Error('Sessão expirada. Faça login novamente.');
-    const token = sessionData.session.access_token;
+    // Fallback: ler token direto do localStorage
+    if (!token) token = _getStoredToken();
+
+    if (!token) {
+      throw new Error('Sessão não encontrada. Faça login novamente.');
+    }
 
     const res = await fetch(`${SUPABASE_URL}/functions/v1/stripe-checkout`, {
       method: 'POST',
@@ -8001,37 +8013,26 @@ async function startCheckout(interval) {
     if (data.error) throw new Error(data.error);
 
     if (data.url) {
-      // Forçar fechamento do modal e reset visual
-      const upgradeModal = document.getElementById('m-upgrade');
-      if (upgradeModal) {
-        upgradeModal.classList.remove('open');
-        upgradeModal.style.display = 'none';
-        setTimeout(() => { upgradeModal.style.display = ''; }, 500);
-      }
       _resetCheckoutBtns();
-      setTimeout(() => {
-        window.open(data.url, '_blank', 'noopener,noreferrer');
-      }, 150);
+      // Fechar modal
+      const modal = document.getElementById('m-upgrade');
+      if (modal) modal.classList.remove('open');
+      // Abrir Stripe em nova aba
+      window.open(data.url, '_blank', 'noopener');
     }
 
   } catch (err) {
     _resetCheckoutBtns();
-    console.error('Checkout error:', err);
-    showAlert(err.message || 'Erro ao processar pagamento.', 'Erro', '❌');
+    console.error('Checkout:', err);
+    showAlert(err.message || 'Erro ao processar. Tente novamente.', 'Erro', '❌');
   }
 }
 
-// Resetar ao voltar pelo botão "← Voltar" do browser
-// Desabilitar bfcache — força reload sempre ao voltar pelo browser
-// Isso evita que o Supabase SDK fique com conexão travada
-window.addEventListener('pageshow', (e) => {
-  if (e.persisted) {
-    window.location.reload(true);
-  }
+// Resetar botões sempre que modal abrir ou página ganhar foco
+window.addEventListener('focus', _resetCheckoutBtns);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') _resetCheckoutBtns();
 });
-
-// Alternativa: marcar página como não-cacheável via unload
-window.addEventListener('unload', () => {});
 
 async function cancelSubscription() {
   if (!confirm('Tem certeza que quer cancelar? Você continuará com Pro até o fim do período pago.')) return;
