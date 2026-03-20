@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="Cache-Control" content="no-store"/>
+  <meta http-equiv="Pragma" content="no-cache"/>
   <title>Finance</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 
@@ -8001,10 +8003,16 @@ async function startCheckout(interval) {
 }
 
 // Resetar ao voltar pelo botão "← Voltar" do browser
-// Forçar reload ao voltar pelo botão "← Voltar" — garante estado limpo
+// Desabilitar bfcache — força reload sempre ao voltar pelo browser
+// Isso evita que o Supabase SDK fique com conexão travada
 window.addEventListener('pageshow', (e) => {
-  if (e.persisted) window.location.reload();
+  if (e.persisted) {
+    window.location.reload(true);
+  }
 });
+
+// Alternativa: marcar página como não-cacheável via unload
+window.addEventListener('unload', () => {});
 
 async function cancelSubscription() {
   if (!confirm('Tem certeza que quer cancelar? Você continuará com Pro até o fim do período pago.')) return;
