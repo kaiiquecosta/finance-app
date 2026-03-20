@@ -7991,11 +7991,20 @@ async function startCheckout(interval) {
     if (data.error) throw new Error(data.error);
     if (data.url) {
       console.log('6. abrindo Stripe:', data.url);
-      // Abrir em nova aba — usuário permanece no Finance
-      const stripeWin = window.open(data.url, '_blank');
-      // Se popup foi bloqueado, redirecionar na mesma aba
-      if (!stripeWin) window.location.href = data.url;
       _resetCheckoutBtns();
+
+      // Mostrar botão de link direto (evita bloqueio de popup)
+      const btnM = document.getElementById('checkout-btn-month');
+      const btnY = document.getElementById('checkout-btn-year');
+      const targetBtn = interval === 'year' ? btnY : btnM;
+      if (targetBtn) {
+        targetBtn.textContent = '🔗 Abrir pagamento';
+        targetBtn.onclick = () => {
+          window.location.href = data.url;
+          targetBtn.textContent = 'Assinar';
+          targetBtn.onclick = () => startCheckout(interval);
+        };
+      }
     }
 
   } catch (err) {
