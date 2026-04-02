@@ -12,7 +12,7 @@
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a0a0f'/><circle cx='50' cy='50' r='28' fill='none' stroke='%2322c55e' stroke-width='8'/><text x='50' y='58' text-anchor='middle' font-size='28' font-family='Arial' font-weight='bold' fill='%2322c55e'>F</text></svg>"/>
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a0a0f'/><circle cx='50' cy='50' r='28' fill='none' stroke='%2322c55e' stroke-width='8'/><text x='50' y='58' text-anchor='middle' font-size='28' font-family='Arial' font-weight='bold' fill='%2322c55e'>F</text></svg>"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 
   <!-- Stripe.js -->
   <script src="https://js.stripe.com/v3/"></script>
@@ -756,6 +756,503 @@ html, body { overflow-x: hidden; }
   .main { padding: 32px 48px 80px !important; }
 }
 
+
+
+/* ══════════════════════════════════
+   LANDING PAGE STYLES
+   ══════════════════════════════════ */
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blk:#090909;
+  --d1:#111113;
+  --d2:#191919;
+  --d3:#222224;
+  --g:#3ddc84;
+  --g08:rgba(61,220,132,.08);
+  --g18:rgba(61,220,132,.18);
+  --g30:rgba(61,220,132,.30);
+  --wh:#ffffff;
+  --ow:#f6f6f6;
+  --ow2:#efefef;
+  --txt:#0c0c0c;
+  --mu:#999;
+  --mu2:#bbb;
+  --sep:rgba(255,255,255,.07);
+  --sep2:rgba(0,0,0,.08);
+  --f:'Manrope',system-ui,sans-serif;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--f);background:var(--wh);color:var(--txt);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+
+/* ─── CURSOR ─── */
+@media(pointer:fine){
+  body.landing-on *{cursor:none!important}
+  #cur,#ring{position:fixed;pointer-events:none;z-index:9999;border-radius:50%;transform:translate(-50%,-50%);display:none}
+  body.landing-on #cur,body.landing-on #ring{display:block}
+  #cur{width:5px;height:5px;background:var(--g)}
+  #ring{width:28px;height:28px;border:1.5px solid rgba(61,220,132,.3);transition:width .18s,height .18s,border-color .18s}
+  body.hv #ring{width:42px;height:42px;border-color:rgba(61,220,132,.6)}
+}
+
+/* ─── NAV ─── */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:800;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 48px;
+  transition:all .3s ease;
+  border-bottom:1px solid transparent;
+}
+#nav.dk{background:rgba(9,9,9,.85);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-bottom-color:var(--sep)}
+#nav.lt{background:rgba(255,255,255,.88);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-bottom-color:var(--sep2)}
+@media(max-width:880px){#nav,#nav.dk,#nav.lt{padding-left:20px;padding-right:20px}}
+
+.nlinks{display:flex;gap:28px;list-style:none}
+.nlinks a{font-size:14px;font-weight:500;color:rgba(255,255,255,.55);transition:color .15s;letter-spacing:-.1px}
+.nlinks a:hover{color:var(--wh)}
+.nlinks.lt a{color:rgba(0,0,0,.5)}
+.nlinks.lt a:hover{color:var(--txt)}
+.nlogo{font-size:17px;font-weight:800;letter-spacing:-.5px;color:var(--wh);display:flex;align-items:center;gap:9px}
+.nlogo.lt{color:var(--txt)}
+.nlogo-mark{width:28px;height:28px;border-radius:7px;background:var(--g08);border:1px solid var(--g18);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--g)}
+@media(max-width:880px){.nlinks{display:none}}
+.nright{display:flex;gap:8px;align-items:center}
+.nb{padding:8px 18px;border-radius:999px;font-size:13.5px;font-weight:600;font-family:var(--f);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.7);background:transparent;transition:all .15s;letter-spacing:-.1px}
+.nb:hover{color:var(--wh);border-color:rgba(255,255,255,.4)}
+.nb.sol{background:var(--wh);color:var(--blk);border-color:transparent;font-weight:700}
+.nb.sol:hover{background:rgba(255,255,255,.9)}
+.nb.lt{border-color:rgba(0,0,0,.14);color:rgba(0,0,0,.55);background:transparent}
+.nb.lt:hover{color:var(--txt);border-color:rgba(0,0,0,.3)}
+.nb.lt.sol{background:var(--blk);color:var(--wh);border-color:transparent}
+.nb.lt.sol:hover{background:#222}
+.ham{display:none;flex-direction:column;gap:4px;background:none;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:8px 10px}
+.ham span{width:18px;height:1.5px;background:rgba(255,255,255,.7);border-radius:2px;display:block}
+.ham.lt{border-color:rgba(0,0,0,.14)}
+.ham.lt span{background:rgba(0,0,0,.5)}
+@media(max-width:880px){.ham{display:flex}}
+
+/* mob overlay */
+.mob{display:none;position:fixed;inset:0;background:rgba(9,9,9,.97);backdrop-filter:blur(24px);z-index:780;flex-direction:column;align-items:center;justify-content:center;gap:26px}
+.mob.open{display:flex}
+.mob a{font-size:26px;font-weight:700;color:rgba(255,255,255,.9);transition:color .15s;letter-spacing:-.4px}
+.mob a:hover{color:var(--g)}
+.mob-x{position:absolute;top:20px;right:20px;background:none;border:1px solid rgba(255,255,255,.15);border-radius:50%;width:36px;height:36px;color:rgba(255,255,255,.6);font-size:15px;display:flex;align-items:center;justify-content:center;font-family:var(--f)}
+
+/* ─── DARK HERO ─── */
+.hero{
+  background:var(--blk);
+  min-height:100svh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:120px 24px 60px;
+  position:relative;overflow:hidden;text-align:center;
+}
+
+/* grid texture */
+.hgrid{position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:52px 52px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%)}
+
+/* green glow */
+.hglow{position:absolute;pointer-events:none;border-radius:50%;filter:blur(100px)}
+.hg1{width:580px;height:580px;background:radial-gradient(circle,rgba(61,220,132,.09),transparent 70%);top:-60px;left:50%;transform:translateX(-50%);animation:gf1 10s ease-in-out infinite}
+.hg2{width:320px;height:320px;background:radial-gradient(circle,rgba(61,220,132,.06),transparent 70%);bottom:-40px;right:-60px;animation:gf2 13s ease-in-out infinite}
+.hg3{width:260px;height:260px;background:radial-gradient(circle,rgba(61,220,132,.04),transparent 70%);top:30%;left:-60px;animation:gf2 16s ease-in-out infinite reverse}
+@keyframes gf1{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-28px)}}
+@keyframes gf2{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+
+.hero-c{position:relative;z-index:2;max-width:780px;width:100%}
+
+/* pill label */
+.pill{display:inline-flex;align-items:center;gap:7px;background:rgba(61,220,132,.1);border:1px solid rgba(61,220,132,.22);border-radius:999px;padding:5px 14px 5px 8px;font-size:12px;font-weight:600;color:rgba(61,220,132,.9);margin-bottom:32px;animation:fu .6s ease both;letter-spacing:0}
+.pill-dot{width:16px;height:16px;border-radius:50%;background:rgba(61,220,132,.15);display:flex;align-items:center;justify-content:center}
+.pill-dot::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--g);animation:pd 2s ease-in-out infinite}
+@keyframes pd{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.6)}}
+
+/* hero headline */
+.hero h1{
+  font-size:clamp(52px,9.5vw,96px);
+  font-weight:800;line-height:.96;
+  letter-spacing:-3.5px;color:var(--wh);
+  margin-bottom:24px;
+  animation:fu .65s .07s ease both;
+}
+.hero h1 .thin{font-weight:300;color:rgba(255,255,255,.55);letter-spacing:-3px}
+.hero h1 .accent{color:var(--g)}
+
+.hero-sub{font-size:clamp(15px,2.1vw,18px);color:rgba(255,255,255,.45);line-height:1.65;font-weight:400;max-width:430px;margin:0 auto 38px;animation:fu .65s .14s ease both;letter-spacing:-.1px}
+.hero-sub b{color:rgba(255,255,255,.75);font-weight:500}
+
+.hero-ctas{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;animation:fu .65s .21s ease both}
+.cta-wh{background:var(--wh);color:var(--blk);border:none;border-radius:999px;padding:14px 32px;font-size:15px;font-weight:700;font-family:var(--f);display:inline-flex;align-items:center;gap:9px;letter-spacing:-.2px;transition:all .2s}
+.cta-wh:hover{background:rgba(255,255,255,.9);transform:translateY(-2px)}
+.cta-wh svg{transition:transform .2s}
+.cta-wh:hover svg{transform:translateX(3px)}
+.cta-ghost{border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:14px 24px;font-size:15px;font-weight:500;color:rgba(255,255,255,.6);font-family:var(--f);display:inline-flex;align-items:center;gap:7px;transition:all .2s;letter-spacing:-.1px}
+.cta-ghost:hover{color:var(--wh);border-color:rgba(255,255,255,.38)}
+
+.hero-notes{margin-top:18px;font-size:12px;color:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;animation:fu .65s .28s ease both}
+.hero-notes span{display:flex;align-items:center;gap:5px}
+.hero-notes span::before{content:'';width:3px;height:3px;border-radius:50%;background:var(--g);opacity:.6}
+
+@keyframes fu{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── APP MOCKUP ─── */
+.mock{position:relative;z-index:2;max-width:980px;width:100%;margin:56px auto 0;animation:fu .8s .36s ease both}
+.mock-shine{position:absolute;bottom:-50px;left:50%;transform:translateX(-50%);width:50%;height:80px;background:radial-gradient(ellipse,rgba(61,220,132,.09),transparent 70%);filter:blur(16px);pointer-events:none}
+.mock-frame{
+  background:var(--d1);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:20px;overflow:hidden;
+  box-shadow:0 60px 120px rgba(0,0,0,.85),0 20px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.05)
+}
+.chrome{background:rgba(255,255,255,.025);padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--sep)}
+.cdots{display:flex;gap:5px}
+.cd{width:10px;height:10px;border-radius:50%}
+.url-b{flex:1;text-align:center;font-size:11px;color:rgba(255,255,255,.2);background:rgba(255,255,255,.04);border-radius:6px;padding:4px 12px;max-width:240px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:5px}
+
+/* app bar */
+.abar{height:46px;background:var(--d1);border-bottom:1px solid var(--sep);display:flex;align-items:center}
+.alg{padding:0 14px;border-right:1px solid var(--sep);height:100%;display:flex;align-items:center;gap:7px;flex-shrink:0}
+.alg-mark{width:21px;height:21px;border-radius:5px;background:var(--g08);border:1px solid rgba(61,220,132,.22);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--g)}
+.alg-name{font-size:12.5px;font-weight:700;color:var(--wh);letter-spacing:-.2px}
+@media(max-width:580px){.alg-name{display:none}}
+.atabs{display:flex;flex:1;overflow-x:auto;height:100%;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.atabs::-webkit-scrollbar{display:none}
+.atab{display:flex;align-items:center;gap:5px;padding:0 13px;height:100%;font-size:11.5px;color:rgba(255,255,255,.3);white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s;flex-shrink:0;font-weight:500;letter-spacing:-.1px}
+.atab:hover:not(.on){color:rgba(255,255,255,.6);background:rgba(255,255,255,.03)}
+.atab.on{color:var(--wh);background:rgba(61,220,132,.07);border-bottom-color:var(--g)}
+.atab-i{font-size:12px;line-height:1}
+
+/* content area */
+.acon{min-height:400px;overflow:hidden}
+.vw{display:none;animation:vf .25s ease both}
+.vw.on{display:block}
+@keyframes vf{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── VW OVERVIEW ── */
+.ov-top{padding:18px 20px;background:linear-gradient(150deg,rgba(61,220,132,.07),rgba(61,220,132,.02) 60%,transparent);border-bottom:1px solid var(--sep)}
+.ov-lbl{font-size:9.5px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px}
+.ov-bal{font-size:32px;font-weight:800;color:var(--wh);letter-spacing:-1.5px;line-height:1}
+.ov-chg{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--g);background:rgba(61,220,132,.1);border-radius:999px;padding:2px 8px;margin-top:5px}
+.ov-accs{display:flex;gap:8px;margin-top:12px}
+.ov-acc{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--sep);border-radius:9px;padding:9px}
+.ov-acc-b{font-size:9px;color:rgba(255,255,255,.28);margin-bottom:2px;font-weight:500}
+.ov-acc-v{font-size:13px;font-weight:700;color:var(--wh);letter-spacing:-.3px}
+.ov-graph{padding:14px 18px;border-bottom:1px solid var(--sep)}
+.ov-gh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ov-gt{font-size:11px;font-weight:600;color:rgba(255,255,255,.7)}
+.ov-gleg{display:flex;gap:10px}
+.gl{display:flex;align-items:center;gap:4px;font-size:9.5px;color:rgba(255,255,255,.3)}
+.gl-d{width:6px;height:6px;border-radius:50%}
+.bars{display:flex;align-items:flex-end;gap:4px;height:52px}
+.bg-wrap{display:flex;flex-direction:column;align-items:center;flex:1;height:100%;justify-content:flex-end}
+.bpair{display:flex;gap:2px;align-items:flex-end;width:100%;height:100%;justify-content:center}
+.b{border-radius:3px 3px 0 0;transition:height .9s ease}
+.blb{font-size:8px;color:rgba(255,255,255,.25);margin-top:4px;text-align:center}
+.ov-txlist{padding:12px 18px}
+.ov-txh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.ov-txhtt{font-size:11px;font-weight:600;color:rgba(255,255,255,.7)}
+.ov-txlink{font-size:10px;color:var(--g);font-weight:500}
+
+/* ── VW TRANSACTIONS ── */
+.tx-sums{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--sep)}
+.tx-sc{padding:14px 18px}
+.tx-sc+.tx-sc{border-left:1px solid var(--sep)}
+.tx-slb{font-size:9.5px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-bottom:3px}
+.tx-sv{font-size:20px;font-weight:700;letter-spacing:-1px}
+.tx-sv.g{color:var(--g)}.tx-sv.r{color:#ff6060}
+.tx-fs{padding:10px 14px;border-bottom:1px solid var(--sep);display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.tx-fs::-webkit-scrollbar{display:none}
+.tf{font-size:11px;font-weight:500;padding:5px 12px;border-radius:999px;border:1px solid var(--sep);color:rgba(255,255,255,.3);background:none;font-family:var(--f);white-space:nowrap;transition:all .15s}
+.tf.on{background:rgba(61,220,132,.1);border-color:rgba(61,220,132,.25);color:var(--g)}
+.tx-body{padding:8px 14px}
+.tx-date{font-size:9.5px;font-weight:600;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.6px;padding:6px 0 4px}
+
+/* ── VW INSTALLMENTS ── */
+.inst-top{padding:16px 18px;border-bottom:1px solid var(--sep);display:flex;justify-content:space-between;align-items:center}
+.inst-tl .i-lb{font-size:9.5px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;font-weight:500}
+.inst-tl .i-v{font-size:26px;font-weight:800;color:#ffb347;letter-spacing:-1px;margin-top:2px}
+.inst-tr .i-s{font-size:10px;color:rgba(255,255,255,.28);text-align:right}
+.inst-tr .i-c{font-size:14px;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:-.3px;text-align:right}
+.inst-list{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.inst-row{display:flex;align-items:center;gap:10px}
+.inst-ico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.inst-inf{flex:1;min-width:0}
+.inst-n{font-size:12px;font-weight:600;color:var(--wh)}
+.inst-m{font-size:10px;color:rgba(255,255,255,.28);margin-bottom:4px}
+.ibar{height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+.ifill{height:100%;border-radius:2px;transition:width 1.4s ease}
+.inst-rr{text-align:right;flex-shrink:0}
+.inst-rv{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:-.3px}
+.inst-rs{font-size:10px;color:rgba(255,255,255,.25)}
+
+/* ── VW SUBSCRIPTIONS ── */
+.sub-top{padding:16px 18px;border-bottom:1px solid var(--sep)}
+.sub-tl{font-size:9.5px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-bottom:3px}
+.sub-tot{font-size:24px;font-weight:800;color:#ff6060;letter-spacing:-1px}
+.sub-cats{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.scat{font-size:10px;padding:3px 10px;border-radius:999px;font-weight:500}
+
+/* ── VW CARDS ── */
+.cards-wrap{padding:16px}
+.phcard{border-radius:14px;padding:16px;background:linear-gradient(135deg,#1c1028,#22183a);border:1px solid rgba(255,255,255,.1);position:relative;overflow:hidden;margin-bottom:12px}
+.phcard::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:radial-gradient(circle,rgba(61,220,132,.1),transparent 70%)}
+.cc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.cc-chip{width:26px;height:19px;background:linear-gradient(135deg,#fbbf24,#f59e0b);border-radius:4px}
+.cc-brand{font-size:9px;font-weight:700;letter-spacing:1.2px;color:rgba(255,255,255,.28)}
+.cc-num{font-size:12px;letter-spacing:3px;color:rgba(255,255,255,.28);margin-bottom:12px;font-weight:300}
+.cc-bot{display:flex;justify-content:space-between;align-items:flex-end}
+.cc-lv{font-size:17px;font-weight:700;color:var(--wh);letter-spacing:-.5px}
+.cc-ll{font-size:8px;text-transform:uppercase;letter-spacing:.3px;color:rgba(255,255,255,.28);margin-bottom:2px}
+.cc-dv{font-size:11px;font-weight:600;color:#ffb347}
+.cc-dl{font-size:8px;color:rgba(255,255,255,.28);margin-bottom:2px;text-align:right}
+.cc-bar{height:2.5px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-top:12px}
+.cc-fill{height:100%;background:linear-gradient(90deg,var(--g),#86efac);border-radius:2px;transition:width 1.5s ease}
+.cc-usage{display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:rgba(255,255,255,.22)}
+
+/* ── VW BILLS ── */
+.bills-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--sep);border-bottom:1px solid var(--sep)}
+.bs{background:var(--d1);padding:14px 16px;text-align:center}
+.bs-v{font-size:17px;font-weight:700;letter-spacing:-.5px}
+.bs-l{font-size:9.5px;color:rgba(255,255,255,.28);margin-top:2px}
+
+/* ── VW GOALS ── */
+.goals-list{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.gcard{background:rgba(255,255,255,.03);border:1px solid var(--sep);border-radius:12px;padding:14px}
+.gcard-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.gc-left{display:flex;align-items:center;gap:9px}
+.gc-ico{font-size:20px;line-height:1}
+.gc-name{font-size:12.5px;font-weight:600;color:var(--wh)}
+.gc-target{font-size:10px;color:rgba(255,255,255,.28);margin-top:1px}
+.gc-pct{font-size:16px;font-weight:800;letter-spacing:-.5px}
+.gbar{height:4px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;margin-bottom:7px}
+.gf{height:100%;border-radius:3px;transition:width 1.4s ease}
+.gvals{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.28)}
+.gvals strong{font-weight:600}
+
+/* ── VW INVESTMENTS ── */
+.inv-top{padding:14px 18px;border-bottom:1px solid var(--sep);display:flex;align-items:center;justify-content:space-between}
+.inv-tt-l{font-size:9.5px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-bottom:2px}
+.inv-tt-v{font-size:20px;font-weight:800;color:var(--wh);letter-spacing:-1px}
+.inv-cdi{font-size:11px;font-weight:600;color:var(--g);background:rgba(61,220,132,.1);border:1px solid rgba(61,220,132,.22);border-radius:999px;padding:3px 10px}
+.inv-cols{display:grid;grid-template-columns:1fr 78px 78px;padding:6px 18px 4px;border-bottom:1px solid var(--sep)}
+.icol{font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.4px;text-align:right;font-weight:500}
+.icol:first-child{text-align:left}
+.icol.g{color:rgba(61,220,132,.55)}
+.irow{display:grid;grid-template-columns:1fr 78px 78px;align-items:center;padding:10px 18px;border-bottom:1px solid var(--sep);transition:background .12s}
+.irow:last-child{border-bottom:none}
+.irow:hover{background:rgba(255,255,255,.02)}
+.ir-left{display:flex;align-items:center;gap:9px;min-width:0}
+.ir-ico{font-size:17px;flex-shrink:0}
+.ir-n1{font-size:12px;font-weight:600;color:var(--wh);letter-spacing:-.2px}
+.ir-n2{font-size:10px;color:rgba(255,255,255,.28)}
+.ir-col{text-align:right}
+.ir-v{font-size:12px;font-weight:700;color:var(--wh);letter-spacing:-.3px}
+.ir-v.g{color:var(--g)}.ir-v.a{color:#ffb347}
+.ir-s{font-size:10px;color:rgba(255,255,255,.28)}
+.ir-s.g{color:rgba(61,220,132,.5)}
+
+/* ─── GENERIC LIST ITEM (dark) ─── */
+.li{display:flex;align-items:center;gap:9px;padding:7px 6px;border-radius:10px;transition:background .1s}
+.li:hover{background:rgba(255,255,255,.04)}
+.li-ico{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.li-info{flex:1;min-width:0}
+.li-name{font-size:12px;font-weight:500;color:var(--wh);letter-spacing:-.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li-sub{font-size:10px;color:rgba(255,255,255,.28);margin-top:1px}
+.li-right{text-align:right;flex-shrink:0}
+.li-val{font-size:12.5px;font-weight:700;letter-spacing:-.3px}
+.li-val.g{color:var(--g)}.li-val.r{color:#ff6060}.li-val.n{color:rgba(255,255,255,.7)}.li-val.a{color:#ffb347}
+.li-s2{font-size:10px;color:rgba(255,255,255,.28);text-align:right}
+
+/* ─── TICKER ─── */
+.ticker-wrap{overflow:hidden;padding:13px 0;border-top:1px solid var(--sep);border-bottom:1px solid var(--sep);background:rgba(61,220,132,.02)}
+.ticker{display:flex;gap:48px;white-space:nowrap;animation:tk 30s linear infinite;width:max-content}
+.ticker:hover{animation-play-state:paused}
+.ti{display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(255,255,255,.28);font-weight:400}
+.ti strong{color:var(--g);font-weight:500}
+@keyframes tk{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ─── LIGHT SECTION ─── */
+.lsec{background:var(--wh);padding:96px 48px}
+@media(max-width:768px){.lsec{padding:72px 20px}}
+.lsec-inner{max-width:1040px;margin:0 auto}
+.lsec.alt{background:var(--ow)}
+
+/* ─── DARK SECTION (rounded card, Moneliq style) ─── */
+.dsec-wrap{padding:20px 20px}
+@media(max-width:600px){.dsec-wrap{padding:14px 10px}}
+.dsec{
+  background:var(--blk);
+  border-radius:28px;overflow:hidden;
+  position:relative;
+  max-width:1100px;margin:0 auto;
+  border:1px solid rgba(255,255,255,.06);
+}
+.dsec-glow{position:absolute;pointer-events:none;border-radius:50%;filter:blur(90px)}
+.dg1{width:500px;height:500px;background:radial-gradient(circle,rgba(61,220,132,.07),transparent 70%);top:-100px;left:-60px}
+.dg2{width:300px;height:300px;background:radial-gradient(circle,rgba(61,220,132,.04),transparent 70%);bottom:-60px;right:-40px}
+.dsec-grid{position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse 80% 80% at 30% 50%,black 30%,transparent 100%)}
+.dsec-body{position:relative;z-index:2;padding:60px 52px}
+@media(max-width:768px){.dsec-body{padding:44px 28px}}
+@media(max-width:480px){.dsec-body{padding:32px 20px}}
+
+/* ─── SECTION LABELS ─── */
+.sec-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(61,220,132,.1);border:1px solid rgba(61,220,132,.2);border-radius:999px;padding:4px 12px 4px 7px;font-size:11.5px;font-weight:600;color:rgba(61,220,132,.85);margin-bottom:20px;letter-spacing:0}
+.sec-pill span{width:8px;height:8px;border-radius:50%;background:var(--g)}
+/* dark variant */
+.sec-pill.dk{background:rgba(61,220,132,.1);border-color:rgba(61,220,132,.22);color:rgba(61,220,132,.9)}
+/* light variant */
+.sec-pill.lt{background:rgba(61,220,132,.08);border-color:rgba(61,220,132,.2);color:#1a8847}
+
+/* ─── HEADINGS ─── */
+.h2-dk{font-size:clamp(28px,4.5vw,48px);font-weight:800;color:var(--wh);line-height:1.05;letter-spacing:-2px;margin-bottom:16px}
+.h2-dk em{font-weight:300;font-style:italic;color:rgba(255,255,255,.45);letter-spacing:-1.5px}
+.h2-lt{font-size:clamp(28px,4.5vw,48px);font-weight:800;color:var(--txt);line-height:1.05;letter-spacing:-2px;margin-bottom:16px}
+.h2-lt em{font-weight:300;font-style:italic;color:rgba(0,0,0,.35);letter-spacing:-1.5px}
+.h2-c{text-align:center}
+.sub-dk{font-size:16px;color:rgba(255,255,255,.42);line-height:1.68;font-weight:400;letter-spacing:-.1px;max-width:400px}
+.sub-lt{font-size:16px;color:rgba(0,0,0,.45);line-height:1.68;font-weight:400;letter-spacing:-.1px;max-width:400px}
+.sub-c{margin:0 auto;text-align:center}
+
+/* ─── CHECKLIST ─── */
+.cklist{display:flex;flex-direction:column;gap:10px;margin-top:24px}
+.ck-row{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;color:rgba(255,255,255,.6);font-weight:400;line-height:1.55;letter-spacing:-.1px}
+.ck-row.lt{color:rgba(0,0,0,.55)}
+.ck-ico{width:18px;height:18px;border-radius:5px;flex-shrink:0;margin-top:2px;background:rgba(61,220,132,.1);border:1px solid rgba(61,220,132,.22);
+  background-image:url("data:image/svg+xml,%3Csvg width='9' height='7' viewBox='0 0 9 7' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 3.5l2.5 2.5 5-5' stroke='%233ddc84' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:center}
+
+/* ─── SPLIT ─── */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+@media(max-width:860px){.split{grid-template-columns:1fr;gap:36px}}
+.split-flip{direction:rtl}
+.split-flip>*{direction:ltr}
+
+/* ─── UI CARD (light section) ─── */
+.ui-card{background:var(--wh);border:1px solid var(--sep2);border-radius:20px;overflow:hidden;box-shadow:0 24px 72px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04)}
+.ui-card-h{padding:13px 16px;border-bottom:1px solid var(--sep2);display:flex;align-items:center;justify-content:space-between;background:var(--ow)}
+.ui-card-ht{font-size:13px;font-weight:700;color:var(--txt);letter-spacing:-.2px;display:flex;align-items:center;gap:7px}
+.ui-badge-g{font-size:11px;font-weight:600;color:#1a8847;background:rgba(61,220,132,.1);border:1px solid rgba(61,220,132,.2);border-radius:999px;padding:3px 10px}
+
+/* light list item */
+.lli{display:flex;align-items:center;gap:9px;padding:9px 8px;border-radius:10px;transition:background .1s}
+.lli:hover{background:rgba(0,0,0,.03)}
+.lli-ico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.lli-info{flex:1;min-width:0}
+.lli-n{font-size:12.5px;font-weight:500;color:var(--txt);letter-spacing:-.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lli-s{font-size:11px;color:rgba(0,0,0,.35);margin-top:1px}
+.lli-right{text-align:right;flex-shrink:0}
+.lli-v{font-size:13px;font-weight:700;letter-spacing:-.3px}
+.lli-v.g{color:#1a8847}.lli-v.r{color:#dc2626}.lli-v.n{color:var(--txt)}.lli-v.a{color:#b45309}
+.lli-s2{font-size:10.5px;color:rgba(0,0,0,.3);text-align:right}
+
+/* ─── FEATURE CARDS (dark section, Moneliq style) ─── */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+@media(max-width:860px){.feat-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.feat-grid{grid-template-columns:1fr}}
+.fc{background:var(--d2);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:28px 24px;transition:all .2s;position:relative;overflow:hidden}
+.fc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(61,220,132,.15),transparent);opacity:0;transition:opacity .2s}
+.fc:hover{background:var(--d3);border-color:rgba(255,255,255,.12)}
+.fc:hover::before{opacity:1}
+.fc-ico{width:46px;height:46px;border-radius:13px;background:rgba(61,220,132,.08);border:1px solid rgba(61,220,132,.15);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:18px;transition:all .2s}
+.fc:hover .fc-ico{background:rgba(61,220,132,.14);border-color:rgba(61,220,132,.28)}
+.fc-title{font-size:17px;font-weight:700;color:var(--wh);margin-bottom:9px;letter-spacing:-.3px}
+.fc-desc{font-size:13px;color:rgba(255,255,255,.4);line-height:1.68;font-weight:400}
+.fc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:14px}
+.ft{font-size:11px;color:rgba(255,255,255,.28);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:999px;padding:3px 10px;transition:all .2s}
+.fc:hover .ft{color:rgba(61,220,132,.7);border-color:rgba(61,220,132,.2);background:rgba(61,220,132,.08)}
+.learn-more{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.45);margin-top:16px;transition:color .15s;letter-spacing:-.1px}
+.learn-more:hover{color:var(--g)}
+.learn-more-icon{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:10px;transition:background .15s}
+.learn-more:hover .learn-more-icon{background:rgba(61,220,132,.15)}
+
+/* ─── STATS ROW ─── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--sep2);border-bottom:1px solid var(--sep2)}
+@media(max-width:680px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+.st-cell{padding:28px 20px;text-align:center;border-right:1px solid var(--sep2)}
+.st-cell:last-child{border-right:none}
+@media(max-width:680px){.st-cell:nth-child(2){border-right:none}.st-cell:nth-child(3){border-top:1px solid var(--sep2)}}
+.st-v{font-size:30px;font-weight:800;color:var(--txt);letter-spacing:-1.5px;margin-bottom:4px}
+.st-l{font-size:12px;color:rgba(0,0,0,.4);font-weight:400}
+
+/* ─── PRICING ─── */
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:660px;margin:0 auto}
+@media(max-width:560px){.pgrid{grid-template-columns:1fr}}
+.pcard{background:var(--ow);border:1px solid var(--sep2);border-radius:22px;padding:28px;position:relative;overflow:hidden;transition:transform .2s,border-color .2s;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.pcard:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.08)}
+.pcard.pro{border-color:rgba(61,220,132,.3);background:var(--wh)}
+.pcard.pro::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent);opacity:.7}
+.pbadge{position:absolute;top:14px;right:14px;font-size:10px;font-weight:700;color:var(--wh);background:#1a8847;border-radius:999px;padding:3px 10px;letter-spacing:.4px}
+.pplan{font-size:13px;font-weight:700;color:rgba(0,0,0,.4);letter-spacing:.3px;margin-bottom:10px}
+.pplan.g{color:#1a8847}
+.pprice{font-size:44px;font-weight:800;color:var(--txt);line-height:1;margin-bottom:5px;letter-spacing:-2.5px}
+.pprice sup{font-size:17px;vertical-align:super;letter-spacing:0}
+.pprice sub{font-size:13px;font-weight:400;color:rgba(0,0,0,.35);letter-spacing:0}
+.pnote{font-size:12px;color:rgba(0,0,0,.3);margin-bottom:22px}
+.pfeats{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.pfeats li{display:flex;align-items:flex-start;gap:9px;font-size:13.5px;color:rgba(0,0,0,.65);font-weight:400;letter-spacing:-.1px}
+.pfeats li.off{color:rgba(0,0,0,.28)}
+.pk{width:17px;height:17px;border-radius:5px;background:rgba(61,220,132,.1);border:1px solid rgba(61,220,132,.25);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9.5px;color:#1a8847}
+.px{width:17px;height:17px;border-radius:5px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.1);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9.5px;color:rgba(0,0,0,.25)}
+.pbtn{display:block;text-align:center;padding:13px;border-radius:12px;font-size:14px;font-weight:700;font-family:var(--f);transition:all .2s;letter-spacing:-.2px;border:1.5px solid rgba(0,0,0,.12);color:rgba(0,0,0,.6);background:transparent}
+.pbtn:hover{background:rgba(0,0,0,.05);color:var(--txt)}
+.pbtn.s{background:var(--blk);color:var(--wh);border-color:transparent;box-shadow:0 4px 16px rgba(0,0,0,.18)}
+.pbtn.s:hover{background:#1a1a1a}
+.trial-band{margin-top:22px;padding:18px 22px;background:rgba(61,220,132,.08);border:1px solid rgba(61,220,132,.2);border-radius:16px;text-align:center;max-width:660px;margin-left:auto;margin-right:auto}
+.trial-band h4{font-size:15px;font-weight:700;color:var(--txt);letter-spacing:-.2px;margin-bottom:4px}
+.trial-band p{font-size:13px;color:rgba(0,0,0,.45);font-weight:400}
+
+/* ─── FAQ ─── */
+.flist{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:2px}
+.faq{background:var(--d2);border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow:hidden;transition:border-color .2s}
+.faq.open{border-color:rgba(61,220,132,.2)}
+.fq{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:14.5px;font-weight:600;color:rgba(255,255,255,.7);letter-spacing:-.2px}
+.fq:hover{color:var(--wh)}
+.fqx{width:24px;height:24px;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid var(--sep);display:flex;align-items:center;justify-content:center;font-size:15px;color:rgba(255,255,255,.3);flex-shrink:0;transition:all .25s}
+.faq.open .fqx{background:rgba(61,220,132,.1);border-color:rgba(61,220,132,.22);color:var(--g);transform:rotate(45deg)}
+.fa{font-size:13.5px;color:rgba(255,255,255,.42);line-height:1.75;font-weight:400;padding:0 20px;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s}
+.faq.open .fa{padding:0 20px 16px;max-height:200px}
+
+/* ─── FINAL CTA ─── */
+.fcta-wrap{padding:20px 20px 0}
+@media(max-width:600px){.fcta-wrap{padding:14px 10px 0}}
+.fcta-box{
+  background:var(--blk);border-radius:28px;overflow:hidden;
+  position:relative;padding:80px 48px;text-align:center;
+  border:1px solid rgba(255,255,255,.06);
+  max-width:1100px;margin:0 auto;
+}
+@media(max-width:600px){.fcta-box{padding:52px 24px}}
+.fcta-g1{position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(61,220,132,.08),transparent 70%);top:-150px;left:50%;transform:translateX(-50%);border-radius:50%;filter:blur(80px);pointer-events:none}
+.fcta-grid{position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent)}
+.fcta-box h2{position:relative;z-index:2;font-size:clamp(36px,6vw,64px);font-weight:800;line-height:.98;color:var(--wh);letter-spacing:-2.5px;margin-bottom:16px}
+.fcta-box h2 em{font-weight:300;font-style:italic;color:rgba(255,255,255,.42);letter-spacing:-2px}
+.fcta-box p{position:relative;z-index:2;font-size:16px;color:rgba(255,255,255,.4);margin-bottom:30px;font-weight:400;letter-spacing:-.1px}
+
+/* ─── FOOTER ─── */
+footer{padding:28px 48px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--sep2)}
+@media(max-width:600px){footer{padding:22px 20px;flex-direction:column;gap:10px;text-align:center}}
+.flogo{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:800;color:var(--txt);letter-spacing:-.3px}
+footer p{font-size:12px;color:rgba(0,0,0,.3);font-weight:400}
+
+/* ─── REVEAL ─── */
+.r{opacity:0;transform:translateY(22px);transition:opacity .65s cubic-bezier(.16,1,.3,1),transform .65s cubic-bezier(.16,1,.3,1)}
+.r.up{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}.d5{transition-delay:.4s}
+
+/* hide app scrollbar grain on landing */
+#landing-page { position:relative; z-index:0; }
+
 </style>
 
   <script>
@@ -769,6 +1266,497 @@ html, body { overflow-x: hidden; }
   </script>
 </head>
 <body>
+
+
+<!-- ══════════════════════════════════════════════
+     LANDING PAGE — visível apenas para não-logados
+     ══════════════════════════════════════════════ -->
+<div id="landing-page" style="display:none">
+
+<!-- MOBILE MENU -->
+<div class="mob" id="mmenu">
+  <button class="mob-x" onclick="closeMob()">✕</button>
+  <a href="#funcionalidades" onclick="closeMob()">Funcionalidades</a>
+  <a href="#investimentos" onclick="closeMob()">Investimentos</a>
+  <a href="#precos" onclick="closeMob()">Preços</a>
+  <a href="#faq" onclick="closeMob()">FAQ</a>
+  <a href="#" onclick="showAuthScreen('register');return false;" class="cta-wh" style="font-size:15px;padding:13px 28px;margin-top:8px">Começar grátis →</a>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <ul class="nlinks" id="nl">
+    <li><a href="#funcionalidades">Funcionalidades</a></li>
+    <li><a href="#investimentos">Investimentos</a></li>
+    <li><a href="#precos">Preços</a></li>
+  </ul>
+  <a href="#" class="nlogo" id="nlogo"><div class="nlogo-mark">F</div>Finance</a>
+  <div class="nright">
+    <a href="#" onclick="showAuthScreen('login');return false;" class="nb" id="nb-login" style="display:none">Entrar</a>
+    <a href="#faq" class="nb" id="nb-faq">FAQ</a>
+    <a href="#" onclick="showAuthScreen('register');return false;" class="nb sol" id="nb-cta">Começar grátis</a>
+    <button class="ham" id="ham" onclick="openMob()"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- ══════════ HERO (DARK) ══════════ -->
+<section class="hero">
+  <div class="hgrid"></div>
+  <div class="hglow hg1"></div>
+  <div class="hglow hg2"></div>
+  <div class="hglow hg3"></div>
+
+  <div class="hero-c">
+    <div class="pill"><div class="pill-dot"></div>30 dias grátis — sem cartão de crédito</div>
+    <h1>
+      Suas finanças,<br/>
+      <span class="thin">finalmente</span><br/>
+      <span class="accent">claras.</span>
+    </h1>
+    <p class="hero-sub">Do gasto diário ao investimento de longo prazo.<br/><b>Tudo em um lugar, para qualquer dispositivo.</b></p>
+    <div class="hero-ctas">
+      <a href="#" onclick="showAuthScreen('register');return false;" class="cta-wh">
+        Abrir conta Finance
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+      <a href="#funcionalidades" class="cta-ghost">
+        Ver funcionalidades
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </a>
+    </div>
+    <div class="hero-notes">
+      <span>Sem cartão</span>
+      <span>Cancele quando quiser</span>
+      <span>Dados criptografados</span>
+    </div>
+
+    <!-- APP MOCKUP -->
+    <div class="mock">
+      <div class="mock-frame">
+        <div class="chrome">
+          <div class="cdots"><div class="cd" style="background:#ff5f57"></div><div class="cd" style="background:#febc2e"></div><div class="cd" style="background:#28c840"></div></div>
+          <div class="url-b">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            finance-app-one-weld.vercel.app
+          </div>
+        </div>
+        <div class="abar">
+          <div class="alg">
+            <div class="alg-mark">F</div>
+            <div class="alg-name">Finance</div>
+          </div>
+          <div class="atabs">
+            <div class="atab on" onclick="sv('ov',this)"><span class="atab-i">📊</span><span>Visão geral</span></div>
+            <div class="atab" onclick="sv('tx',this)"><span class="atab-i">💸</span><span>Transações</span></div>
+            <div class="atab" onclick="sv('inst',this)"><span class="atab-i">📅</span><span>Parcelas</span></div>
+            <div class="atab" onclick="sv('sub',this)"><span class="atab-i">🔁</span><span>Assinaturas</span></div>
+            <div class="atab" onclick="sv('cards',this)"><span class="atab-i">💳</span><span>Cartões</span></div>
+            <div class="atab" onclick="sv('bills',this)"><span class="atab-i">🏠</span><span>Contas fixas</span></div>
+            <div class="atab" onclick="sv('goals',this)"><span class="atab-i">🎯</span><span>Metas</span></div>
+            <div class="atab" onclick="sv('inv',this)"><span class="atab-i">📈</span><span>Investimentos</span></div>
+          </div>
+        </div>
+        <div class="acon">
+
+          <!-- VISÃO GERAL -->
+          <div class="vw on" id="vw-ov">
+            <div class="ov-top">
+              <div class="ov-lbl">Patrimônio total</div>
+              <div class="ov-bal" id="v-bal">R$ 0</div>
+              <div class="ov-chg">↑ 12,4% este mês</div>
+              <div class="ov-accs">
+                <div class="ov-acc"><div class="ov-acc-b">Nubank</div><div class="ov-acc-v">R$ 4.120</div></div>
+                <div class="ov-acc"><div class="ov-acc-b">Inter</div><div class="ov-acc-v">R$ 2.100</div></div>
+                <div class="ov-acc"><div class="ov-acc-b">C6 Bank</div><div class="ov-acc-v">R$ 2.200</div></div>
+              </div>
+            </div>
+            <div class="ov-graph">
+              <div class="ov-gh">
+                <div class="ov-gt">Receitas × Gastos — últimos 6 meses</div>
+                <div class="ov-gleg"><div class="gl"><div class="gl-d" style="background:var(--g)"></div>Receitas</div><div class="gl"><div class="gl-d" style="background:#ff6060"></div>Gastos</div></div>
+              </div>
+              <div class="bars" id="bars"></div>
+              <div id="bar-labels" style="display:flex;gap:4px;margin-top:4px"></div>
+            </div>
+            <div class="ov-txlist">
+              <div class="ov-txh"><div class="ov-txhtt">Transações recentes</div><div class="ov-txlink">Ver todas</div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(61,220,132,.12)">🛒</div><div class="li-info"><div class="li-name">Mercado Extra</div><div class="li-sub">Alimentação · hoje</div></div><div class="li-right"><div class="li-val n">−R$ 187,40</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(61,220,132,.12)">💰</div><div class="li-info"><div class="li-name">Salário</div><div class="li-sub">Receita · ontem</div></div><div class="li-right"><div class="li-val g">+R$ 6.800,00</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(191,90,242,.12)">🎵</div><div class="li-info"><div class="li-name">Spotify Premium</div><div class="li-sub">Assinatura · 18/Mar</div></div><div class="li-right"><div class="li-val n">−R$ 26,90</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(255,159,10,.12)">⛽</div><div class="li-info"><div class="li-name">Shell Posto</div><div class="li-sub">Transporte · 17/Mar</div></div><div class="li-right"><div class="li-val n">−R$ 220,00</div></div></div>
+            </div>
+          </div>
+
+          <!-- TRANSAÇÕES -->
+          <div class="vw" id="vw-tx">
+            <div class="tx-sums">
+              <div class="tx-sc"><div class="tx-slb">Receitas em Março</div><div class="tx-sv g">+R$ 7.500</div></div>
+              <div class="tx-sc"><div class="tx-slb">Gastos em Março</div><div class="tx-sv r">−R$ 3.240</div></div>
+            </div>
+            <div class="tx-fs">
+              <button class="tf on">Todos</button>
+              <button class="tf">Receitas</button>
+              <button class="tf">Gastos</button>
+              <button class="tf">Alimentação</button>
+              <button class="tf">Transporte</button>
+            </div>
+            <div class="tx-body">
+              <div class="tx-date">Hoje — 20/Mar</div>
+              <div class="li"><div class="li-ico" style="background:rgba(61,220,132,.12)">🛒</div><div class="li-info"><div class="li-name">Mercado Extra</div><div class="li-sub">Alimentação</div></div><div class="li-right"><div class="li-val n">−R$ 187,40</div></div></div>
+              <div class="tx-date">Ontem — 19/Mar</div>
+              <div class="li"><div class="li-ico" style="background:rgba(61,220,132,.12)">💰</div><div class="li-info"><div class="li-name">Salário</div><div class="li-sub">Receita</div></div><div class="li-right"><div class="li-val g">+R$ 6.800,00</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(255,69,58,.12)">🏠</div><div class="li-info"><div class="li-name">Aluguel</div><div class="li-sub">Moradia</div></div><div class="li-right"><div class="li-val r">−R$ 1.800,00</div></div></div>
+              <div class="tx-date">17/Mar</div>
+              <div class="li"><div class="li-ico" style="background:rgba(255,159,10,.12)">⛽</div><div class="li-info"><div class="li-name">Shell Posto</div><div class="li-sub">Transporte</div></div><div class="li-right"><div class="li-val n">−R$ 220,00</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(10,132,255,.12)">🍔</div><div class="li-info"><div class="li-name">iFood</div><div class="li-sub">Alimentação</div></div><div class="li-right"><div class="li-val n">−R$ 64,90</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(191,90,242,.12)">🎵</div><div class="li-info"><div class="li-name">Spotify</div><div class="li-sub">Assinatura</div></div><div class="li-right"><div class="li-val n">−R$ 26,90</div></div></div>
+            </div>
+          </div>
+
+          <!-- PARCELAS -->
+          <div class="vw" id="vw-inst">
+            <div class="inst-top">
+              <div class="inst-tl"><div class="i-lb">Total mensal</div><div class="i-v">R$ 1.240</div></div>
+              <div class="inst-tr"><div class="i-s">Parcelamentos</div><div class="i-c">4 ativos</div></div>
+            </div>
+            <div class="inst-list">
+              <div class="inst-row"><div class="inst-ico" style="background:rgba(10,132,255,.12)">📱</div><div class="inst-inf"><div class="inst-n">iPhone 15 Pro</div><div class="inst-m">8 de 12 parcelas · 4 restantes</div><div class="ibar"><div class="ifill" style="width:67%;background:linear-gradient(90deg,#0a84ff,#93c5fd)"></div></div></div><div class="inst-rr"><div class="inst-rv">R$ 499/mês</div><div class="inst-rs">67%</div></div></div>
+              <div class="inst-row"><div class="inst-ico" style="background:rgba(191,90,242,.12)">💻</div><div class="inst-inf"><div class="inst-n">MacBook Air M2</div><div class="inst-m">3 de 10 parcelas · 7 restantes</div><div class="ibar"><div class="ifill" style="width:30%;background:linear-gradient(90deg,#bf5af2,#c4b5fd)"></div></div></div><div class="inst-rr"><div class="inst-rv">R$ 650/mês</div><div class="inst-rs">30%</div></div></div>
+              <div class="inst-row"><div class="inst-ico" style="background:rgba(61,220,132,.12)">🎮</div><div class="inst-inf"><div class="inst-n">PlayStation 5</div><div class="inst-m">5 de 6 parcelas · 1 restante</div><div class="ibar"><div class="ifill" style="width:83%;background:linear-gradient(90deg,var(--g),#86efac)"></div></div></div><div class="inst-rr"><div class="inst-rv">R$ 91/mês</div><div class="inst-rs">83%</div></div></div>
+              <div class="inst-row"><div class="inst-ico" style="background:rgba(255,159,10,.12)">🛋️</div><div class="inst-inf"><div class="inst-n">Sofá 3 lugares</div><div class="inst-m">1 de 4 parcelas · 3 restantes</div><div class="ibar"><div class="ifill" style="width:25%;background:linear-gradient(90deg,#ffb347,#fde68a)"></div></div></div><div class="inst-rr"><div class="inst-rv">R$ 350/mês</div><div class="inst-rs">25%</div></div></div>
+            </div>
+          </div>
+
+          <!-- ASSINATURAS -->
+          <div class="vw" id="vw-sub">
+            <div class="sub-top">
+              <div class="sub-tl">Comprometido por mês</div>
+              <div class="sub-tot">R$ 268,70</div>
+              <div class="sub-cats">
+                <span class="scat" style="background:rgba(191,90,242,.1);color:#bf5af2">🎵 Entretenimento</span>
+                <span class="scat" style="background:rgba(61,220,132,.1);color:var(--g)">💪 Saúde</span>
+                <span class="scat" style="background:rgba(255,159,10,.1);color:#ffb347">☁️ Serviços</span>
+              </div>
+            </div>
+            <div style="padding:10px 14px">
+              <div class="li"><div class="li-ico" style="background:rgba(61,220,132,.12)">🎵</div><div class="li-info"><div class="li-name">Spotify Premium</div><div class="li-sub">Todo dia 22 · cartão</div></div><div class="li-right"><div class="li-val n">−R$ 26,90</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(255,69,58,.12)">🎬</div><div class="li-info"><div class="li-name">Netflix</div><div class="li-sub">Todo dia 15 · cartão</div></div><div class="li-right"><div class="li-val n">−R$ 44,90</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(10,132,255,.12)">📺</div><div class="li-info"><div class="li-name">Disney+</div><div class="li-sub">Todo dia 8 · cartão</div></div><div class="li-right"><div class="li-val n">−R$ 27,90</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(255,159,10,.12)">📦</div><div class="li-info"><div class="li-name">Amazon Prime</div><div class="li-sub">Todo dia 18 · cartão</div></div><div class="li-right"><div class="li-val n">−R$ 19,90</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(61,220,132,.12)">💪</div><div class="li-info"><div class="li-name">Smart Fit</div><div class="li-sub">Todo dia 1 · débito</div></div><div class="li-right"><div class="li-val n">−R$ 99,90</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(90,200,250,.12)">☁️</div><div class="li-info"><div class="li-name">iCloud 200GB</div><div class="li-sub">Todo dia 3 · cartão</div></div><div class="li-right"><div class="li-val n">−R$ 6,90</div></div></div>
+            </div>
+          </div>
+
+          <!-- CARTÕES -->
+          <div class="vw" id="vw-cards">
+            <div class="cards-wrap">
+              <div class="phcard">
+                <div class="cc-row"><div class="cc-chip"></div><div class="cc-brand">NUBANK VISA INFINITE</div></div>
+                <div class="cc-num">•••• •••• •••• 4829</div>
+                <div class="cc-bot">
+                  <div><div class="cc-ll">Limite disponível</div><div class="cc-lv">R$ 6.800</div></div>
+                  <div style="text-align:right"><div class="cc-dl">Vencimento</div><div class="cc-dv">28 Mar</div></div>
+                </div>
+                <div class="cc-bar"><div class="cc-fill" id="ccbar" style="width:0"></div></div>
+                <div class="cc-usage"><span>Usado: R$ 3.200</span><span>32% do limite</span></div>
+              </div>
+              <div style="font-size:9.5px;font-weight:600;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Fatura atual</div>
+              <div class="li"><div class="li-ico" style="background:rgba(61,220,132,.12)">🛒</div><div class="li-info"><div class="li-name">Mercado Extra</div><div class="li-sub">20/Mar · à vista</div></div><div class="li-right"><div class="li-val n">−R$ 187,40</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(255,159,10,.12)">✈️</div><div class="li-info"><div class="li-name">GOL Passagem</div><div class="li-sub">15/Mar · 6x</div></div><div class="li-right"><div class="li-val n">−R$ 183,00</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(10,132,255,.12)">🍽️</div><div class="li-info"><div class="li-name">Outback</div><div class="li-sub">12/Mar · à vista</div></div><div class="li-right"><div class="li-val n">−R$ 289,00</div></div></div>
+            </div>
+          </div>
+
+          <!-- CONTAS FIXAS -->
+          <div class="vw" id="vw-bills">
+            <div class="bills-stats">
+              <div class="bs"><div class="bs-v" style="color:var(--g)">R$ 1.919</div><div class="bs-l">Pago</div></div>
+              <div class="bs" style="border-left:1px solid var(--sep)"><div class="bs-v" style="color:#ffb347">R$ 297</div><div class="bs-l">Pendente</div></div>
+              <div class="bs" style="border-left:1px solid var(--sep)"><div class="bs-v" style="color:#ff6060">R$ 560</div><div class="bs-l">A vencer</div></div>
+            </div>
+            <div style="padding:10px 14px">
+              <div class="li"><div class="li-ico" style="background:rgba(61,220,132,.12)">✅</div><div class="li-info"><div class="li-name">Aluguel</div><div class="li-sub">Pago em 10/Mar</div></div><div class="li-right"><div class="li-val g">R$ 1.800</div><div class="li-s2">pago</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(61,220,132,.12)">✅</div><div class="li-info"><div class="li-name">Internet Vivo</div><div class="li-sub">Pago em 5/Mar</div></div><div class="li-right"><div class="li-val g">R$ 119</div><div class="li-s2">pago</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(255,159,10,.12)">⚡</div><div class="li-info"><div class="li-name">Conta de Luz</div><div class="li-sub">Vence em 28/Mar</div></div><div class="li-right"><div class="li-val a">R$ 210</div><div class="li-s2">pendente</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(255,159,10,.12)">💧</div><div class="li-info"><div class="li-name">Conta de Água</div><div class="li-sub">Vence em 30/Mar</div></div><div class="li-right"><div class="li-val a">R$ 87</div><div class="li-s2">pendente</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(255,69,58,.12)">🏥</div><div class="li-info"><div class="li-name">Plano de Saúde</div><div class="li-sub">Vence em 25/Mar</div></div><div class="li-right"><div class="li-val r">R$ 560</div><div class="li-s2">a vencer</div></div></div>
+            </div>
+          </div>
+
+          <!-- METAS -->
+          <div class="vw" id="vw-goals">
+            <div class="goals-list">
+              <div class="gcard"><div class="gcard-top"><div class="gc-left"><div class="gc-ico">✈️</div><div><div class="gc-name">Viagem para Europa</div><div class="gc-target">Meta: R$ 12.500 · até Dez/25</div></div></div><div class="gc-pct" style="color:#0a84ff">64%</div></div><div class="gbar"><div class="gf" id="g1" style="width:0;background:linear-gradient(90deg,#0a84ff,#93c5fd)"></div></div><div class="gvals"><span>Guardado: <strong style="color:#0a84ff">R$ 8.000</strong></span><span>Falta: R$ 4.500</span></div></div>
+              <div class="gcard"><div class="gcard-top"><div class="gc-left"><div class="gc-ico">🚗</div><div><div class="gc-name">Entrada do carro</div><div class="gc-target">Meta: R$ 20.000 · até Jun/26</div></div></div><div class="gc-pct" style="color:#ffb347">38%</div></div><div class="gbar"><div class="gf" id="g2" style="width:0;background:linear-gradient(90deg,#ffb347,#fde68a)"></div></div><div class="gvals"><span>Guardado: <strong style="color:#ffb347">R$ 7.600</strong></span><span>Falta: R$ 12.400</span></div></div>
+              <div class="gcard"><div class="gcard-top"><div class="gc-left"><div class="gc-ico">🛡️</div><div><div class="gc-name">Reserva de emergência</div><div class="gc-target">Meta: R$ 20.000</div></div></div><div class="gc-pct" style="color:var(--g)">91%</div></div><div class="gbar"><div class="gf" id="g3" style="width:0;background:linear-gradient(90deg,var(--g),#86efac)"></div></div><div class="gvals"><span>Guardado: <strong>R$ 18.200</strong></span><span>Falta: R$ 1.800</span></div></div>
+            </div>
+          </div>
+
+          <!-- INVESTIMENTOS -->
+          <div class="vw" id="vw-inv">
+            <div class="inv-top">
+              <div><div class="inv-tt-l">Carteira total</div><div class="inv-tt-v">R$ 29.930</div></div>
+              <div class="inv-cdi">CDI: 10,65% a.a.</div>
+            </div>
+            <div class="inv-cols">
+              <div class="icol">Investimento</div>
+              <div class="icol">Bruto</div>
+              <div class="icol g">Líquido ✓</div>
+            </div>
+            <div class="irow"><div class="ir-left"><div class="ir-ico">🏦</div><div><div class="ir-n1">CDB Nubank</div><div class="ir-n2">110% CDI · 14m</div></div></div><div class="ir-col"><div class="ir-v">R$ 10.420</div><div class="ir-s">+R$ 420</div></div><div class="ir-col"><div class="ir-v g">R$ 9.946</div><div class="ir-s g">IR 22,5%</div></div></div>
+            <div class="irow"><div class="ir-left"><div class="ir-ico">🌿</div><div><div class="ir-n1">LCI Itaú</div><div class="ir-n2">95% CDI · isento IR</div></div></div><div class="ir-col"><div class="ir-v">R$ 8.810</div><div class="ir-s">+R$ 810</div></div><div class="ir-col"><div class="ir-v g">R$ 8.810</div><div class="ir-s g">isento ✓</div></div></div>
+            <div class="irow"><div class="ir-left"><div class="ir-ico">🏛️</div><div><div class="ir-n1">Tesouro IPCA+</div><div class="ir-n2">IPCA + 5,82%</div></div></div><div class="ir-col"><div class="ir-v">R$ 5.890</div><div class="ir-s">+R$ 890</div></div><div class="ir-col"><div class="ir-v g">R$ 5.614</div><div class="ir-s g">IR R$ 276</div></div></div>
+            <div class="irow"><div class="ir-left"><div class="ir-ico">₿</div><div><div class="ir-n1">Bitcoin</div><div class="ir-n2">Criptomoeda</div></div></div><div class="ir-col"><div class="ir-v">R$ 5.620</div><div class="ir-s">+R$ 620</div></div><div class="ir-col"><div class="ir-v a">R$ 5.527</div><div class="ir-s" style="color:rgba(255,179,71,.5)">IR R$ 93</div></div></div>
+            <div class="irow"><div class="ir-left"><div class="ir-ico">🏗️</div><div><div class="ir-n1">HGLG11 FII</div><div class="ir-n2">FII Logística · isento PF</div></div></div><div class="ir-col"><div class="ir-v">R$ 4.300</div><div class="ir-s">+R$ 300</div></div><div class="ir-col"><div class="ir-v g">R$ 4.300</div><div class="ir-s g">isento ✓</div></div></div>
+          </div>
+
+        </div><!-- /acon -->
+      </div><!-- /mock-frame -->
+      <div class="mock-shine"></div>
+    </div><!-- /mock -->
+  </div><!-- /hero-c -->
+</section>
+
+<!-- TICKER (still dark bg) -->
+<div style="background:var(--blk)">
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <div class="ti">💸 <span>Controle de gastos</span>&nbsp;<strong>em tempo real</strong></div>
+      <div class="ti">💳 <span>Faturas e limites</span>&nbsp;<strong>sempre à vista</strong></div>
+      <div class="ti">📈 <span>CDI atualizado</span>&nbsp;<strong>via Banco Central</strong></div>
+      <div class="ti">🎯 <span>Metas financeiras</span>&nbsp;<strong>com progresso visual</strong></div>
+      <div class="ti">☁️ <span>Dados na nuvem</span>&nbsp;<strong>PostgreSQL + RLS</strong></div>
+      <div class="ti">📱 <span>Celular e computador</span>&nbsp;<strong>funciona em tudo</strong></div>
+      <div class="ti">🔁 <span>Assinaturas</span>&nbsp;<strong>todas organizadas</strong></div>
+      <div class="ti">🏦 <span>Contas bancárias</span>&nbsp;<strong>saldo consolidado</strong></div>
+      <div class="ti">💸 <span>Controle de gastos</span>&nbsp;<strong>em tempo real</strong></div>
+      <div class="ti">💳 <span>Faturas e limites</span>&nbsp;<strong>sempre à vista</strong></div>
+      <div class="ti">📈 <span>CDI atualizado</span>&nbsp;<strong>via Banco Central</strong></div>
+      <div class="ti">🎯 <span>Metas financeiras</span>&nbsp;<strong>com progresso visual</strong></div>
+      <div class="ti">☁️ <span>Dados na nuvem</span>&nbsp;<strong>PostgreSQL + RLS</strong></div>
+      <div class="ti">📱 <span>Celular e computador</span>&nbsp;<strong>funciona em tudo</strong></div>
+      <div class="ti">🔁 <span>Assinaturas</span>&nbsp;<strong>todas organizadas</strong></div>
+      <div class="ti">🏦 <span>Contas bancárias</span>&nbsp;<strong>saldo consolidado</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ STATS (LIGHT) ══════════ -->
+<div class="stats-row r">
+  <div class="st-cell r"><div class="st-v">8</div><div class="st-l">módulos completos</div></div>
+  <div class="st-cell r d1"><div class="st-v">30 dias</div><div class="st-l">grátis, sem cartão</div></div>
+  <div class="st-cell r d2"><div class="st-v">100%</div><div class="st-l">dados criptografados</div></div>
+  <div class="st-cell r d3"><div class="st-v">R$ 14</div><div class="st-l">por mês no Pro</div></div>
+</div>
+
+<!-- ══════════ FEATURES (DARK ROUNDED) ══════════ -->
+<div class="dsec-wrap" id="funcionalidades">
+  <div class="dsec">
+    <div class="dsec-glow dg1"></div>
+    <div class="dsec-glow dg2"></div>
+    <div class="dsec-grid"></div>
+    <div class="dsec-body">
+      <div class="r" style="text-align:center;margin-bottom:0">
+        <div class="sec-pill dk"><span></span>Funcionalidades</div>
+        <h2 class="h2-dk h2-c">Tudo para organizar<br/><em>sua vida financeira</em></h2>
+        <p class="sub-dk sub-c">Sem planilhas. Sem complicação. Um app que realmente funciona no dia a dia.</p>
+      </div>
+      <div class="feat-grid">
+        <div class="fc r d1"><div class="fc-ico">💸</div><div class="fc-title">Controle de gastos</div><div class="fc-desc">Lance transações em segundos, categorize automaticamente e veja para onde seu dinheiro vai todo mês.</div><div class="fc-tags"><span class="ft">Categorias</span><span class="ft">Filtros</span><span class="ft">Histórico</span></div><a href="#" onclick="showAuthScreen('register');return false;" class="learn-more">Saiba mais <div class="learn-more-icon">→</div></a></div>
+        <div class="fc r d2"><div class="fc-ico">💳</div><div class="fc-title">Cartões e faturas</div><div class="fc-desc">Múltiplos cartões com controle de limite em tempo real e aviso antes do vencimento da fatura.</div><div class="fc-tags"><span class="ft">Multi-cartão</span><span class="ft">Limite real</span></div><a href="#" onclick="showAuthScreen('register');return false;" class="learn-more">Saiba mais <div class="learn-more-icon">→</div></a></div>
+        <div class="fc r d3"><div class="fc-ico">🔁</div><div class="fc-title">Assinaturas</div><div class="fc-desc">Netflix, Spotify, academia. Veja o total comprometido por mês e receba lembretes antes do vencimento.</div><div class="fc-tags"><span class="ft">Lembretes</span><span class="ft">Previsão</span></div><a href="#" onclick="showAuthScreen('register');return false;" class="learn-more">Saiba mais <div class="learn-more-icon">→</div></a></div>
+        <div class="fc r d1"><div class="fc-ico">🏦</div><div class="fc-title">Contas bancárias</div><div class="fc-desc">Múltiplas contas com saldo calculado em tempo real baseado nas suas transações reais. Sempre preciso.</div><div class="fc-tags"><span class="ft">Saldo consolidado</span><span class="ft">Multi-banco</span></div><a href="#" onclick="showAuthScreen('register');return false;" class="learn-more">Saiba mais <div class="learn-more-icon">→</div></a></div>
+        <div class="fc r d2"><div class="fc-ico">📈</div><div class="fc-title">Investimentos</div><div class="fc-desc">CDB, LCI, LCA, Tesouro, ações B3, FIIs e cripto. CDI real via Banco Central. IR regressivo automático.</div><div class="fc-tags"><span class="ft">CDI real</span><span class="ft">IR auto</span><span class="ft">8 tipos</span></div><a href="#" onclick="showAuthScreen('register');return false;" class="learn-more">Saiba mais <div class="learn-more-icon">→</div></a></div>
+        <div class="fc r d3"><div class="fc-ico">🎯</div><div class="fc-title">Metas financeiras</div><div class="fc-desc">Viagem, emergência, carro. Crie metas com prazo e valor alvo. Acompanhe o progresso mês a mês.</div><div class="fc-tags"><span class="ft">Progresso visual</span><span class="ft">Prazo</span></div><a href="#" onclick="showAuthScreen('register');return false;" class="learn-more">Saiba mais <div class="learn-more-icon">→</div></a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ INVESTIMENTOS (LIGHT) ══════════ -->
+<div class="lsec" id="investimentos">
+  <div class="lsec-inner">
+    <div class="split">
+      <div class="r">
+        <div class="sec-pill lt"><span></span>Módulo Pro</div>
+        <h2 class="h2-lt">Rendimento bruto<br/><em>e líquido, separados</em></h2>
+        <p class="sub-lt">CDI atualizado diariamente pela API do Banco Central. Você vê exatamente quanto vai receber após o IR regressivo — de 22,5% a 15% conforme o prazo.</p>
+        <ul class="cklist">
+          <li class="ck-row lt"><div class="ck-ico"></div>CDB, LCI/LCA — percentual do CDI configurável</li>
+          <li class="ck-row lt"><div class="ck-ico"></div>Tesouro Direto: Selic e IPCA+ com spread</li>
+          <li class="ck-row lt"><div class="ck-ico"></div>Ações brasileiras (B3) e FIIs com dividend yield</li>
+          <li class="ck-row lt"><div class="ck-ico"></div>Criptomoedas e poupança (isenta de IR)</li>
+          <li class="ck-row lt"><div class="ck-ico"></div>Cotações: Ibovespa, S&P500, Dólar, Bitcoin, Euro</li>
+          <li class="ck-row lt"><div class="ck-ico"></div>Resgate parcial ou total com registro automático</li>
+        </ul>
+      </div>
+      <div class="r d2">
+        <div class="ui-card">
+          <div class="ui-card-h">
+            <div class="ui-card-ht">📈 Carteira · R$ 29.930</div>
+            <div class="ui-badge-g">CDI: 10,65% a.a.</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 82px 82px;padding:7px 16px 4px;border-bottom:1px solid var(--sep2)">
+            <div style="font-size:9px;color:rgba(0,0,0,.3);text-transform:uppercase;letter-spacing:.4px;font-weight:600">Investimento</div>
+            <div style="font-size:9px;color:rgba(0,0,0,.3);text-align:right;text-transform:uppercase;letter-spacing:.4px;font-weight:600">Bruto</div>
+            <div style="font-size:9px;color:#1a8847;text-align:right;text-transform:uppercase;letter-spacing:.4px;font-weight:600">Líquido ✓</div>
+          </div>
+          <div class="lli" style="padding:10px 16px;border-bottom:1px solid var(--sep2);border-radius:0;display:grid;grid-template-columns:1fr 82px 82px"><div class="lli-ico" style="background:rgba(61,220,132,.1);font-size:16px;width:auto;height:auto;border-radius:0;justify-content:flex-start;gap:9px;display:flex;align-items:center"><span>🏦</span><div><div style="font-size:12px;font-weight:600;color:var(--txt)">CDB Nubank</div><div style="font-size:10px;color:rgba(0,0,0,.35)">110% CDI · 14m</div></div></div><div style="text-align:right"><div style="font-size:12px;font-weight:700;color:var(--txt)">R$ 10.420</div><div style="font-size:10px;color:rgba(0,0,0,.35)">+R$ 420</div></div><div style="text-align:right"><div style="font-size:12px;font-weight:700;color:#1a8847">R$ 9.946</div><div style="font-size:10px;color:rgba(61,220,132,.6)">IR 22,5%</div></div></div>
+          <div style="display:grid;grid-template-columns:1fr 82px 82px;padding:10px 16px;border-bottom:1px solid var(--sep2)"><div style="display:flex;align-items:center;gap:9px"><span style="font-size:16px">🌿</span><div><div style="font-size:12px;font-weight:600;color:var(--txt)">LCI Itaú</div><div style="font-size:10px;color:rgba(0,0,0,.35)">95% CDI · isento IR</div></div></div><div style="text-align:right"><div style="font-size:12px;font-weight:700;color:var(--txt)">R$ 8.810</div><div style="font-size:10px;color:rgba(0,0,0,.35)">+R$ 810</div></div><div style="text-align:right"><div style="font-size:12px;font-weight:700;color:#1a8847">R$ 8.810</div><div style="font-size:10px;color:rgba(61,220,132,.6)">isento ✓</div></div></div>
+          <div style="display:grid;grid-template-columns:1fr 82px 82px;padding:10px 16px;border-bottom:1px solid var(--sep2)"><div style="display:flex;align-items:center;gap:9px"><span style="font-size:16px">🏛️</span><div><div style="font-size:12px;font-weight:600;color:var(--txt)">Tesouro IPCA+</div><div style="font-size:10px;color:rgba(0,0,0,.35)">IPCA + 5,82%</div></div></div><div style="text-align:right"><div style="font-size:12px;font-weight:700;color:var(--txt)">R$ 5.890</div><div style="font-size:10px;color:rgba(0,0,0,.35)">+R$ 890</div></div><div style="text-align:right"><div style="font-size:12px;font-weight:700;color:#1a8847">R$ 5.614</div><div style="font-size:10px;color:rgba(61,220,132,.6)">IR R$ 276</div></div></div>
+          <div style="display:grid;grid-template-columns:1fr 82px 82px;padding:10px 16px"><div style="display:flex;align-items:center;gap:9px"><span style="font-size:16px">₿</span><div><div style="font-size:12px;font-weight:600;color:var(--txt)">Bitcoin</div><div style="font-size:10px;color:rgba(0,0,0,.35)">Criptomoeda</div></div></div><div style="text-align:right"><div style="font-size:12px;font-weight:700;color:var(--txt)">R$ 5.620</div><div style="font-size:10px;color:rgba(0,0,0,.35)">+R$ 620</div></div><div style="text-align:right"><div style="font-size:12px;font-weight:700;color:#b45309">R$ 5.527</div><div style="font-size:10px;color:rgba(180,83,9,.5)">IR R$ 93</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CARTÕES (DARK ROUNDED) ══════════ -->
+<div class="dsec-wrap">
+  <div class="dsec">
+    <div class="dsec-glow dg1" style="left:auto;right:-60px;top:-80px"></div>
+    <div class="dsec-glow dg2" style="bottom:auto;top:auto;left:-40px;bottom:-60px"></div>
+    <div class="dsec-grid"></div>
+    <div class="dsec-body">
+      <div class="split split-flip">
+        <div class="r">
+          <div class="sec-pill dk"><span></span>Gestão de cartões</div>
+          <h2 class="h2-dk">Fatura e limite<br/><em>sempre claros</em></h2>
+          <p class="sub-dk">Acompanhe o limite disponível em tempo real. Saiba o que vence e quando — antes de ser surpreendido no fechamento.</p>
+          <ul class="cklist">
+            <li class="ck-row"><div class="ck-ico"></div>Limite total e disponível atualizado a cada gasto</li>
+            <li class="ck-row"><div class="ck-ico"></div>Faturas com data de vencimento e total acumulado</li>
+            <li class="ck-row"><div class="ck-ico"></div>Parcelas vinculadas ao cartão automaticamente</li>
+            <li class="ck-row"><div class="ck-ico"></div>Múltiplos cartões com cores personalizadas</li>
+            <li class="ck-row"><div class="ck-ico"></div>Barra visual de limite usado e disponível</li>
+          </ul>
+        </div>
+        <div class="r d2">
+          <div style="background:var(--d2);border:1px solid rgba(255,255,255,.08);border-radius:20px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5)">
+            <div style="padding:13px 16px;border-bottom:1px solid var(--sep);display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.02)">
+              <div style="font-size:13px;font-weight:700;color:var(--wh);display:flex;align-items:center;gap:8px">💳 Meus cartões</div>
+              <div style="font-size:11px;color:rgba(255,255,255,.28)">1 ativo</div>
+            </div>
+            <div style="padding:14px">
+              <div style="border-radius:14px;padding:18px;background:linear-gradient(135deg,#1c1028,#22183a);border:1px solid rgba(255,255,255,.1);position:relative;overflow:hidden;margin-bottom:12px">
+                <div style="position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:radial-gradient(circle,rgba(61,220,132,.1),transparent 70%)"></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div style="width:28px;height:20px;background:linear-gradient(135deg,#fbbf24,#f59e0b);border-radius:4px"></div><div style="font-size:9px;font-weight:700;letter-spacing:1.2px;color:rgba(255,255,255,.28)">NUBANK VISA INFINITE</div></div>
+                <div style="font-size:12px;letter-spacing:3px;color:rgba(255,255,255,.28);margin-bottom:14px;font-weight:300">•••• •••• •••• 4829</div>
+                <div style="display:flex;justify-content:space-between;align-items:flex-end">
+                  <div><div style="font-size:8px;text-transform:uppercase;letter-spacing:.3px;color:rgba(255,255,255,.28);margin-bottom:2px">Limite disponível</div><div style="font-size:18px;font-weight:700;color:#fff;letter-spacing:-.5px">R$ 6.800</div></div>
+                  <div style="text-align:right"><div style="font-size:8px;color:rgba(255,255,255,.28);margin-bottom:2px">Vencimento</div><div style="font-size:11px;font-weight:600;color:#ffb347">28 Mar</div></div>
+                </div>
+                <div style="height:2.5px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-top:14px"><div id="bigccbar" style="height:100%;width:0;background:linear-gradient(90deg,var(--g),#86efac);border-radius:2px;transition:width 1.5s ease"></div></div>
+                <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:rgba(255,255,255,.22)"><span>Usado: R$ 3.200</span><span>32% do limite</span></div>
+              </div>
+              <div class="li"><div class="li-ico" style="background:rgba(61,220,132,.12)">🛒</div><div class="li-info"><div class="li-name">Mercado Extra</div><div class="li-sub">20/Mar · à vista</div></div><div class="li-right"><div class="li-val n">−R$ 187,40</div></div></div>
+              <div class="li"><div class="li-ico" style="background:rgba(255,159,10,.12)">✈️</div><div class="li-info"><div class="li-name">GOL Passagem</div><div class="li-sub">15/Mar · 6x</div></div><div class="li-right"><div class="li-val n">−R$ 183,00</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PRICING (LIGHT) ══════════ -->
+<div class="lsec alt" id="precos">
+  <div class="lsec-inner">
+    <div class="r" style="text-align:center;margin-bottom:48px">
+      <div class="sec-pill lt"><span></span>Preços</div>
+      <h2 class="h2-lt h2-c">Simples e <em>transparente</em></h2>
+      <p class="sub-lt sub-c">Comece grátis. Upgrade quando fizer sentido para você.</p>
+    </div>
+    <div class="pgrid r d1">
+      <div class="pcard">
+        <div class="pplan">Free</div>
+        <div class="pprice">R$<sub>/mês</sub>0</div>
+        <div class="pnote">Para quem está começando</div>
+        <ul class="pfeats">
+          <li><div class="pk">✓</div>50 transações por mês</li>
+          <li><div class="pk">✓</div>1 cartão de crédito</li>
+          <li><div class="pk">✓</div>2 contas bancárias</li>
+          <li><div class="pk">✓</div>Parcelas e assinaturas</li>
+          <li><div class="pk">✓</div>Contas fixas</li>
+          <li class="off"><div class="px">✕</div>Investimentos</li>
+          <li class="off"><div class="px">✕</div>Metas financeiras</li>
+        </ul>
+        <a href="#" onclick="showAuthScreen('register');return false;" class="pbtn">Criar conta grátis</a>
+      </div>
+      <div class="pcard pro">
+        <div class="pbadge">✦ POPULAR</div>
+        <div class="pplan g">Pro</div>
+        <div class="pprice"><sup>R$</sup>14<sub>,90/mês</sub></div>
+        <div class="pnote">Ou R$ 160,92/ano — 2 meses grátis</div>
+        <ul class="pfeats">
+          <li><div class="pk">✓</div>Transações ilimitadas</li>
+          <li><div class="pk">✓</div>Cartões ilimitados</li>
+          <li><div class="pk">✓</div>Contas ilimitadas</li>
+          <li><div class="pk">✓</div>Parcelas e assinaturas</li>
+          <li><div class="pk">✓</div>Contas fixas</li>
+          <li><div class="pk">✓</div>Investimentos completos</li>
+          <li><div class="pk">✓</div>Metas financeiras</li>
+        </ul>
+        <a href="#" onclick="showAuthScreen('register');return false;" class="pbtn s">Começar trial de 30 dias</a>
+      </div>
+    </div>
+    <div class="trial-band r d2">
+      <h4>🎁 30 dias com tudo liberado, sem cartão</h4>
+      <p>Todo novo cadastro ganha acesso completo ao Pro por 30 dias. Sem compromisso nenhum.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ FAQ (DARK ROUNDED) ══════════ -->
+<div class="dsec-wrap" id="faq">
+  <div class="dsec">
+    <div class="dsec-glow dg1"></div>
+    <div class="dsec-grid"></div>
+    <div class="dsec-body">
+      <div class="r" style="text-align:center;margin-bottom:36px">
+        <div class="sec-pill dk"><span></span>Dúvidas</div>
+        <h2 class="h2-dk h2-c">Perguntas <em>frequentes</em></h2>
+      </div>
+      <div class="flist">
+        <div class="faq r"><div class="fq" onclick="tf(this.parentElement)">Preciso de cartão de crédito para o trial?<div class="fqx">+</div></div><div class="fa">Não. O trial de 30 dias é 100% gratuito. Você só precisa criar uma conta com email. O cartão só é pedido se decidir assinar o Pro depois.</div></div>
+        <div class="faq r d1"><div class="fq" onclick="tf(this.parentElement)">Meus dados financeiros ficam seguros?<div class="fqx">+</div></div><div class="fa">Sim. Dados no PostgreSQL com Row Level Security — nenhum outro usuário acessa seus dados. Autenticação JWT com expiração automática e renovação transparente.</div></div>
+        <div class="faq r d2"><div class="fq" onclick="tf(this.parentElement)">Funciona no celular?<div class="fqx">+</div></div><div class="fa">Sim. Web app responsivo que funciona em qualquer dispositivo. Adicione à tela inicial como app nativo — sem precisar instalar nada da App Store ou Play Store.</div></div>
+        <div class="faq r d3"><div class="fq" onclick="tf(this.parentElement)">O que acontece com meus dados se eu cancelar?<div class="fqx">+</div></div><div class="fa">Seus dados ficam salvos. Ao cancelar, você volta ao Free automaticamente sem perder nenhum histórico de transações, metas ou investimentos.</div></div>
+        <div class="faq r"><div class="fq" onclick="tf(this.parentElement)">Como funciona o cálculo dos investimentos?<div class="fqx">+</div></div><div class="fa">CDI atualizado diariamente via API do Banco Central. Rendimento calculado com juros compostos diários. IR regressivo de 22,5% a 15% automático conforme o prazo de aplicação.</div></div>
+        <div class="faq r d1"><div class="fq" onclick="tf(this.parentElement)">Posso usar em vários dispositivos?<div class="fqx">+</div></div><div class="fa">Sim. Dados na nuvem (Supabase/PostgreSQL) sincronizados em tempo real. Celular, tablet e computador com os mesmos dados sempre atualizados.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ FINAL CTA ══════════ -->
+<div class="fcta-wrap r">
+  <div class="fcta-box">
+    <div class="fcta-g1"></div>
+    <div class="fcta-grid"></div>
+    <div style="position:relative;z-index:2">
+      <div class="pill" style="justify-content:center;display:inline-flex"><div class="pill-dot"></div>Comece hoje mesmo</div>
+    </div>
+    <h2>Comece hoje,<br/>veja a diferença <em>amanhã</em></h2>
+    <p>30 dias grátis. Sem cartão. Sem complicação.</p>
+    <a href="#" onclick="showAuthScreen('register');return false;" class="cta-wh" style="font-size:16px;padding:16px 36px">
+      Abrir conta Finance
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </a>
+    <div class="hero-notes" style="justify-content:center;margin-top:16px">
+      <span>Sem cartão</span><span>Cancele quando quiser</span><span>Dados seguros</span>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="flogo"><div class="nlogo-mark" style="background:var(--g08);border:1px solid rgba(61,220,132,.2)">F</div>Finance</div>
+  <p>Controle financeiro pessoal · Feito com ❤️ no Brasil</p>
+</footer>
+</div>
+
 
 <!-- ── AUTH SCREEN ── -->
 <div id="auth-screen" style="display:flex;min-height:100vh;align-items:center;justify-content:center;background:var(--bg)">
@@ -2214,6 +3202,190 @@ let _userProfile  = null;   // linha da tabela profiles
 const _plan = Object.seal({ _v: 'free', _ts: 0, _sig: '' });
 let _userPlan = 'free'; // Mantido para compatibilidade — validado periodicamente
 
+
+// ══════════════════════════════════════════════════════════════
+// LANDING PAGE CONTROL
+// ══════════════════════════════════════════════════════════════
+function showLanding() {
+  const lp = document.getElementById('landing-page');
+  const auth = document.getElementById('auth-screen');
+  const app = document.getElementById('main-app');
+  if (lp) lp.style.display = 'block';
+  if (auth) auth.style.display = 'none';
+  if (app) app.style.display = 'none';
+  document.body.style.overflow = '';
+  document.body.classList.add('landing-on');
+  // Init landing animations
+  setTimeout(() => {
+    document.querySelectorAll('#landing-page .r').forEach(el => {
+      if (!el.classList.contains('up')) {
+        const ob = new IntersectionObserver(([e]) => {
+          if (e.isIntersecting) { e.target.classList.add('up'); ob.disconnect(); }
+        }, { threshold: 0.06 });
+        ob.observe(el);
+      }
+    });
+    landingInit();
+  }, 50);
+}
+
+function hideLanding() {
+  const lp = document.getElementById('landing-page');
+  if (lp) lp.style.display = 'none';
+  document.body.classList.remove('landing-on');
+}
+
+function landingInit() {
+  // Rebuild bars if already visible
+  const bars = document.getElementById('bars');
+  if (bars && bars.children.length === 0) {
+    const vov = document.getElementById('vw-ov');
+    if (vov && vov.classList.contains('on')) {
+      animN(document.getElementById('v-bal'), 0, 8420);
+      setTimeout(buildBars, 150);
+    }
+  }
+  // Nav scroll state
+  landingNavUpdate();
+}
+
+function landingNavUpdate() {
+  const nav = document.getElementById('nav');
+  const nl = document.getElementById('nl');
+  const nlogo = document.getElementById('nlogo');
+  const nb_login = document.getElementById('nb-login');
+  const nb_faq = document.getElementById('nb-faq');
+  const nb_cta = document.getElementById('nb-cta');
+  const ham = document.getElementById('ham');
+  if (!nav) return;
+  const s = window.scrollY;
+  const lp = document.getElementById('landing-page');
+  if (!lp || lp.style.display === 'none') return;
+
+  function isDark() {
+    const heroH = lp.querySelector('.hero')?.offsetHeight || window.innerHeight;
+    if (s < heroH - 60) return true;
+    for (const ds of lp.querySelectorAll('.dsec-wrap,.fcta-wrap')) {
+      const r = ds.getBoundingClientRect();
+      if (r.top < 60 && r.bottom > 60) return true;
+    }
+    const tw = lp.querySelector('.ticker-wrap');
+    if (tw) { const r = tw.getBoundingClientRect(); if (r.top < 60 && r.bottom > 60) return true; }
+    return false;
+  }
+
+  const dark = isDark();
+  if (s < 20) {
+    nav.classList.remove('dk','lt');
+    if (nl) nl.className = 'nlinks';
+    if (nlogo) nlogo.className = 'nlogo';
+    if (nb_faq) nb_faq.className = 'nb';
+    if (nb_cta) nb_cta.className = 'nb sol';
+    if (ham) ham.className = 'ham';
+    if (nb_login) nb_login.style.display = 'none';
+  } else if (dark) {
+    nav.classList.add('dk'); nav.classList.remove('lt');
+    if (nl) nl.className = 'nlinks';
+    if (nlogo) nlogo.className = 'nlogo';
+    if (nb_faq) nb_faq.className = 'nb';
+    if (nb_cta) nb_cta.className = 'nb sol';
+    if (ham) ham.className = 'ham';
+    if (nb_login) nb_login.style.display = 'inline-flex';
+  } else {
+    nav.classList.add('lt'); nav.classList.remove('dk');
+    if (nl) nl.className = 'nlinks lt';
+    if (nlogo) nlogo.className = 'nlogo lt';
+    if (nb_faq) nb_faq.className = 'nb lt';
+    if (nb_cta) nb_cta.className = 'nb lt sol';
+    if (ham) ham.className = 'ham lt';
+    if (nb_login) nb_login.style.display = 'inline-flex';
+  }
+}
+
+window.addEventListener('scroll', () => {
+  const lp = document.getElementById('landing-page');
+  if (lp && lp.style.display !== 'none') landingNavUpdate();
+}, { passive: true });
+
+
+// ══ Landing page interactive functions ══
+function sv(id, el) {
+  document.querySelectorAll('.vw').forEach(v => v.classList.remove('on'));
+  document.querySelectorAll('.atab').forEach(t => t.classList.remove('on'));
+  const v = document.getElementById('vw-' + id);
+  if (v) { v.classList.add('on'); triggerLandingAnims(id); }
+  if (el) { el.classList.add('on'); el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }
+}
+function triggerLandingAnims(id) {
+  if (id === 'ov') { animN(document.getElementById('v-bal'), 0, 8420); setTimeout(buildBars, 100); }
+  if (id === 'cards') { setTimeout(() => { const f = document.getElementById('ccbar'); if (f) f.style.width = '32%'; }, 80); }
+  if (id === 'goals') { setTimeout(() => { [['g1','64%'],['g2','38%'],['g3','91%']].forEach(([id,w]) => { const el = document.getElementById(id); if (el) el.style.width = w; }); }, 80); }
+}
+function buildBars() {
+  const months = ['Out','Nov','Dez','Jan','Fev','Mar'];
+  const rec = [7200,6800,8100,7400,7000,7500];
+  const gas = [3800,4100,3200,3600,3900,3240];
+  const maxV = Math.max(...rec, ...gas);
+  const bEl = document.getElementById('bars');
+  const lEl = document.getElementById('bar-labels');
+  if (!bEl || bEl.children.length > 0) return;
+  months.forEach((m, i) => {
+    const w = document.createElement('div'); w.className = 'bg-wrap';
+    const pair = document.createElement('div'); pair.className = 'bpair';
+    const br = document.createElement('div'); br.className = 'b';
+    br.style.cssText = `width:46%;background:rgba(61,220,132,.35);height:0;transition:height .9s ${i*.06}s ease`;
+    const bg = document.createElement('div'); bg.className = 'b';
+    bg.style.cssText = `width:46%;background:rgba(255,96,96,.3);height:0;transition:height .9s ${i*.06+.04}s ease`;
+    pair.append(br, bg);
+    const lbl = document.createElement('div'); lbl.className = 'blb'; lbl.textContent = m;
+    w.append(pair, lbl);
+    bEl.appendChild(w);
+    const lb = document.createElement('div');
+    lb.style.cssText = 'flex:1;text-align:center;font-size:8px;color:rgba(255,255,255,.22)';
+    lb.textContent = m; if(lEl) lEl.appendChild(lb);
+    setTimeout(() => { br.style.height = (rec[i]/maxV*48)+'px'; bg.style.height = (gas[i]/maxV*48)+'px'; }, 80);
+  });
+}
+function animN(el, from, to, dur=1100, pre='R$ ') {
+  if (!el) return;
+  const st = performance.now();
+  (function u(now) {
+    const t = Math.min((now-st)/dur, 1), ev = 1-Math.pow(1-t, 3);
+    el.textContent = pre + (from+(to-from)*ev).toLocaleString('pt-BR', {minimumFractionDigits:0, maximumFractionDigits:0});
+    if (t < 1) requestAnimationFrame(u);
+  })(performance.now());
+}
+function openMob() { document.getElementById('mmenu').classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeMob() { document.getElementById('mmenu').classList.remove('open'); document.body.style.overflow = ''; }
+function tf(el) {
+  const o = el.classList.contains('open');
+  document.querySelectorAll('.faq').forEach(f => f.classList.remove('open'));
+  if (!o) el.classList.add('open');
+}
+// ── Custom cursor tracking ──
+document.addEventListener('DOMContentLoaded', function() {
+  const cur = document.getElementById('cur');
+  const ring = document.getElementById('ring');
+  let rx = 0, ry = 0, cx = 0, cy = 0;
+  document.addEventListener('mousemove', e => {
+    cx = e.clientX; cy = e.clientY;
+    if (cur) { cur.style.left = cx + 'px'; cur.style.top = cy + 'px'; }
+  });
+  function animRing() {
+    rx += (cx - rx) * 0.15; ry += (cy - ry) * 0.15;
+    if (ring) { ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; }
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+  document.addEventListener('mouseover', e => {
+    if (e.target.closest('a,button,[onclick]')) document.body.classList.add('hv');
+  });
+  document.addEventListener('mouseout', e => {
+    if (e.target.closest('a,button,[onclick]')) document.body.classList.remove('hv');
+  });
+});
+// ══ End landing functions ══
+
 // ── Inicialização ─────────────────────────────────────────────
 async function initAuth() {
   // Listener de mudança de sessão
@@ -2225,7 +3397,7 @@ async function initAuth() {
     } else if (event === 'SIGNED_OUT') {
       _currentUser = null;
       _userProfile = null;
-      showAuthScreen('login');
+      showLanding();
       _updateLoginTitle(false);
     } else if (event === 'PASSWORD_RECOVERY') {
       showAuthScreen('reset');
@@ -2243,7 +3415,7 @@ async function initAuth() {
     // Verificar se já usou o app antes (returning user)
     const hasUsedBefore = !!localStorage.getItem('finance_has_session');
     _updateLoginTitle(hasUsedBefore);
-    showAuthScreen('login');
+    showLanding();
   }
 }
 
@@ -2406,6 +3578,7 @@ async function logout() {
 
 // ── Helpers de UI ─────────────────────────────────────────────
 function showAuthScreen(step = 'login') {
+  hideLanding();
   document.getElementById('auth-screen').style.display = 'flex';
   const mainApp = document.getElementById('main-app');
   if (mainApp) { mainApp.style.display = 'none'; }
@@ -8426,6 +9599,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   </div>
 </div>
+
+<!-- Custom cursor (landing page only) -->
+<div id="cur"></div>
+<div id="ring"></div>
 
 </body>
 </html>
