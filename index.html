@@ -3537,13 +3537,40 @@ async function registerWithEmail() {
 
 // ── Login com Google ──────────────────────────────────────────
 async function loginWithGoogle() {
-  const { error } = await sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: window.location.origin
-    }
-  });
-  if (error) showAuthErr('Erro ao conectar com Google.');
+  const isNative = !!(window.Capacitor?.isNativePlatform?.());
+  const redirectTo = isNative
+    ? 'com.finance.app://login-callback'
+    : window.location.origin;
+
+  if (isNative && window.Capacitor?.Plugins?.Browser) {
+    // No app nativo: abre browser in-app e escuta o deep link de retorno
+    const { data, error } = await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo, skipBrowserRedirect: true }
+    });
+    if (error) { showAuthErr('Erro ao conectar com Google.'); return; }
+    await window.Capacitor.Plugins.Browser.open({ url: data.url });
+
+    // Escuta o deep link de retorno
+    window.Capacitor.Plugins.App.addListener('appUrlOpen', async ({ url }) => {
+      if (url?.startsWith('com.finance.app://login-callback')) {
+        await window.Capacitor.Plugins.Browser.close();
+        const params = new URLSearchParams(url.split('#')[1] || url.split('?')[1] || '');
+        const accessToken  = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
+        if (accessToken) {
+          await sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+        }
+      }
+    });
+  } else {
+    // Na web: fluxo normal
+    const { error } = await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo }
+    });
+    if (error) showAuthErr('Erro ao conectar com Google.');
+  }
 }
 
 // ── Recuperação de senha ──────────────────────────────────────
