@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(find C:Finance-App.claudeworktreestender-khorana -maxdepth 3 -type f \\\\\\(-name package.json -o -name *.config.js -o -name server.js -o -name app.js -o -name index.js \\\\\\))",
-      "Bash(grep -E \"\\\\.\\(json|js|py\\)$\")"
+      "Bash(grep -E \"\\\\.\\(json|js|py\\)$\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" repo view --json defaultBranchRef)"
     ]
   }
 }
