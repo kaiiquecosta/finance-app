@@ -656,6 +656,15 @@ align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:rgba(3
 }
 .auth-inp:focus { border-color: var(--green); }
 .auth-inp::placeholder { color: var(--muted); }
+.pass-wrap { position: relative; margin-bottom: 12px; }
+.pass-wrap .auth-inp { margin-bottom: 0; padding-right: 48px; }
+.pass-eye {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; padding: 4px;
+  color: var(--muted); font-size: 18px; line-height: 1;
+  transition: color .15s; display: flex; align-items: center;
+}
+.pass-eye:hover { color: var(--text); }
 .auth-btn {
   width: 100%; background: var(--green); border: none;
   border-radius: 12px; padding: 15px; color: #000;
@@ -1769,7 +1778,10 @@ footer p{font-size:12px;color:rgba(0,0,0,.3);font-weight:400}
       <div class="auth-title" id="auth-login-title">Olá! 👋</div>
       <div class="auth-sub" id="auth-login-sub" style="margin-bottom:20px">Entre na sua conta ou crie uma nova</div>
       <input class="auth-inp" id="auth-email" type="email" placeholder="Seu email" autocomplete="email"/>
-      <input class="auth-inp" id="auth-password" type="password" placeholder="Sua senha" autocomplete="current-password"/>
+      <div class="pass-wrap">
+        <input class="auth-inp" id="auth-password" type="password" placeholder="Sua senha" autocomplete="current-password"/>
+        <button class="pass-eye" type="button" onclick="togglePass('auth-password',this)" tabindex="-1">👁</button>
+      </div>
       <button class="auth-btn" id="auth-login-btn" onclick="loginWithEmail()">Entrar</button>
       <div style="display:flex;align-items:center;gap:10px;margin:12px 0">
         <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
@@ -1795,8 +1807,14 @@ footer p{font-size:12px;color:rgba(0,0,0,.3);font-weight:400}
       <div class="auth-sub" style="margin-bottom:20px">É grátis e leva menos de 1 minuto</div>
       <input class="auth-inp" id="reg-name" type="text" placeholder="Seu nome completo"/>
       <input class="auth-inp" id="reg-email" type="email" placeholder="Seu melhor email"/>
-      <input class="auth-inp" id="reg-password" type="password" placeholder="Criar senha (mín. 6 caracteres)"/>
-      <input class="auth-inp" id="reg-password2" type="password" placeholder="Confirmar senha"/>
+      <div class="pass-wrap">
+        <input class="auth-inp" id="reg-password" type="password" placeholder="Criar senha (mín. 6 caracteres)"/>
+        <button class="pass-eye" type="button" onclick="togglePass('reg-password',this)" tabindex="-1">👁</button>
+      </div>
+      <div class="pass-wrap">
+        <input class="auth-inp" id="reg-password2" type="password" placeholder="Confirmar senha"/>
+        <button class="pass-eye" type="button" onclick="togglePass('reg-password2',this)" tabindex="-1">👁</button>
+      </div>
       <button class="auth-btn" id="auth-register-btn" onclick="registerWithEmail()">Criar conta</button>
       <div style="display:flex;align-items:center;gap:10px;margin:12px 0">
         <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
@@ -3397,7 +3415,11 @@ async function initAuth() {
     } else if (event === 'SIGNED_OUT') {
       _currentUser = null;
       _userProfile = null;
-      showLanding();
+      if (window.Capacitor?.isNativePlatform?.()) {
+        showAuthScreen('login');
+      } else {
+        showLanding();
+      }
       _updateLoginTitle(false);
     } else if (event === 'PASSWORD_RECOVERY') {
       showAuthScreen('reset');
@@ -3415,7 +3437,11 @@ async function initAuth() {
     // Verificar se já usou o app antes (returning user)
     const hasUsedBefore = !!localStorage.getItem('finance_has_session');
     _updateLoginTitle(hasUsedBefore);
-    showLanding();
+    if (window.Capacitor?.isNativePlatform?.()) {
+      showAuthScreen('login');
+    } else {
+      showLanding();
+    }
   }
 }
 
@@ -3466,6 +3492,14 @@ async function loadUserProfile() {
 }
 
 // ── Login com email/senha ──────────────────────────────────────
+function togglePass(id, btn) {
+  const inp = document.getElementById(id);
+  if (!inp) return;
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.textContent = show ? '🙈' : '👁';
+}
+
 async function loginWithEmail() {
   const email = document.getElementById('auth-email').value.trim();
   const pass  = document.getElementById('auth-password').value;
@@ -3536,35 +3570,37 @@ async function registerWithEmail() {
 }
 
 // ── Login com Google ──────────────────────────────────────────
+// Listener de deep link para OAuth — inicializado uma única vez
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.Capacitor?.isNativePlatform?.()) {
+    window.Capacitor.Plugins.App.addListener('appUrlOpen', async ({ url }) => {
+      if (!url?.startsWith('com.finance.app://login-callback')) return;
+      await window.Capacitor.Plugins.Browser?.close();
+      // Extrair tokens do hash ou query string
+      const fragment = url.includes('#') ? url.split('#')[1] : url.split('?')[1] || '';
+      const params = new URLSearchParams(fragment);
+      const accessToken  = params.get('access_token');
+      const refreshToken = params.get('refresh_token');
+      if (accessToken) {
+        const { error } = await sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken || '' });
+        if (error) showAuthErr('Erro ao autenticar. Tente novamente.');
+      }
+    });
+  }
+});
+
 async function loginWithGoogle() {
   const isNative = !!(window.Capacitor?.isNativePlatform?.());
-  const redirectTo = isNative
-    ? 'com.finance.app://login-callback'
-    : window.location.origin;
+  const redirectTo = isNative ? 'com.finance.app://login-callback' : window.location.origin;
 
-  if (isNative && window.Capacitor?.Plugins?.Browser) {
-    // No app nativo: abre browser in-app e escuta o deep link de retorno
+  if (isNative) {
     const { data, error } = await sb.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo, skipBrowserRedirect: true }
     });
-    if (error) { showAuthErr('Erro ao conectar com Google.'); return; }
-    await window.Capacitor.Plugins.Browser.open({ url: data.url });
-
-    // Escuta o deep link de retorno
-    window.Capacitor.Plugins.App.addListener('appUrlOpen', async ({ url }) => {
-      if (url?.startsWith('com.finance.app://login-callback')) {
-        await window.Capacitor.Plugins.Browser.close();
-        const params = new URLSearchParams(url.split('#')[1] || url.split('?')[1] || '');
-        const accessToken  = params.get('access_token');
-        const refreshToken = params.get('refresh_token');
-        if (accessToken) {
-          await sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-        }
-      }
-    });
+    if (error || !data?.url) { showAuthErr('Erro ao conectar com Google.'); return; }
+    await window.Capacitor.Plugins.Browser.open({ url: data.url, windowName: '_self' });
   } else {
-    // Na web: fluxo normal
     const { error } = await sb.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo }
