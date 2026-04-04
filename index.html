@@ -235,8 +235,8 @@ input, select { font-family: var(--font); }
 .overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; z-index:500; padding:20px; }
 .overlay.open { display:flex; }
 #m-alert { z-index:9999; }
-.sheet { background:#13131e; border:1px solid var(--border2); border-radius:20px; padding:24px; width:100%; max-width:420px; animation:modalIn .25s cubic-bezier(0.34,1.56,0.64,1) forwards; }
-.m-ttl { color:#fff; font-size:18px; font-weight:700; font-family:var(--num); margin-bottom:18px; }
+.sheet { background:var(--card); border:1px solid var(--border2); border-radius:20px; padding:24px; width:100%; max-width:420px; animation:modalIn .25s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+.m-ttl { color:var(--text); font-size:18px; font-weight:700; font-family:var(--num); margin-bottom:18px; }
 .m-inp { width:100%; background:var(--card2); border:1px solid var(--border2); border-radius:10px; padding:12px 14px; color:var(--text); font-size:14px; font-family:var(--font); outline:none; margin-bottom:10px; display:block; }
 .m-inp::placeholder { color:var(--muted); }
 [data-theme="light"] .m-inp { color: var(--text); }
@@ -472,12 +472,12 @@ input, select { font-family: var(--font); }
 [data-theme="light"] .spark-bar { filter: none !important; }
 [data-theme="light"] .annual-bar { filter: none !important; }
 [data-theme="light"] .chart-bar { filter: none !important; }
-.m-sel { width:100%; background:#1a1a2e; border:1px solid rgba(255,255,255,.1); border-radius:10px; padding:12px 14px; color:#fff; font-size:14px; font-family:var(--font); outline:none; margin-bottom:10px; appearance:none; }
+.m-sel { width:100%; background:var(--card2); border:1px solid var(--border2); border-radius:10px; padding:12px 14px; color:var(--text); font-size:14px; font-family:var(--font); outline:none; margin-bottom:10px; appearance:none; }
 .m-btn { width:100%; background:var(--green); border:none; border-radius:10px; padding:13px; color:#000; font-size:14px; font-weight:700; cursor:pointer; font-family:var(--font); transition:opacity .15s; }
 .m-btn:hover { opacity:.88; }
 .m-btn.ghost { background:var(--card2); border:1px solid var(--border2); color:var(--text); margin-top:8px; }
 .m-btn.danger { background:var(--red); color:#fff; }
-.m-close { position:absolute; top:16px; right:16px; background:rgba(255,255,255,.08); border:none; border-radius:8px; width:30px; height:30px; color:#fff; font-size:16px; display:flex; align-items:center; justify-content:center; }
+.m-close { position:absolute; top:16px; right:16px; background:var(--card2); border:1px solid var(--border2); border-radius:8px; width:30px; height:30px; color:var(--text); font-size:16px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
 
 /* MOBILE BOTTOM NAV */
 .mobile-nav { display:none; position:fixed; bottom:0; left:0; right:0; background:var(--card); backdrop-filter:blur(20px); border-top:1px solid var(--border); padding:10px 0 calc(20px + env(safe-area-inset-bottom, 0px)); z-index:100; }
@@ -3111,13 +3111,13 @@ footer p{font-size:12px;color:rgba(0,0,0,.3);font-weight:400}
     <div class="m-ttl">Nova meta</div>
     <input class="m-inp" id="g-name" placeholder="Nome (ex: Viagem)"/>
     <!-- Valor alvo com máscara R$ -->
-    <div style="position:relative;margin-bottom:12px">
+    <div style="position:relative;margin-bottom:10px">
       <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;font-weight:600;pointer-events:none">R$</span>
-      <input id="g-tgt" inputmode="numeric" placeholder="0,00"
-        style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 14px 12px 38px;color:#fff;font-size:18px;font-family:var(--num);font-weight:700;outline:none;box-sizing:border-box;letter-spacing:.3px"
-        oninput="maskDepAmt(this)" onfocus="this.style.borderColor='rgba(34,197,94,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"/>
+      <input id="g-tgt" class="m-inp" inputmode="numeric" placeholder="0,00"
+        style="padding-left:38px;font-size:16px;font-family:var(--num);font-weight:700;letter-spacing:.3px;margin-bottom:0"
+        oninput="maskDepAmt(this)"/>
     </div>
-    <input class="m-inp" id="g-ico" placeholder="Ícone emoji" value="🎯"/>
+    <input class="m-inp" id="g-ico" placeholder="Ícone emoji" value="🎯" maxlength="2" style="text-align:center;font-size:22px;width:70px;display:inline-block"/>
     <!-- Prazo: seletores de mês + ano -->
     <div style="display:flex;gap:8px;margin-bottom:10px">
       <select class="m-sel" id="g-dl-month" style="flex:1;margin-bottom:0">
@@ -3154,9 +3154,9 @@ footer p{font-size:12px;color:rgba(0,0,0,.3);font-weight:400}
     <!-- Campo valor com máscara R$ -->
     <div style="position:relative;margin-bottom:12px">
       <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;font-weight:600;pointer-events:none">R$</span>
-      <input id="dep-amt" inputmode="numeric" placeholder="0,00"
-        style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 14px 12px 38px;color:#fff;font-size:18px;font-family:var(--num);font-weight:700;outline:none;box-sizing:border-box;letter-spacing:.3px"
-        oninput="maskDepAmt(this)" onfocus="this.style.borderColor='rgba(34,197,94,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"/>
+      <input id="dep-amt" class="m-inp" inputmode="numeric" placeholder="0,00"
+        style="padding-left:38px;font-size:16px;font-family:var(--num);font-weight:700;letter-spacing:.3px;margin-bottom:0"
+        oninput="maskDepAmt(this)"/>
     </div>
     <!-- Conta -->
     <div id="dep-account-section" style="margin-bottom:12px">
@@ -3178,11 +3178,13 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 if (!window.supabase) {
   console.error('Supabase SDK não carregou!');
 }
+const _isNativePlatform = !!(window.Capacitor?.isNativePlatform?.());
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: !_isNativePlatform,
+    flowType: _isNativePlatform ? 'pkce' : 'implicit'
   }
 });
 
@@ -3548,11 +3550,13 @@ async function registerWithEmail() {
   btn.disabled = true;
   btn.textContent = 'Criando conta...';
 
+  const signUpRedirect = _isNativePlatform ? 'com.finance.app://login-callback' : window.location.origin;
   const { error } = await sb.auth.signUp({
     email,
     password: pass,
     options: {
-      data: { full_name: name }
+      data: { full_name: name },
+      emailRedirectTo: signUpRedirect
     }
   });
 
@@ -3576,17 +3580,60 @@ async function registerWithEmail() {
 // Listener de deep link para OAuth — inicializado uma única vez
 document.addEventListener('DOMContentLoaded', function() {
   if (window.Capacitor?.isNativePlatform?.()) {
+    // Fallback: quando app volta ao foreground após OAuth, verifica sessão
+    window._oauthPending = false;
+    window.Capacitor.Plugins.App.addListener('appStateChange', async ({ isActive }) => {
+      if (!isActive || !window._oauthPending) return;
+      window._oauthPending = false;
+      console.log('[OAuth Debug] appStateChange: app ativo, verificando sessão...');
+      await new Promise(r => setTimeout(r, 800)); // aguarda Supabase processar
+      const { data: { session } } = await sb.auth.getSession();
+      console.log('[OAuth Debug] getSession após retorno:', session?.user?.email);
+      if (session && !_currentUser) {
+        _currentUser = session.user;
+        await loadUserProfile();
+        showApp();
+      }
+    });
+
     window.Capacitor.Plugins.App.addListener('appUrlOpen', async ({ url }) => {
+      console.log('[OAuth Debug] appUrlOpen fired, url:', url);
+      window._oauthPending = false;
       if (!url?.startsWith('com.finance.app://login-callback')) return;
-      await window.Capacitor.Plugins.Browser?.close();
-      // Extrair tokens do hash ou query string
-      const fragment = url.includes('#') ? url.split('#')[1] : url.split('?')[1] || '';
-      const params = new URLSearchParams(fragment);
-      const accessToken  = params.get('access_token');
-      const refreshToken = params.get('refresh_token');
-      if (accessToken) {
-        const { error } = await sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken || '' });
-        if (error) showAuthErr('Erro ao autenticar. Tente novamente.');
+      try { await window.Capacitor.Plugins.Browser?.close(); } catch(e) { console.log('[OAuth Debug] Browser close error:', e); }
+      // PKCE flow: extrair code da query string (sobrevive deep links Android)
+      const urlObj = new URL(url.replace('com.finance.app://', 'https://placeholder/'));
+      const code = urlObj.searchParams.get('code');
+      console.log('[OAuth Debug] code:', code);
+      if (code) {
+        console.log('[OAuth Debug] Calling exchangeCodeForSession...');
+        const { data, error } = await sb.auth.exchangeCodeForSession(code);
+        console.log('[OAuth Debug] exchangeCodeForSession result:', JSON.stringify({ data: data?.session?.user?.email, error }));
+        if (error) { showAuthErr('Erro ao autenticar: ' + error.message); return; }
+        // Explicitly navigate to app — don't rely solely on onAuthStateChange
+        if (data?.session) {
+          _currentUser = data.session.user;
+          await loadUserProfile();
+          showApp();
+        }
+        return;
+      }
+      // Fallback: implicit flow (access_token no hash)
+      const fragment = url.includes('#') ? url.split('#')[1] : '';
+      console.log('[OAuth Debug] No code found. Fragment:', fragment);
+      if (fragment) {
+        const params = new URLSearchParams(fragment);
+        const accessToken  = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
+        if (accessToken) {
+          const { data, error } = await sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken || '' });
+          if (error) { showAuthErr('Erro ao autenticar. Tente novamente.'); return; }
+          if (data?.session) {
+            _currentUser = data.session.user;
+            await loadUserProfile();
+            showApp();
+          }
+        }
       }
     });
   }
@@ -3602,6 +3649,7 @@ async function loginWithGoogle() {
       options: { redirectTo, skipBrowserRedirect: true }
     });
     if (error || !data?.url) { showAuthErr('Erro ao conectar com Google.'); return; }
+    window._oauthPending = true;
     await window.Capacitor.Plugins.Browser.open({ url: data.url, windowName: '_self' });
   } else {
     const { error } = await sb.auth.signInWithOAuth({
@@ -3924,8 +3972,10 @@ async function loadUserData() {
 
   fixedBills = (billsData || []).map(r => ({
     id: r.id, name: r.name, amt: Number(r.amt),
-    dueDay: r.due_day, ico: r.icon, clr: r.color,
-    cat: r.category, paid: r.paid, paidAt: r.paid_at
+    dueDay: r.due_day, day: r.due_day, ico: r.icon, clr: r.color,
+    cat: r.category, paid: r.paid, paidAt: r.paid_at,
+    paidAmt: r.paid_amt != null ? Number(r.paid_amt) : null,
+    fixed: r.fixed != null ? r.fixed : (Number(r.amt) > 0)
   }));
 
   investments = (invData || []).map(r => ({
@@ -6083,32 +6133,32 @@ function renderGoals(){
   goals.forEach(g=>{
     const pct=Math.min((g.saved/g.target)*100,100);
     const rem=g.target-g.saved;
+    // Extrair apenas o primeiro emoji do ícone (suporta surrogate pairs)
+    const icoArr = Array.from(g.ico||'🎯');
+    const ico = icoArr[0] || '🎯';
     const d=document.createElement('div');d.className='card fadein';d.style.marginBottom='12px';
     d.innerHTML=`
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:44px;height:44px;border-radius:13px;background:${g.clr}18;border:1px solid ${g.clr}30;display:flex;align-items:center;justify-content:center;font-size:20px">${g.ico}</div>
-          <div>
-            <div style="color:#fff;font-size:15px;font-weight:700;font-family:var(--num)">${esc(g.name)}</div>
-            <div style="color:var(--muted);font-size:12px">até ${g.dl}</div>
-          </div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+        <div style="width:48px;height:48px;min-width:48px;border-radius:14px;background:${g.clr}15;display:flex;align-items:center;justify-content:center;font-size:24px">${ico}</div>
+        <div style="flex:1;min-width:0">
+          <div style="color:var(--text);font-size:16px;font-weight:700;font-family:var(--num);line-height:1.3">${esc(g.name)}</div>
+          <div style="color:var(--muted);font-size:12px;margin-top:2px">${g.dl ? 'até '+g.dl : ''}</div>
         </div>
-        <div style="color:${g.clr};font-size:24px;font-weight:800;font-family:var(--num)">${Math.round(pct)}%</div>
+        <div style="color:${g.clr};font-size:24px;font-weight:800;font-family:var(--num);white-space:nowrap">${Math.round(pct)}%</div>
       </div>
-      <div class="prog" style="height:8px;margin-bottom:10px">
-        <div class="prog-fill" style="width:${pct}%;background:linear-gradient(90deg,${g.clr}88,${g.clr})"></div>
+      <div class="prog" style="height:6px;margin-bottom:14px;border-radius:3px">
+        <div class="prog-fill" style="width:${pct}%;background:${g.clr};border-radius:3px"></div>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;align-items:center;justify-content:space-between">
         <div>
-          <span style="color:${g.clr};font-family:var(--num);font-weight:700">${fmt(g.saved)}</span>
-          <span style="color:var(--muted);font-size:13px"> de ${fmt(g.target)}</span>
-          ${rem>0?`<div style="color:var(--muted);font-size:12px;margin-top:2px">Faltam ${fmt(rem)}</div>`:''}
+          <div style="display:flex;align-items:baseline;gap:4px;flex-wrap:wrap">
+            <span style="color:${g.clr};font-family:var(--num);font-weight:700;font-size:15px">${fmt(g.saved)}</span>
+            <span style="color:var(--muted);font-size:13px">de ${fmt(g.target)}</span>
+          </div>
+          ${rem>0?`<div style="color:var(--muted);font-size:12px;margin-top:3px">Faltam ${fmt(rem)}</div>`:''}
         </div>
         ${pct<100
-          ?`<div style="display:flex;gap:8px">
-              <button onclick="openDep(${g.id},'add')" style="background:${g.clr}18;border:1px solid ${g.clr}40;border-radius:8px;padding:8px 16px;color:${g.clr};font-size:12px;font-weight:600;cursor:pointer">⬆ Depositar</button>
-              ${g.saved>0?`<button onclick="openDep(${g.id},'rem')" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:8px 14px;color:#f87171;font-size:12px;font-weight:600;cursor:pointer">⬇ Retirar</button>`:''}
-            </div>`
+          ?`<button onclick="openDep(${g.id},'add')" style="background:${g.clr}15;border:1px solid ${g.clr}30;border-radius:10px;padding:9px 18px;color:${g.clr};font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:var(--font)">↑ Depositar</button>`
           :`<span class="badge badge-green">✓ Concluída!</span>`}
       </div>`;
     list.appendChild(d);
@@ -7039,7 +7089,7 @@ function renderBills(){
             : '<span style="background:rgba(245,158,11,0.12);color:var(--amber);font-size:10px;padding:2px 6px;border-radius:5px;font-weight:500">variável</span>'}
         </div>
         <div style="font-size:11px;margin-top:2px;color:${bill.paid?'var(--green)':'var(--muted)'};font-weight:500">
-          ${bill.paid ? '✓ Paga este mês' : 'Vence dia '+bill.day}
+          ${bill.paid ? '✓ Paga este mês' : 'Vence dia '+(bill.day||bill.dueDay||'?')}
         </div>
       </div>
 
