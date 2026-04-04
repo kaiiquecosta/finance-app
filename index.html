@@ -3426,15 +3426,18 @@ async function initAuth() {
     }
   });
 
+  // Se a URL tem access_token (retorno do OAuth), aguarda onAuthStateChange processar
+  const isOAuthCallback = window.location.hash.includes('access_token') ||
+                          window.location.search.includes('code=');
+  if (isOAuthCallback) return; // onAuthStateChange vai chamar showApp()
+
   // Verificar sessão ativa ao carregar a página
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
-    // Já tem sessão → loga direto sem mostrar tela de login
     _currentUser = session.user;
     await loadUserProfile();
     showApp();
   } else {
-    // Verificar se já usou o app antes (returning user)
     const hasUsedBefore = !!localStorage.getItem('finance_has_session');
     _updateLoginTitle(hasUsedBefore);
     if (window.Capacitor?.isNativePlatform?.()) {
