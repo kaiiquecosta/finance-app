@@ -1,0 +1,64 @@
+<!-- modals/income.html -->
+
+<div class="overlay" id="m-receita">
+  <div class="sheet" style="position:relative;max-height:92vh;overflow-y:auto">
+    <button class="m-close" onclick="closeM('m-receita')">✕</button>
+    <div class="m-ttl">💰 Nova renda</div>
+
+    <!-- Abas -->
+    <div style="display:flex;gap:0;margin-bottom:18px;background:rgba(255,255,255,0.04);border-radius:10px;padding:4px">
+      <button id="renda-tab-recorrente" onclick="setRendaTab('recorrente')" style="flex:1;padding:8px;border-radius:7px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .2s;background:var(--green);color:#000">Recorrente</button>
+      <button id="renda-tab-pontual" onclick="setRendaTab('pontual')" style="flex:1;padding:8px;border-radius:7px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .2s;background:transparent;color:var(--muted)">Renda extra</button>
+    </div>
+
+    <!-- ABA PONTUAL -->
+    <div id="renda-panel-pontual">
+      <div style="color:var(--muted);font-size:12px;margin-bottom:12px">Registra uma entrada avulsa — freela extra, bônus, reembolso, etc.</div>
+      <input class="m-inp" id="r-name" placeholder="Descrição (ex: Freela, Bônus...)"/>
+      <input class="m-inp" id="r-amt" type="text" inputmode="numeric" placeholder="Valor (ex: 3.500,00)" oninput="maskMoney(this)"/>
+      <div id="r-err" style="display:none;color:#f87171;font-size:12px;font-weight:500;margin:-4px 0 10px">⚠️ Preencha a descrição e o valor antes de salvar.</div>
+      <div id="r-account-wrap" style="margin-bottom:12px">
+        <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Entrou em qual conta?</div>
+        <div id="r-account-chips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+        <div id="r-no-accounts" style="display:none;color:var(--muted);font-size:12px;padding:6px 0">
+          Nenhuma conta. <span style="color:var(--green);cursor:pointer" onclick="closeM('m-receita');openM('m-bank')">Cadastrar →</span>
+        </div>
+      </div>
+      <input class="m-inp" id="r-date" type="date"/>
+      <button class="m-btn" onclick="addReceita()" style="background:var(--green);color:#000">Registrar entrada</button>
+    </div>
+
+    <!-- ABA RECORRENTE (mesmos campos do m-income-new inline) -->
+    <div id="renda-panel-recorrente" style="display:none">
+      <div style="color:var(--muted);font-size:12px;margin-bottom:12px">Cadastra uma fonte que se repete todo mês (salário fixo, aluguel recebido, etc.)</div>
+      <div style="display:flex;gap:10px;margin-bottom:12px">
+        <div id="income-ico-preview2" onclick="toggleIncomeIcoPicker()" style="width:48px;height:48px;flex-shrink:0;border-radius:12px;background:rgba(34,197,94,0.1);border:2px solid rgba(34,197,94,0.3);display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer">💰</div>
+        <input class="m-inp" id="income-name" placeholder="Nome (ex: Salário CLT, Freela mensal...)" style="margin-bottom:0;flex:1"/>
+      </div>
+      <div id="income-ico-picker" style="display:none;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px;margin-bottom:12px">
+        <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:6px" id="income-ico-grid"></div>
+      </div>
+      <input class="m-inp" id="income-amt" type="text" inputmode="numeric" placeholder="Valor mensal (ex: 4.800,00)" oninput="maskMoney(this)" />
+      <div id="income-fields-err" style="display:none;color:#f87171;font-size:12px;font-weight:500;margin:-4px 0 10px">⚠️ Preencha o nome e o valor antes de salvar.</div>
+      <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Recorrência</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px" id="income-freq-btns">
+        <button onclick="setIncomeFreq('mensal')"    id="ifreq-mensal"    class="freq-btn active-freq">Mensal</button>
+        <button onclick="setIncomeFreq('quinzenal')" id="ifreq-quinzenal" class="freq-btn">Quinzenal</button>
+        <button onclick="setIncomeFreq('semanal')"   id="ifreq-semanal"   class="freq-btn">Semanal</button>
+        <button onclick="setIncomeFreq('variavel')"  id="ifreq-variavel"  class="freq-btn">Variável</button>
+      </div>
+      <div id="income-days-wrap" style="margin-bottom:12px">
+        <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Dia de recebimento</div>
+        <input id="income-day-input" type="number" min="1" max="31" placeholder="Dia (ex: 5)" class="m-inp" style="margin-bottom:0"/>
+      </div>
+      <!-- Conta de recebimento -->
+      <div style="margin-bottom:14px">
+        <div style="color:#fff;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">⚡ Para qual conta você recebe?</div>
+        <div id="income-account-chips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+        <div id="income-account-err" style="display:none;color:#f87171;font-size:12px;margin-top:8px;font-weight:500">⚠️ Selecione a conta onde você recebe antes de salvar.</div>
+      </div>
+      <button class="m-btn" onclick="saveIncome()" style="background:var(--green);color:#000">Salvar fonte recorrente</button>
+      <button id="income-delete-btn" style="display:none;width:100%;margin-top:8px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.18);border-radius:12px;padding:12px;color:#f87171;font-size:13px;font-weight:600;cursor:pointer" onclick="deleteIncome()">🗑 Remover</button>
+    </div>
+  </div>
+</div>

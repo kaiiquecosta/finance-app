@@ -1,0 +1,73 @@
+<!-- modals/auth.html -->
+
+<div class="overlay" id="m-alert">
+  <div class="sheet" style="position:relative;max-width:340px;text-align:center">
+    <div style="font-size:36px;margin-bottom:12px" id="alert-ico">⚠️</div>
+    <div class="m-ttl" id="alert-title" style="margin-bottom:8px">Atenção</div>
+    <div style="color:var(--muted);font-size:14px;margin-bottom:24px;line-height:1.5" id="alert-msg"></div>
+    <button class="m-btn" onclick="closeM('m-alert')" style="background:var(--green);color:#000;font-weight:700">OK, entendi</button>
+  </div>
+</div>
+
+<div class="overlay" id="m-profile">
+  <div class="sheet" style="position:relative;max-width:380px;overflow:hidden;padding:0">
+
+    <!-- Header com gradiente -->
+    <div id="profile-header" style="padding:32px 24px 20px;text-align:center;position:relative;background:linear-gradient(160deg,rgba(34,197,94,0.12) 0%,rgba(10,10,15,0) 70%)">
+      <!-- Fechar -->
+      <button onclick="closeM('m-profile')" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:50%;width:30px;height:30px;color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+
+      <!-- Avatar clicável -->
+      <div style="position:relative;display:inline-block;margin-bottom:14px">
+        <div id="profile-avatar-big"
+          onclick="document.getElementById('avatar-upload').click()"
+          style="width:88px;height:88px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:42px;cursor:pointer;overflow:hidden;border:3px solid rgba(34,197,94,0.5);background:rgba(34,197,94,0.1);box-shadow:0 0 0 6px rgba(34,197,94,0.08),0 8px 32px rgba(0,0,0,0.4);transition:transform .2s"
+          onmouseenter="this.style.transform='scale(1.05)'"
+          onmouseleave="this.style.transform='scale(1)'">😊</div>
+        <!-- Badge câmera -->
+        <div onclick="document.getElementById('avatar-upload').click()" style="position:absolute;bottom:2px;right:2px;width:26px;height:26px;border-radius:50%;background:#22c55e;border:2px solid #13131e;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px">📷</div>
+      </div>
+      <input type="file" id="avatar-upload" accept="image/*" style="display:none" onchange="uploadAvatar(event)"/>
+
+      <!-- Nome e telefone -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px">
+        <div id="profile-modal-name" style="color:#fff;font-size:20px;font-weight:800;font-family:var(--num);letter-spacing:-.3px"></div>
+        <button onclick="toggleEditProfile()" title="Editar nome e telefone" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;padding:2px;line-height:1;transition:color .15s" onmouseenter="this.style.color='#fff'" onmouseleave="this.style.color='var(--muted)'">✏️</button>
+      </div>
+      <div id="profile-modal-phone" style="color:var(--muted);font-size:13px;margin-top:4px"></div>
+
+      <!-- Form de edição (oculto por padrão) -->
+      <div id="profile-edit-form" style="display:none;margin-top:14px;text-align:left">
+        <input id="profile-edit-name" class="m-inp" placeholder="Novo nome" style="margin-bottom:8px"/>
+        <input id="profile-edit-phone" class="m-inp" placeholder="Novo telefone" type="tel" oninput="this.value=fmtPhone(this.value)" style="margin-bottom:8px"/>
+        <div style="display:flex;gap:8px">
+          <button onclick="saveProfileEdit()" style="flex:1;background:var(--green);border:none;border-radius:10px;padding:10px;color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Salvar</button>
+          <button onclick="toggleEditProfile()" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divisor -->
+    <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.07),transparent);margin:0 24px"></div>
+
+    <!-- Escolher emoji -->
+    <div style="padding:20px 24px">
+      <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px">Escolha seu avatar</div>
+      <div class="emoji-scroll" style="overflow-x:auto;margin-bottom:20px;padding-bottom:8px;
+        scrollbar-width:thin;scrollbar-color:var(--muted2) transparent;">
+        <div style="display:grid;grid-template-rows:repeat(3,1fr);grid-auto-flow:column;grid-auto-columns:44px;gap:7px;width:max-content" id="emoji-grid"></div>
+      </div>
+
+      <!-- Divisor -->
+      <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:20px"></div>
+
+      <!-- Botão sair -->
+      <button onclick="logout()"
+        style="width:100%;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.18);border-radius:14px;padding:14px;color:#f87171;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);letter-spacing:.2px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px"
+        onmouseenter="this.style.background='rgba(239,68,68,0.14)';this.style.borderColor='rgba(239,68,68,0.35)'"
+        onmouseleave="this.style.background='rgba(239,68,68,0.07)';this.style.borderColor='rgba(239,68,68,0.18)'">
+        <span style="font-size:16px">🚪</span> Sair da conta
+      </button>
+    </div>
+  </div>
+</div>

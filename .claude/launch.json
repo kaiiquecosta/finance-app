@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 5173
+    },
+    {
+      "name": "Legacy (monólito de referência)",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "legacy", "-p", "8080", "-c-1", "--cors"],
+      "port": 8080
+    }
+  ]
+}

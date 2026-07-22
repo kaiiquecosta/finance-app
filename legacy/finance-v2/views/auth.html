@@ -1,0 +1,84 @@
+<!-- views/auth.html -->
+
+<div id="auth-screen" style="display:flex;min-height:100vh;align-items:center;justify-content:center;background:var(--bg)">
+  <div class="auth-box">
+    <div class="auth-logo"><div class="auth-logo-dot"></div>Finance</div>
+    <div class="auth-err" id="auth-err" style="display:none;margin-bottom:12px"></div>
+
+    <!-- LOGIN -->
+    <div id="auth-step-login" style="display:block">
+      <div class="auth-title" id="auth-login-title">Olá! 👋</div>
+      <div class="auth-sub" id="auth-login-sub" style="margin-bottom:20px">Entre na sua conta ou crie uma nova</div>
+      <input class="auth-inp" id="auth-email" type="email" placeholder="Seu email" autocomplete="email"/>
+      <input class="auth-inp" id="auth-password" type="password" placeholder="Sua senha" autocomplete="current-password"/>
+      <button class="auth-btn" id="auth-login-btn" onclick="loginWithEmail()">Entrar</button>
+      <div style="display:flex;align-items:center;gap:10px;margin:12px 0">
+        <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
+        <span style="color:var(--muted);font-size:12px">ou</span>
+        <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
+      </div>
+      <button class="auth-btn ghost" onclick="loginWithGoogle()" style="display:flex;align-items:center;justify-content:center;gap:10px">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+        Continuar com Google
+      </button>
+      <div style="text-align:center;margin-top:16px">
+        <span style="color:var(--muted);font-size:13px">Não tem conta? </span>
+        <button onclick="showAuthScreen('register')" style="background:none;border:none;color:var(--green);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Criar conta grátis</button>
+      </div>
+      <div style="text-align:center;margin-top:8px">
+        <button onclick="showAuthScreen('reset')" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--font)">Esqueci minha senha</button>
+      </div>
+    </div>
+
+    <!-- REGISTRO -->
+    <div id="auth-step-register" style="display:none">
+      <div class="auth-title">Criar conta</div>
+      <div class="auth-sub" style="margin-bottom:20px">É grátis e leva menos de 1 minuto</div>
+      <input class="auth-inp" id="reg-name" type="text" placeholder="Seu nome completo"/>
+      <input class="auth-inp" id="reg-email" type="email" placeholder="Seu melhor email"/>
+      <input class="auth-inp" id="reg-password" type="password" placeholder="Criar senha (mín. 6 caracteres)"/>
+      <input class="auth-inp" id="reg-password2" type="password" placeholder="Confirmar senha"/>
+      <button class="auth-btn" id="auth-register-btn" onclick="registerWithEmail()">Criar conta</button>
+      <div style="display:flex;align-items:center;gap:10px;margin:12px 0">
+        <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
+        <span style="color:var(--muted);font-size:12px">ou</span>
+        <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
+      </div>
+      <button class="auth-btn ghost" onclick="loginWithGoogle()" style="display:flex;align-items:center;justify-content:center;gap:10px">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+        Continuar com Google
+      </button>
+      <div style="text-align:center;margin-top:16px">
+        <span style="color:var(--muted);font-size:13px">Já tem conta? </span>
+        <button onclick="showAuthScreen('login')" style="background:none;border:none;color:var(--green);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Entrar</button>
+      </div>
+    </div>
+
+    <!-- VERIFICAR EMAIL -->
+    <div id="auth-step-verify" style="display:none;text-align:center;padding:10px 0">
+      <div style="font-size:56px;margin-bottom:16px">📬</div>
+      <div class="auth-title">Verifique seu email</div>
+      <div class="auth-sub" style="margin-top:8px;line-height:1.6">Enviamos um link de confirmação.<br>Clique nele para ativar sua conta.</div>
+      <button class="auth-btn ghost" onclick="showAuthScreen('login')" style="margin-top:24px">← Voltar para o login</button>
+    </div>
+
+    <!-- RECUPERAR SENHA -->
+    <div id="auth-step-reset" style="display:none">
+      <div class="auth-title">Recuperar senha</div>
+      <div class="auth-sub" style="margin-bottom:20px">Enviaremos um link para redefinir</div>
+      <input class="auth-inp" id="reset-email" type="email" placeholder="Seu email cadastrado"/>
+      <button class="auth-btn" id="reset-btn" onclick="sendPasswordReset()">Enviar link</button>
+      <button class="auth-btn ghost" onclick="showAuthScreen('login')" style="margin-top:8px">← Voltar</button>
+    </div>
+
+    <!-- EMAIL ENVIADO -->
+    <div id="auth-step-reset-sent" style="display:none;text-align:center;padding:10px 0">
+      <div style="font-size:56px;margin-bottom:16px">✉️</div>
+      <div class="auth-title">Email enviado!</div>
+      <div class="auth-sub" style="margin-top:8px;line-height:1.6">Verifique sua caixa de entrada e clique no link.</div>
+      <button class="auth-btn ghost" onclick="showAuthScreen('login')" style="margin-top:24px">← Voltar para o login</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TELA DE ESCOLHA DE TEMA (só na primeira vez) ── -->
