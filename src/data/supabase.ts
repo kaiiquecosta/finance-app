@@ -20,13 +20,13 @@ function isNativePlatform(): boolean {
   return Boolean(cap?.isNativePlatform?.())
 }
 
-const native = isNativePlatform()
+export const isNative = isNativePlatform()
 
 export const supabase = createClient(url, anonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: !native,
-    flowType: native ? 'pkce' : 'implicit',
+    detectSessionInUrl: !isNative,
+    flowType: isNative ? 'pkce' : 'implicit',
   },
 })

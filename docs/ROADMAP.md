@@ -8,7 +8,7 @@ garantindo que nenhum cálculo mude sem ser detectado. Checkpoint verificável a
 | ----- | ------------------------------------------------------------------------------------------- | ------ |
 | **0** | Fundação: Vite + React + TS + tooling, estrutura de pastas, mover monólito p/ `legacy/`     | ✅     |
 | **1** | Camada de domínio: `Money` (centavos), cálculos portados + testes; corrigir bugs conhecidos | ✅     |
-| **2** | Camada de dados: schema/RLS versionados, migrations, hooks TanStack Query, auth completa    | ⏳     |
+| **2** | Camada de dados: schema/RLS versionados, migrations, hooks TanStack Query, auth completa    | ✅     |
 | **3** | UI: componentes compartilhados, navegação, tema, 8 páginas, 24 modais, landing              | ⏳     |
 | **4** | Pagamentos: Edge Functions Stripe (checkout/webhook/portal), tabela `plans`, trial          | ⏳     |
 | **5** | Segurança & legitimidade: CSP/headers, RLS audit, LGPD/legal, SEO/PWA, observabilidade      | ⏳     |
