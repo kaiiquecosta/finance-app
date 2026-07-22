@@ -1,21 +1,18 @@
-import styles from './App.module.css'
+import { useEffect } from 'react'
+import { useSession } from '@/data/hooks'
+import { applyTheme, useTheme } from '@/app/theme'
+import { AuthScreen } from '@/features/auth/AuthScreen'
+import { AuthedHome } from '@/app/AuthedHome'
+import { Splash } from '@/app/Splash'
 
-/**
- * Placeholder da Fase 0 — apenas confirma que a fundação
- * (React + TS + Vite + tema) está de pé. As rotas, páginas e
- * a landing entram nas fases seguintes.
- */
 export function App() {
-  return (
-    <main className={styles.boot}>
-      <div className={styles.card}>
-        <div className={styles.logo}>F</div>
-        <h1 className={styles.title}>Finance</h1>
-        <p className={styles.subtitle}>
-          Fundação <strong>React + TypeScript + Vite</strong> pronta.
-        </p>
-        <span className={styles.badge}>v2 · em construção</span>
-      </div>
-    </main>
-  )
+  const theme = useTheme((s) => s.theme)
+  useEffect(() => {
+    applyTheme(theme)
+  }, [theme])
+
+  const { session, loading } = useSession()
+
+  if (loading) return <Splash />
+  return session ? <AuthedHome email={session.user.email ?? ''} /> : <AuthScreen />
 }
