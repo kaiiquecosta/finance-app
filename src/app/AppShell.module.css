@@ -1,0 +1,156 @@
+.app {
+  min-height: 100vh;
+}
+
+.topnav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.topnav::-webkit-scrollbar {
+  height: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--num);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+.logoDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+}
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  white-space: nowrap;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+.tab:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--text) 6%, transparent);
+}
+.tabActive {
+  color: var(--text);
+  background: color-mix(in srgb, var(--text) 9%, transparent);
+  border-color: var(--border2);
+}
+
+.spacer {
+  flex: 1;
+}
+.plan {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  border: 1px solid var(--border2);
+  border-radius: 999px;
+  padding: 3px 9px;
+  flex-shrink: 0;
+}
+.planPro {
+  color: var(--green);
+  border-color: color-mix(in srgb, var(--green) 40%, transparent);
+}
+.iconBtn {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  font-size: 15px;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.iconBtn:hover {
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+.main {
+  margin-top: var(--nav-h);
+  padding: 24px 20px 108px;
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Bottom nav — só no mobile */
+.bottomnav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .tabs {
+    display: none;
+  }
+  .bottomnav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    gap: 2px;
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .bottomnav::-webkit-scrollbar {
+    height: 0;
+  }
+  .mtab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 60px;
+    padding: 6px 4px;
+    border-radius: 10px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .micon {
+    font-size: 18px;
+  }
+  .mlabel {
+    font-size: 9px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .mtabActive {
+    color: var(--green);
+    background: color-mix(in srgb, var(--green) 12%, transparent);
+  }
+}
