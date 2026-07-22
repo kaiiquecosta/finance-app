@@ -6,8 +6,8 @@ garantindo que nenhum cálculo mude sem ser detectado. Checkpoint verificável a
 
 | Fase  | Objetivo                                                                                    | Status |
 | ----- | ------------------------------------------------------------------------------------------- | ------ |
-| **0** | Fundação: Vite + React + TS + tooling, estrutura de pastas, mover monólito p/ `legacy/`     | 🚧     |
-| **1** | Camada de domínio: `Money` (centavos), cálculos portados + testes; corrigir bugs conhecidos | ⏳     |
+| **0** | Fundação: Vite + React + TS + tooling, estrutura de pastas, mover monólito p/ `legacy/`     | ✅     |
+| **1** | Camada de domínio: `Money` (centavos), cálculos portados + testes; corrigir bugs conhecidos | ✅     |
 | **2** | Camada de dados: schema/RLS versionados, migrations, hooks TanStack Query, auth completa    | ⏳     |
 | **3** | UI: componentes compartilhados, navegação, tema, 8 páginas, 24 modais, landing              | ⏳     |
 | **4** | Pagamentos: Edge Functions Stripe (checkout/webhook/portal), tabela `plans`, trial          | ⏳     |
@@ -21,7 +21,11 @@ garantindo que nenhum cálculo mude sem ser detectado. Checkpoint verificável a
   como `dl`.
 - **`received` de renda não persiste** — não está no mapeamento de `loadUserData` nem no upsert;
   o estado "recebido" é reconstruído a cada sessão.
-- **Drift de schema em `fixed_bills`** — `paid_amt`/`fixed` são lidos mas nunca gravados.
+- **Drift de schema em `fixed_bills`** — `paid_amt`/`fixed` são lidos mas nunca gravados. Como
+  `fixed` nunca era gravado, o "potencial de investimento" somava contas fixas = 0. Corrigido em
+  `overview.fixedBillsTotal` (soma todas). Entidade ganhou `paidAmount`.
+- **Bug de fuso em datas** — `new Date("2026-03-10")` (UTC) + `getDate()` local deslocava a fatura
+  perto da virada de mês. Corrigido com `dates.parseISODate` (trata como data local de calendário).
 
 ## Dívidas/decisões conhecidas
 
