@@ -1,0 +1,233 @@
+<!-- views/bills.html -->
+
+<div class="page" id="page-bills">
+  <div class="page-hdr">
+    <div class="sec-hdr">
+      <div><div class="sec-ttl">Contas fixas</div><div class="sec-sub">Água, luz, internet e mais</div></div>
+      <button onclick="openM('m-bill-new')" style="background:var(--green);border:none;border-radius:8px;padding:8px 16px;color:#000;font-size:13px;font-weight:700">＋ Nova conta</button>
+    </div>
+  </div>
+
+  <!-- Resumo -->
+  <div class="grid3" style="margin-bottom:20px">
+    <div class="card card-sm" style="text-align:center">
+      <div class="card-label">Total fixo/mês</div>
+      <div class="num-md num-red" id="fb-fixed-total">—</div>
+    </div>
+    <div class="card card-sm" style="text-align:center">
+      <div class="card-label">Pagas este mês</div>
+      <div class="num-md num-green" id="fb-paid-count">—</div>
+    </div>
+    <div class="card card-sm" style="text-align:center">
+      <div class="card-label">Pendentes</div>
+      <div class="num-md" style="color:var(--amber)" id="fb-pending-count">—</div>
+    </div>
+  </div>
+
+  <!-- Lista de contas -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🏠</span> Suas contas</div>
+    <div id="fb-list"></div>
+  </div>
+</div>
+
+</main>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <!-- Tema mobile -->
+    <button class="m-nav-btn" onclick="toggleTheme()" id="mob-theme-btn">
+      <span class="mni" id="mob-theme-ico">🌙</span>
+      <span class="mnl">Tema</span>
+      <span class="mnd"></span>
+    </button>
+    <!-- Avatar mobile — sempre à esquerda, abre perfil -->
+    <button class="m-nav-btn" onclick="goPage('overview');openM('m-profile')">
+      <span class="mni" id="mob-avatar" style="opacity:1;font-size:22px;width:24px;height:24px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center">😊</span>
+      <span class="mnl">Eu</span>
+      <span class="mnd"></span>
+    </button>
+    <button class="m-nav-btn active" id="mn-overview" onclick="goPage('overview')"><span class="mni">📊</span><span class="mnl">Visão</span><span class="mnd"></span></button>
+    <button class="m-nav-btn" id="mn-transactions" onclick="goPage('transactions')"><span class="mni">💸</span><span class="mnl">Transações</span><span class="mnd"></span></button>
+    <button class="m-nav-btn" id="mn-installments" onclick="goPage('installments')"><span class="mni">📅</span><span class="mnl">Parcelas</span><span class="mnd"></span></button>
+    <button class="m-nav-btn" id="mn-subscriptions" onclick="goPage('subscriptions')"><span class="mni">🔁</span><span class="mnl">Assinaturas</span><span class="mnd"></span></button>
+    <button class="m-nav-btn" id="mn-cards" onclick="goPage('cards')"><span class="mni">💳</span><span class="mnl">Cartões</span><span class="mnd"></span></button>
+    <button class="m-nav-btn" id="mn-bills" onclick="goPage('bills')"><span class="mni">🏠</span><span class="mnl">Contas</span><span class="mnd"></span></button>
+    <button class="m-nav-btn" id="mn-goals" onclick="goPage('goals')"><span class="mni">🎯</span><span class="mnl">Metas</span><span class="mnd"></span></button>
+    <button class="m-nav-btn" id="mn-investments" onclick="goPage('investments')"><span class="mni">📈</span><span class="mnl">Invest.</span><span class="mnd"></span></button>
+  </div>
+</div>
+</div><!-- /main-app -->
+
+<!-- MODAL PREVIEW FATURA DO CARTÃO -->
+<div class="overlay" id="m-cc-bill-preview">
+  <div class="sheet" style="max-height:85vh;overflow-y:auto;position:relative">
+    <button class="m-close" onclick="closeM('m-cc-bill-preview')">✕</button>
+    <div id="cc-preview-content"></div>
+  </div>
+</div>
+
+<!-- MODAL NOVA CONTA FIXA -->
+<div class="overlay" id="m-bill-new">
+  <div class="sheet" style="position:relative;max-height:90vh;overflow-y:auto">
+    <button class="m-close" onclick="closeM('m-bill-new')">✕</button>
+    <div class="m-ttl">Nova conta fixa</div>
+    <input class="m-inp" id="fb-name" placeholder="Nome (ex: Apartamento, Água...)"/>
+    <input class="m-inp" id="fb-amt" type="text" inputmode="numeric" placeholder="Valor (ex: 120,00)" oninput="maskMoney(this)" />
+
+    <!-- Seletor de ícone visual (colapsável) -->
+    <div style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="toggleBillIcoPicker()">
+        <div id="fb-ico-preview" style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.06);border:2px solid rgba(34,197,94,0.4);display:flex;align-items:center;justify-content:center;font-size:22px">🏠</div>
+        <div style="flex:1">
+          <div style="color:#fff;font-size:13px;font-weight:500">Ícone</div>
+          <div style="color:var(--muted);font-size:11px">Toque para escolher</div>
+        </div>
+        <div id="fb-ico-arrow" style="color:var(--muted);font-size:16px;transition:transform .2s">›</div>
+      </div>
+      <!-- Grade oculta por padrão -->
+      <div id="fb-ico-panel" style="display:none;margin-top:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px">
+        <div id="fb-ico-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:10px"></div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px">
+          <span style="color:var(--muted);font-size:11px;white-space:nowrap">Emoji personalizado:</span>
+          <input id="fb-ico-custom" placeholder="Cole aqui" maxlength="4"
+            style="background:none;border:none;color:#fff;font-size:18px;width:100%;outline:none;font-family:var(--font)"
+            oninput="selectBillIco(this.value.trim()||'📋')"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Categoria -->
+    <div style="margin-bottom:12px">
+      <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Categoria</div>
+      <div id="fb-cat-grid" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+      <input class="m-inp" id="fb-cat-custom" placeholder="Ou digite uma categoria personalizada" style="margin-bottom:0"/>
+    </div>
+
+    <input class="m-inp" id="fb-day" type="number" placeholder="Dia de vencimento (ex: 10)" min="1" max="31"/>
+    <!-- Toggle fixo/variável -->
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="color:var(--text);font-size:13px;font-weight:600">Valor fixo todo mês</div>
+          <div style="color:var(--muted);font-size:11px;margin-top:2px">O valor acima será lançado automaticamente</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="fb-fixed" checked onchange="toggleFixedHint()"/>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div id="fb-variable-hint" style="display:none;margin-top:10px;padding:8px 10px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;color:var(--amber);font-size:12px">
+        ⚡ Você precisará informar o valor todo mês ao marcar como paga.
+      </div>
+    </div>
+    <button class="m-btn" onclick="addFixedBill()">Adicionar conta</button>
+  </div>
+</div>
+
+<!-- MODAL CONTAS BANCÁRIAS -->
+<div class="overlay" id="m-bank">
+  <div class="sheet" style="position:relative;max-height:88vh;overflow-y:auto">
+    <button class="m-close" onclick="closeM('m-bank')">✕</button>
+    <div class="m-ttl">🏦 Minhas contas</div>
+
+    <!-- Lista de contas existentes -->
+    <div id="bank-list" style="margin-bottom:16px"></div>
+
+    <!-- Formulário nova conta -->
+    <div id="bank-new-form" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px">
+      <div style="color:#fff;font-size:13px;font-weight:600;margin-bottom:12px">＋ Nova conta</div>
+
+      <!-- Banco preset chips -->
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px" id="bank-presets"></div>
+
+      <input class="m-inp" id="bank-name" placeholder="Nome (ex: Nubank, Sofisa, Conta salário...)" style="margin-bottom:8px"/>
+
+      <!-- Cor da conta -->
+      <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Cor</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="bank-color-chips"></div>
+
+      <!-- Saldo inicial -->
+      <input class="m-inp" id="bank-balance" type="text" inputmode="numeric" placeholder="Quanto você já tem nessa conta? (ex: 1.500,00)" oninput="maskMoney(this)" style="margin-bottom:12px"/>
+
+      <!-- Tipo de conta -->
+      <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Tipo</div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button onclick="setBankType('corrente')"  id="bktype-corrente"  class="freq-btn active-freq" style="flex:1">Corrente</button>
+        <button onclick="setBankType('poupança')"  id="bktype-poupança"  class="freq-btn" style="flex:1">Poupança</button>
+        <button onclick="setBankType('investimento')" id="bktype-investimento" class="freq-btn" style="flex:1">Investimento</button>
+      </div>
+
+      <button class="m-btn" onclick="addBankAccount()">Adicionar conta</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- MODAL PAGAR CONTA (variável) -->
+<div class="overlay" id="m-pay-bill">
+  <div class="sheet" style="position:relative">
+    <button class="m-close" onclick="closeM('m-pay-bill')">✕</button>
+    <div class="m-ttl" id="pay-bill-ttl">Pagar conta</div>
+    <div style="color:var(--muted);font-size:13px;margin-bottom:14px" id="pay-bill-hint"></div>
+    <input class="m-inp" id="pay-bill-amt" type="text" inputmode="numeric" placeholder="Valor desta fatura" oninput="maskMoney(this)" />
+    <div style="margin-bottom:14px">
+      <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Saiu de qual conta?</div>
+      <div id="pay-bill-account-chips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+    </div>
+    <button class="m-btn" onclick="payBill()">Confirmar pagamento</button>
+  </div>
+</div>
+
+<!-- MODAL EDITAR CONTA FIXA -->
+<div class="overlay" id="m-edit-bill">
+  <div class="sheet" style="position:relative">
+    <button class="m-close" onclick="closeM('m-edit-bill')">✕</button>
+    <div class="m-ttl">Editar conta</div>
+    <!-- Ícone + nome -->
+    <div style="display:flex;gap:10px;margin-bottom:12px;align-items:center">
+      <div id="eb-ico-preview" onclick="toggleEbIcoPicker()" style="width:46px;height:46px;flex-shrink:0;border-radius:12px;background:rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer" title="Trocar ícone">📋</div>
+      <input class="m-inp" id="eb-name" placeholder="Nome" style="margin-bottom:0;flex:1"/>
+    </div>
+    <div id="eb-ico-picker" style="display:none;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px;margin-bottom:12px">
+      <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:6px" id="eb-ico-grid"></div>
+    </div>
+    <input class="m-inp" id="eb-amt" type="text" inputmode="numeric" placeholder="Valor fixo" oninput="maskMoney(this)" />
+    <input class="m-inp" id="eb-day" type="number" placeholder="Dia de vencimento"/>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="color:var(--text);font-size:13px;font-weight:600">Valor fixo todo mês</div>
+          <div style="color:var(--muted);font-size:11px;margin-top:2px">Desative se o valor varia</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="eb-fixed" checked/>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+    <button class="m-btn" onclick="saveFixedBill()">Salvar</button>
+    <button class="m-btn ghost" style="margin-top:8px;background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2)" onclick="deleteFixedBill()">🗑 Remover conta</button>
+  </div>
+</div>
+
+<!-- MODAL DADOS (mobile) -->
+<div class="overlay" id="m-data">
+  <div class="sheet" style="position:relative">
+    <button class="m-close" onclick="closeM('m-data')">✕</button>
+    <div class="m-ttl">💾 Seus dados</div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.6">
+      Salve todos os seus dados em um arquivo <code style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px;font-size:12px">.json</code> e carregue de volta quando quiser. Nada vai para a nuvem — fica só no seu dispositivo.
+    </p>
+    <button class="m-btn" onclick="exportData();closeM('m-data')">
+      ⬇ Salvar como finance-dados.json
+    </button>
+    <label class="m-btn ghost" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;cursor:pointer">
+      ⬆ Carregar arquivo JSON
+      <input type="file" accept=".json" onchange="importData(event);closeM('m-data')" style="display:none"/>
+    </label>
+    <div id="data-info" style="margin-top:16px;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px;font-size:12px;color:var(--muted);line-height:1.7"></div>
+  </div>
+</div>

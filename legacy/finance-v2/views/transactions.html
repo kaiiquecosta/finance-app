@@ -1,0 +1,26 @@
+<!-- views/transactions.html -->
+
+<div class="page" id="page-transactions">
+  <div class="sec-hdr page-hdr">
+    <div><div class="sec-ttl">Transações</div><div class="sec-sub" id="tx-count-lbl"></div></div>
+    <button onclick="openM('m-add')" style="background:var(--green);border:none;border-radius:8px;padding:8px 16px;color:#000;font-size:13px;font-weight:700">＋ Nova</button>
+  </div>
+  <!-- Summary bar -->
+  <div class="grid3" style="margin-bottom:20px">
+    <div class="card card-sm" style="text-align:center">
+      <div class="card-label">Receitas</div>
+      <div class="num-md num-green" id="tx-inc-sum">—</div>
+    </div>
+    <div class="card card-sm" style="text-align:center">
+      <div class="card-label">Gastos</div>
+      <div class="num-md num-red" id="tx-spt-sum">—</div>
+    </div>
+    <div class="card card-sm" style="text-align:center">
+      <div class="card-label">Saldo</div>
+      <div class="num-md" id="tx-bal-sum" style="color:#fff">—</div>
+    </div>
+  </div>
+  <div class="card">
+    <div id="tx-full-list"></div>
+  </div>
+</div>

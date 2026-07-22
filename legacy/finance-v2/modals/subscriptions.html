@@ -1,0 +1,12 @@
+<!-- modals/subscriptions.html -->
+
+<div class="overlay" id="m-sub">
+  <div class="sheet" style="position:relative">
+    <button class="m-close" onclick="closeM('m-sub')">✕</button>
+    <div class="m-ttl">Nova assinatura</div>
+    <input class="m-inp" id="s-name" placeholder="Nome (ex: Netflix, Spotify...)"/>
+    <input class="m-inp" id="s-amt" type="text" inputmode="numeric" placeholder="Valor mensal (ex: 29,90)" oninput="maskMoney(this)" />
+    <input class="m-inp" id="s-day" type="number" placeholder="Dia de cobrança (ex: 15)" min="1" max="31"/>
+    <button class="m-btn" onclick="addSub()">Adicionar</button>
+  </div>
+</div>

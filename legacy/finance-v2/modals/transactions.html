@@ -1,0 +1,89 @@
+<!-- modals/transactions.html -->
+
+<div class="overlay" id="m-add">
+  <div class="sheet" style="position:relative">
+    <button class="m-close" onclick="closeM('m-add')">✕</button>
+    <div class="m-ttl">Nova transação</div>
+    <input class="m-inp" id="n-name" placeholder="Descrição (ex: Lazer, Mercado, Outros...)"/>
+    <input class="m-inp" id="n-amt" type="text" inputmode="numeric" placeholder="Valor (ex: 59,90)" oninput="maskMoney(this)" />
+
+    <!-- Categoria -->
+    <div style="margin-bottom:10px">
+      <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Categoria</div>
+      <select class="m-sel" id="n-cat">
+        <option value="mercado">🛒 Mercado</option>
+        <option value="alimentação">🍔 Alimentação</option>
+        <option value="streaming">📺 Streaming</option>
+        <option value="transporte">🚗 Transporte</option>
+        <option value="saúde">💊 Saúde</option>
+        <option value="compras">📦 Compras</option>
+        <option value="lazer">🎮 Lazer</option>
+        <option value="educação">📚 Educação</option>
+        <option value="outros">💳 Outros</option>
+      </select>
+    </div>
+
+    <!-- Forma de pagamento -->
+    <div style="margin-bottom:12px">
+      <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Forma de pagamento</div>
+      <div id="n-pay-chips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+    </div>
+    <!-- Seletor de conta bancária -->
+    <div id="n-account-wrap">
+      <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Conta</div>
+      <div id="n-account-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
+      <div id="n-no-accounts" style="display:none;color:var(--muted);font-size:12px;padding:8px 0">
+        Nenhuma conta cadastrada. <span style="color:var(--green);cursor:pointer" onclick="closeM('m-add');openM('m-bank')">Adicionar →</span>
+      </div>
+    </div>
+    <input class="m-inp" id="n-date" type="date"/>
+    <button class="m-btn" onclick="addTx()">Adicionar</button>
+  </div>
+</div>
+
+<div class="overlay" id="m-edit">
+  <div class="sheet" style="position:relative">
+    <button class="m-close" onclick="closeM('m-edit')">✕</button>
+    <div class="m-ttl">Editar transação</div>
+    <input class="m-inp" id="e-name" placeholder="Descrição"/>
+    <input class="m-inp" id="e-amt" type="text" inputmode="numeric" placeholder="Valor" oninput="maskMoney(this)" />
+
+    <!-- Categoria -->
+    <div style="margin-bottom:10px">
+      <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Categoria</div>
+      <select class="m-sel" id="e-cat">
+        <option value="mercado">🛒 Mercado</option>
+        <option value="alimentação">🍔 Alimentação</option>
+        <option value="streaming">📺 Streaming</option>
+        <option value="transporte">🚗 Transporte</option>
+        <option value="saúde">💊 Saúde</option>
+        <option value="compras">📦 Compras</option>
+        <option value="lazer">🎮 Lazer</option>
+        <option value="educação">📚 Educação</option>
+        <option value="outros">💳 Outros</option>
+      </select>
+    </div>
+
+    <!-- Forma de pagamento -->
+    <div style="margin-bottom:12px">
+      <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Forma de pagamento</div>
+      <div id="e-pay-chips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+    </div>
+    <!-- Seletor de conta bancária -->
+    <div style="color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;margin-top:2px" id="e-account-label">Conta</div>
+    <div id="e-account-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
+    <input class="m-inp" id="e-date" type="date"/>
+    <button class="m-btn" onclick="saveTx()">Salvar</button>
+    <button class="m-btn ghost" onclick="askDel()">🗑 Deletar</button>
+  </div>
+</div>
+
+<div class="overlay" id="m-del">
+  <div class="sheet" style="position:relative">
+    <button class="m-close" onclick="closeM('m-del')">✕</button>
+    <div class="m-ttl">Confirmar exclusão</div>
+    <div style="color:var(--muted);font-size:14px;margin-bottom:20px">Deletar <b style="color:#fff" id="del-name"></b>?</div>
+    <button class="m-btn danger" onclick="delTx()">Sim, deletar</button>
+    <button class="m-btn ghost" onclick="closeM('m-del')">Cancelar</button>
+  </div>
+</div>
