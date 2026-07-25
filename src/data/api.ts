@@ -100,7 +100,7 @@ export async function fetchPlan(userId: string): Promise<Plan | null> {
 }
 
 // ── Escrita (upsert idempotente / delete) ────────────────────────────────────
-export async function upsertRows(table: string, rows: Record<string, unknown>[]): Promise<void> {
+export async function upsertRows(table: string, rows: object[]): Promise<void> {
   if (!rows.length) return
   const { error } = await supabase.from(table).upsert(rows, { onConflict: 'id' })
   if (error) throw error

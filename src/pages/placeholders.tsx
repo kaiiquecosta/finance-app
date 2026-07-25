@@ -14,9 +14,6 @@ function Placeholder({ title, subtitle }: { title: string; subtitle: string }) {
   )
 }
 
-export const TransactionsPage = () => (
-  <Placeholder title="Transações" subtitle="Seus lançamentos do dia a dia" />
-)
 export const CardsPage = () => <Placeholder title="Cartões" subtitle="Faturas e limites" />
 export const InstallmentsPage = () => (
   <Placeholder title="Parcelas" subtitle="Parcelamentos ativos" />

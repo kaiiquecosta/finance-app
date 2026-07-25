@@ -7,6 +7,7 @@ import { Splash } from '@/app/Splash'
 import { AuthScreen } from '@/features/auth/AuthScreen'
 import { ResetPasswordPage } from '@/features/auth/ResetPasswordPage'
 import { OverviewPage } from '@/pages/OverviewPage'
+import { TransactionsPage } from '@/pages/TransactionsPage'
 import {
   BillsPage,
   CardsPage,
@@ -14,7 +15,6 @@ import {
   InstallmentsPage,
   InvestmentsPage,
   SubscriptionsPage,
-  TransactionsPage,
 } from '@/pages/placeholders'
 
 export function App() {
