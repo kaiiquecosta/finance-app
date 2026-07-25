@@ -111,6 +111,33 @@
   transition: width 0.5s ease;
 }
 
+.cardLink {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green);
+}
+
+.incomeRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  width: 100%;
+}
+.incomeRow:last-of-type {
+  border-bottom: none;
+}
+.incomeRow:hover {
+  opacity: 0.85;
+}
+.incomeRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
 .txs {
   display: flex;
   flex-direction: column;

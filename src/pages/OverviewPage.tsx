@@ -1,18 +1,30 @@
+import { useState } from 'react'
 import { useAuth } from '@/app/SessionProvider'
 import { useFinanceData } from '@/data/hooks'
 import { PageHeader } from '@/components/PageHeader'
 import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { BankAccountsModal } from '@/features/accounts/BankAccountsModal'
+import { IncomeModal } from '@/features/income/IncomeModal'
+import { useEntityMutations } from '@/data/useEntityMutations'
+import { toIncomeRow } from '@/data/mappers'
 import { formatBRL } from '@/domain/money'
 import { parseISODate } from '@/domain/dates'
 import { MONTHS_FULL, colorFor, iconFor } from '@/domain/categories'
 import { consolidatedBalance, expenseByCategory, summarizeTransactions } from '@/domain/calc/overview'
+import { receiptStatus, totalMonthlyExpected, totalReceived } from '@/domain/calc/income'
 import { formatRelativeDate } from '@/lib/format'
-import type { Transaction } from '@/domain/entities'
+import type { Income, Transaction } from '@/domain/entities'
 import styles from './OverviewPage.module.css'
 
 export function OverviewPage() {
   const { user } = useAuth()
   const { data, isLoading, isError } = useFinanceData(user?.id)
+  const incomeMutations = useEntityMutations<Income>('incomes', toIncomeRow, user?.id)
+
+  const [accountsOpen, setAccountsOpen] = useState(false)
+  const [incomeOpen, setIncomeOpen] = useState(false)
+  const [editingIncome, setEditingIncome] = useState<Income | null>(null)
 
   const now = new Date()
   const monthLabel = `${MONTHS_FULL[now.getMonth()]} de ${now.getFullYear()}`
@@ -66,12 +78,21 @@ export function OverviewPage() {
       )}
 
       <div className={styles.grid}>
-        <Card title="Saldo consolidado">
+        <Card
+          title="Saldo consolidado"
+          action={
+            <button className={styles.cardLink} onClick={() => setAccountsOpen(true)}>
+              gerenciar
+            </button>
+          }
+        >
           <div className={`${styles.big} ${balance < 0 ? styles.neg : ''}`}>
             {formatBRL(balance)}
           </div>
           <p className={styles.hint}>
-            {data.bankAccounts.length} conta(s) · saldo inicial + transações
+            {data.bankAccounts.length === 0
+              ? 'Nenhuma conta — clique em gerenciar para adicionar'
+              : `${data.bankAccounts.length} conta(s) · saldo inicial + transações`}
           </p>
         </Card>
 
@@ -89,6 +110,77 @@ export function OverviewPage() {
           </div>
         </Card>
       </div>
+
+      <Card
+        title="Minhas rendas"
+        className={styles.mt}
+        action={
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setEditingIncome(null)
+              setIncomeOpen(true)
+            }}
+          >
+            ＋ {data.incomes.length ? 'Outra renda' : 'Renda'}
+          </Button>
+        }
+      >
+        {data.incomes.length === 0 ? (
+          <p className={styles.muted}>
+            Nenhuma renda cadastrada. Adicione seu salário para ver o previsto do mês.
+          </p>
+        ) : (
+          <>
+            <div className={styles.txs}>
+              {data.incomes.map((inc) => {
+                const status = receiptStatus(inc, now)
+                return (
+                  <button
+                    key={inc.id}
+                    className={styles.incomeRow}
+                    onClick={() => {
+                      setEditingIncome(inc)
+                      setIncomeOpen(true)
+                    }}
+                  >
+                    <span className={styles.txIcon}>{inc.icon}</span>
+                    <div className={styles.txInfo}>
+                      <span className={styles.txName}>{inc.name}</span>
+                      <span className={styles.txSub}>
+                        {inc.freq}
+                        {inc.days.length > 0 && ` · ${inc.days.map((d) => `dia ${d}`).join(', ')}`}
+                      </span>
+                    </div>
+                    <div className={styles.incomeRight}>
+                      <span className={styles.pos}>{formatBRL(inc.amt)}</span>
+                      <span className={styles.txSub}>
+                        {status === 'full'
+                          ? '✓ recebido'
+                          : status === 'partial'
+                            ? 'parcial'
+                            : 'a receber'}
+                      </span>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+            <div className={styles.divider} />
+            <div className={styles.rows}>
+              <Row
+                label="Total mensal previsto"
+                value={formatBRL(totalMonthlyExpected(data.incomes))}
+                tone="pos"
+              />
+              <Row
+                label="Recebido este mês"
+                value={formatBRL(totalReceived(data.incomes, now))}
+              />
+            </div>
+          </>
+        )}
+      </Card>
 
       <Card title="Gastos por categoria" className={styles.mt}>
         {cats.length === 0 ? (
@@ -127,6 +219,30 @@ export function OverviewPage() {
           </div>
         )}
       </Card>
+
+      <BankAccountsModal
+        open={accountsOpen}
+        onClose={() => setAccountsOpen(false)}
+        userId={user?.id}
+        accounts={data.bankAccounts}
+        transactions={data.transactions}
+      />
+
+      <IncomeModal
+        open={incomeOpen}
+        editing={editingIncome}
+        accounts={data.bankAccounts}
+        saving={incomeMutations.save.isPending || incomeMutations.remove.isPending}
+        onClose={() => setIncomeOpen(false)}
+        onSave={async (draft) => {
+          await incomeMutations.save.mutateAsync(draft)
+          setIncomeOpen(false)
+        }}
+        onDelete={async (id) => {
+          await incomeMutations.remove.mutateAsync(id)
+          setIncomeOpen(false)
+        }}
+      />
     </>
   )
 }

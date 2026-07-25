@@ -116,7 +116,8 @@ export function clamp(c: Cents, lo: Cents, hi: Cents): Cents {
  */
 export function parseBRL(input: string | number): Cents {
   if (typeof input === 'number') return reais(input)
-  let s = input.trim().replace(/[R$\s  ]/g, '')
+  // Remove "R$", espacos e no-break spaces (U+00A0 e U+202F, usados no pt-BR).
+  let s = input.trim().replace(/[R$\s\u00A0\u202F]/g, '')
   if (!s) return ZERO
 
   const negative = s.startsWith('-')

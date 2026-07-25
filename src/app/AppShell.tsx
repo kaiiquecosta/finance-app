@@ -3,25 +3,8 @@ import { useAuth } from '@/app/SessionProvider'
 import { usePlan } from '@/data/hooks'
 import { useTheme } from '@/app/theme'
 import { signOut } from '@/data/auth'
+import { NAV_ITEMS } from './navItems'
 import styles from './AppShell.module.css'
-
-interface NavItem {
-  to: string
-  label: string
-  icon: string
-  end?: boolean
-}
-
-export const NAV_ITEMS: NavItem[] = [
-  { to: '/app', label: 'Visão geral', icon: '📊', end: true },
-  { to: '/app/transacoes', label: 'Transações', icon: '💸' },
-  { to: '/app/cartoes', label: 'Cartões', icon: '💳' },
-  { to: '/app/parcelas', label: 'Parcelas', icon: '🔁' },
-  { to: '/app/assinaturas', label: 'Assinaturas', icon: '🔄' },
-  { to: '/app/contas', label: 'Contas', icon: '🏠' },
-  { to: '/app/metas', label: 'Metas', icon: '🎯' },
-  { to: '/app/investimentos', label: 'Investimentos', icon: '📈' },
-]
 
 export function AppShell() {
   const { user } = useAuth()
