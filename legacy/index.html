@@ -7358,7 +7358,12 @@ function initIncomeModal(income=null){
   const accChips = document.getElementById('income-account-chips');
   if(accChips){
     accChips.innerHTML='';
-    const selId = income ? (income.accountId || '__geral__') : '__geral__';
+    // Pré-seleciona a conta de recebimento: ao editar usa a conta da renda; ao criar,
+    // a primeira conta cadastrada. Antes era sempre '__geral__', então nenhum chip
+    // recebia data-selected="1" e saveIncome() abortava no aviso "Selecione a conta
+    // onde você recebe" — impedindo salvar qualquer renda nova.
+    const _incDefaultAcc = bankAccounts.length ? bankAccounts[0].id : '__geral__';
+    const selId = String(income && income.accountId ? income.accountId : _incDefaultAcc);
 
     const makeIncChip = (id, label, clr, active)=>{
       const chip=document.createElement('button');
@@ -7391,7 +7396,7 @@ function initIncomeModal(income=null){
       accChips.appendChild(hint);
     } else {
       bankAccounts.forEach(acc=>{
-        makeIncChip(acc.id,`<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${esc(acc.name)}`, acc.clr, selId===acc.id);
+        makeIncChip(acc.id,`<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${esc(acc.name)}`, acc.clr, selId===String(acc.id));
       });
       // Botão para adicionar mais contas
       const addBtn=document.createElement('button');
