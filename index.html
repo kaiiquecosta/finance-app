@@ -3967,7 +3967,7 @@ async function loadUserData() {
   incomes = (incomeData || []).map(r => ({
     id: r.id, name: r.name, amt: Number(r.amt),
     freq: r.freq, ico: r.icon, clr: r.color,
-    accountId: r.account_id, days: r.days || []
+    accountId: r.account_id, days: _normalizeDays(r.days)
   }));
 
   fixedBills = (billsData || []).map(r => ({
@@ -4063,13 +4063,29 @@ async function _upsertBankAccounts() {
   await sb.from('bank_accounts').upsert(rows, { onConflict: 'id' });
 }
 
+// `days` era gravado com JSON.stringify([...]) numa coluna jsonb, o que armazena uma
+// STRING ("[9]") em vez de um array. Ao reler, inc.days virava string e quebrava
+// renderIncomes/renderOverview/checkReminders com "inc.days.map is not a function",
+// abortando saveIncome ANTES do autosave() — por isso nenhuma renda era salva.
+// Esta função normaliza qualquer formato (array, string JSON, null) para array de números.
+function _normalizeDays(v) {
+  if (Array.isArray(v)) return v.map(Number).filter(n => Number.isFinite(n));
+  if (typeof v === 'string') {
+    try {
+      const p = JSON.parse(v);
+      return Array.isArray(p) ? p.map(Number).filter(n => Number.isFinite(n)) : [];
+    } catch (e) { return []; }
+  }
+  return [];
+}
+
 async function _upsertIncomes() {
   if (!uid() || !incomes.length) return;
   const rows = incomes.map(i => ({
     id: i.id, user_id: uid(), name: i.name, amt: i.amt,
     freq: i.freq || 'mensal', icon: i.ico || '💰',
     color: i.clr || '#22c55e', account_id: i.accountId || null,
-    days: JSON.stringify(i.days || [])
+    days: _normalizeDays(i.days)
   }));
   await sb.from('incomes').upsert(rows, { onConflict: 'id' });
 }
@@ -7358,7 +7374,12 @@ function initIncomeModal(income=null){
   const accChips = document.getElementById('income-account-chips');
   if(accChips){
     accChips.innerHTML='';
-    const selId = income ? (income.accountId || '__geral__') : '__geral__';
+    // Pré-seleciona a conta de recebimento: ao editar usa a conta da renda; ao criar,
+    // a primeira conta cadastrada. Antes era sempre '__geral__', então nenhum chip
+    // recebia data-selected="1" e saveIncome() abortava no aviso "Selecione a conta
+    // onde você recebe" — impedindo salvar qualquer renda nova.
+    const _incDefaultAcc = bankAccounts.length ? bankAccounts[0].id : '__geral__';
+    const selId = String(income && income.accountId ? income.accountId : _incDefaultAcc);
 
     const makeIncChip = (id, label, clr, active)=>{
       const chip=document.createElement('button');
@@ -7391,7 +7412,7 @@ function initIncomeModal(income=null){
       accChips.appendChild(hint);
     } else {
       bankAccounts.forEach(acc=>{
-        makeIncChip(acc.id,`<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${esc(acc.name)}`, acc.clr, selId===acc.id);
+        makeIncChip(acc.id,`<span style="width:7px;height:7px;border-radius:50%;background:${acc.clr};display:inline-block"></span>${esc(acc.name)}`, acc.clr, selId===String(acc.id));
       });
       // Botão para adicionar mais contas
       const addBtn=document.createElement('button');
@@ -7616,6 +7637,8 @@ function renderIncomes(){
 
   incomes.forEach(inc => {
     const freqLabel = {mensal:'Mensal',quinzenal:'Quinzenal',semanal:'Semanal',variavel:'Variável'}[inc.freq]||inc.freq;
+    // Blindagem: registros antigos podem ter `days` como string JSON no banco.
+    if(!Array.isArray(inc.days)) inc.days = _normalizeDays(inc.days);
     const daysStr = inc.days.length ? inc.days.map(d=>`dia ${d}`).join(', ') : 'data variável';
 
     // Auto-marcar como recebido se hoje >= dia de recebimento
@@ -8245,7 +8268,7 @@ function checkReminders(){
 
   // ── Rendas ──
   incomes.forEach(inc => {
-    (inc.days||[]).forEach(d => {
+    _normalizeDays(inc.days).forEach(d => {
       const diff = d - todayDay;
       if(diff < 0 || diff > 2) return;
       const key = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
