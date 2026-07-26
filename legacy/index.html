@@ -6731,7 +6731,7 @@ function fmtForInput(val){
   // Formata como "3.000,00"
   const [int, dec] = Math.abs(n).toFixed(2).split('.');
   const intFmt = int.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
-  return intFmt+','+dec;
+  return 'R$ ' + intFmt + ',' + dec;
 }
 
 function maskMoneyBR(inp){
@@ -6743,7 +6743,7 @@ function maskMoneyBR(inp){
   const reais = Math.floor(num / 100);
   const cents = num % 100;
   const reaisFmt = reais.toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
-  inp.value = reaisFmt + ',' + String(cents).padStart(2,'0');
+  inp.value = 'R$ ' + reaisFmt + ',' + String(cents).padStart(2,'0');
 }
 
 function maskMoney(inp){
@@ -6765,19 +6765,22 @@ function maskMoney(inp){
   if(!intPart && decPart === null){ inp.value = ''; return; }
 
   const intFmt = intPart ? intPart.replace(/\B(?=(\d{3})+(?!\d))/g,'.') : '0';
-  const newVal = decPart !== null ? intFmt+','+decPart : intFmt;
+  const PFX = 'R$ ';
+  const newVal = PFX + (decPart !== null ? intFmt+','+decPart : intFmt);
 
   if(newVal === oldVal) return;
   inp.value = newVal;
   const diff = newVal.length - oldVal.length;
-  inp.setSelectionRange(Math.max(0, pos+diff), Math.max(0, pos+diff));
+  inp.setSelectionRange(Math.max(PFX.length, pos+diff), Math.max(PFX.length, pos+diff));
 }
 
 function maskDepAmt(inp){ maskMoney(inp); }
 
 function parseMaskedAmt(val){
   if(!val) return 0;
-  const s = String(val).trim();
+  // Remove "R$", espaços e qualquer não-dígito (mantém . e ,) antes de interpretar.
+  const s = String(val).trim().replace(/[^\d.,]/g, '');
+  if(!s) return 0;
   // Com vírgula: formato BR "3.000,50" ou "3000,50"
   if(s.includes(','))
     return parseFloat(s.replace(/\./g,'').replace(',','.')) || 0;
