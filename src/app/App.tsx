@@ -9,13 +9,8 @@ import { ResetPasswordPage } from '@/features/auth/ResetPasswordPage'
 import { OverviewPage } from '@/pages/OverviewPage'
 import { TransactionsPage } from '@/pages/TransactionsPage'
 import { GoalsPage } from '@/pages/GoalsPage'
-import {
-  BillsPage,
-  CardsPage,
-  InstallmentsPage,
-  InvestmentsPage,
-  SubscriptionsPage,
-} from '@/pages/placeholders'
+import { InvestmentsPage } from '@/pages/InvestmentsPage'
+import { BillsPage, CardsPage, InstallmentsPage, SubscriptionsPage } from '@/pages/placeholders'
 
 export function App() {
   const theme = useTheme((s) => s.theme)

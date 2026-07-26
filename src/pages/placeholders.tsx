@@ -22,6 +22,3 @@ export const SubscriptionsPage = () => (
   <Placeholder title="Assinaturas" subtitle="Serviços recorrentes" />
 )
 export const BillsPage = () => <Placeholder title="Contas fixas" subtitle="Vencimentos do mês" />
-export const InvestmentsPage = () => (
-  <Placeholder title="Investimentos" subtitle="Sua carteira" />
-)
