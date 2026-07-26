@@ -36,6 +36,17 @@
 .inputError {
   border-color: var(--red);
 }
+.prefix {
+  position: absolute;
+  left: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+  pointer-events: none;
+}
+.hasPrefix {
+  padding-left: 40px;
+}
 .eye {
   position: absolute;
   right: 8px;

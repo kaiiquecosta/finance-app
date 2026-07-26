@@ -28,6 +28,7 @@ export function MoneyField({
       name={name}
       inputMode="numeric"
       autoFocus={autoFocus}
+      prefix="R$"
       placeholder={placeholder}
       error={error}
       value={value === 0 ? '' : maskMoney(String(value))}
