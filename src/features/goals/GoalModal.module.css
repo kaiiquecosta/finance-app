@@ -1,0 +1,27 @@
+.icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  border: 1px solid var(--border2);
+  background: var(--card2);
+  font-size: 19px;
+}
+.iconActive {
+  border-color: color-mix(in srgb, var(--green) 50%, transparent);
+  background: color-mix(in srgb, var(--green) 14%, transparent);
+}
+.error {
+  font-size: 13px;
+  color: var(--red);
+  background: color-mix(in srgb, var(--red) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--red) 25%, transparent);
+  padding: 8px 12px;
+  border-radius: 10px;
+}

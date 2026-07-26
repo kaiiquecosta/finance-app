@@ -8,10 +8,10 @@ import { AuthScreen } from '@/features/auth/AuthScreen'
 import { ResetPasswordPage } from '@/features/auth/ResetPasswordPage'
 import { OverviewPage } from '@/pages/OverviewPage'
 import { TransactionsPage } from '@/pages/TransactionsPage'
+import { GoalsPage } from '@/pages/GoalsPage'
 import {
   BillsPage,
   CardsPage,
-  GoalsPage,
   InstallmentsPage,
   InvestmentsPage,
   SubscriptionsPage,
