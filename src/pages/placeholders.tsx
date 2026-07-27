@@ -18,7 +18,3 @@ export const CardsPage = () => <Placeholder title="Cartões" subtitle="Faturas e
 export const InstallmentsPage = () => (
   <Placeholder title="Parcelas" subtitle="Parcelamentos ativos" />
 )
-export const SubscriptionsPage = () => (
-  <Placeholder title="Assinaturas" subtitle="Serviços recorrentes" />
-)
-export const BillsPage = () => <Placeholder title="Contas fixas" subtitle="Vencimentos do mês" />
