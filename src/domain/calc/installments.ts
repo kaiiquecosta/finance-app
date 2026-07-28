@@ -3,7 +3,8 @@
  * aos parcelamentos manuais. Portado de `legacy/index.html` (renderInst).
  */
 import { cents, mul, sum, type Cents } from '@/domain/money'
-import type { Card, Installment } from '@/domain/entities'
+import { toISODate } from '@/domain/dates'
+import type { Card, CardBill, ISODate, Installment } from '@/domain/entities'
 
 const PARCEL_RE = /\((\d+)\/(\d+)\)$/
 const DEFAULT_COLOR = '#3b82f6'
@@ -120,5 +121,57 @@ export function installmentProgress(inst: DerivedInstallment): {
     remaining: Math.max(inst.parcels - inst.paid, 0),
     pct: Math.min((inst.paid / inst.parcels) * 100, 100),
     parcel: inst.parcelAmount,
+  }
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/** Extrai o `cardId` do id de um parcelamento derivado de cartão ("c<id>::nome::N"). */
+export function cardIdFromInstallmentId(id: string): number | null {
+  if (!id.startsWith('c')) return null
+  const n = Number(id.slice(1).split('::')[0])
+  return Number.isFinite(n) ? n : null
+}
+
+export interface AdvancePlan {
+  /** Faturas que serão marcadas como pagas e movidas para a data atual. */
+  billsToAdvance: CardBill[]
+  /** Valor total antecipado (limite liberado / a debitar da conta). */
+  freedAmount: Cents
+  /** Datas originais das parcelas antecipadas (para prévia dos meses). */
+  months: ISODate[]
+  /** Máximo de parcelas que dá para antecipar (deixa a do mês atual). */
+  maxQty: number
+}
+
+/**
+ * Planeja o adianto de `qty` parcelas de um parcelamento de cartão (puro).
+ * Pega as parcelas futuras ainda em aberto, pula a do mês atual (não
+ * antecipável) e marca as próximas `qty` como pagas, movendo-as para hoje —
+ * é isso que as remove das faturas futuras e libera o limite.
+ */
+export function planAdvance(
+  card: Card,
+  installmentName: string,
+  parcels: number,
+  qty: number,
+  asOf: Date,
+): AdvancePlan {
+  const re = new RegExp(`^${escapeRegExp(installmentName)} \\(\\d+/${parcels}\\)$`)
+  const open = (card.bills ?? [])
+    .filter((b) => b.description != null && re.test(b.description) && !b.pastPaid)
+    .sort((a, b) => a.date.localeCompare(b.date))
+  const advanceable = open.slice(1) // a primeira em aberto é a fatura atual
+  const maxQty = advanceable.length
+  const take = Math.max(0, Math.min(Math.floor(qty), maxQty))
+  const selected = advanceable.slice(0, take)
+  const today = toISODate(asOf)
+  return {
+    billsToAdvance: selected.map((b) => ({ ...b, pastPaid: true, date: today })),
+    freedAmount: sum(selected.map((b) => b.amt)),
+    months: selected.map((b) => b.date),
+    maxQty,
   }
 }

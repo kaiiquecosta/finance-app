@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { reais, type Cents } from '@/domain/money'
 import type { Card, CardBill, Installment } from '@/domain/entities'
 import {
+  cardIdFromInstallmentId,
   deriveInstallments,
   effectiveColor,
   installmentColor,
   installmentProgress,
+  planAdvance,
   summarizeInstallments,
 } from './installments'
 
@@ -75,6 +77,62 @@ describe('summarizeInstallments', () => {
     expect(s.count).toBe(1)
     expect(s.monthly).toBe(10000)
     expect(s.totalRemaining).toBe(20000) // 30000 − 10000×1
+  })
+})
+
+describe('planAdvance (adianto de parcelas)', () => {
+  const asOf = new Date(2026, 2, 15)
+  function pbill(description: string, month: number, pastPaid = false): CardBill {
+    return {
+      id: month,
+      cardId: 1,
+      description,
+      amt: reais(100),
+      date: `2026-0${month}-10`,
+      pastPaid,
+      recurring: false,
+    }
+  }
+  const c: Card = {
+    id: 1,
+    name: 'Nubank',
+    color: '#000000',
+    limit: reais(5000),
+    closeDay: 5,
+    dueDay: 12,
+    type: 'credito',
+    bills: [
+      pbill('iPhone (1/4)', 1, true),
+      pbill('iPhone (2/4)', 2),
+      pbill('iPhone (3/4)', 3),
+      pbill('iPhone (4/4)', 4),
+    ],
+  }
+
+  it('pula a parcela atual e antecipa as próximas, movendo-as para hoje', () => {
+    const plan = planAdvance(c, 'iPhone', 4, 1, asOf)
+    expect(plan.maxQty).toBe(2) // 3 em aberto, menos a atual
+    expect(plan.billsToAdvance).toHaveLength(1)
+    expect(plan.billsToAdvance[0].description).toBe('iPhone (3/4)')
+    expect(plan.billsToAdvance[0].pastPaid).toBe(true)
+    expect(plan.billsToAdvance[0].date).toBe('2026-03-15')
+    expect(plan.freedAmount).toBe(reais(100))
+  })
+
+  it('limita a quantidade ao máximo disponível', () => {
+    const plan = planAdvance(c, 'iPhone', 4, 9, asOf)
+    expect(plan.billsToAdvance).toHaveLength(2)
+    expect(plan.freedAmount).toBe(reais(200))
+  })
+})
+
+describe('cardIdFromInstallmentId', () => {
+  it('extrai o cardId de ids de cartão', () => {
+    expect(cardIdFromInstallmentId('c1::iPhone::4')).toBe(1)
+    expect(cardIdFromInstallmentId('c42::Notebook Dell::12')).toBe(42)
+  })
+  it('retorna null para parcelamentos manuais', () => {
+    expect(cardIdFromInstallmentId('9')).toBeNull()
   })
 })
 
