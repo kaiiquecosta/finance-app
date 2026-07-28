@@ -1,8 +1,12 @@
+import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/app/SessionProvider'
 import { usePlan } from '@/data/hooks'
 import { useTheme } from '@/app/theme'
 import { signOut } from '@/data/auth'
+import { openBillingPortal } from '@/data/billing'
+import { isPro, planLabel, trialDaysLeft } from '@/domain/plan'
+import { UpgradeModal } from '@/features/billing/UpgradeModal'
 import { NAV_ITEMS } from './navItems'
 import styles from './AppShell.module.css'
 
@@ -11,7 +15,15 @@ export function AppShell() {
   const plan = usePlan(user?.id)
   const theme = useTheme((s) => s.theme)
   const toggle = useTheme((s) => s.toggle)
-  const isPro = plan.data?.plan === 'pro' || plan.data?.status === 'trialing'
+  const [upgradeOpen, setUpgradeOpen] = useState(false)
+
+  const pro = isPro(plan.data)
+  const label = planLabel(plan.data)
+
+  const onBadgeClick = () => {
+    if (label === 'PRO') void openBillingPortal().catch(() => setUpgradeOpen(true))
+    else setUpgradeOpen(true)
+  }
 
   return (
     <div className={styles.app}>
@@ -36,9 +48,13 @@ export function AppShell() {
           ))}
         </nav>
         <div className={styles.spacer} />
-        <span className={`${styles.plan} ${isPro ? styles.planPro : ''}`}>
-          {isPro ? 'PRO' : 'FREE'}
-        </span>
+        <button
+          className={`${styles.plan} ${pro ? styles.planPro : ''}`}
+          onClick={onBadgeClick}
+          title={label === 'PRO' ? 'Gerenciar assinatura' : 'Assinar o Pro'}
+        >
+          {label}
+        </button>
         <button className={styles.iconBtn} onClick={toggle} title="Alternar tema">
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
@@ -68,6 +84,12 @@ export function AppShell() {
           </NavLink>
         ))}
       </nav>
+
+      <UpgradeModal
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        trialDaysLeft={trialDaysLeft(plan.data)}
+      />
     </div>
   )
 }

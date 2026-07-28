@@ -10,10 +10,12 @@ garantindo que nenhum cálculo mude sem ser detectado. Checkpoint verificável a
 | **1** | Camada de domínio: `Money` (centavos), cálculos portados + testes; corrigir bugs conhecidos | ✅     |
 | **2** | Camada de dados: schema/RLS versionados, migrations, hooks TanStack Query, auth completa    | ✅     |
 | **3** | UI: componentes compartilhados, navegação, tema, 8 páginas, modais, landing                 | ✅     |
-| **4** | Pagamentos: Edge Functions Stripe (checkout/webhook/portal), tabela `plans`, trial          | ⏳     |
+| **4** | Pagamentos: Edge Functions Stripe (checkout/webhook/portal), tabela `plans`, trial          | ✅¹    |
 | **5** | Segurança & legitimidade: CSP/headers, RLS audit, LGPD/legal, SEO/PWA, observabilidade      | ⏳     |
 | **6** | Multiplataforma: Capacitor Android + iOS (deep links OAuth, ícones, plugins)                | ⏳     |
 | **7** | Endurecimento: E2E, paridade vs legacy, performance, remover `legacy/`, produção            | ⏳     |
+
+¹ Código completo; requer deploy das Edge Functions + segredos do Stripe (ver `supabase/functions/README.md`).
 
 ## Bugs do legado a corrigir (decidido: corrigir com testes)
 
