@@ -1,0 +1,48 @@
+.label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: var(--card2);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.chip:hover {
+  color: var(--text);
+}
+.chipActive {
+  border-color: color-mix(in srgb, var(--green) 45%, transparent);
+  background: color-mix(in srgb, var(--green) 14%, transparent);
+  color: var(--green);
+}
+.preview {
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+  padding: 8px;
+  border-radius: 10px;
+  background: var(--card2);
+}
+.preview b {
+  color: var(--text);
+}
+.error {
+  font-size: 13px;
+  color: var(--red);
+  background: color-mix(in srgb, var(--red) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--red) 25%, transparent);
+  padding: 8px 12px;
+  border-radius: 10px;
+}

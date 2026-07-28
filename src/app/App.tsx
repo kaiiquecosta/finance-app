@@ -12,7 +12,8 @@ import { GoalsPage } from '@/pages/GoalsPage'
 import { InvestmentsPage } from '@/pages/InvestmentsPage'
 import { SubscriptionsPage } from '@/pages/SubscriptionsPage'
 import { BillsPage } from '@/pages/BillsPage'
-import { CardsPage, InstallmentsPage } from '@/pages/placeholders'
+import { CardsPage } from '@/pages/CardsPage'
+import { InstallmentsPage } from '@/pages/InstallmentsPage'
 
 export function App() {
   const theme = useTheme((s) => s.theme)
