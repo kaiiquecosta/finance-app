@@ -6,6 +6,7 @@ import { AppShell } from '@/app/AppShell'
 import { Splash } from '@/app/Splash'
 import { AuthScreen } from '@/features/auth/AuthScreen'
 import { ResetPasswordPage } from '@/features/auth/ResetPasswordPage'
+import { LandingPage } from '@/pages/LandingPage'
 import { OverviewPage } from '@/pages/OverviewPage'
 import { TransactionsPage } from '@/pages/TransactionsPage'
 import { GoalsPage } from '@/pages/GoalsPage'
@@ -44,7 +45,12 @@ export function App() {
           <Route path="*" element={<Navigate to="/app" replace />} />
         </>
       ) : (
-        <Route path="*" element={<AuthScreen />} />
+        <>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/entrar" element={<AuthScreen />} />
+          <Route path="/criar-conta" element={<AuthScreen initialStep="register" />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </>
       )}
     </Routes>
   )

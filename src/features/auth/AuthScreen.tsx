@@ -17,8 +17,8 @@ function friendlyError(msg: string): string {
   return msg
 }
 
-export function AuthScreen() {
-  const [step, setStep] = useState<Step>('login')
+export function AuthScreen({ initialStep = 'login' }: { initialStep?: Step }) {
+  const [step, setStep] = useState<Step>(initialStep)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
