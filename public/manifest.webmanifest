@@ -1,0 +1,19 @@
+{
+  "name": "Finance — Controle financeiro pessoal",
+  "short_name": "Finance",
+  "description": "Transações, cartões, investimentos com mercado ao vivo e metas em um só app.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -97,7 +97,10 @@ export function LandingPage() {
 
       <footer className={styles.footer}>
         <span>Finance · Controle financeiro pessoal</span>
-        <span className={styles.footerMuted}>Feito com ❤️</span>
+        <span className={styles.footerLinks}>
+          <Link to="/privacidade">Privacidade</Link>
+          <Link to="/termos">Termos</Link>
+        </span>
       </footer>
     </div>
   )

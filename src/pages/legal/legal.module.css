@@ -1,0 +1,85 @@
+.page {
+  min-height: 100vh;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 20px 64px;
+}
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--num);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--text);
+}
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--green);
+}
+.back {
+  font-size: 14px;
+  color: var(--muted);
+}
+.back:hover {
+  color: var(--text);
+}
+.content {
+  padding-top: 24px;
+}
+.h1 {
+  font-family: var(--num);
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.updated {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 6px;
+  margin-bottom: 24px;
+}
+.prose h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 28px 0 10px;
+}
+.prose p,
+.prose li {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text);
+}
+.prose p {
+  margin-bottom: 12px;
+}
+.prose ul {
+  margin: 0 0 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.prose a {
+  color: var(--green);
+}
+.prose strong {
+  font-weight: 700;
+}
+.disclaimer {
+  margin-top: 32px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--amber) 24%, transparent);
+  line-height: 1.5;
+}

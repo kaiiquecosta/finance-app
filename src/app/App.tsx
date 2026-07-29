@@ -7,6 +7,8 @@ import { Splash } from '@/app/Splash'
 import { AuthScreen } from '@/features/auth/AuthScreen'
 import { ResetPasswordPage } from '@/features/auth/ResetPasswordPage'
 import { LandingPage } from '@/pages/LandingPage'
+import { PrivacyPage } from '@/pages/legal/PrivacyPage'
+import { TermsPage } from '@/pages/legal/TermsPage'
 import { OverviewPage } from '@/pages/OverviewPage'
 import { TransactionsPage } from '@/pages/TransactionsPage'
 import { GoalsPage } from '@/pages/GoalsPage'
@@ -27,8 +29,10 @@ export function App() {
 
   return (
     <Routes>
-      {/* Sempre disponível — destino do link de recuperação de senha. */}
+      {/* Sempre disponíveis (logado ou não). */}
       <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
+      <Route path="/privacidade" element={<PrivacyPage />} />
+      <Route path="/termos" element={<TermsPage />} />
 
       {session ? (
         <>

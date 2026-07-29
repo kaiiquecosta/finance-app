@@ -168,6 +168,16 @@
 .footerMuted {
   color: var(--muted2);
 }
+.footerLinks {
+  display: flex;
+  gap: 16px;
+}
+.footerLinks a {
+  color: var(--muted);
+}
+.footerLinks a:hover {
+  color: var(--text);
+}
 
 @media (max-width: 800px) {
   .features {
