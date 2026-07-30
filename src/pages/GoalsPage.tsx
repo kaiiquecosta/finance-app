@@ -4,6 +4,7 @@ import { useFinanceData } from '@/data/hooks'
 import { PageHeader } from '@/components/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { ProGate } from '@/features/billing/ProGate'
 import { GoalModal } from '@/features/goals/GoalModal'
 import { GoalDepositModal } from '@/features/goals/GoalDepositModal'
 import { useGoalMutations } from '@/features/goals/useGoalMutations'
@@ -15,6 +16,18 @@ import type { Goal } from '@/domain/entities'
 import styles from './GoalsPage.module.css'
 
 export function GoalsPage() {
+  return (
+    <ProGate
+      feature="Metas"
+      icon="🎯"
+      description="Crie metas com prazo e valor alvo, e acompanhe o progresso a cada depósito ou retirada."
+    >
+      <GoalsPageContent />
+    </ProGate>
+  )
+}
+
+function GoalsPageContent() {
   const { user } = useAuth()
   const { data, isLoading, isError } = useFinanceData(user?.id)
   const { save, remove, transact } = useGoalMutations(user?.id)

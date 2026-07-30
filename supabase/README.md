@@ -5,8 +5,10 @@
 ```
 supabase/
 ├─ migrations/
-│  └─ 0001_schema.sql   # schema base (idempotente): tabelas, RLS, plans, trigger
-└─ functions/           # Edge Functions (Fase 4: stripe-checkout, stripe-webhook, ...)
+│  ├─ 0001_schema.sql          # schema base (idempotente): tabelas, RLS, plans, trigger
+│  └─ 0002_plans_backfill.sql  # dá 30 dias de trial a usuários que já existiam
+│                               # antes da tabela `plans`/trigger existirem
+└─ functions/                   # Edge Functions (Stripe, exclusão de conta)
 ```
 
 ## Aplicar o schema
@@ -19,6 +21,9 @@ atual que já tem as tabelas com dados.
 
 1. Abra o projeto no [dashboard.supabase.com](https://dashboard.supabase.com)
 2. **SQL Editor** → cole o conteúdo de `migrations/0001_schema.sql` → **Run**
+3. Rode também `migrations/0002_plans_backfill.sql` → **Run** (garante que contas
+   já existentes ganhem os 30 dias de trial, e não fiquem bloqueadas de recursos
+   Pro por falta de registro em `plans`)
 
 ### Opção B — Supabase CLI
 
