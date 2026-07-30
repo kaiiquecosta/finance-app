@@ -7,6 +7,7 @@ import { signOut } from '@/data/auth'
 import { openBillingPortal } from '@/data/billing'
 import { isPro, planLabel, trialDaysLeft } from '@/domain/plan'
 import { UpgradeModal } from '@/features/billing/UpgradeModal'
+import { AccountModal } from '@/features/account/AccountModal'
 import { NAV_ITEMS } from './navItems'
 import styles from './AppShell.module.css'
 
@@ -16,6 +17,7 @@ export function AppShell() {
   const theme = useTheme((s) => s.theme)
   const toggle = useTheme((s) => s.toggle)
   const [upgradeOpen, setUpgradeOpen] = useState(false)
+  const [accountOpen, setAccountOpen] = useState(false)
 
   const pro = isPro(plan.data)
   const label = planLabel(plan.data)
@@ -58,6 +60,9 @@ export function AppShell() {
         <button className={styles.iconBtn} onClick={toggle} title="Alternar tema">
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
+        <button className={styles.iconBtn} onClick={() => setAccountOpen(true)} title="Minha conta">
+          ⚙️
+        </button>
         <button className={styles.iconBtn} onClick={() => void signOut()} title="Sair">
           ⎋
         </button>
@@ -90,6 +95,7 @@ export function AppShell() {
         onClose={() => setUpgradeOpen(false)}
         trialDaysLeft={trialDaysLeft(plan.data)}
       />
+      <AccountModal open={accountOpen} onClose={() => setAccountOpen(false)} />
     </div>
   )
 }

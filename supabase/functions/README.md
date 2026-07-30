@@ -9,7 +9,9 @@ functions/
 ├─ _shared/cors.ts        # headers CORS + helper json()
 ├─ stripe-checkout/       # cria a sessão de Checkout (assinar)
 ├─ stripe-webhook/        # recebe eventos do Stripe e atualiza `plans`
-└─ stripe-portal/         # abre o Billing Portal (gerenciar/cancelar)
+├─ stripe-portal/         # abre o Billing Portal (gerenciar/cancelar)
+└─ delete-account/        # LGPD: cancela assinatura + apaga o usuário
+                           # (cascade remove todos os dados)
 ```
 
 ## 1. Pré-requisitos no Stripe (dashboard.stripe.com)
@@ -34,6 +36,7 @@ supabase secrets set APP_URL=https://finance-app-one-weld.vercel.app
 supabase functions deploy stripe-checkout
 supabase functions deploy stripe-portal
 supabase functions deploy stripe-webhook --no-verify-jwt   # webhook NÃO usa JWT
+supabase functions deploy delete-account
 ```
 
 > `SUPABASE_URL`, `SUPABASE_ANON_KEY` e `SUPABASE_SERVICE_ROLE_KEY` já existem

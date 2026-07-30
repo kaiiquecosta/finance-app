@@ -60,10 +60,12 @@ export function PrivacyPage() {
       <ul>
         <li>Acessar e corrigir seus dados dentro do app.</li>
         <li>
-          <strong>Exportar</strong> todos os seus dados (backup em arquivo).
+          <strong>Exportar</strong> todos os seus dados a qualquer momento em <b>⚙️ Minha conta</b>{' '}
+          (arquivo .json com tudo que você cadastrou).
         </li>
         <li>
-          <strong>Excluir</strong> sua conta e todos os dados associados, de forma permanente.
+          <strong>Excluir</strong> sua conta e todos os dados associados, de forma permanente, em{' '}
+          <b>⚙️ Minha conta → Excluir minha conta</b>.
         </li>
       </ul>
 
