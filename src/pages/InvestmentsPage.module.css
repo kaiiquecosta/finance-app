@@ -83,6 +83,12 @@
   font-size: 12px;
   font-weight: 600;
 }
+.rowActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
 .del {
   width: 30px;
   height: 30px;
@@ -101,5 +107,8 @@
   .totals {
     grid-template-columns: 1fr;
     gap: 8px;
+  }
+  .row {
+    flex-wrap: wrap;
   }
 }

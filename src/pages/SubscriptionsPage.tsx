@@ -1,12 +1,11 @@
 import { useState } from 'react'
 import { useAuth } from '@/app/SessionProvider'
 import { useFinanceData } from '@/data/hooks'
-import { useEntityMutations } from '@/data/useEntityMutations'
-import { toSubscriptionRow } from '@/data/mappers'
 import { PageHeader } from '@/components/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { SubscriptionModal } from '@/features/subscriptions/SubscriptionModal'
+import { useSubscriptionMutations } from '@/features/subscriptions/useSubscriptionMutations'
 import { formatBRL, mul, sum } from '@/domain/money'
 import type { Subscription } from '@/domain/entities'
 import styles from './SubscriptionsPage.module.css'
@@ -14,7 +13,7 @@ import styles from './SubscriptionsPage.module.css'
 export function SubscriptionsPage() {
   const { user } = useAuth()
   const { data, isLoading, isError } = useFinanceData(user?.id)
-  const { save, remove } = useEntityMutations<Subscription>('subscriptions', toSubscriptionRow, user?.id)
+  const { save, remove } = useSubscriptionMutations(user?.id)
 
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Subscription | null>(null)

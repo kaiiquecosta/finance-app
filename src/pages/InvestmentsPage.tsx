@@ -9,6 +9,7 @@ import { Modal } from '@/components/ui/Modal'
 import { ProGate } from '@/features/billing/ProGate'
 import { MarketSection } from '@/features/investments/MarketSection'
 import { InvestmentModal } from '@/features/investments/InvestmentModal'
+import { RescueModal } from '@/features/investments/RescueModal'
 import { useInvestmentMutations } from '@/features/investments/useInvestmentMutations'
 import { formatBRL, sub, sum } from '@/domain/money'
 import { DEFAULT_RATES, calcInvestment } from '@/domain/calc/investment'
@@ -44,10 +45,11 @@ function InvestmentsPageContent() {
   const { user } = useAuth()
   const { data, isLoading, isError } = useFinanceData(user?.id)
   const rates = useRates()
-  const { add, remove } = useInvestmentMutations(user?.id)
+  const { add, remove, rescue } = useInvestmentMutations(user?.id)
 
   const [modalOpen, setModalOpen] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<Investment | null>(null)
+  const [rescuing, setRescuing] = useState<Investment | null>(null)
 
   if (isLoading) return <PageHeader title="Investimentos" subtitle="Carregando…" />
   if (isError || !data) {
@@ -127,13 +129,18 @@ function InvestmentsPageContent() {
                       {formatBRL(r.netYield, { sign: true })}
                     </span>
                   </div>
-                  <button
-                    className={styles.del}
-                    title="Excluir"
-                    onClick={() => setConfirmDelete(inv)}
-                  >
-                    🗑
-                  </button>
+                  <div className={styles.rowActions}>
+                    <Button variant="ghost" onClick={() => setRescuing(inv)}>
+                      Resgatar
+                    </Button>
+                    <button
+                      className={styles.del}
+                      title="Excluir sem resgatar (corrigir lançamento errado)"
+                      onClick={() => setConfirmDelete(inv)}
+                    >
+                      🗑
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -158,9 +165,23 @@ function InvestmentsPageContent() {
         }}
       />
 
+      <RescueModal
+        open={rescuing !== null}
+        investment={rescuing}
+        accounts={data.bankAccounts}
+        rates={marketRates}
+        saving={rescue.isPending}
+        onClose={() => setRescuing(null)}
+        onConfirm={async ({ amount, accountId }) => {
+          if (!rescuing) return
+          await rescue.mutateAsync({ investment: rescuing, amount, accountId, rates: marketRates })
+          setRescuing(null)
+        }}
+      />
+
       <Modal
         open={confirmDelete !== null}
-        title="Excluir investimento"
+        title="Excluir sem resgatar"
         onClose={() => setConfirmDelete(null)}
         footer={
           <>
@@ -182,7 +203,9 @@ function InvestmentsPageContent() {
         }
       >
         <p className={styles.muted}>
-          Excluir <b>{confirmDelete?.name}</b>? (A transação de aporte não é removida.)
+          Excluir <b>{confirmDelete?.name}</b> sem resgatar? Use isto só para corrigir um
+          lançamento errado — nenhum valor é creditado em conta. Para sacar o dinheiro de verdade,
+          use <b>Resgatar</b>.
         </p>
       </Modal>
     </>

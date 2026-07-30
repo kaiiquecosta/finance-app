@@ -92,6 +92,16 @@
 .undo:hover {
   opacity: 0.8;
 }
+.cardLink {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green);
+  white-space: nowrap;
+  padding: 8px 4px;
+}
+.cardLink:hover {
+  text-decoration: underline;
+}
 
 @media (max-width: 640px) {
   .summary {

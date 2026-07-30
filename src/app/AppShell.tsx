@@ -1,19 +1,23 @@
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/app/SessionProvider'
-import { usePlan } from '@/data/hooks'
+import { usePlan, useFinanceData } from '@/data/hooks'
 import { useTheme } from '@/app/theme'
 import { signOut } from '@/data/auth'
 import { openBillingPortal } from '@/data/billing'
 import { isPro, planLabel, trialDaysLeft } from '@/domain/plan'
 import { UpgradeModal } from '@/features/billing/UpgradeModal'
 import { AccountModal } from '@/features/account/AccountModal'
+import { ReminderPopup } from '@/features/reminders/ReminderPopup'
+import { useReminders } from '@/features/reminders/useReminders'
 import { NAV_ITEMS } from './navItems'
 import styles from './AppShell.module.css'
 
 export function AppShell() {
   const { user } = useAuth()
   const plan = usePlan(user?.id)
+  const finance = useFinanceData(user?.id)
+  const { reminders, dismiss } = useReminders(finance.data)
   const theme = useTheme((s) => s.theme)
   const toggle = useTheme((s) => s.toggle)
   const [upgradeOpen, setUpgradeOpen] = useState(false)
@@ -96,6 +100,7 @@ export function AppShell() {
         trialDaysLeft={trialDaysLeft(plan.data)}
       />
       <AccountModal open={accountOpen} onClose={() => setAccountOpen(false)} />
+      <ReminderPopup reminders={reminders} onDismiss={dismiss} />
     </div>
   )
 }

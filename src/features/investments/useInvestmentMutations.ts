@@ -8,11 +8,20 @@ import { deleteRow, upsertRows } from '@/data/api'
 import { toInvestmentRow, toTransactionRow } from '@/data/mappers'
 import { newId } from '@/data/useEntityMutations'
 import { queryKeys } from '@/data/queryKeys'
-import { neg } from '@/domain/money'
+import { neg, type Cents } from '@/domain/money'
+import { calcInvestment, planRescue, DEFAULT_RATES, type MarketRates } from '@/domain/calc/investment'
+import { toISODate } from '@/domain/dates'
 import type { Investment, Transaction } from '@/domain/entities'
 
 export interface InvestmentDraft extends Omit<Investment, 'id'> {
   debitAccountId?: number | null
+}
+
+export interface RescueInput {
+  investment: Investment
+  amount: Cents
+  accountId: number | null
+  rates?: MarketRates
 }
 
 export function useInvestmentMutations(userId: string | undefined) {
@@ -50,5 +59,52 @@ export function useInvestmentMutations(userId: string | undefined) {
     onSuccess: invalidate,
   })
 
-  return { add, remove }
+  /**
+   * Resgate parcial ou total. Calcula o valor líquido atual (CDI/IPCA reais),
+   * planeja o resgate (reduzindo o principal proporcionalmente se parcial) e
+   * lança uma transação de crédito na conta de destino.
+   */
+  const rescue = useMutation({
+    mutationFn: async ({ investment, amount, accountId, rates }: RescueInput) => {
+      if (!userId) throw new Error('Sessão expirada. Entre novamente.')
+      const result = calcInvestment(
+        {
+          amount: investment.amount,
+          type: investment.type,
+          date: investment.date,
+          pct: investment.pct,
+          spread: investment.spread,
+          yield: investment.yield,
+        },
+        new Date(),
+        rates ?? DEFAULT_RATES,
+      )
+      const plan = planRescue(investment.amount, result.netAmount, amount)
+
+      const tx: Transaction = {
+        id: newId(),
+        name: `💰 Resgate: ${investment.name}`,
+        cat: 'receita',
+        amt: plan.creditAmount,
+        date: toISODate(new Date()),
+        accountId,
+        investmentId: investment.id,
+        billId: null,
+        incomeKey: null,
+      }
+
+      if (plan.isFull) {
+        await deleteRow('investments', investment.id)
+      } else {
+        await upsertRows('investments', [
+          toInvestmentRow({ ...investment, amount: plan.remainingAmount }, userId),
+        ])
+      }
+      await upsertRows('transactions', [toTransactionRow(tx, userId)])
+      return plan
+    },
+    onSuccess: invalidate,
+  })
+
+  return { add, remove, rescue }
 }

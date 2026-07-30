@@ -1,0 +1,127 @@
+.wrap {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 900;
+  max-width: 340px;
+  width: calc(100% - 40px);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--muted);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  animation: rise 0.2s ease;
+}
+@keyframes rise {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+}
+
+.urgent {
+  border-left-color: var(--red);
+}
+.warn {
+  border-left-color: var(--amber);
+}
+.income {
+  border-left-color: var(--green);
+}
+.normal {
+  border-left-color: var(--purple);
+}
+
+.top {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+}
+.amount {
+  font-family: var(--num);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+.close {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.close:hover {
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+  color: var(--text);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav button {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.nav button:hover {
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+  color: var(--text);
+}
+.count {
+  font-size: 11px;
+  color: var(--muted);
+}
+.cta {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green);
+}
+.cta:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .wrap {
+    right: 12px;
+    left: 12px;
+    bottom: 76px; /* acima da bottom nav */
+    width: auto;
+    max-width: none;
+  }
+}

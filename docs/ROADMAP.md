@@ -35,6 +35,36 @@ sua máquina. Ver `docs/MOBILE.md`.
 - **Bug de fuso em datas** — `new Date("2026-03-10")` (UTC) + `getDate()` local deslocava a fatura
   perto da virada de mês. Corrigido com `dates.parseISODate` (trata como data local de calendário).
 
+## Auditoria de paridade (Fase 7) — 4 lacunas encontradas e fechadas
+
+Antes de considerar a v2 pronta para produção, uma auditoria comparou funcionalidade a
+funcionalidade com o legado (não cálculo — esses já tinham testes desde a Fase 1) e achou 4
+recursos do produto original ausentes ou decorativos na v2. Todos foram fechados nesta fase:
+
+1. **Lembretes/notificações** — `domain/calc/reminders.computeReminders` existia desde a Fase 1
+   mas nenhuma tela o consumia. Agora: `features/reminders/useReminders` (com dispensa persistida
+   e podada em localStorage) + `ReminderPopup` no `AppShell`, navegando à página relevante.
+2. **Resgate de investimento** — só existia "excluir" (sem creditar nada em conta). Agora:
+   `domain/calc/investment.planRescue` (resgate parcial reduz o principal proporcionalmente ao
+   valor líquido sacado, igual ao legado) + `RescueModal` + mutation que credita a conta escolhida.
+   "Excluir sem resgatar" continua disponível, reformulado para corrigir só lançamentos errados.
+3. **Assinatura vinculada ao cartão** — o campo de cartão era decorativo (não gerava fatura nem
+   consumia limite). Agora: `useSubscriptionMutations` mantém 1 lançamento `recurring:true` em
+   `card_bills` por assinatura (mesmo id da assinatura); `billsForMonth` foi estendido para
+   projetar lançamentos recorrentes para todo mês à frente, indefinidamente.
+4. **Contas fixas + fatura do cartão unificadas** — a tela de Contas só mostrava `fixedBills`.
+   Agora: `domain/calc/cards.upcomingCardInvoices` + `BillsPage` mescla contas fixas com a fatura
+   aberta de cada cartão numa lista só, ordenada por dia de vencimento.
+
+**Simplificações conscientes** (documentadas, não são bugs):
+- O merge de contas fixas usa só a fatura do **mês atual** por cartão (não 3 meses como o legado)
+  — evita confundir com o `paid` de `fixedBills`, que é um único toggle (não por mês/ano).
+- A recorrência de assinatura no cartão é **1 linha projetada para frente** (não N linhas por
+  mês). Excluir a assinatura remove a cobrança de todos os meses (passados e futuros) da visão —
+  simplificação aceitável frente à complexidade de materializar histórico mês a mês.
+- Faturas de cartão na tela de Contas são **somente leitura** ("Ver fatura →"); pagamento
+  continua sendo feito lançamento a lançamento na página Cartões.
+
 ## Dívidas/decisões conhecidas
 
 - **IR de investimentos simplificado** (cripto 15% sem isenção R$35k; ações sem isenção R$20k;
