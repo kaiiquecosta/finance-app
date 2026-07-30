@@ -1,5 +1,11 @@
 {
   "appId": "com.finance.app",
   "appName": "Finance",
-  "webDir": "www"
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "ios": {
+    "contentInset": "always"
+  }
 }

@@ -1,0 +1,179 @@
+.muted {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.monthNav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.navBtn {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  border: 1px solid var(--border2);
+  background: var(--card);
+  color: var(--text);
+  font-size: 16px;
+}
+.navBtn:hover {
+  background: var(--card2);
+}
+.monthLabel {
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 190px;
+  text-align: center;
+}
+.today {
+  font-size: 12px;
+  color: var(--green);
+  font-weight: 600;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.num {
+  font-family: var(--num);
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--text);
+}
+.pos {
+  color: var(--green);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.cardItem {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cardTop {
+  border-left: 3px solid;
+  padding-left: 12px;
+}
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.cardDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.cardName {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: left;
+}
+.cardName:hover {
+  color: var(--green);
+}
+.cardDue {
+  font-size: 11px;
+  color: var(--muted);
+}
+.cardFat {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+.fatLabel {
+  font-size: 12px;
+  color: var(--muted);
+}
+.fatValue {
+  font-family: var(--num);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--text);
+}
+.limitBar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--border2);
+  overflow: hidden;
+}
+.limitFill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+.limitInfo {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--green);
+  margin-top: 6px;
+}
+
+.cardActions {
+  display: flex;
+  gap: 8px;
+}
+
+.bills {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+.bill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.bill:last-child {
+  border-bottom: none;
+}
+.billInfo {
+  display: flex;
+  flex-direction: column;
+}
+.billDesc {
+  font-size: 13px;
+  color: var(--text);
+}
+.billDate {
+  font-size: 11px;
+  color: var(--muted);
+}
+.billAmt {
+  font-family: var(--num);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+@media (max-width: 720px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+  .summary {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .monthLabel {
+    min-width: auto;
+    flex: 1;
+  }
+}

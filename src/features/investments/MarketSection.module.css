@@ -1,0 +1,137 @@
+.mt {
+  margin-top: 16px;
+}
+.muted {
+  color: var(--muted);
+  font-size: 14px;
+  padding: 6px 0;
+}
+.source {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.rates {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.rate {
+  flex: 1;
+  min-width: 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--card2);
+  border: 1px solid var(--border2);
+}
+.rateLabel {
+  font-size: 11px;
+  color: var(--muted);
+}
+.rateValue {
+  font-family: var(--num);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--green);
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+}
+.dotPulse {
+  animation: pulse 1s ease-in-out infinite;
+}
+@keyframes pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+}
+.colTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 8px;
+  border-radius: 8px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.6s ease;
+}
+.row:last-child {
+  border-bottom: none;
+}
+.flash_up {
+  background: color-mix(in srgb, var(--green) 16%, transparent);
+}
+.flash_down {
+  background: color-mix(in srgb, var(--red) 16%, transparent);
+}
+.rowInfo {
+  display: flex;
+  flex-direction: column;
+}
+.code {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+.label {
+  font-size: 11px;
+  color: var(--muted);
+}
+.rowRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.price {
+  font-family: var(--num);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+}
+.pctUp {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+}
+.pctDown {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--red);
+}
+
+@media (max-width: 640px) {
+  .cols {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}

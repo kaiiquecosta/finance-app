@@ -1,0 +1,93 @@
+.muted {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 6px 0;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.goal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: left;
+}
+.name:hover {
+  color: var(--green);
+}
+.sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+.pct {
+  font-family: var(--num);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+}
+.pctDone {
+  font-family: var(--num);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--green);
+}
+.bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--border2);
+  overflow: hidden;
+}
+.fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.remaining {
+  font-size: 13px;
+  color: var(--muted);
+}
+.doneLabel {
+  font-size: 13px;
+  color: var(--green);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

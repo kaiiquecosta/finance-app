@@ -1,0 +1,48 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.section:last-of-type {
+  border-bottom: none;
+}
+.email {
+  font-size: 14px;
+  color: var(--muted);
+}
+.h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.h3Danger {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--red);
+}
+.desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.danger {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--red) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--red) 20%, transparent);
+}
+.actions {
+  display: flex;
+  gap: 10px;
+}
+.error {
+  font-size: 13px;
+  color: var(--red);
+}

@@ -2,16 +2,16 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "Finance App (raiz — index.html com landing)",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["http-server", ".", "-p", "8080", "-c-1", "--cors"],
-      "port": 8080
+      "name": "dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 5173
     },
     {
-      "name": "Finance V2 (subpasta finance-v2)",
+      "name": "Legacy (monólito de referência)",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["http-server", "finance-v2", "-p", "8081", "-c-1", "--cors"],
-      "port": 8081
+      "runtimeArgs": ["http-server", "legacy", "-p", "8080", "-c-1", "--cors"],
+      "port": 8080
     }
   ]
 }
