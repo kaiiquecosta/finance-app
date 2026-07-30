@@ -11,11 +11,12 @@ garantindo que nenhum cálculo mude sem ser detectado. Checkpoint verificável a
 | **2** | Camada de dados: schema/RLS versionados, migrations, hooks TanStack Query, auth completa    | ✅     |
 | **3** | UI: componentes compartilhados, navegação, tema, 8 páginas, modais, landing                 | ✅     |
 | **4** | Pagamentos: Edge Functions Stripe (checkout/webhook/portal), tabela `plans`, trial          | ✅¹    |
-| **5** | Segurança & legitimidade: CSP/headers, RLS audit, LGPD/legal, SEO/PWA, observabilidade      | ⏳     |
+| **5** | Segurança & legitimidade: CSP/headers, RLS audit, LGPD/legal, SEO/PWA, observabilidade      | ✅¹    |
 | **6** | Multiplataforma: Capacitor Android + iOS (deep links OAuth, ícones, plugins)                | ⏳     |
 | **7** | Endurecimento: E2E, paridade vs legacy, performance, remover `legacy/`, produção            | ⏳     |
 
-¹ Código completo; requer deploy das Edge Functions + segredos do Stripe (ver `supabase/functions/README.md`).
+¹ Fase 4: código completo; requer deploy das Edge Functions + segredos do Stripe.
+Fase 5: código completo (headers, LGPD, legal, PWA); revisão jurídica dos textos e Sentry ficam para antes do lançamento. Ver `supabase/functions/README.md`.
 
 ## Bugs do legado a corrigir (decidido: corrigir com testes)
 
