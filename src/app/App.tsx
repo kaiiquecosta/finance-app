@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/app/SessionProvider'
 import { applyTheme, useTheme } from '@/app/theme'
 import { AppShell } from '@/app/AppShell'
 import { Splash } from '@/app/Splash'
+import { NATIVE_PENDING_PATH_KEY } from '@/app/nativeAuth'
 import { AuthScreen } from '@/features/auth/AuthScreen'
 import { ResetPasswordPage } from '@/features/auth/ResetPasswordPage'
 import { LandingPage } from '@/pages/LandingPage'
@@ -25,6 +26,19 @@ export function App() {
   }, [theme])
 
   const { session, loading } = useAuth()
+  const navigate = useNavigate()
+
+  // No nativo, um deep link de reset de senha guarda a rota pretendida
+  // (nativeAuth.ts) antes de a sessão existir; assim que ela aparece, navega
+  // para lá em vez de cair na Visão geral por padrão.
+  useEffect(() => {
+    if (!session) return
+    const pendingPath = sessionStorage.getItem(NATIVE_PENDING_PATH_KEY)
+    if (!pendingPath) return
+    sessionStorage.removeItem(NATIVE_PENDING_PATH_KEY)
+    navigate(pendingPath, { replace: true })
+  }, [session, navigate])
+
   if (loading) return <Splash />
 
   return (

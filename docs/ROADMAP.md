@@ -12,11 +12,16 @@ garantindo que nenhum cálculo mude sem ser detectado. Checkpoint verificável a
 | **3** | UI: componentes compartilhados, navegação, tema, 8 páginas, modais, landing                 | ✅     |
 | **4** | Pagamentos: Edge Functions Stripe (checkout/webhook/portal), tabela `plans`, trial          | ✅¹    |
 | **5** | Segurança & legitimidade: CSP/headers, RLS audit, LGPD/legal, SEO/PWA, observabilidade      | ✅¹    |
-| **6** | Multiplataforma: Capacitor Android + iOS (deep links OAuth, ícones, plugins)                | ⏳     |
+| **6** | Multiplataforma: Capacitor Android + iOS (deep links OAuth, ícones, plugins)                | ✅²    |
 | **7** | Endurecimento: E2E, paridade vs legacy, performance, remover `legacy/`, produção            | ⏳     |
 
 ¹ Fase 4: código completo; requer deploy das Edge Functions + segredos do Stripe.
 Fase 5: código completo (headers, LGPD, legal, PWA); revisão jurídica dos textos e Sentry ficam para antes do lançamento. Ver `supabase/functions/README.md`.
+² Fase 6: config e código completos (Capacitor wired, deep link OAuth para login E reset de
+senha, ícones/splash do Android já prontos). `ios/` ainda não foi criado (precisa rodar
+`npx cap add ios` numa máquina com Node 22+; compilar exige macOS/Xcode). O ambiente desta sessão
+tem Node 20.8.1 — o `@capacitor/cli` exige 22+, então `cap sync`/`cap add ios` precisam rodar na
+sua máquina. Ver `docs/MOBILE.md`.
 
 ## Bugs do legado a corrigir (decidido: corrigir com testes)
 
@@ -37,3 +42,6 @@ Fase 5: código completo (headers, LGPD, legal, PWA); revisão jurídica dos tex
 - **IDs `bigint` gerados no cliente** (`Date.now()`) no legado → migrar para geração no servidor.
 - **Tabela `plans` fora do schema versionado** e sem RLS no repo → versionar na Fase 2/4.
 - **Fluxo de reset de senha incompleto** (sem `updateUser` / tela de nova senha) → completar na Fase 2.
+- **CVE moderada em `react-router-dom` ^6.26.2** (open redirect via backslash em `<Link>`/
+  `useNavigate`; `npm audit`). Corrigir exigiria subir para v7 (major breaking) — baixo risco real
+  aqui (não renderizamos links/paths vindos de fora), mas fica registrado para a Fase 7.

@@ -42,7 +42,19 @@ npm run dev
 | `npm test`          | Testes unitários (Vitest)          |
 | `npm run test:e2e`  | Testes E2E (Playwright)            |
 
+## Mobile (Android/iOS)
+
+```bash
+npm run cap:sync        # builda o web e sincroniza com os projetos nativos
+npm run android:open    # abre no Android Studio
+npm run ios:open        # abre no Xcode (requer macOS)
+```
+
+⚠️ Requer **Node 22+** só para o tooling do Capacitor (o site web funciona com Node 20+
+normalmente). Veja o guia completo em [docs/MOBILE.md](./docs/MOBILE.md).
+
 ## Documentação
 
 - [Arquitetura](./docs/ARCHITECTURE.md)
 - [Roadmap](./docs/ROADMAP.md)
+- [Mobile (Android/iOS)](./docs/MOBILE.md)

@@ -3,12 +3,20 @@
  * Portado do legado, com o fluxo de reset de senha COMPLETO.
  */
 import type { Session } from '@supabase/supabase-js'
+import { Browser } from '@capacitor/browser'
 import { isNative, supabase } from './supabase'
 
 const NATIVE_REDIRECT = 'com.finance.app://login-callback'
 
+/**
+ * URL de retorno do fluxo de auth. No nativo, a rota pretendida (ex.:
+ * "/redefinir-senha") vai como query param — o app não navega por URL de
+ * verdade, então `nativeAuth.ts` lê esse param no deep link e navega manualmente.
+ */
 function redirectTo(path = ''): string {
-  if (isNative) return NATIVE_REDIRECT
+  if (isNative) {
+    return path ? `${NATIVE_REDIRECT}?path=${encodeURIComponent(path)}` : NATIVE_REDIRECT
+  }
   return typeof window !== 'undefined' ? window.location.origin + path : path
 }
 
@@ -34,6 +42,12 @@ export async function signInWithGoogle() {
     options: { redirectTo: redirectTo(), skipBrowserRedirect: isNative },
   })
   if (error) throw error
+  // No nativo, `skipBrowserRedirect` impede o redirect automático — quem abre
+  // o navegador do sistema com a URL de login é o próprio app (Browser.open).
+  // O retorno chega via deep link (com.finance.app://…), tratado em nativeAuth.ts.
+  if (isNative && data.url) {
+    await Browser.open({ url: data.url })
+  }
   return data
 }
 
