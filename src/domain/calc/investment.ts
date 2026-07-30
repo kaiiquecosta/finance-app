@@ -8,7 +8,7 @@
  * ⚠️ IR simplificado (documentado no ROADMAP): cripto/ações 15% sem faixas de
  * isenção; FII isento; renda fixa com tabela regressiva. Refinar depois.
  */
-import { add, rate as applyRate, type Cents } from '@/domain/money'
+import { add, rate as applyRate, min as minCents, sub, type Cents, ZERO } from '@/domain/money'
 import { daysBetween } from '@/domain/dates'
 import type { InvestmentType, ISODate } from '@/domain/entities'
 
@@ -123,4 +123,30 @@ export function calcInvestment(
     grossAmount: add(input.amount, grossYield),
     netAmount: add(input.amount, netYield),
   }
+}
+
+export interface RescuePlan {
+  /** true = resgatou tudo (o investimento deixa de existir); false = parcial. */
+  isFull: boolean
+  /** Valor líquido creditado na conta de destino (nunca maior que o disponível). */
+  creditAmount: Cents
+  /** Novo principal do investimento após o resgate (0 se `isFull`). */
+  remainingAmount: Cents
+}
+
+/**
+ * Planeja o resgate (parcial ou total) de um investimento, a partir do valor
+ * líquido atual (`netAmount` de `calcInvestment`). Portado de `legacy/index.html`
+ * (`confirmRescue`): no resgate parcial, reduz o principal proporcionalmente
+ * (`ratio = valor resgatado / valor líquido total`) — não apenas subtrai o valor
+ * bruto, para manter o rendimento futuro proporcional ao que restou aplicado.
+ */
+export function planRescue(principal: Cents, netAmount: Cents, requestedAmount: Cents): RescuePlan {
+  const creditAmount = minCents(requestedAmount, netAmount)
+  if (netAmount <= 0 || creditAmount >= netAmount) {
+    return { isFull: true, creditAmount: netAmount, remainingAmount: ZERO }
+  }
+  const ratio = creditAmount / netAmount
+  const remainingAmount = sub(principal, Math.round(principal * ratio) as Cents)
+  return { isFull: false, creditAmount, remainingAmount }
 }

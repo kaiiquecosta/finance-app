@@ -6,6 +6,7 @@ import {
   fixedIncomeIR,
   grossRateFor,
   irFor,
+  planRescue,
   type MarketRates,
 } from './investment'
 
@@ -109,5 +110,43 @@ describe('calcInvestment — cenários de 1 ano', () => {
   it('usa DEFAULT_RATES quando não informado', () => {
     const r = calcInvestment({ amount: reais(1000), type: 'cdb', pct: 100, date: START }, ONE_YEAR_LATER)
     expect(r.grossYield).toBe(13650)
+  })
+})
+
+describe('planRescue', () => {
+  it('resgate total quando o valor pedido cobre o líquido inteiro', () => {
+    const plan = planRescue(reais(1000), reais(1136.5), reais(1136.5))
+    expect(plan.isFull).toBe(true)
+    expect(plan.creditAmount).toBe(113650)
+    expect(plan.remainingAmount).toBe(0)
+  })
+
+  it('pedir mais que o disponível vira resgate total, limitado ao líquido', () => {
+    const plan = planRescue(reais(1000), reais(1136.5), reais(999999))
+    expect(plan.isFull).toBe(true)
+    expect(plan.creditAmount).toBe(113650) // nunca acima do netAmount
+  })
+
+  it('resgate parcial reduz o principal proporcionalmente', () => {
+    // Resgata metade do valor líquido → metade do principal permanece.
+    const plan = planRescue(reais(1000), reais(1136.5), reais(568.25))
+    expect(plan.isFull).toBe(false)
+    expect(plan.creditAmount).toBe(56825)
+    expect(plan.remainingAmount).toBe(50000) // metade de 1000
+  })
+
+  it('resgate parcial pequeno preserva a maior parte do principal', () => {
+    const plan = planRescue(reais(1000), reais(1136.5), reais(100))
+    expect(plan.isFull).toBe(false)
+    expect(plan.creditAmount).toBe(10000)
+    // ratio = 10000/113650 ≈ 0.0879894...; principal restante = 100000 - round(100000*ratio)
+    expect(plan.remainingAmount).toBe(91201)
+  })
+
+  it('netAmount zero ou negativo sempre resulta em resgate total', () => {
+    const plan = planRescue(reais(1000), reais(0), reais(50))
+    expect(plan.isFull).toBe(true)
+    expect(plan.creditAmount).toBe(0)
+    expect(plan.remainingAmount).toBe(0)
   })
 })

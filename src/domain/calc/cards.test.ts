@@ -8,6 +8,7 @@ import {
   invoiceTotal,
   openInvoiceMonth,
   totalAvailableLimit,
+  upcomingCardInvoices,
 } from './cards'
 
 let seq = 0
@@ -43,6 +44,55 @@ describe('billsForMonth / invoiceTotal', () => {
   it('soma o total da fatura', () => {
     expect(invoiceTotal(c, 3, 2026)).toBe(20000)
     expect(invoiceTotal(c, 2, 2026)).toBe(5000)
+  })
+})
+
+describe('billsForMonth — lançamentos recorrentes (assinatura no cartão)', () => {
+  // closeDay=5 (padrão do helper `card()`); dia 10 > 5 → fatura de origem é fevereiro/2026.
+  const c = card([
+    bill('2026-01-10', reais(30), { id: 201, recurring: true, description: 'Netflix' }),
+  ])
+
+  it('repete todo mês a partir da fatura original', () => {
+    expect(billsForMonth(c, 1, 2026).map((b) => b.id)).toEqual([201]) // fev (fatura de origem)
+    expect(billsForMonth(c, 2, 2026).map((b) => b.id)).toEqual([201]) // mar
+    expect(billsForMonth(c, 5, 2026).map((b) => b.id)).toEqual([201]) // jun
+    expect(billsForMonth(c, 0, 2027).map((b) => b.id)).toEqual([201]) // jan/2027
+  })
+  it('não aparece antes do mês de início', () => {
+    expect(billsForMonth(c, 0, 2026)).toEqual([]) // jan/2026 (antes da fatura de origem)
+    expect(billsForMonth(c, 11, 2025)).toEqual([]) // dez/2025
+  })
+  it('consome limite todo mês (invoiceTotal/availableLimit)', () => {
+    expect(invoiceTotal(c, 5, 2026)).toBe(3000)
+    expect(availableLimit(card([bill('2026-01-10', reais(30), { recurring: true })], { limit: reais(1000) }), new Date(2026, 5, 15))).toBe(97000)
+  })
+  it('não-recorrente continua pontual (sem regressão)', () => {
+    const mixed = card([
+      bill('2026-01-10', reais(30), { id: 301, recurring: true }),
+      bill('2026-01-10', reais(50), { id: 302, recurring: false }),
+    ])
+    expect(billsForMonth(mixed, 2, 2026).map((b) => b.id)).toEqual([301]) // só a recorrente
+  })
+})
+
+describe('upcomingCardInvoices', () => {
+  it('lista faturas com saldo > 0 nos próximos meses (incl. atual)', () => {
+    const c = card(
+      [
+        bill('2026-03-10', reais(200), { id: 1 }), // > closeDay(5) → fatura abril
+      ],
+      { closeDay: 5, dueDay: 12 },
+    )
+    const list = upcomingCardInvoices([c], asOf, 3) // asOf = 15/mar/2026
+    // meses varridos: mar, abr, mai — só abril tem saldo
+    expect(list).toEqual([
+      { id: 'cc-1-2026-3', cardId: 1, cardName: 'Nubank', color: '#8b5cf6', amt: 20000, dueDay: 12, month: 3, year: 2026 },
+    ])
+  })
+  it('ignora meses sem fatura e cartões sem saldo', () => {
+    const empty = card([], { id: 2 })
+    expect(upcomingCardInvoices([empty], asOf, 3)).toEqual([])
   })
 })
 
