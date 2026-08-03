@@ -4,8 +4,8 @@ export function PrivacyPage() {
   return (
     <LegalLayout title="Política de Privacidade" updated="julho de 2026">
       <p>
-        Esta política explica como o <strong>Finance</strong> ("app") trata seus dados, em
-        conformidade com a Lei Geral de Proteção de Dados (LGPD, Lei 13.709/2018).
+        Esta política explica como o <strong>Flux</strong> ("app") trata seus dados, em conformidade
+        com a Lei Geral de Proteção de Dados (LGPD, Lei 13.709/2018).
       </p>
 
       <h2>1. Dados que coletamos</h2>
@@ -14,12 +14,12 @@ export function PrivacyPage() {
           <strong>Cadastro:</strong> nome e email (via email/senha ou login Google).
         </li>
         <li>
-          <strong>Dados financeiros que você insere:</strong> transações, contas, cartões,
-          rendas, metas, investimentos e contas fixas.
+          <strong>Dados financeiros que você insere:</strong> transações, contas, cartões, rendas,
+          metas, investimentos e contas fixas.
         </li>
         <li>
-          <strong>Pagamento (plano Pro):</strong> processado pela Stripe. Não armazenamos números
-          de cartão — eles ficam com a Stripe.
+          <strong>Pagamento (plano Pro):</strong> processado pela Stripe. Não armazenamos números de
+          cartão — eles ficam com a Stripe.
         </li>
         <li>
           <strong>Armazenamento local:</strong> preferência de tema e sessão de login ficam no seu
@@ -72,7 +72,7 @@ export function PrivacyPage() {
       <h2>6. Contato</h2>
       <p>
         Para exercer seus direitos ou tirar dúvidas, fale com o encarregado de dados:{' '}
-        <strong>[email de contato]</strong>.
+        <a href="mailto:fluxcompanyco@gmail.com">fluxcompanyco@gmail.com</a>.
       </p>
     </LegalLayout>
   )
