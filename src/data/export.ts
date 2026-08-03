@@ -8,7 +8,7 @@ import type { FinanceData } from './api'
 
 export interface ExportBundle {
   exportedAt: string
-  app: 'Finance'
+  app: 'Flux'
   version: 1
   account: {
     email: string
@@ -27,7 +27,7 @@ export function buildExportBundle(
 ): ExportBundle {
   return {
     exportedAt: now.toISOString(),
-    app: 'Finance',
+    app: 'Flux',
     version: 1,
     account: { email, name: profile?.name ?? null },
     plan: plan ?? null,

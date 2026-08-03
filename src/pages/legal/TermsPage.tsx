@@ -4,13 +4,13 @@ export function TermsPage() {
   return (
     <LegalLayout title="Termos de Uso" updated="julho de 2026">
       <p>
-        Ao criar uma conta e usar o <strong>Finance</strong>, você concorda com estes termos. Leia
-        com atenção.
+        Ao criar uma conta e usar o <strong>Flux</strong>, você concorda com estes termos. Leia com
+        atenção.
       </p>
 
       <h2>1. O serviço</h2>
       <p>
-        O Finance é uma ferramenta de organização financeira pessoal. Os cálculos de rendimento,
+        O Flux é uma ferramenta de organização financeira pessoal. Os cálculos de rendimento,
         projeções e estimativas de imposto são <strong>informativos e simplificados</strong>, não
         constituindo aconselhamento financeiro, tributário ou de investimento.
       </p>
@@ -50,7 +50,8 @@ export function TermsPage() {
 
       <h2>7. Contato</h2>
       <p>
-        Dúvidas sobre estes termos: <strong>[email de contato]</strong>.
+        Dúvidas sobre estes termos:{' '}
+        <a href="mailto:fluxcompanyco@gmail.com">fluxcompanyco@gmail.com</a>.
       </p>
     </LegalLayout>
   )

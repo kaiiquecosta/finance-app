@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background rounded square -->
+  <rect width="512" height="512" rx="108" ry="108" fill="#4f46e5"/>
+
+  <!-- Inner circle — thin, elegant like BTG -->
+  <circle cx="256" cy="256" r="155" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="3"/>
+
+  <!-- Letter F — centered, clean, geometric -->
+  <path d="
+    M 213 168
+    L 310 168
+    Q 316 168 316 174
+    L 316 193
+    Q 316 199 310 199
+    L 249 199
+    L 249 243
+    L 298 243
+    Q 304 243 304 249
+    L 304 268
+    Q 304 274 298 274
+    L 249 274
+    L 249 338
+    Q 249 344 243 344
+    L 221 344
+    Q 213 344 213 338
+    Z
+  " fill="white"/>
+</svg>

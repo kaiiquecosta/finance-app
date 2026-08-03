@@ -1,35 +1,379 @@
+/* Tela de auth: card central + ecossistema de chips ligados por curvas finas.
+   Compartilhado com ResetPasswordPage.tsx, que renderiza só `.screen > .box`
+   (sem `.stack`), então nada da decoração aparece lá.
+
+   O tema CLARO é a base (igual a styles/tokens.css); `[data-theme='dark']`
+   sobrescreve. Assim a primeira pintura já sai correta, sem flash. */
+
 .screen {
+  /* --card-w é a fonte da largura do card no CSS; o gerador de curvas em
+     AuthEcosystem.tsx usa CARD_W = 440. Se um mudar, o outro muda. */
+  --card-w: 440px;
+  --stage-w: 1120px;
+  --stage-h: 720px;
+  --rail-w: calc((var(--stage-w) - var(--card-w)) / 2);
+  /* 90% opaco + backdrop-blur no pill: mesmo tratamento do chip da referência
+     (bg-white/90), deixando o gradiente aparecer levemente por trás. */
+  --chip-bg: color-mix(in srgb, var(--card) 90%, transparent);
+  --chip-shadow: 0 8px 20px -12px rgb(15 23 42 / 0.3);
+  --card-shadow: 0 30px 64px -30px rgb(15 23 42 / 0.3), 0 2px 6px rgb(15 23 42 / 0.06);
+  /* Amplitude do flutuar — usada pelo chip E pelo fio, para não descolarem.
+     Curso vertical de 18px e horizontal de 8px: precisa ser desta ordem para o
+     movimento ser perceptível. Com 6px de curso num ciclo de 11s dava ~0,75px/s,
+     matematicamente animado e visualmente parado. */
+  --float: 9px;
+  --drift: 4px;
+
+  position: relative;
+  isolation: isolate;
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
-  padding: 24px;
+  padding: 40px 20px;
+  /* Só no eixo X, e com `clip` (não `hidden`): `overflow-x: hidden` forçaria
+     overflow-y a computar `auto`, criando um scroll container que cortaria o
+     topo do card quando o passo `register` ficasse mais alto que a viewport.
+     Com clip no X apenas, o eixo Y segue `visible` e a página rola normalmente. */
+  overflow-x: clip;
+  background-color: var(--bg);
+  background-repeat: no-repeat;
+  /* Mesma estrutura do gradiente da referência (origem no alto à esquerda, raio
+     largo, verde saturando embaixo), mas no verde do Flux — não no lime da
+     AbacatePay. Primeira parada em var(--bg) em vez de `transparent` porque
+     transparent interpola como preto transparente em sRGB e sujaria a mistura. */
+  background-image: radial-gradient(
+    205% 89% at 38% 4%,
+    var(--bg) 48%,
+    color-mix(in srgb, var(--green) 26%, #d7fa7a) 76%,
+    var(--green) 100%
+  );
 }
-.box {
+
+/* Malha de pontos mascarada — mesmo idioma da landing, preenche o vazio entre
+   os chips e a borda da tela melhor que gradiente puro. */
+.screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(circle at 1px 1px, var(--border2) 1px, transparent 0);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(58% 46% at 50% 42%, #000 0%, transparent 78%);
+  -webkit-mask-image: radial-gradient(58% 46% at 50% 42%, #000 0%, transparent 78%);
+}
+
+[data-theme='dark'] .screen {
+  --chip-bg: var(--card2);
+  --chip-shadow: 0 10px 26px -16px rgb(0 0 0 / 0.85);
+  --card-shadow: 0 30px 70px -32px rgb(0 0 0 / 0.8), 0 2px 8px rgb(0 0 0 / 0.28);
+  /* No escuro o verde entra como aurora subindo do rodapé, na mesma faixa dos
+     glows que a landing já usa (LandingPage.legacy.css: alpha 0.04–0.10). */
+  background-image:
+    radial-gradient(
+      118% 76% at 50% 116%,
+      color-mix(in srgb, var(--green) 26%, transparent) 0%,
+      transparent 62%
+    ),
+    radial-gradient(
+      68% 44% at 50% 107%,
+      color-mix(in srgb, var(--green) 15%, transparent) 0%,
+      transparent 68%
+    );
+}
+
+/* ── Alternador de tema (topo) ────────────────────────────────────────────── */
+.themeToggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 15px;
+  border-radius: 999px;
+  background: var(--card);
+  border: 1px solid var(--border2);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.06);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    background 0.16s,
+    border-color 0.16s;
+}
+.themeToggle:hover {
+  background: color-mix(in srgb, var(--text) 5%, var(--card));
+  border-color: var(--muted2);
+}
+.themeToggle svg {
+  flex: none;
+  color: var(--green);
+}
+[data-theme='dark'] .themeToggle {
+  background: color-mix(in srgb, var(--text) 7%, var(--card2));
+  border-color: var(--muted2);
+  box-shadow: none;
+}
+[data-theme='dark'] .themeToggle:hover {
+  background: color-mix(in srgb, var(--text) 12%, var(--card2));
+}
+
+/* ── Palco ancorado no card ────────────────────────────────────────────────
+   `.box` é o único filho em fluxo, então a caixa do `.stack` É a caixa do card.
+   Centrar `.decor` aqui = centrar no card, em qualquer altura de passo. */
+.stack {
+  position: relative;
+  display: grid;
+  place-items: center;
   width: 100%;
-  max-width: 380px;
+  max-width: var(--card-w);
+}
+
+.decor {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--stage-w);
+  height: var(--stage-h);
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  display: none;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+/* 1120 + 40 + 40 = 1200: o palco nunca ultrapassa a viewport quando aparece.
+   O gate de altura evita cortar os 720px em janela curta. A mesma regra cobre
+   resize, zoom e rotação — sem matchMedia, sem listener. */
+@media (min-width: 1200px) and (min-height: 760px) {
+  .decor {
+    display: block;
+  }
+}
+
+.wires {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+.wire {
+  fill: none;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1; /* com pathLength=1, traço único = linha cheia */
+  stroke-dashoffset: 0;
+}
+.stopFar {
+  stop-color: var(--muted);
+  stop-opacity: 0.42;
+}
+.stopMid {
+  stop-color: var(--green);
+  stop-opacity: 0.32;
+}
+.stopNear {
+  stop-color: var(--green);
+  stop-opacity: 0.85;
+}
+
+.rail {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: var(--rail-w);
+}
+.railLeft {
+  left: 0;
+  --s: 0;
+}
+.railRight {
+  right: 0;
+  --s: 1;
+}
+
+/* Ritmo do flutuar: cada chip tem duração e fase próprias (derivadas do índice
+   e do lado), então o conjunto respira sem nunca marchar junto. O fio recebe as
+   MESMAS variáveis, e como a fórmula é idêntica os dois ficam em fase.
+   Custom properties herdam, então `.chip` lê isto da âncora. */
+.chipAnchor,
+.wireFloat {
+  --float-dur: calc(7.5s + var(--i, 0) * 0.8s + var(--s, 0) * 0.5s);
+  --float-delay: calc(var(--i, 0) * -1.9s - var(--s, 0) * 1.1s);
+  /* Espelha a deriva horizontal por lado (s=0 → +, s=1 → −), para os dois
+     trilhos derivarem simetricamente em relação ao card. Derivado de --s, que
+     chip e fio compartilham — se cada um calculasse o próprio sinal, eles
+     derivariam em sentidos opostos e a solda descolaria da curva. */
+  --drift-x: calc(var(--drift) * (1 - 2 * var(--s, 0)));
+}
+
+/* A âncora fixa a posição no trilho (e faz a entrada); o pill dentro dela é que
+   flutua. Dois elementos = dois `transform` independentes, sem uma animação
+   sobrescrever a outra e sem depender de suporte à propriedade `translate`. */
+.chipAnchor {
+  position: absolute;
+  /* chip tem 34px de altura fixa, então -17px centra sem precisar de transform */
+  top: calc(var(--y) - 17px);
+  /* o espaço restante do trilho é exato: o chip nunca sai do palco */
+  max-width: calc(100% - var(--x) - 10px);
+  /* flex, NÃO o inline padrão do <span>: um contexto inline criaria line box, e o
+     leading do line-height empurraria o pill ~3px abaixo do topo da âncora —
+     desalinhando o ponto de solda em relação à ponta da curva. */
+  display: flex;
+}
+.railLeft .chipAnchor {
+  right: var(--x);
+  --in: -14px;
+}
+.railRight .chipAnchor {
+  left: var(--x);
+  --in: 14px;
+}
+
+.chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  max-width: 100%;
+  padding: 0 13px;
+  border-radius: 999px;
+  background: var(--chip-bg);
+  border: 1px solid var(--border2);
+  box-shadow: var(--chip-shadow);
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  backdrop-filter: blur(6px);
+}
+.chipIcon {
+  display: block;
+  flex: none;
+  color: var(--green);
+}
+/* Ponto de solda: fica sempre exatamente na âncora do fio e sempre redondo
+   (por isso é pseudo-elemento do chip, não um <circle> no SVG). Vive no pill,
+   então acompanha o flutuar junto com o fio. */
+.chip::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 16%, transparent);
+  transform: translateY(-50%);
+}
+.railLeft .chip::after {
+  right: -3px;
+}
+.railRight .chip::after {
+  left: -3px;
+}
+
+/* Regras de movimento vivem TODAS dentro de no-preference: quem pede menos
+   movimento vê a tela completa e estática, nunca vazia. */
+@media (prefers-reduced-motion: no-preference) {
+  /* O card chega ANTES da decoração e ancora a atenção no formulário. */
+  .box {
+    animation: boxIn 260ms cubic-bezier(0.22, 0.8, 0.28, 1) both;
+  }
+  .chipAnchor {
+    animation: chipIn 520ms cubic-bezier(0.22, 0.8, 0.28, 1) calc(var(--i, 0) * 45ms + 260ms) both;
+  }
+  .wire {
+    animation: wireIn 900ms ease-out calc(var(--i, 0) * 45ms + 120ms) both;
+  }
+
+  /* Flutuar lento e infinito. Chip e fio usam a MESMA duração e o MESMO delay
+     (derivados de --i e do lado), então sobem e descem em fase e o ponto de
+     solda nunca descola da curva. Delay negativo entra já no meio do ciclo, sem
+     esperar. Só `transform` é animado — composto na GPU, sem repaint. */
+  .chip,
+  .wireFloat {
+    animation: floatY var(--float-dur) ease-in-out var(--float-delay) infinite;
+  }
+
+  @keyframes boxIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  @keyframes chipIn {
+    from {
+      opacity: 0;
+      transform: translateX(var(--in, 0));
+    }
+  }
+  @keyframes wireIn {
+    from {
+      stroke-dashoffset: 1;
+    }
+  }
+  /* Deriva elíptica: os eixos X e Y ficam 90° fora de fase, então o chip
+     descreve uma órbita lenta em vez de um sobe-e-desce mecânico. Um keyframe
+     só (não duas animações) porque as duas disputariam `transform`. */
+  @keyframes floatY {
+    0% {
+      transform: translate(0, calc(var(--float) * -1));
+    }
+    25% {
+      transform: translate(var(--drift-x), calc(var(--float) * -0.3));
+    }
+    50% {
+      transform: translate(0, var(--float));
+    }
+    75% {
+      transform: translate(calc(var(--drift-x) * -1), calc(var(--float) * 0.3));
+    }
+    100% {
+      transform: translate(0, calc(var(--float) * -1));
+    }
+  }
+}
+
+/* ── Card ─────────────────────────────────────────────────────────────────── */
+.box {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--card-w);
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 32px 28px;
+  border-radius: 24px;
+  padding: clamp(24px, 3.2vw, 34px) clamp(20px, 3vw, 30px);
+  box-shadow: var(--card-shadow);
 }
 .brand {
   display: flex;
   align-items: center;
   gap: 10px;
   justify-content: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 .logo {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   display: grid;
   place-items: center;
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--green);
-  color: #05130a;
+  color: #ffffff;
   font-family: var(--num);
   font-weight: 700;
-  font-size: 20px;
+  font-size: 22px;
+}
+[data-theme='dark'] .logo {
+  color: #05130a;
 }
 .brandName {
   font-family: var(--num);
@@ -37,6 +381,7 @@
   font-size: 20px;
   color: var(--text);
 }
+
 .form {
   display: flex;
   flex-direction: column;
@@ -44,15 +389,21 @@
 }
 .title {
   font-family: var(--num);
-  font-size: 22px;
+  font-size: 26px;
+  line-height: 1.15;
   font-weight: 700;
+  letter-spacing: -0.02em;
   text-align: center;
+}
+.titleBrand {
+  display: block;
+  color: var(--green);
 }
 .subtitle {
   font-size: 13px;
   color: var(--muted);
   text-align: center;
-  margin-top: -8px;
+  margin-top: -4px;
   margin-bottom: 4px;
   line-height: 1.5;
 }
@@ -71,8 +422,6 @@
   gap: 12px;
   color: var(--muted);
   font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 .divider::before,
 .divider::after {
@@ -81,6 +430,30 @@
   height: 1px;
   background: var(--border2);
 }
+
+/* `button.googleBtn` (0,1,1) vence `.ghost` (0,1,0) independentemente da ordem
+   das folhas no bundle — Button.module.css e este módulo não têm ordem garantida.
+   No claro é o botão branco com borda cinza da referência. */
+button.googleBtn {
+  background: var(--card);
+  border-color: var(--border2);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.06);
+  color: var(--text);
+}
+button.googleBtn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--text) 4%, var(--card));
+}
+/* No escuro o fundo NÃO pode ser var(--card2): é exatamente o fundo do
+   TextField, e o CTA social ficaria idêntico a um campo de e-mail vazio. */
+[data-theme='dark'] button.googleBtn {
+  background: color-mix(in srgb, var(--text) 7%, var(--card2));
+  border-color: var(--muted2);
+  box-shadow: none;
+}
+[data-theme='dark'] button.googleBtn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--text) 12%, var(--card2));
+}
+
 .link {
   align-self: center;
   font-size: 13px;
@@ -102,4 +475,73 @@
   background: none;
   border: none;
   font-size: 13px;
+}
+/* A régua fina faz isto ler como rodapé, em vez de competir com "Criar conta". */
+.legal {
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.legal a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.legal a:hover {
+  color: var(--text);
+}
+
+/* ── Fita condensada (só onde o palco não cabe, e só no cadastro) ─────────── */
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+  max-width: var(--card-w);
+}
+.stripChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: var(--chip-bg);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+/* Acima do gate o palco já conta essa história: a fita sairia sobrando.
+   `display:none` também preserva a invariante "caixa do .stack == caixa do card". */
+@media (min-width: 1200px) and (min-height: 760px) {
+  .strip {
+    display: none;
+  }
+}
+@media (max-width: 420px) {
+  .strip {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .screen {
+    padding: 24px 16px;
+  }
+  .title {
+    font-size: 23px;
+  }
+  .themeToggle {
+    top: 12px;
+    right: 12px;
+    height: 34px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
 }

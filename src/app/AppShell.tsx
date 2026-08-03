@@ -36,7 +36,7 @@ export function AppShell() {
       <header className={styles.topnav}>
         <div className={styles.brand}>
           <span className={styles.logoDot} />
-          Finance
+          Flux
         </div>
         <nav className={styles.tabs}>
           {NAV_ITEMS.map((n) => (

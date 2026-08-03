@@ -24,7 +24,7 @@ describe('buildExportBundle', () => {
       emptyData,
       now,
     )
-    expect(bundle.app).toBe('Finance')
+    expect(bundle.app).toBe('Flux')
     expect(bundle.version).toBe(1)
     expect(bundle.account).toEqual({ email: 'user@example.com', name: 'Kaique' })
     expect(bundle.plan?.plan).toBe('pro')

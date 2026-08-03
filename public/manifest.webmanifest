@@ -1,6 +1,6 @@
 {
-  "name": "Finance — Controle financeiro pessoal",
-  "short_name": "Finance",
+  "name": "Flux — Controle financeiro pessoal",
+  "short_name": "Flux",
   "description": "Transações, cartões, investimentos com mercado ao vivo e metas em um só app.",
   "start_url": "/app",
   "scope": "/",

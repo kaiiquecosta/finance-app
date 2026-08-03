@@ -16,7 +16,7 @@ export function LegalLayout({
       <header className={styles.nav}>
         <Link to="/" className={styles.brand}>
           <span className={styles.dot} />
-          Finance
+          Flux
         </Link>
         <Link to="/" className={styles.back}>
           ← Início
@@ -28,7 +28,7 @@ export function LegalLayout({
         <div className={styles.prose}>{children}</div>
         <p className={styles.disclaimer}>
           ⚠️ Este documento é um modelo inicial e deve ser revisado por um profissional jurídico
-          antes do lançamento público. Preencha os dados de contato/empresa nos pontos marcados.
+          antes do lançamento público.
         </p>
       </main>
     </div>
