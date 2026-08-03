@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatDate, formatMonthYear, formatRelativeDate } from './format'
+import { formatDate, formatMonthYear, formatPhone, formatRelativeDate } from './format'
 
 describe('formatRelativeDate', () => {
   // Datas construídas localmente para evitar fuso.
@@ -16,6 +16,23 @@ describe('formatRelativeDate', () => {
     expect(out).not.toBe('hoje')
     expect(out).not.toBe('ontem')
     expect(out).toMatch(/\d/)
+  })
+})
+
+describe('formatPhone', () => {
+  it('formata progressivamente conforme digita', () => {
+    expect(formatPhone('1')).toBe('1')
+    expect(formatPhone('11')).toBe('11')
+    expect(formatPhone('119')).toBe('(11) 9')
+    expect(formatPhone('1191234')).toBe('(11) 91234')
+    expect(formatPhone('11912345678')).toBe('(11) 91234-5678')
+  })
+  it('ignora não-dígitos e limita a 11 dígitos', () => {
+    expect(formatPhone('(11) 91234-5678')).toBe('(11) 91234-5678')
+    expect(formatPhone('119123456789999')).toBe('(11) 91234-5678')
+  })
+  it('vazio continua vazio', () => {
+    expect(formatPhone('')).toBe('')
   })
 })
 

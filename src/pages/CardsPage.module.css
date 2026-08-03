@@ -56,84 +56,176 @@
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
-.cardItem {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+/* Cartão com o visual do app original (.cc-card): gradiente escuro + brilho roxo. */
+.ccCard {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
 }
-.cardTop {
-  border-left: 3px solid;
-  padding-left: 12px;
+.ccCard::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 130px;
+  height: 130px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.15), transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
 }
+
 .cardHead {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 10px;
+  margin-bottom: 16px;
 }
-.cardDot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
+.cardIcon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  border: 1px solid;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.cardHeadInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 .cardName {
-  flex: 1;
   font-size: 15px;
-  font-weight: 600;
-  color: var(--text);
-  text-align: left;
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.cardName:hover {
-  color: var(--green);
-}
-.cardDue {
-  font-size: 11px;
+.cardType {
+  font-size: 12px;
   color: var(--muted);
 }
-.cardFat {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 8px;
+.iconAction {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  font-size: 13px;
+  opacity: 0.7;
+  flex-shrink: 0;
 }
+.iconAction:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.08);
+}
+.launchBtn {
+  padding: 7px 13px;
+  border-radius: 10px;
+  border: 1px solid;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.launchBtn:hover {
+  filter: brightness(1.2);
+}
+
 .fatLabel {
+  display: block;
   font-size: 12px;
   color: var(--muted);
 }
 .fatValue {
   font-family: var(--num);
   font-weight: 700;
-  font-size: 18px;
-  color: var(--text);
+  font-size: 28px;
+  color: #fff;
+  margin-bottom: 10px;
+}
+.cardDays {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.cardDays b {
+  color: #fff;
+  font-weight: 600;
+}
+
+.limitRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+.limitLabel {
+  color: var(--muted);
+}
+.limitTotal {
+  color: #fff;
+  font-weight: 600;
 }
 .limitBar {
-  height: 6px;
+  height: 7px;
   border-radius: 999px;
-  background: var(--border2);
+  background: rgba(255, 255, 255, 0.1);
   overflow: hidden;
+  margin-bottom: 8px;
 }
 .limitFill {
   height: 100%;
   border-radius: 999px;
-  transition: width 0.5s ease;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  transition: width 0.6s ease;
 }
-.limitInfo {
+.legend {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
+  font-weight: 600;
+}
+.legendUsed {
+  color: var(--blue);
+}
+.legendAvail {
   color: var(--green);
-  margin-top: 6px;
+}
+.legend b {
+  color: #fff;
+  font-weight: 700;
 }
 
-.cardActions {
-  display: flex;
-  gap: 8px;
+.toggleBills {
+  width: 100%;
+  margin-top: 14px;
+  padding: 9px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.toggleBills:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .bills {
   display: flex;
   flex-direction: column;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 14px;
   padding-top: 8px;
 }
 .bill {
@@ -141,7 +233,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 .bill:last-child {
   border-bottom: none;
@@ -152,7 +244,7 @@
 }
 .billDesc {
   font-size: 13px;
-  color: var(--text);
+  color: #fff;
 }
 .billDate {
   font-size: 11px;
@@ -162,6 +254,7 @@
   font-family: var(--num);
   font-weight: 600;
   font-size: 13px;
+  color: var(--red);
 }
 
 @media (max-width: 720px) {

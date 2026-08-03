@@ -104,49 +104,78 @@ export function CardsPage() {
               const bills = billsForMonth(card, month, year)
               const isOpen = expanded === card.id
               return (
-                <Card key={card.id} className={styles.cardItem}>
-                  <div className={styles.cardTop} style={{ borderColor: `${card.color}55` }}>
-                    <div className={styles.cardHead}>
-                      <span className={styles.cardDot} style={{ background: card.color }} />
-                      <button
-                        className={styles.cardName}
-                        onClick={() => {
-                          setEditing(card)
-                          setCardModalOpen(true)
-                        }}
-                      >
-                        {card.name} ✏️
-                      </button>
-                      <span className={styles.cardDue}>vence dia {card.dueDay}</span>
+                <div key={card.id} className={styles.ccCard}>
+                  <div className={styles.cardHead}>
+                    <span
+                      className={styles.cardIcon}
+                      style={{ background: `${card.color}20`, borderColor: `${card.color}40` }}
+                    >
+                      💳
+                    </span>
+                    <div className={styles.cardHeadInfo}>
+                      <span className={styles.cardName}>{card.name}</span>
+                      <span className={styles.cardType}>Crédito</span>
                     </div>
-                    <div className={styles.cardFat}>
-                      <span className={styles.fatLabel}>Fatura {MONTHS_FULL[month]}</span>
-                      <span className={styles.fatValue}>{formatBRL(fat)}</span>
-                    </div>
-                    <div className={styles.limitBar}>
-                      <div
-                        className={styles.limitFill}
-                        style={{
-                          width: `${Math.min(usedPct, 100)}%`,
-                          background: usedPct > 85 ? 'var(--red)' : card.color,
-                        }}
-                      />
-                    </div>
-                    <div className={styles.limitInfo}>
-                      <span>{formatBRL(avail)} disponível</span>
-                      <span className={styles.muted}>de {formatBRL(card.limit)}</span>
-                    </div>
+                    <button
+                      className={styles.iconAction}
+                      title="Editar cartão"
+                      onClick={() => {
+                        setEditing(card)
+                        setCardModalOpen(true)
+                      }}
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      className={styles.launchBtn}
+                      style={{
+                        background: `${card.color}20`,
+                        borderColor: `${card.color}40`,
+                        color: card.color,
+                      }}
+                      onClick={() => setPurchaseCard(card)}
+                    >
+                      + Lançar
+                    </button>
                   </div>
 
-                  <div className={styles.cardActions}>
-                    <Button onClick={() => setPurchaseCard(card)}>＋ Lançar compra</Button>
-                    <Button
-                      variant="ghost"
-                      onClick={() => setExpanded(isOpen ? null : card.id)}
-                    >
-                      {isOpen ? 'Ocultar' : `Ver fatura (${bills.length})`}
-                    </Button>
+                  <span className={styles.fatLabel}>Fatura estimada</span>
+                  <div className={styles.fatValue}>{formatBRL(fat)}</div>
+
+                  <div className={styles.cardDays}>
+                    <span>
+                      Fecha <b>dia {card.closeDay}</b>
+                    </span>
+                    <span>
+                      Vence <b>{card.dueDay} de {MONTHS_FULL[month]}</b>
+                    </span>
                   </div>
+
+                  <div className={styles.limitRow}>
+                    <span className={styles.limitLabel}>Limite total</span>
+                    <span className={styles.limitTotal}>{formatBRL(card.limit)}</span>
+                  </div>
+                  <div className={styles.limitBar}>
+                    <div
+                      className={styles.limitFill}
+                      style={{ width: `${Math.min(usedPct, 100)}%` }}
+                    />
+                  </div>
+                  <div className={styles.legend}>
+                    <span className={styles.legendUsed}>
+                      ● Usado <b>{formatBRL(used)}</b>
+                    </span>
+                    <span className={styles.legendAvail}>
+                      ● Disponível <b>{formatBRL(avail)}</b>
+                    </span>
+                  </div>
+
+                  <button
+                    className={styles.toggleBills}
+                    onClick={() => setExpanded(isOpen ? null : card.id)}
+                  >
+                    {isOpen ? 'Ocultar lançamentos' : `Lançamentos (${bills.length})`}
+                  </button>
 
                   {isOpen && (
                     <div className={styles.bills}>
@@ -159,13 +188,13 @@ export function CardsPage() {
                               <span className={styles.billDesc}>{b.description}</span>
                               <span className={styles.billDate}>{formatDate(b.date)}</span>
                             </div>
-                            <span className={styles.billAmt}>{formatBRL(b.amt)}</span>
+                            <span className={styles.billAmt}>-{formatBRL(b.amt)}</span>
                           </div>
                         ))
                       )}
                     </div>
                   )}
-                </Card>
+                </div>
               )
             })}
           </div>

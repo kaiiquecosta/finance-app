@@ -28,3 +28,11 @@ export function formatDate(date: ISODate | Date): string {
 export function formatMonthYear(monthIndex: number, year: number): string {
   return `${MONTHS[monthIndex] ?? '?'}/${year}`
 }
+
+/** Máscara de telefone BR: "(11) 91234-5678" (portado do legado `fmtPhone`). */
+export function formatPhone(value: string): string {
+  const v = value.replace(/\D/g, '').slice(0, 11)
+  if (v.length <= 2) return v
+  if (v.length <= 7) return `(${v.slice(0, 2)}) ${v.slice(2)}`
+  return `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`
+}

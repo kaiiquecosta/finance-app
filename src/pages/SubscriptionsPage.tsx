@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { SubscriptionModal } from '@/features/subscriptions/SubscriptionModal'
 import { useSubscriptionMutations } from '@/features/subscriptions/useSubscriptionMutations'
-import { formatBRL, mul, sum } from '@/domain/money'
+import { cents, formatBRL, mul, sum, ZERO } from '@/domain/money'
 import type { Subscription } from '@/domain/entities'
 import styles from './SubscriptionsPage.module.css'
 
@@ -32,6 +32,9 @@ export function SubscriptionsPage() {
 
   const monthly = sum(data.subscriptions.map((s) => s.amt))
   const yearly = mul(monthly, 12)
+  const average = data.subscriptions.length
+    ? cents(monthly / data.subscriptions.length)
+    : ZERO
   const subs = [...data.subscriptions].sort((a, b) => a.day - b.day)
 
   const openNew = () => {
@@ -57,36 +60,60 @@ export function SubscriptionsPage() {
       ) : (
         <>
           <div className={styles.summary}>
-            <Card title="Por mês">
-              <div className={styles.num}>{formatBRL(monthly)}</div>
+            <Card title="📺 Assinaturas">
+              <div className={`${styles.num} ${styles.purple}`}>{data.subscriptions.length}</div>
             </Card>
-            <Card title="Por ano">
-              <div className={styles.num}>{formatBRL(yearly)}</div>
+            <Card title="Gasto mensal">
+              <div className={`${styles.num} ${styles.red}`}>{formatBRL(monthly)}</div>
             </Card>
-            <Card title="Serviços">
-              <div className={styles.num}>{data.subscriptions.length}</div>
+            <Card title="Projeção anual">
+              <div className={`${styles.num} ${styles.amber}`}>{formatBRL(yearly)}</div>
+            </Card>
+            <Card title="Média/serviço">
+              <div className={`${styles.num} ${styles.green}`}>{formatBRL(average)}</div>
             </Card>
           </div>
 
-          <Card title="Todas" className={styles.mt}>
+          <Card title="🔁 Suas assinaturas" className={styles.mt}>
             <div className={styles.list}>
-              {subs.map((s) => (
-                <button
-                  key={s.id}
-                  className={styles.row}
-                  onClick={() => {
-                    setEditing(s)
-                    setModalOpen(true)
-                  }}
-                >
-                  <span className={styles.icon}>{s.icon}</span>
-                  <div className={styles.info}>
-                    <span className={styles.name}>{s.name}</span>
-                    <span className={styles.sub}>Todo dia {s.day}</span>
-                  </div>
-                  <span className={styles.amt}>{formatBRL(s.amt)}/mês</span>
-                </button>
-              ))}
+              {subs.map((s) => {
+                const share = monthly > 0 ? (s.amt / monthly) * 100 : 0
+                const card = s.cardId ? data.cards.find((c) => c.id === s.cardId) : null
+                return (
+                  <button
+                    key={s.id}
+                    className={styles.row}
+                    onClick={() => {
+                      setEditing(s)
+                      setModalOpen(true)
+                    }}
+                  >
+                    <span
+                      className={styles.icon}
+                      style={{ background: `${s.color}20`, borderColor: `${s.color}40` }}
+                    >
+                      {s.icon}
+                    </span>
+                    <div className={styles.info}>
+                      <span className={styles.name}>{s.name}</span>
+                      <span className={styles.sub}>
+                        Cobra dia {s.day}
+                        {card ? ` · ${card.name}` : ''}
+                      </span>
+                      <span className={styles.shareBar}>
+                        <span
+                          className={styles.shareFill}
+                          style={{ width: `${share}%`, background: s.color }}
+                        />
+                      </span>
+                    </div>
+                    <span className={styles.amounts}>
+                      <span className={styles.amtMonthly}>{formatBRL(s.amt)}</span>
+                      <span className={styles.amtYearly}>{formatBRL(mul(s.amt, 12))}/ano</span>
+                    </span>
+                  </button>
+                )
+              })}
             </div>
           </Card>
         </>

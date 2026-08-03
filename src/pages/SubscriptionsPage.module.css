@@ -9,14 +9,28 @@
 }
 .summary {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
 }
 .num {
   font-family: var(--num);
   font-weight: 700;
   font-size: 20px;
   color: var(--text);
+  text-align: center;
+}
+/* Cores do app original: contagem roxa, gasto vermelho, projeção âmbar, média verde. */
+.purple {
+  color: #a78bfa;
+}
+.red {
+  color: var(--red);
+}
+.amber {
+  color: var(--amber);
+}
+.green {
+  color: var(--green);
 }
 .list {
   display: flex;
@@ -38,14 +52,13 @@
   opacity: 0.85;
 }
 .icon {
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   display: grid;
   place-items: center;
-  border-radius: 10px;
-  background: var(--card2);
-  border: 1px solid var(--border2);
-  font-size: 17px;
+  border-radius: 12px;
+  border: 1px solid;
+  font-size: 18px;
   flex-shrink: 0;
 }
 .info {
@@ -56,21 +69,54 @@
 }
 .name {
   font-size: 14px;
+  font-weight: 600;
   color: var(--text);
 }
 .sub {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
+  margin-top: 1px;
 }
-.amt {
+/* Mini barra: proporção desta assinatura no total mensal. */
+.shareBar {
+  display: block;
+  height: 3px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--text) 6%, transparent);
+  overflow: hidden;
+  margin-top: 5px;
+}
+.shareFill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+.amounts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+.amtMonthly {
   font-family: var(--num);
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--text);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--red);
+  white-space: nowrap;
+}
+.amtYearly {
+  font-size: 10px;
+  color: var(--muted);
   white-space: nowrap;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 860px) {
+  .summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 480px) {
   .summary {
     grid-template-columns: 1fr;
     gap: 10px;

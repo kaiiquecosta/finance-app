@@ -99,6 +99,30 @@ export async function fetchPlan(userId: string): Promise<Plan | null> {
   return data ? map.rowToPlan(data as PlanRow) : null
 }
 
+/** Atualiza nome e telefone do perfil. */
+export async function updateProfileInfo(
+  userId: string,
+  info: { name: string; phone: string | null },
+): Promise<void> {
+  const { error } = await supabase.from('profiles').update(info).eq('id', userId)
+  if (error) throw error
+}
+
+/**
+ * Define o avatar: uma imagem (data URL base64) OU um emoji — nunca os dois,
+ * então escolher um limpa o outro (mesmo comportamento do legado).
+ */
+export async function updateProfileAvatar(
+  userId: string,
+  avatar: { avatarUrl: string; emoji: null } | { avatarUrl: null; emoji: string },
+): Promise<void> {
+  const { error } = await supabase
+    .from('profiles')
+    .update({ avatar_url: avatar.avatarUrl, emoji: avatar.emoji })
+    .eq('id', userId)
+  if (error) throw error
+}
+
 // ── Escrita (upsert idempotente / delete) ────────────────────────────────────
 export async function upsertRows(table: string, rows: object[]): Promise<void> {
   if (!rows.length) return

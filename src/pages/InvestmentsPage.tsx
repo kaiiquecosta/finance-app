@@ -6,7 +6,6 @@ import { PageHeader } from '@/components/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
-import { ProGate } from '@/features/billing/ProGate'
 import { MarketSection } from '@/features/investments/MarketSection'
 import { InvestmentModal } from '@/features/investments/InvestmentModal'
 import { RescueModal } from '@/features/investments/RescueModal'
@@ -30,18 +29,6 @@ const TYPE_LABELS: Record<InvestmentType, string> = {
 }
 
 export function InvestmentsPage() {
-  return (
-    <ProGate
-      feature="Investimentos"
-      icon="📈"
-      description="Acompanhe sua carteira com rendimento real (CDI/IPCA do Banco Central) e o mercado ao vivo — câmbio, cripto e mais."
-    >
-      <InvestmentsPageContent />
-    </ProGate>
-  )
-}
-
-function InvestmentsPageContent() {
   const { user } = useAuth()
   const { data, isLoading, isError } = useFinanceData(user?.id)
   const rates = useRates()
