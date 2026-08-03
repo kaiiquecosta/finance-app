@@ -216,7 +216,7 @@ export function LandingPage() {
           </li>
         </ul>
         <a href="#" className={`nlogo${ltSuffix}`}>
-          <div className="nlogo-mark">F</div>Finance
+          <div className="nlogo-mark">F</div>Flux
         </a>
         <div className="nright">
           <a
@@ -271,7 +271,7 @@ export function LandingPage() {
           </p>
           <div className="hero-ctas">
             <a href="/criar-conta" onClick={goRegister} className="cta-wh">
-              Abrir conta Finance
+              Abrir conta Flux
               <ArrowRightIcon />
             </a>
             <a href="#funcionalidades" className="cta-ghost">
@@ -307,7 +307,7 @@ export function LandingPage() {
               <div className="abar">
                 <div className="alg">
                   <div className="alg-mark">F</div>
-                  <div className="alg-name">Finance</div>
+                  <div className="alg-name">Flux</div>
                 </div>
                 <div className="atabs">
                   {TABS.map((t) => (
@@ -1471,7 +1471,7 @@ export function LandingPage() {
           </h2>
           <p>30 dias grátis. Sem cartão. Sem complicação.</p>
           <a href="/criar-conta" onClick={goRegister} className="cta-wh" style={{ fontSize: 16, padding: '16px 36px' }}>
-            Abrir conta Finance
+            Abrir conta Flux
             <ArrowRightIcon size={16} />
           </a>
           <div className="hero-notes" style={{ justifyContent: 'center', marginTop: 16 }}>
@@ -1488,7 +1488,7 @@ export function LandingPage() {
           <div className="nlogo-mark" style={{ background: 'var(--g08)', border: '1px solid rgba(61,220,132,.2)' }}>
             F
           </div>
-          Finance
+          Flux
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
           <p>Controle financeiro pessoal · Feito com ❤️ no Brasil</p>

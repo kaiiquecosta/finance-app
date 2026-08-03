@@ -36,7 +36,7 @@ export function UpgradeModal({ open, onClose, trialDaysLeft = 0 }: Props) {
   return (
     <Modal
       open={open}
-      title="✦ Finance Pro"
+      title="✦ Flux Pro"
       onClose={onClose}
       footer={
         <>

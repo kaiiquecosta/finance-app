@@ -37,7 +37,7 @@ export function AccountModal({ open, onClose }: Props) {
   const exportData = () => {
     if (!finance || !user?.email) return
     const bundle = buildExportBundle(user.email, profile, plan, finance)
-    downloadJson(`finance-dados-${toISODate(new Date())}.json`, bundle)
+    downloadJson(`flux-dados-${toISODate(new Date())}.json`, bundle)
   }
 
   const confirmDelete = async () => {

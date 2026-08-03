@@ -1,4 +1,4 @@
-# 💰 Finance App
+# 💰 Flux
 
 Controle financeiro pessoal — **web + Android + iOS** a partir de um único código.
 

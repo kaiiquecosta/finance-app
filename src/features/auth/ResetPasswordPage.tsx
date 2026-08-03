@@ -39,7 +39,7 @@ export function ResetPasswordPage() {
       <div className={styles.box}>
         <div className={styles.brand}>
           <span className={styles.logo}>F</span>
-          <span className={styles.brandName}>Finance</span>
+          <span className={styles.brandName}>Flux</span>
         </div>
         {done ? (
           <div className={styles.form}>

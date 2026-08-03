@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="108" height="108">
+  <!-- Circle -->
+  <circle cx="54" cy="54" r="32" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.7"/>
+
+  <!-- F centered in safe zone -->
+  <path d="
+    M 42.5 34.5
+    L 67 34.5
+    Q 68.2 34.5 68.2 35.7
+    L 68.2 39.6
+    Q 68.2 40.8 67 40.8
+    L 49.5 40.8
+    L 49.5 49.8
+    L 63.5 49.8
+    Q 64.7 49.8 64.7 51
+    L 64.7 54.9
+    Q 64.7 56.1 63.5 56.1
+    L 49.5 56.1
+    L 49.5 73
+    Q 49.5 74.2 48.3 74.2
+    L 43.8 74.2
+    Q 42.5 74.2 42.5 73
+    Z
+  " fill="white"/>
+</svg>

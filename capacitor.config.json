@@ -1,6 +1,6 @@
 {
   "appId": "com.finance.app",
-  "appName": "Finance",
+  "appName": "Flux",
   "webDir": "dist",
   "server": {
     "androidScheme": "https"
