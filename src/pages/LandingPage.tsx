@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { MouseEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { TESTIMONIALS, avatarTone, initials } from './testimonials.data'
 import './LandingPage.legacy.css'
 
 /* ══════════════════════════════════════════════
@@ -1420,6 +1421,44 @@ export function LandingPage() {
           </div>
         </div>
       </div>
+
+      {/* ══════════ DEPOIMENTOS ══════════
+          Renderiza só quando existe relato REAL cadastrado. Com a lista vazia a
+          seção nem entra no DOM — sem bloco vazio e sem placeholder no ar.
+          A regra do que pode entrar está em testimonials.data.ts. */}
+      {TESTIMONIALS.length > 0 && (
+        <div className="lsec" id="depoimentos">
+          <div className="lsec-inner">
+            <div style={{ textAlign: 'center', marginBottom: 48 }}>
+              <div className="sec-pill lt">
+                <span></span>Depoimentos
+              </div>
+              <h2 className="h2-lt h2-c">
+                Quem usa o <em>Flux</em> no dia a dia
+              </h2>
+              <p className="sub-lt sub-c">
+                Relatos de pessoas que organizaram as próprias finanças com o app.
+              </p>
+            </div>
+            <div className="tgrid">
+              {TESTIMONIALS.map((t) => (
+                <figure className="tcard" key={t.source}>
+                  <div className="thead">
+                    <div className={`tav tone${avatarTone(t.name)}`} aria-hidden="true">
+                      {initials(t.name)}
+                    </div>
+                    <figcaption className="tid">
+                      <div className="tname">{t.name}</div>
+                      {t.handle && <div className="thandle">@{t.handle}</div>}
+                    </figcaption>
+                  </div>
+                  <blockquote className="tquote">{t.quote}</blockquote>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ══════════ FAQ (DARK ROUNDED) ══════════ */}
       <div className="dsec-wrap" id="faq">

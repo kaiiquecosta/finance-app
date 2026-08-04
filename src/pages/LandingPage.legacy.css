@@ -279,7 +279,8 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
   background-size: 52px 52px;
   mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
@@ -670,7 +671,12 @@
 /* ── VW OVERVIEW ── */
 .landing-root .ov-top {
   padding: 18px 20px;
-  background: linear-gradient(150deg, rgba(61, 220, 132, 0.07), rgba(61, 220, 132, 0.02) 60%, transparent);
+  background: linear-gradient(
+    150deg,
+    rgba(61, 220, 132, 0.07),
+    rgba(61, 220, 132, 0.02) 60%,
+    transparent
+  );
   border-bottom: 1px solid var(--sep);
 }
 .landing-root .ov-lbl {
@@ -1465,7 +1471,8 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: radial-gradient(ellipse 80% 80% at 30% 50%, black 30%, transparent 100%);
@@ -2193,7 +2200,8 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
@@ -2253,4 +2261,95 @@
   font-size: 12px;
   color: rgba(0, 0, 0, 0.3);
   font-weight: 400;
+}
+
+/* ─── DEPOIMENTOS ───────────────────────────────────────────────────────────
+   Card branco com avatar de INICIAIS (não foto), nome, @usuario e o relato —
+   mesmo tratamento da referência. Só aparece quando há depoimento real
+   cadastrado; ver src/pages/testimonials.data.ts. */
+.landing-root .tgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(288px, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+.landing-root .tcard {
+  background: var(--wh);
+  border: 1px solid var(--sep2);
+  border-radius: 18px;
+  padding: 22px;
+  margin: 0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+.landing-root .tcard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+.landing-root .thead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.landing-root .tav {
+  width: 42px;
+  height: 42px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: #fff;
+}
+/* Tom derivado do nome (avatarTone), para a mesma pessoa manter a mesma cor. */
+.landing-root .tav.tone0 {
+  background: #3b82f6;
+}
+.landing-root .tav.tone1 {
+  background: #8b5cf6;
+}
+.landing-root .tav.tone2 {
+  background: #14b8a6;
+}
+.landing-root .tav.tone3 {
+  background: #1a8847;
+}
+.landing-root .tid {
+  min-width: 0;
+}
+.landing-root .tname {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--txt);
+  letter-spacing: -0.2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.landing-root .thandle {
+  font-size: 13px;
+  color: var(--mu);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.landing-root .tquote {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: #3a3a3a;
+}
+@media (max-width: 600px) {
+  .landing-root .tgrid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .landing-root .tcard {
+    padding: 18px;
+  }
 }
