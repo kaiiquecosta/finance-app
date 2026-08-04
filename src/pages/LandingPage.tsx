@@ -60,7 +60,7 @@ const FAQ_ITEMS: Array<{ q: string; a: string }> = [
   },
   {
     q: 'Posso usar em vários dispositivos?',
-    a: 'Sim. Dados na nuvem (Supabase/PostgreSQL) sincronizados em tempo real. Celular, tablet e computador com os mesmos dados sempre atualizados.',
+    a: 'Sim. Seus dados ficam na nuvem (Supabase/PostgreSQL), então a mesma conta abre no celular, no tablet e no computador, sempre com o que está no servidor. O que é atualizado ao vivo são as cotações e o CDI, buscados direto das APIs públicas do Banco Central e de câmbio.',
   },
 ]
 
@@ -284,7 +284,7 @@ export function LandingPage() {
           <div className="hero-notes">
             <span>Sem cartão</span>
             <span>Cancele quando quiser</span>
-            <span>Dados criptografados</span>
+            <span>Só você acessa seus dados</span>
           </div>
 
           {/* APP MOCKUP */}
@@ -1005,7 +1005,7 @@ export function LandingPage() {
         </div>
         <div className="st-cell">
           <div className="st-v">100%</div>
-          <div className="st-l">dados criptografados</div>
+          <div className="st-l">dos dados isolados por conta</div>
         </div>
         <div className="st-cell">
           <div className="st-v">R$ 14</div>
