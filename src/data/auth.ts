@@ -20,6 +20,51 @@ function redirectTo(path = ''): string {
   return typeof window !== 'undefined' ? window.location.origin + path : path
 }
 
+/**
+ * Envia o código de acesso de 6 dígitos por e-mail. É o caminho principal de
+ * entrada: se o e-mail não tem conta, o Supabase cria (shouldCreateUser é o
+ * padrão), então login e cadastro acontecem na mesma tela.
+ *
+ * ATENÇÃO — DEPENDE DE CONFIGURAÇÃO NO PAINEL DO SUPABASE:
+ * por padrão este método envia um LINK mágico, não um código. Para chegar o
+ * código de 6 dígitos, o template de e-mail "Magic Link" precisa conter
+ * {{ .Token }}. Sem isso a pessoa recebe um link e não tem o que digitar.
+ * Ver docs/AUTH.md.
+ *
+ * `fullName` só é aplicado quando o usuário é CRIADO — em logins seguintes o
+ * Supabase ignora options.data.
+ */
+export async function sendEmailCode(email: string, fullName?: string) {
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: redirectTo(),
+      ...(fullName ? { data: { full_name: fullName } } : {}),
+    },
+  })
+  if (error) throw error
+}
+
+/**
+ * Confere o código digitado e abre a sessão. `onAuthStateChange` (useSession)
+ * troca a tela sozinho, igual ao login por senha.
+ *
+ * No app nativo isto NÃO precisa de deep link: o código é digitado dentro do
+ * app, então não há ida e volta pelo navegador do sistema (ao contrário do
+ * login com Google, que depende do com.finance.app://login-callback).
+ */
+export async function verifyEmailCode(email: string, token: string) {
+  const { data, error } = await supabase.auth.verifyOtp({ email, token, type: 'email' })
+  if (error) throw error
+  return data
+}
+
+/**
+ * Login por senha. Deixou de ser o caminho principal, mas continua disponível
+ * como saída de emergência: entrega de e-mail é ponto único de falha (spam,
+ * atraso do provedor, limite de envio do SMTP), e sem isto uma falha de e-mail
+ * tranca todo mundo fora da própria conta — inclusive quem administra o app.
+ */
 export async function signInWithEmail(email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
   if (error) throw error
