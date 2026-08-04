@@ -3,15 +3,41 @@ import { Link } from 'react-router-dom'
 import { useTheme } from '@/app/theme'
 import { Button } from '@/components/ui/Button'
 import { TextField } from '@/components/ui/TextField'
-import { sendPasswordReset, signInWithEmail, signInWithGoogle, signUpWithEmail } from '@/data/auth'
+import {
+  sendEmailCode,
+  sendPasswordReset,
+  signInWithEmail,
+  signInWithGoogle,
+  verifyEmailCode,
+} from '@/data/auth'
 import { AuthEcosystem, AuthStrip, GoogleIcon, ThemeToggle } from './AuthEcosystem'
 import styles from './AuthScreen.module.css'
 
-type Step = 'login' | 'register' | 'forgot' | 'sent' | 'verify'
+/**
+ * Passos da tela.
+ *
+ * O caminho principal é sem senha: `login`/`register` pedem só o e-mail, o
+ * Supabase manda um código de 6 dígitos e `code` recebe esse código. Como
+ * `signInWithOtp` cria a conta quando o e-mail é novo, login e cadastro são o
+ * mesmo fluxo — a diferença entre `login` e `register` é apenas a copy e o campo
+ * de nome.
+ *
+ * `password`/`forgot`/`sent` são a saída de emergência por senha. Ficam atrás de
+ * um link discreto porque entrega de e-mail é ponto único de falha: caixa de
+ * spam, atraso do provedor ou limite de envio do SMTP deixariam todo mundo
+ * (inclusive quem administra) sem conseguir entrar.
+ */
+type Step = 'login' | 'register' | 'code' | 'password' | 'forgot' | 'sent'
 
 function friendlyError(msg: string): string {
   const m = msg.toLowerCase()
   if (m.includes('invalid login')) return 'Email ou senha incorretos.'
+  if (m.includes('token has expired') || m.includes('expired'))
+    return 'Código expirado. Peça um novo.'
+  if (m.includes('invalid token') || m.includes('otp'))
+    return 'Código inválido. Confira e tente de novo.'
+  if (m.includes('rate limit') || m.includes('too many'))
+    return 'Muitas tentativas. Aguarde um minuto antes de pedir outro código.'
   if (m.includes('already registered') || m.includes('already been registered'))
     return 'Este email já está cadastrado.'
   if (m.includes('password should be at least')) return 'Senha muito curta (mínimo 6 caracteres).'
@@ -23,16 +49,21 @@ function friendlyError(msg: string): string {
 
 export function AuthScreen({ initialStep = 'login' }: { initialStep?: Step }) {
   const [step, setStep] = useState<Step>(initialStep)
+  /** Passo que pediu o código — define para onde "Trocar e-mail" volta. */
+  const [origin, setOrigin] = useState<'login' | 'register'>(
+    initialStep === 'register' ? 'register' : 'login',
+  )
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [code, setCode] = useState('')
   const [password, setPassword] = useState('')
-  const [password2, setPassword2] = useState('')
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
   /**
    * O Google tem o próprio estado de carregamento: com um `loading` só, clicar
-   * em "Entrar com o Google" fazia o botão "Entrar" girar (Button troca children
-   * pelo spinner) enquanto o botão realmente clicado apenas acinzentava.
+   * em "Entrar com o Google" fazia o botão de enviar girar (Button troca
+   * children pelo spinner) enquanto o botão realmente clicado só acinzentava.
    */
   const [gLoading, setGLoading] = useState(false)
   const theme = useTheme((s) => s.theme)
@@ -40,6 +71,7 @@ export function AuthScreen({ initialStep = 'login' }: { initialStep?: Step }) {
 
   function go(next: Step) {
     setError('')
+    setInfo('')
     setStep(next)
   }
 
@@ -55,20 +87,35 @@ export function AuthScreen({ initialStep = 'login' }: { initialStep?: Step }) {
     }
   }
 
-  const onLogin = (e: FormEvent) => {
+  /** Pede o código. Serve para `login` e para `register` (só muda o nome). */
+  const onRequestCode = (from: 'login' | 'register') => (e: FormEvent) => {
     e.preventDefault()
     run(async () => {
-      await signInWithEmail(email.trim(), password)
+      await sendEmailCode(email.trim(), from === 'register' ? name.trim() : undefined)
+      setOrigin(from)
+      setCode('')
+      go('code')
+    })
+  }
+
+  const onVerifyCode = (e: FormEvent) => {
+    e.preventDefault()
+    run(async () => {
+      await verifyEmailCode(email.trim(), code.trim())
       // onAuthStateChange (useSession) troca a tela automaticamente.
     })
   }
 
-  const onRegister = (e: FormEvent) => {
-    e.preventDefault()
-    if (password !== password2) return setError('As senhas não conferem.')
+  const onResend = () =>
     run(async () => {
-      await signUpWithEmail(email.trim(), password, name.trim())
-      go('verify')
+      await sendEmailCode(email.trim())
+      setInfo('Código reenviado. Confira sua caixa de entrada.')
+    })
+
+  const onPasswordLogin = (e: FormEvent) => {
+    e.preventDefault()
+    run(async () => {
+      await signInWithEmail(email.trim(), password)
     })
   }
 
@@ -97,6 +144,19 @@ export function AuthScreen({ initialStep = 'login' }: { initialStep?: Step }) {
     </Button>
   )
 
+  const emailField = (
+    <TextField
+      label="E-mail de acesso"
+      name="email"
+      type="email"
+      autoComplete="email"
+      placeholder="voce@email.com"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      required
+    />
+  )
+
   const legal = (
     <p className={styles.legal}>
       Ao continuar, você concorda com os <Link to="/termos">Termos</Link> e a{' '}
@@ -115,64 +175,45 @@ export function AuthScreen({ initialStep = 'login' }: { initialStep?: Step }) {
           </div>
 
           {step === 'login' && (
-            <form className={styles.form} onSubmit={onLogin}>
-              {/* "Bem-vindo de volta" precisa continuar no título: e2e/auth.spec.ts:26
-                casa o heading por substring. */}
+            <form className={styles.form} onSubmit={onRequestCode('login')}>
+              {/* "Bem-vindo de volta" precisa continuar no título: e2e/auth.spec.ts
+                  casa o heading por substring. */}
               <h1 className={styles.title}>
                 Bem-vindo de volta ao<span className={styles.titleBrand}>Flux</span>
               </h1>
-              <p className={styles.subtitle}>
-                Suas finanças, cartões e investimentos num só lugar.
-              </p>
+              <p className={styles.subtitle}>Sem senha: enviamos um código para o seu e-mail.</p>
               {googleButton}
               <div className={styles.divider}>ou entre com e-mail</div>
-              <TextField
-                label="Email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                placeholder="voce@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <TextField
-                label="Senha"
-                name="password"
-                reveal
-                autoComplete="current-password"
-                placeholder="Sua senha"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              {emailField}
               {error && <p className={styles.error}>{error}</p>}
               <Button type="submit" block loading={loading} disabled={gLoading}>
-                Entrar
+                Enviar código
               </Button>
-              <button type="button" className={styles.link} onClick={() => go('forgot')}>
-                Esqueci minha senha
-              </button>
               <p className={styles.foot}>
                 Não tem conta?{' '}
                 <button type="button" className={styles.linkInline} onClick={() => go('register')}>
                   Criar conta
                 </button>
               </p>
+              <button type="button" className={styles.link} onClick={() => go('password')}>
+                Entrar com senha
+              </button>
               {legal}
             </form>
           )}
 
           {step === 'register' && (
-            <form className={styles.form} onSubmit={onRegister}>
-              {/* "Criar conta" precisa continuar no título: e2e/auth.spec.ts:24
-                casa o heading por substring. */}
+            <form className={styles.form} onSubmit={onRequestCode('register')}>
+              {/* "Criar conta" precisa continuar no título: e2e/auth.spec.ts
+                  casa o heading por substring. */}
               <h1 className={styles.title}>
                 Criar conta no<span className={styles.titleBrand}>Flux</span>
               </h1>
               <p className={styles.subtitle}>
-                30 dias grátis. O cartão só é pedido se você assinar o Pro.
+                30 dias grátis. Sem senha para criar — enviamos um código por e-mail.
               </p>
+              {googleButton}
+              <div className={styles.divider}>ou entre com e-mail</div>
               <TextField
                 label="Nome"
                 name="name"
@@ -181,38 +222,10 @@ export function AuthScreen({ initialStep = 'login' }: { initialStep?: Step }) {
                 onChange={(e) => setName(e.target.value)}
                 required
               />
-              <TextField
-                label="Email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                placeholder="voce@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <TextField
-                label="Senha"
-                name="new-password"
-                reveal
-                autoComplete="new-password"
-                placeholder="Mínimo 6 caracteres"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <TextField
-                label="Confirmar senha"
-                name="confirm-password"
-                reveal
-                placeholder="Repita a senha"
-                value={password2}
-                onChange={(e) => setPassword2(e.target.value)}
-                required
-              />
+              {emailField}
               {error && <p className={styles.error}>{error}</p>}
-              <Button type="submit" block loading={loading}>
-                Criar conta
+              <Button type="submit" block loading={loading} disabled={gLoading}>
+                Enviar código
               </Button>
               <p className={styles.foot}>
                 Já tem conta?{' '}
@@ -224,24 +237,81 @@ export function AuthScreen({ initialStep = 'login' }: { initialStep?: Step }) {
             </form>
           )}
 
-          {step === 'forgot' && (
-            <form className={styles.form} onSubmit={onForgot}>
-              <h1 className={styles.title}>Recuperar senha</h1>
-              <p className={styles.subtitle}>Enviaremos um link para seu email</p>
+          {step === 'code' && (
+            <form className={styles.form} onSubmit={onVerifyCode}>
+              <h1 className={styles.title}>Digite o código</h1>
+              <p className={styles.subtitle}>
+                Enviamos um código de 6 dígitos para <b>{email}</b>. Ele vale por pouco tempo.
+              </p>
               <TextField
-                label="Email"
-                name="email"
-                type="email"
-                placeholder="voce@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                label="Código"
+                name="one-time-code"
+                /* one-time-code deixa o sistema oferecer o preenchimento automático */
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                placeholder="000000"
+                className={styles.codeInput}
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                required
+                autoFocus
+              />
+              {error && <p className={styles.error}>{error}</p>}
+              {info && <p className={styles.info}>{info}</p>}
+              <Button type="submit" block loading={loading} disabled={code.length < 6}>
+                Entrar
+              </Button>
+              <button type="button" className={styles.link} onClick={onResend} disabled={loading}>
+                Reenviar código
+              </button>
+              <button type="button" className={styles.link} onClick={() => go(origin)}>
+                Usar outro e-mail
+              </button>
+            </form>
+          )}
+
+          {step === 'password' && (
+            <form className={styles.form} onSubmit={onPasswordLogin}>
+              <h1 className={styles.title}>Entrar com senha</h1>
+              <p className={styles.subtitle}>
+                Para quem criou a conta com senha. O caminho recomendado é o código por e-mail.
+              </p>
+              {emailField}
+              <TextField
+                label="Senha"
+                name="password"
+                reveal
+                autoComplete="current-password"
+                placeholder="Sua senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
               {error && <p className={styles.error}>{error}</p>}
               <Button type="submit" block loading={loading}>
+                Entrar
+              </Button>
+              <button type="button" className={styles.link} onClick={() => go('forgot')}>
+                Esqueci minha senha
+              </button>
+              <button type="button" className={styles.link} onClick={() => go('login')}>
+                Entrar com código por e-mail
+              </button>
+            </form>
+          )}
+
+          {step === 'forgot' && (
+            <form className={styles.form} onSubmit={onForgot}>
+              <h1 className={styles.title}>Recuperar senha</h1>
+              <p className={styles.subtitle}>Enviaremos um link para seu email</p>
+              {emailField}
+              {error && <p className={styles.error}>{error}</p>}
+              <Button type="submit" block loading={loading}>
                 Enviar link
               </Button>
-              <button type="button" className={styles.link} onClick={() => go('login')}>
+              <button type="button" className={styles.link} onClick={() => go('password')}>
                 Voltar
               </button>
             </form>
@@ -253,19 +323,6 @@ export function AuthScreen({ initialStep = 'login' }: { initialStep?: Step }) {
               <p className={styles.subtitle}>
                 Se existe uma conta com <b>{email}</b>, o link de recuperação chegou. Confira sua
                 caixa de entrada (e o spam).
-              </p>
-              <Button type="button" block onClick={() => go('login')}>
-                Voltar ao login
-              </Button>
-            </div>
-          )}
-
-          {step === 'verify' && (
-            <div className={styles.form}>
-              <h1 className={styles.title}>Confirme seu email 📬</h1>
-              <p className={styles.subtitle}>
-                Enviamos um link de confirmação para <b>{email}</b>. Clique nele para ativar sua
-                conta.
               </p>
               <Button type="button" block onClick={() => go('login')}>
                 Voltar ao login
