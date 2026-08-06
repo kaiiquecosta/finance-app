@@ -104,7 +104,6 @@ function CommunityCard({
       <h3 className={styles.itemTitle}>{item.title}</h3>
       {item.body ? <p className={styles.itemBody}>{item.body}</p> : null}
       <div className={styles.itemMeta}>
-        <span>{item.authorName ? `por ${item.authorName}` : 'Comunidade'}</span>
         <div className={styles.itemActions}>
           <span className={styles.commentCount} aria-label={`${item.commentCount} comentários`}>
             💬 {item.commentCount}

@@ -114,7 +114,6 @@ export function CommunityItemModal({
         ) : commentsQuery.data?.length ? (
           commentsQuery.data.map((c) => (
             <div key={c.id} className={styles.commentBubble}>
-              <div className={styles.commentAuthor}>{c.authorName ?? 'Usuário'}</div>
               <p className={styles.commentBody}>{c.body}</p>
             </div>
           ))
