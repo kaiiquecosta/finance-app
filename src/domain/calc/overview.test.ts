@@ -98,6 +98,19 @@ describe('expenseByCategory / topCategory', () => {
     expect(topCategory(byCat)).toEqual({ category: 'mercado', amount: 15000 })
     expect(topCategory({})).toBeNull()
   })
+  it('agrupa energia e água em contas de casa', () => {
+    const util = expenseByCategory(
+      [
+        tx({ amt: reais(-100), date: '2026-08-05', cat: 'energia', name: 'Energia' }),
+        tx({ amt: reais(-50), date: '2026-08-06', cat: 'água', name: 'Água' }),
+      ],
+      [],
+      7,
+      2026,
+    )
+    expect(util['contas de casa']).toBe(15000)
+    expect(util.energia).toBeUndefined()
+  })
 })
 
 describe('visão anual', () => {

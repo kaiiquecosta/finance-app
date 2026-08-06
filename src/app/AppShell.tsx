@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/app/SessionProvider'
-import { usePlan, useFinanceData } from '@/data/hooks'
+import { usePlan, useFinanceData, useProfile } from '@/data/hooks'
 import { useTheme } from '@/app/theme'
 import { signOut } from '@/data/auth'
 import { openBillingPortal } from '@/data/billing'
 import { isPro, planLabel, trialDaysLeft } from '@/domain/plan'
 import { UpgradeModal } from '@/features/billing/UpgradeModal'
 import { AccountModal } from '@/features/account/AccountModal'
+import { ProfileModal } from '@/features/profile/ProfileModal'
+import { UserBadge } from '@/features/profile/UserBadge'
 import { ReminderPopup } from '@/features/reminders/ReminderPopup'
 import { useReminders } from '@/features/reminders/useReminders'
 import { NAV_ITEMS } from './navItems'
@@ -17,11 +19,24 @@ export function AppShell() {
   const { user } = useAuth()
   const plan = usePlan(user?.id)
   const finance = useFinanceData(user?.id)
+  const profileQuery = useProfile(user?.id)
   const { reminders, dismiss } = useReminders(finance.data)
   const theme = useTheme((s) => s.theme)
   const toggle = useTheme((s) => s.toggle)
   const [upgradeOpen, setUpgradeOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
   const [accountOpen, setAccountOpen] = useState(false)
+
+  const profile = profileQuery.data
+  const displayName =
+    profile?.name ||
+    (user?.user_metadata?.full_name as string | undefined) ||
+    user?.email?.split('@')[0] ||
+    'Você'
+  const navPhoto =
+    profile?.avatarUrl || (user?.user_metadata?.avatar_url as string | undefined) || null
+  const navEmoji = profile?.emoji || '😊'
+  const navColor = profile?.color || '#22c55e'
 
   const pro = isPro(plan.data)
   const label = planLabel(plan.data)
@@ -64,9 +79,13 @@ export function AppShell() {
         <button className={styles.iconBtn} onClick={toggle} title="Alternar tema">
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
-        <button className={styles.iconBtn} onClick={() => setAccountOpen(true)} title="Minha conta">
-          ⚙️
-        </button>
+        <UserBadge
+          name={displayName}
+          emoji={navEmoji}
+          photoUrl={navPhoto}
+          accent={navColor}
+          onClick={() => setProfileOpen(true)}
+        />
         <button className={styles.iconBtn} onClick={() => void signOut()} title="Sair">
           ⎋
         </button>
@@ -98,6 +117,13 @@ export function AppShell() {
         open={upgradeOpen}
         onClose={() => setUpgradeOpen(false)}
         trialDaysLeft={trialDaysLeft(plan.data)}
+      />
+      <ProfileModal
+        open={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        user={user}
+        profile={profile}
+        onOpenAccount={() => setAccountOpen(true)}
       />
       <AccountModal open={accountOpen} onClose={() => setAccountOpen(false)} />
       <ReminderPopup reminders={reminders} onDismiss={dismiss} />

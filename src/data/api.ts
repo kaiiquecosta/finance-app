@@ -93,6 +93,18 @@ export async function fetchProfile(userId: string): Promise<Profile | null> {
   return data ? map.rowToProfile(data as ProfileRow) : null
 }
 
+export async function updateProfile(userId: string, patch: Partial<Profile>): Promise<void> {
+  const row: Record<string, unknown> = {}
+  if (patch.name !== undefined) row.name = patch.name
+  if (patch.phone !== undefined) row.phone = patch.phone
+  if (patch.avatarUrl !== undefined) row.avatar_url = patch.avatarUrl
+  if (patch.emoji !== undefined) row.emoji = patch.emoji
+  if (patch.color !== undefined) row.color = patch.color
+  if (!Object.keys(row).length) return
+  const { error } = await supabase.from('profiles').update(row).eq('id', userId)
+  if (error) throw error
+}
+
 export async function fetchPlan(userId: string): Promise<Plan | null> {
   const { data, error } = await supabase.from('plans').select('*').eq('user_id', userId).maybeSingle()
   if (error) throw error

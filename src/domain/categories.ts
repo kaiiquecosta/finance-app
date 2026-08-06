@@ -54,6 +54,7 @@ export const CATEGORY_ICONS: Record<string, string> = {
   outros: '💳',
   cartão: '💳',
   banco: '🏦',
+  'contas de casa': '🏠',
 }
 
 /** Cor (hex) por categoria. */
@@ -107,6 +108,7 @@ export const CATEGORY_COLORS: Record<string, string> = {
   outros: '#64748b',
   cartão: '#94a3b8',
   banco: '#60a5fa',
+  'contas de casa': '#64748b',
 }
 
 export const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'] as const
@@ -140,6 +142,31 @@ export function iconFor(category: string): string {
 
 export function colorFor(category: string): string {
   return CATEGORY_COLORS[category] ?? FALLBACK_COLOR
+}
+
+/** Rótulo usado no donut da Visão geral para moradia + utilidades (legado). */
+export const OVERVIEW_HOUSEHOLD_LABEL = 'contas de casa'
+
+const HOUSEHOLD_CATEGORY_KEYS = new Set([
+  'moradia',
+  'aluguel',
+  'condomínio',
+  'condominio',
+  'energia',
+  'água',
+  'agua',
+  'internet',
+  'gás',
+  'gas',
+  'celular',
+  'telefone',
+])
+
+/** Agrupa energia, água, aluguel etc. em “contas de casa” no gráfico de categorias. */
+export function groupCategoryForOverview(category: string): string {
+  const key = category.trim().toLowerCase()
+  if (HOUSEHOLD_CATEGORY_KEYS.has(key)) return OVERVIEW_HOUSEHOLD_LABEL
+  return category
 }
 
 /** Infere a categoria a partir do nome/descrição (fallback quando não definida). */

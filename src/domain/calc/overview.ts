@@ -9,7 +9,7 @@
  */
 import { abs, add, max, mul, sub, sum, ZERO, formatBRL, type Cents } from '@/domain/money'
 import { parseISODate } from '@/domain/dates'
-import { inferCategory, resolveExpenseCategory } from '@/domain/categories'
+import { inferCategory, resolveExpenseCategory, groupCategoryForOverview } from '@/domain/categories'
 import { billsForMonth, invoiceTotal } from './cards'
 import type { BankAccount, Card, FixedBill, Subscription, Transaction } from '@/domain/entities'
 
@@ -55,14 +55,14 @@ export function expenseByCategory(
     const d = parseISODate(t.date)
     if (d.getMonth() !== month || d.getFullYear() !== year) continue
     if (t.cat === 'cartão' && t.billId) continue // ignora pagamento de fatura
-    const cat = resolveExpenseCategory(t.name, t.cat)
+    const cat = groupCategoryForOverview(resolveExpenseCategory(t.name, t.cat))
     byCat[cat] = (byCat[cat] ?? 0) + Math.abs(t.amt)
   }
 
   for (const card of cards) {
     for (const b of billsForMonth(card, month, year)) {
       if (b.pastPaid) continue
-      const cat = inferCategory(b.description, 'compras')
+      const cat = groupCategoryForOverview(inferCategory(b.description, 'compras'))
       byCat[cat] = (byCat[cat] ?? 0) + b.amt
     }
   }
