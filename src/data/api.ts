@@ -52,6 +52,12 @@ async function selectAll<T>(table: string, userId: string): Promise<T[]> {
 
 /** Carrega todos os dados do usuário e monta as entidades de domínio. */
 export async function fetchFinanceData(userId: string): Promise<FinanceData> {
+  const { isDemoPersonaEnabled } = await import('@/demo/isDemoPersona')
+  if (isDemoPersonaEnabled()) {
+    const { buildMarianaFinanceData } = await import('@/demo/personaMariana')
+    return buildMarianaFinanceData()
+  }
+
   const [txRows, cardRows, billRows, instRows, subRows, goalRows, accRows, incRows, fbRows, invRows] =
     await Promise.all([
       selectAll<TransactionRow>('transactions', userId),

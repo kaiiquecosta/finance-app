@@ -2,6 +2,8 @@ import type { Page } from '@playwright/test'
 
 const MOCK_USER_ID = 'e2e00000-0000-4000-8000-000000000001'
 
+export { MOCK_USER_ID }
+
 /** Sessão mínima + dados vazios para navegar em /app nos E2E. */
 export async function mockAuthenticatedApp(page: Page) {
   const supabaseUrl = process.env.VITE_SUPABASE_URL ?? ''

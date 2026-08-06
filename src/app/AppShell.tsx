@@ -12,6 +12,7 @@ import { ProfileModal } from '@/features/profile/ProfileModal'
 import { UserBadge } from '@/features/profile/UserBadge'
 import { ReminderPopup } from '@/features/reminders/ReminderPopup'
 import { useReminders } from '@/features/reminders/useReminders'
+import { isDemoPersonaEnabled, DEMO_PERSONA_LABEL } from '@/demo/isDemoPersona'
 import { NAV_ITEMS } from './navItems'
 import styles from './AppShell.module.css'
 
@@ -47,7 +48,7 @@ export function AppShell() {
   }
 
   return (
-    <div className={styles.app}>
+    <div className={`${styles.app} ${isDemoPersonaEnabled() ? styles.appDemo : ''}`}>
       <header className={styles.topnav}>
         <div className={styles.topnavStart}>
           <UserBadge
@@ -97,6 +98,13 @@ export function AppShell() {
           </button>
         </div>
       </header>
+
+      {isDemoPersonaEnabled() ? (
+        <div className={styles.demoBanner} role="status">
+          📋 Visualização com dados fictícios ({DEMO_PERSONA_LABEL}). Desative{' '}
+          <code>VITE_DEMO_PERSONA</code> no <code>.env.local</code> para ver seus dados reais.
+        </div>
+      ) : null}
 
       <main className={styles.main}>
         <Outlet />

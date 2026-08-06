@@ -2,6 +2,27 @@
   min-height: 100vh;
 }
 
+.demoBanner {
+  position: fixed;
+  top: var(--nav-h);
+  left: 0;
+  right: 0;
+  z-index: 99;
+  padding: 8px 14px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text);
+  background: color-mix(in srgb, var(--yellow, #eab308) 12%, var(--card));
+  border-bottom: 1px solid color-mix(in srgb, var(--yellow, #eab308) 35%, var(--border));
+}
+
+.demoBanner code {
+  font-size: 11px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--raise, color-mix(in srgb, var(--text) 6%, transparent));
+}
+
 .topnav {
   position: fixed;
   top: 0;
@@ -138,6 +159,10 @@
 }
 .iconBtn:hover {
   background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+.appDemo .main {
+  margin-top: calc(var(--nav-h) + 52px);
 }
 
 .main {
