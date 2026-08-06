@@ -44,9 +44,9 @@
      preto transparente em sRGB e sujaria a mistura. */
   background-image: radial-gradient(
     205% 89% at 38% 4%,
-    var(--bg) 48%,
-    color-mix(in srgb, var(--primary) 26%, #e4c9ff) 76%,
-    var(--primary) 100%
+    var(--bg) 58%,
+    color-mix(in srgb, var(--primary) 8%, var(--bg)) 82%,
+    color-mix(in srgb, var(--primary) 18%, var(--bg)) 100%
   );
 }
 
@@ -73,12 +73,12 @@
   background-image:
     radial-gradient(
       118% 76% at 50% 116%,
-      color-mix(in srgb, var(--primary) 26%, transparent) 0%,
+      color-mix(in srgb, var(--primary) 12%, transparent) 0%,
       transparent 62%
     ),
     radial-gradient(
       68% 44% at 50% 107%,
-      color-mix(in srgb, var(--primary) 15%, transparent) 0%,
+      color-mix(in srgb, var(--primary) 8%, transparent) 0%,
       transparent 68%
     );
 }

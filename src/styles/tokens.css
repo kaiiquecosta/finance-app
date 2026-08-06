@@ -1,32 +1,52 @@
 /**
- * Design tokens — portados do app legado (legacy/index.html :root).
+ * Design tokens — regra 60-30-10
  *
- * O tema CLARO é o padrão e vive em `:root`; `[data-theme="dark"]` sobrescreve.
- * A ordem importa: a CSP de produção é `script-src 'self'` (vercel.json), então
- * não existe script inline para setar `data-theme` antes da primeira pintura —
- * quem aplica é um efeito do React (App.tsx). Com o claro na base, a primeira
- * pintura já sai no tema padrão e não há flash de tema errado.
+ * 60% — dominante: fundo da app (--bg), área “respiro”
+ * 30% — secundário: cartões, nav, superfícies (--card, --card2, bordas)
+ * 10% — acento: marca e ações (--primary) — botões primários, link, tab ativa,
+ *        foco e contorno de seleção; evitar lavar telas inteiras de roxo
+ *
+ * Tema CLARO em `:root`; `[data-theme="dark"]` sobrescreve.
  */
 :root {
-  --bg: #f6f4fa;
+  /* —— 60% dominante —— */
+  --bg: #f2f0f5;
+
+  /* —— 30% secundário —— */
   --card: #ffffff;
-  --card2: #faf8fd;
-  --border: rgba(20, 4, 40, 0.08);
-  --border2: rgba(20, 4, 40, 0.14);
-  /* Marca — roxo estilo "banco" (Nubank-like). Estados/semântica financeira
-     continuam em --green/--red (receita/despesa, alta/baixa de ativos). */
+  --card2: #f8f7fa;
+  --border: rgba(22, 18, 32, 0.07);
+  --border2: rgba(22, 18, 32, 0.12);
+  --text: #161220;
+  --muted: #6b6478;
+  --muted2: #d4cede;
+
+  /* —— 10% acento (marca) —— */
   --primary: #820ad1;
   --primary-d: #6b0aae;
-  --primary-soft: rgba(130, 10, 209, 0.12);
+  --primary-soft: color-mix(in srgb, var(--primary) 10%, transparent);
+  --on-primary: #ffffff;
+
+  /* Semântica financeira (fora do 60-30-10 — significado, não decoração) */
   --green: #16a34a;
   --green-d: #15803d;
   --red: #dc2626;
   --amber: #d97706;
   --blue: #2563eb;
   --purple: #7c3aed;
-  --text: #140428;
-  --muted: #6b6178;
-  --muted2: #d8d0e6;
+
+  /* Chips / seleção: superfície 30% + contorno e label 10% */
+  --chip-bg: var(--card2);
+  --chip-border: var(--border2);
+  --chip-fg: var(--muted);
+  --chip-active-bg: var(--card);
+  --chip-active-border: color-mix(in srgb, var(--primary) 55%, var(--border2));
+  --chip-active-fg: var(--primary);
+
+  /* Barras de progresso — acento sólido (sem gradiente multicolor) */
+  --prog-track: var(--border2);
+  --prog-fill: var(--primary);
+
   --font:
     'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --num: 'Bricolage Grotesque', var(--font);
@@ -35,21 +55,35 @@
 }
 
 [data-theme='dark'] {
-  --bg: #08050f;
-  --card: #120c1f;
-  --card2: #170f26;
-  --border: rgba(196, 160, 255, 0.1);
-  --border2: rgba(196, 160, 255, 0.16);
+  --bg: #09070e;
+
+  --card: #13101a;
+  --card2: #181422;
+  --border: rgba(228, 220, 245, 0.08);
+  --border2: rgba(228, 220, 245, 0.14);
+  --text: #f3f0f8;
+  --muted: #8a8398;
+  --muted2: #342a48;
+
   --primary: #a855f7;
   --primary-d: #9333ea;
-  --primary-soft: rgba(168, 85, 247, 0.18);
+  --primary-soft: color-mix(in srgb, var(--primary) 12%, transparent);
+  --on-primary: #ffffff;
+
   --green: #22c55e;
   --green-d: #16a34a;
   --red: #ef4444;
   --amber: #f59e0b;
   --blue: #3b82f6;
   --purple: #a78bfa;
-  --text: #f4f0fb;
-  --muted: #8b81a0;
-  --muted2: #362a4d;
+
+  --chip-bg: var(--card2);
+  --chip-border: var(--border2);
+  --chip-fg: var(--muted);
+  --chip-active-bg: var(--card);
+  --chip-active-border: color-mix(in srgb, var(--primary) 50%, var(--border2));
+  --chip-active-fg: var(--primary);
+
+  --prog-track: var(--border2);
+  --prog-fill: var(--primary);
 }

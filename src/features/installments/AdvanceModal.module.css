@@ -88,9 +88,9 @@
   color: var(--text);
 }
 .chipActive {
-  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
-  background: color-mix(in srgb, var(--primary) 14%, transparent);
-  color: var(--primary);
+  border-color: var(--chip-active-border);
+  background: var(--chip-active-bg);
+  color: var(--chip-active-fg);
 }
 .error {
   font-size: 13px;

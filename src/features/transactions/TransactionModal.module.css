@@ -41,9 +41,9 @@
   gap: 5px;
   padding: 6px 11px;
   border-radius: 999px;
-  border: 1px solid var(--border2);
-  background: var(--card2);
-  color: var(--muted);
+  border: 1px solid var(--chip-border);
+  background: var(--chip-bg);
+  color: var(--chip-fg);
   font-size: 12px;
   text-transform: capitalize;
 }
@@ -51,9 +51,9 @@
   color: var(--text);
 }
 .chipActive {
-  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
-  background: color-mix(in srgb, var(--primary) 14%, transparent);
-  color: var(--primary);
+  border-color: var(--chip-active-border);
+  background: var(--chip-active-bg);
+  color: var(--chip-active-fg);
 }
 
 .error {

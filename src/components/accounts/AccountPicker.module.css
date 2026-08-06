@@ -33,7 +33,7 @@
   max-width: 100%;
 }
 .accountChipActive {
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 40%, transparent);
+  box-shadow: 0 0 0 2px var(--chip-active-border);
 }
 .chipName {
   overflow: hidden;
@@ -54,13 +54,13 @@
 .noneChip:hover,
 .addChip:hover {
   color: var(--text);
-  border-color: color-mix(in srgb, var(--primary) 35%, transparent);
+  border-color: var(--chip-active-border);
 }
 .noneChipActive {
   border-style: solid;
-  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
-  color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  border-color: var(--chip-active-border);
+  color: var(--chip-active-fg);
+  background: var(--chip-active-bg);
 }
 .addPanel {
   display: flex;
@@ -84,9 +84,9 @@
   color: var(--muted);
 }
 .typeChipActive {
-  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
-  color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  border-color: var(--chip-active-border);
+  color: var(--chip-active-fg);
+  background: var(--chip-active-bg);
 }
 .addActions {
   display: flex;

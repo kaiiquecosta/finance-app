@@ -14,8 +14,8 @@
   font-size: 19px;
 }
 .iconActive {
-  border-color: color-mix(in srgb, var(--primary) 55%, transparent);
-  background: color-mix(in srgb, var(--primary) 16%, transparent);
+  border-color: var(--chip-active-border);
+  background: var(--chip-active-bg);
 }
 .label {
   display: block;
@@ -41,9 +41,9 @@
   color: var(--text);
 }
 .chipActive {
-  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
-  background: color-mix(in srgb, var(--primary) 14%, transparent);
-  color: var(--primary);
+  border-color: var(--chip-active-border);
+  background: var(--chip-active-bg);
+  color: var(--chip-active-fg);
 }
 .select {
   width: 100%;

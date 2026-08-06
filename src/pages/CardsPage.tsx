@@ -22,6 +22,7 @@ import {
 } from '@/domain/calc/cards'
 import type { Card as CardEntity, CardBill } from '@/domain/entities'
 import { showSaveToast } from '@/lib/toast'
+import { formatDate } from '@/lib/format'
 import styles from './CardsPage.module.css'
 
 export function CardsPage() {
@@ -228,7 +229,6 @@ export function CardsPage() {
                       className="prog-fill"
                       style={{
                         width: `${Math.min(usedPct, 100)}%`,
-                        background: 'linear-gradient(90deg,#3b82f6,#8b5cf6)',
                       }}
                     />
                   </div>
@@ -259,7 +259,10 @@ export function CardsPage() {
                         {bills.map((b) => (
                           <div key={b.id} className={styles.billRow}>
                             <div className={styles.billRowMain}>
-                              <span className={styles.billDesc}>{b.description}</span>
+                              <div className={styles.billText}>
+                                <span className={styles.billDesc}>{b.description}</span>
+                                <span className={styles.billDate}>Compra {formatDate(b.date)}</span>
+                              </div>
                               <span className={styles.billAmt}>-{formatBRL(b.amt)}</span>
                             </div>
                             <button

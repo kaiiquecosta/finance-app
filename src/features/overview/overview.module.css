@@ -112,11 +112,8 @@
 }
 .investHead {
   padding: 18px 20px 14px;
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--primary) 12%, transparent) 0%,
-    transparent 80%
-  );
+  background: var(--card2);
+  box-shadow: inset 3px 0 0 var(--primary);
 }
 .cardFlush {
   padding: 0;

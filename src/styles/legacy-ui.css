@@ -160,7 +160,7 @@
 }
 
 .prog {
-  background: var(--border2);
+  background: var(--prog-track);
   border-radius: 999px;
   height: 5px;
   overflow: hidden;
@@ -168,6 +168,7 @@
 .prog-fill {
   height: 100%;
   border-radius: 999px;
+  background: var(--prog-fill);
   transition: width 0.6s ease;
 }
 
@@ -362,8 +363,8 @@
 }
 
 .cc-card {
-  background: linear-gradient(135deg, #1a1a2e, #16213e);
-  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  background: linear-gradient(145deg, var(--card2) 0%, var(--card) 100%);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 20px;
   position: relative;
@@ -376,7 +377,7 @@
   right: -40px;
   width: 130px;
   height: 130px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.15), transparent 70%);
+  background: radial-gradient(circle, var(--primary-soft), transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -476,14 +477,11 @@
 }
 
 .overview-hero {
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--primary) 10%, var(--card)) 0%,
-    var(--card) 65%
-  );
-  border: 1px solid color-mix(in srgb, var(--primary) 16%, var(--border));
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 20px;
+  box-shadow: inset 3px 0 0 var(--primary);
 }
 
 .fadein {
@@ -529,6 +527,4 @@
 [data-theme='light'] .month-nav {
   background: var(--card);
 }
-[data-theme='light'] .cc-card {
-  background: linear-gradient(135deg, #eef2ff, #f8fafc);
-}
+

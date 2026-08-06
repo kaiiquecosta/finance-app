@@ -54,3 +54,5 @@ UI (pages/features/components)  ──►  data (TanStack Query + Supabase)  ─
 - Alias de import: `@/` → `src/`.
 - Componentes em PascalCase; hooks `useX`; arquivos de teste `*.test.ts(x)`.
 - Estilos por CSS Modules (`*.module.css`) usando os tokens de `styles/tokens.css`.
+- **Cores 60-30-10:** ~60% `--bg`, ~30% `--card`/`--card2`, ~10% `--primary` (botões,
+  links, seleção). Chips usam `--chip-*`; ver comentário no topo de `tokens.css`.

@@ -11,13 +11,9 @@
   flex-wrap: wrap;
   padding: 18px 20px;
   border-radius: 16px;
-  background: linear-gradient(
-    135deg,
-    var(--card) 0%,
-    color-mix(in srgb, var(--primary) 8%, var(--card)) 48%,
-    color-mix(in srgb, var(--primary) 6%, var(--card2)) 100%
-  );
-  border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--border));
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: inset 3px 0 0 var(--primary);
   margin-bottom: 14px;
 }
 
