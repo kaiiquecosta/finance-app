@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useChartSeries, useYearSeries } from '@/data/useMarketChart'
 import { RANGE_OPTIONS, assetStats, periodReturns, type ChartRange } from '@/data/marketChart'
 import { stockByYahoo } from '@/data/stocksCatalog'
@@ -31,7 +31,63 @@ function fmtVolume(v: number | null): string {
   return String(Math.round(v))
 }
 
-function BigChart({ timestamps, closes, range }: { timestamps: number[]; closes: number[]; range: ChartRange }) {
+function fmtHoverTime(ts: number, range: ChartRange): string {
+  const d = new Date(ts * 1000)
+  if (range === '1d' || range === '5d') {
+    return d.toLocaleString('pt-BR', {
+      weekday: 'short',
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
+  return d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })
+}
+
+function indexAtRatio(length: number, ratio: number): number {
+  if (length <= 1) return 0
+  return Math.max(0, Math.min(length - 1, Math.round(ratio * (length - 1))))
+}
+
+function BigChart({
+  timestamps,
+  closes,
+  range,
+  onHover,
+}: {
+  timestamps: number[]
+  closes: number[]
+  range: ChartRange
+  onHover: (point: { price: number; ts: number; index: number } | null) => void
+}) {
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null)
+
+  useEffect(() => {
+    setHoverIndex(null)
+    onHover(null)
+  }, [timestamps, closes, range, onHover])
+
+  const pickAtClientX = useCallback(
+    (clientX: number) => {
+      const el = wrapRef.current
+      if (!el || closes.length < 2) return
+      const rect = el.getBoundingClientRect()
+      if (rect.width <= 0) return
+      const ratio = (clientX - rect.left) / rect.width
+      const index = indexAtRatio(closes.length, ratio)
+      setHoverIndex(index)
+      onHover({ index, price: closes[index], ts: timestamps[index] })
+    },
+    [closes, timestamps, onHover],
+  )
+
+  const clearHover = useCallback(() => {
+    setHoverIndex(null)
+    onHover(null)
+  }, [onHover])
+
   if (closes.length < 2) {
     return <div className={styles.chartEmpty}>Sem dados para este período.</div>
   }
@@ -50,6 +106,7 @@ function BigChart({ timestamps, closes, range }: { timestamps: number[]; closes:
   const area = `${pad},${h - pad} ${line} ${w - pad},${h - pad}`
   const up = closes[closes.length - 1] >= closes[0]
   const color = up ? 'var(--green)' : 'var(--red)'
+  const active = hoverIndex != null ? pts[hoverIndex] : null
 
   const fmtTick = (ts: number): string => {
     const d = new Date(ts * 1000)
@@ -62,7 +119,21 @@ function BigChart({ timestamps, closes, range }: { timestamps: number[]; closes:
   const tickIdx = [0, Math.floor(timestamps.length / 2), timestamps.length - 1]
 
   return (
-    <div>
+    <div
+      ref={wrapRef}
+      className={styles.chartWrap}
+      onMouseMove={(e) => pickAtClientX(e.clientX)}
+      onMouseLeave={clearHover}
+      onTouchStart={(e) => {
+        const t = e.touches[0]
+        if (t) pickAtClientX(t.clientX)
+      }}
+      onTouchMove={(e) => {
+        const t = e.touches[0]
+        if (t) pickAtClientX(t.clientX)
+      }}
+      onTouchEnd={clearHover}
+    >
       <svg className={styles.chart} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" aria-hidden>
         <defs>
           <linearGradient id="assetFill" x1="0" y1="0" x2="0" y2="1">
@@ -72,6 +143,30 @@ function BigChart({ timestamps, closes, range }: { timestamps: number[]; closes:
         </defs>
         <polygon points={area} fill="url(#assetFill)" />
         <polyline points={line} fill="none" stroke={color} strokeWidth="2" vectorEffect="non-scaling-stroke" />
+        {active && (
+          <>
+            <line
+              x1={active[0]}
+              y1={pad}
+              x2={active[0]}
+              y2={h - pad}
+              stroke="var(--muted)"
+              strokeWidth="1"
+              strokeDasharray="4 3"
+              vectorEffect="non-scaling-stroke"
+              opacity="0.85"
+            />
+            <circle
+              cx={active[0]}
+              cy={active[1]}
+              r="5"
+              fill="var(--card)"
+              stroke={color}
+              strokeWidth="2"
+              vectorEffect="non-scaling-stroke"
+            />
+          </>
+        )}
       </svg>
       <div className={styles.chartTicks}>
         {tickIdx.map((i) => (
@@ -84,8 +179,17 @@ function BigChart({ timestamps, closes, range }: { timestamps: number[]; closes:
 
 export function AssetDetail({ symbol, onClose, isFavorite, onToggleFavorite }: Props) {
   const [range, setRange] = useState<ChartRange>('1d')
+  const [hoverPoint, setHoverPoint] = useState<{ price: number; ts: number; index: number } | null>(null)
   const chart = useChartSeries(symbol, range)
   const year = useYearSeries(symbol)
+
+  const onChartHover = useCallback((point: { price: number; ts: number; index: number } | null) => {
+    setHoverPoint(point)
+  }, [])
+
+  useEffect(() => {
+    setHoverPoint(null)
+  }, [range, symbol])
 
   const def = stockByYahoo(symbol)
   const meta = chart.data?.meta ?? year.data?.meta
@@ -102,6 +206,15 @@ export function AssetDetail({ symbol, onClose, isFavorite, onToggleFavorite }: P
   const price = stats?.price ?? meta?.regularMarketPrice ?? null
   const dayPct = stats?.dayChangePct ?? null
   const up = (dayPct ?? 0) >= 0
+
+  const chartCloses = chart.data?.closes
+  const hoverPeriodPct = useMemo(() => {
+    if (!hoverPoint || !chartCloses?.length || chartCloses[0] === 0) return null
+    return ((hoverPoint.price - chartCloses[0]) / chartCloses[0]) * 100
+  }, [hoverPoint, chartCloses])
+
+  const displayPrice = hoverPoint?.price ?? price
+  const hoverUp = (hoverPeriodPct ?? 0) >= 0
 
   return (
     <div className={styles.overlay} role="dialog" aria-modal="true" aria-label={`Detalhes de ${displayName}`}>
@@ -130,10 +243,19 @@ export function AssetDetail({ symbol, onClose, isFavorite, onToggleFavorite }: P
         </div>
 
         <div className={styles.priceRow}>
-          <span className={styles.price}>{fmtMoney(price, currency)}</span>
-          <span className={up ? styles.up : styles.down}>
-            {dayPct == null ? '' : `${up ? '▲' : '▼'} ${Math.abs(dayPct).toFixed(2).replace('.', ',')}% hoje`}
-          </span>
+          <span className={styles.price}>{fmtMoney(displayPrice, currency)}</span>
+          {hoverPoint ? (
+            <span className={hoverUp ? styles.up : styles.down}>
+              {fmtHoverTime(hoverPoint.ts, range)}
+              {hoverPeriodPct != null
+                ? ` · ${hoverUp ? '▲' : '▼'} ${Math.abs(hoverPeriodPct).toFixed(2).replace('.', ',')}% no período`
+                : ''}
+            </span>
+          ) : (
+            <span className={up ? styles.up : styles.down}>
+              {dayPct == null ? '' : `${up ? '▲' : '▼'} ${Math.abs(dayPct).toFixed(2).replace('.', ',')}% hoje`}
+            </span>
+          )}
         </div>
 
         <div className={styles.ranges}>
@@ -151,7 +273,14 @@ export function AssetDetail({ symbol, onClose, isFavorite, onToggleFavorite }: P
 
         {chart.isLoading && <div className={styles.chartEmpty}>Carregando gráfico…</div>}
         {chart.isError && <div className={styles.chartEmpty}>Não foi possível carregar o gráfico deste ativo.</div>}
-        {chart.data && <BigChart timestamps={chart.data.timestamps} closes={chart.data.closes} range={range} />}
+        {chart.data && (
+          <BigChart
+            timestamps={chart.data.timestamps}
+            closes={chart.data.closes}
+            range={range}
+            onHover={onChartHover}
+          />
+        )}
 
         <div className={styles.section}>Retornos</div>
         <div className={styles.returnsGrid}>
