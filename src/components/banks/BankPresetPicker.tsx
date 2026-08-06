@@ -1,11 +1,6 @@
 import { useMemo, useState } from 'react'
 import { TextField } from '@/components/ui/TextField'
-import {
-  BRAZIL_BANK_PRESETS,
-  bankButtonTextColor,
-  filterBankPresets,
-  type BankPreset,
-} from '@/domain/banks'
+import { BRAZIL_BANK_PRESETS, filterBankPresets, type BankPreset } from '@/domain/banks'
 import { BankMark } from './BankMark'
 import styles from './BankPresetPicker.module.css'
 
@@ -39,7 +34,6 @@ export function BankPresetPicker({ selectedId, onSelect, searchable = true }: Pr
       <div className={styles.grid} role="listbox" aria-label="Bancos">
         {list.map((p) => {
           const active = selectedId === p.id
-          const fg = bankButtonTextColor(p.color)
           return (
             <button
               key={p.id}
@@ -47,11 +41,7 @@ export function BankPresetPicker({ selectedId, onSelect, searchable = true }: Pr
               role="option"
               aria-selected={active}
               className={active ? `${styles.bankBtn} ${styles.bankBtnActive}` : styles.bankBtn}
-              style={{
-                background: p.color,
-                color: fg,
-                ['--bank-fg' as string]: fg,
-              }}
+              style={{ ['--bank-color' as string]: p.color }}
               onClick={() => onSelect(p)}
             >
               <BankMark preset={p} size="sm" className={styles.bankBtnMark} />

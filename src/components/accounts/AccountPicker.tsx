@@ -7,12 +7,7 @@ import { BankMark } from '@/components/banks/BankMark'
 import { useEntityMutations, newId } from '@/data/useEntityMutations'
 import { toBankAccountRow } from '@/data/mappers'
 import { ZERO, type Cents } from '@/domain/money'
-import {
-  BRAZIL_BANK_PRESETS,
-  bankButtonTextColor,
-  matchBankPreset,
-  type BankPreset,
-} from '@/domain/banks'
+import { BRAZIL_BANK_PRESETS, matchBankPreset, type BankPreset } from '@/domain/banks'
 import type { AccountType, BankAccount } from '@/domain/entities'
 import styles from './AccountPicker.module.css'
 
@@ -117,20 +112,15 @@ export function AccountPicker({
         {accounts.map((a) => {
           const vis = accountVisual(a)
           const active = value === a.id
-          const fg = bankButtonTextColor(vis.color)
           return (
             <button
               key={a.id}
               type="button"
               className={active ? `${styles.accountChip} ${styles.accountChipActive}` : styles.accountChip}
-              style={{
-                background: vis.color,
-                color: fg,
-                borderColor: active ? 'var(--primary)' : 'transparent',
-              }}
+              style={{ ['--chip-color' as string]: vis.color }}
               onClick={() => onChange(a.id)}
             >
-              <BankMark preset={vis} size="sm" variant="onBrand" />
+              <BankMark preset={vis} size="sm" />
               <span className={styles.chipName}>{a.name}</span>
             </button>
           )

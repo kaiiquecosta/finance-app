@@ -25,15 +25,25 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 10px 6px 6px;
+  padding: 5px 12px 5px 5px;
   border-radius: 999px;
-  border: 2px solid transparent;
+  border: 1px solid var(--border);
+  background: var(--card2);
+  color: var(--text);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   max-width: 100%;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+.accountChip:hover {
+  border-color: color-mix(in srgb, var(--chip-color, var(--primary)) 38%, var(--border));
 }
 .accountChipActive {
-  box-shadow: 0 0 0 2px var(--chip-active-border);
+  border-color: color-mix(in srgb, var(--chip-color, var(--primary)) 55%, transparent);
+  background: color-mix(in srgb, var(--chip-color, var(--primary)) 10%, var(--card2));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--chip-color, var(--primary)) 22%, transparent);
 }
 .chipName {
   overflow: hidden;
