@@ -2,13 +2,11 @@ import { useState } from 'react'
 import { useAuth } from '@/app/SessionProvider'
 import { useFinanceData } from '@/data/hooks'
 import { PageHeader } from '@/components/PageHeader'
-import { Card } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
+import { HeaderActionButton } from '@/components/legacy/HeaderActionButton'
 import { SubscriptionModal } from '@/features/subscriptions/SubscriptionModal'
 import { useSubscriptionMutations } from '@/features/subscriptions/useSubscriptionMutations'
-import { formatBRL, mul, sum } from '@/domain/money'
+import { formatBRL, mul, sum, cents, ZERO } from '@/domain/money'
 import type { Subscription } from '@/domain/entities'
-import styles from './SubscriptionsPage.module.css'
 
 export function SubscriptionsPage() {
   const { user } = useAuth()
@@ -23,15 +21,17 @@ export function SubscriptionsPage() {
     return (
       <>
         <PageHeader title="Assinaturas" />
-        <Card>
-          <p className={styles.muted}>Não foi possível carregar suas assinaturas.</p>
-        </Card>
+        <div className="card">
+          <p style={{ color: 'var(--muted)', fontSize: 14 }}>Não foi possível carregar suas assinaturas.</p>
+        </div>
       </>
     )
   }
 
   const monthly = sum(data.subscriptions.map((s) => s.amt))
   const yearly = mul(monthly, 12)
+  const count = data.subscriptions.length
+  const avg = count > 0 ? cents(Math.round(monthly / count)) : ZERO
   const subs = [...data.subscriptions].sort((a, b) => a.day - b.day)
 
   const openNew = () => {
@@ -43,52 +43,73 @@ export function SubscriptionsPage() {
     <>
       <PageHeader
         title="Assinaturas"
-        subtitle="Serviços recorrentes"
-        action={<Button onClick={openNew}>＋ Nova</Button>}
+        subtitle="Serviços recorrentes e projeção anual"
+        action={<HeaderActionButton onClick={openNew}>＋ Nova</HeaderActionButton>}
       />
 
       {data.subscriptions.length === 0 ? (
-        <Card>
-          <p className={styles.muted}>
-            Nenhuma assinatura. Cadastre Netflix, Spotify, academia… e veja quanto comprometem por
-            mês.
+        <div className="card">
+          <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.6 }}>
+            Nenhuma assinatura. Cadastre Netflix, Spotify, academia… e veja quanto comprometem por mês.
           </p>
-        </Card>
+        </div>
       ) : (
         <>
-          <div className={styles.summary}>
-            <Card title="Por mês">
-              <div className={styles.num}>{formatBRL(monthly)}</div>
-            </Card>
-            <Card title="Por ano">
-              <div className={styles.num}>{formatBRL(yearly)}</div>
-            </Card>
-            <Card title="Serviços">
-              <div className={styles.num}>{data.subscriptions.length}</div>
-            </Card>
+          <div className="grid4" style={{ marginBottom: 16 }}>
+            <div className="card card-sm" style={{ textAlign: 'center' }}>
+              <div className="card-label">📺 Assinaturas</div>
+              <div className="num-md" style={{ color: '#a78bfa' }}>
+                {count}
+              </div>
+              <div style={{ color: 'var(--muted)', fontSize: 11, marginTop: 2 }}>ativas</div>
+            </div>
+            <div className="card card-sm" style={{ textAlign: 'center' }}>
+              <div className="card-label">Gasto mensal</div>
+              <div className="num-md num-red">{formatBRL(monthly)}</div>
+            </div>
+            <div className="card card-sm" style={{ textAlign: 'center' }}>
+              <div className="card-label">Projeção anual</div>
+              <div className="num-md" style={{ color: '#f59e0b' }}>
+                {formatBRL(yearly)}
+              </div>
+            </div>
+            <div className="card card-sm" style={{ textAlign: 'center' }}>
+              <div className="card-label">Média/serviço</div>
+              <div className="num-md num-green">{formatBRL(avg)}</div>
+            </div>
           </div>
 
-          <Card title="Todas" className={styles.mt}>
-            <div className={styles.list}>
-              {subs.map((s) => (
-                <button
-                  key={s.id}
-                  className={styles.row}
-                  onClick={() => {
-                    setEditing(s)
-                    setModalOpen(true)
+          <div className="card fadein">
+            <div className="card-title">
+              <span className="icon">🔁</span> Suas assinaturas
+            </div>
+            {subs.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                className="sub-row"
+                onClick={() => {
+                  setEditing(s)
+                  setModalOpen(true)
+                }}
+              >
+                <div
+                  className="tx-ico"
+                  style={{
+                    background: `${s.color}22`,
+                    border: `1px solid ${s.color}40`,
                   }}
                 >
-                  <span className={styles.icon}>{s.icon}</span>
-                  <div className={styles.info}>
-                    <span className={styles.name}>{s.name}</span>
-                    <span className={styles.sub}>Todo dia {s.day}</span>
-                  </div>
-                  <span className={styles.amt}>{formatBRL(s.amt)}/mês</span>
-                </button>
-              ))}
-            </div>
-          </Card>
+                  {s.icon}
+                </div>
+                <div className="tx-info">
+                  <div className="tx-name sub-name">{s.name}</div>
+                  <div className="tx-meta">Todo dia {s.day}</div>
+                </div>
+                <div className="tx-amt">{formatBRL(s.amt)}/mês</div>
+              </button>
+            ))}
+          </div>
         </>
       )}
 

@@ -2,18 +2,18 @@ import { useMemo, useState } from 'react'
 import { useAuth } from '@/app/SessionProvider'
 import { useFinanceData } from '@/data/hooks'
 import { PageHeader } from '@/components/PageHeader'
-import { Card } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
+import { Button } from '@/components/ui/Button'
+import { HeaderActionButton } from '@/components/legacy/HeaderActionButton'
+import { GroupedTransactionList } from '@/components/legacy/GroupedTransactionList'
+import { MonthNav, labelMonthYear } from '@/components/legacy/MonthNav'
 import { TransactionModal } from '@/features/transactions/TransactionModal'
 import { useTransactionMutations } from '@/features/transactions/useTransactionMutations'
 import { formatBRL } from '@/domain/money'
 import { parseISODate } from '@/domain/dates'
-import { MONTHS_FULL, iconFor } from '@/domain/categories'
 import { summarizeTransactions } from '@/domain/calc/overview'
-import { formatDate } from '@/lib/format'
+import { isManualExpenseTransaction } from '@/domain/transactions'
 import type { Transaction } from '@/domain/entities'
-import styles from './TransactionsPage.module.css'
 
 export function TransactionsPage() {
   const { user } = useAuth()
@@ -42,6 +42,7 @@ export function TransactionsPage() {
   }, [data, month, year])
 
   const summary = summarizeTransactions(monthTxs)
+  const editableCount = monthTxs.filter(isManualExpenseTransaction).length
 
   const openNew = () => {
     setEditing(null)
@@ -57,9 +58,9 @@ export function TransactionsPage() {
     return (
       <>
         <PageHeader title="Transações" />
-        <Card>
-          <p className={styles.muted}>Não foi possível carregar suas transações.</p>
-        </Card>
+        <div className="card">
+          <p style={{ color: 'var(--muted)', fontSize: 14 }}>Não foi possível carregar suas transações.</p>
+        </div>
       </>
     )
   }
@@ -68,77 +69,44 @@ export function TransactionsPage() {
     <>
       <PageHeader
         title="Transações"
-        subtitle="Seus lançamentos do dia a dia"
-        action={<Button onClick={openNew}>＋ Nova</Button>}
+        subtitle={`${monthTxs.length} registros · débitos são editáveis (${editableCount})`}
+        action={<HeaderActionButton onClick={openNew}>＋ Nova</HeaderActionButton>}
       />
 
-      <div className={styles.monthNav}>
-        <button className={styles.navBtn} onClick={() => setMonthOffset((m) => m - 1)}>
-          ‹
-        </button>
-        <span className={styles.monthLabel}>
-          {MONTHS_FULL[month]} de {year}
-        </span>
-        <button className={styles.navBtn} onClick={() => setMonthOffset((m) => m + 1)}>
-          ›
-        </button>
-        {monthOffset !== 0 && (
-          <button className={styles.today} onClick={() => setMonthOffset(0)}>
-            hoje
-          </button>
-        )}
-      </div>
+      <MonthNav
+        month={month}
+        year={year}
+        monthOffset={monthOffset}
+        label={labelMonthYear(month, year)}
+        onPrev={() => setMonthOffset((m) => m - 1)}
+        onNext={() => setMonthOffset((m) => m + 1)}
+        onGoToday={() => setMonthOffset(0)}
+      />
 
-      <div className={styles.summary}>
-        <Card title="Receitas">
-          <div className={`${styles.num} ${styles.pos}`}>{formatBRL(summary.income)}</div>
-        </Card>
-        <Card title="Gastos">
-          <div className={`${styles.num} ${styles.neg}`}>{formatBRL(summary.spent)}</div>
-        </Card>
-        <Card title="Saldo">
-          <div className={`${styles.num} ${summary.balance >= 0 ? styles.pos : styles.neg}`}>
+      <div className="grid3" style={{ marginBottom: 20 }}>
+        <div className="card card-sm" style={{ textAlign: 'center' }}>
+          <div className="card-label">Receitas</div>
+          <div className="num-md num-green">{formatBRL(summary.income)}</div>
+        </div>
+        <div className="card card-sm" style={{ textAlign: 'center' }}>
+          <div className="card-label">Gastos</div>
+          <div className="num-md num-red">{formatBRL(summary.spent)}</div>
+        </div>
+        <div className="card card-sm" style={{ textAlign: 'center' }}>
+          <div className="card-label">Saldo</div>
+          <div className="num-md" style={{ color: summary.balance >= 0 ? 'var(--green)' : 'var(--red)' }}>
             {formatBRL(summary.balance, { sign: true })}
           </div>
-        </Card>
+        </div>
       </div>
 
-      <Card title={`${monthTxs.length} lançamento(s)`} className={styles.mt}>
-        {monthTxs.length === 0 ? (
-          <p className={styles.muted}>
-            Nenhuma transação neste mês. Clique em <b>＋ Nova</b> para lançar a primeira.
-          </p>
-        ) : (
-          <div className={styles.list}>
-            {monthTxs.map((t) => (
-              <div key={t.id} className={styles.row}>
-                <span className={styles.icon}>{iconFor(t.cat)}</span>
-                <div className={styles.info}>
-                  <span className={styles.name}>{t.name}</span>
-                  <span className={styles.sub}>
-                    {formatDate(t.date)} · {t.cat}
-                  </span>
-                </div>
-                <span className={t.amt >= 0 ? styles.pos : styles.neg}>
-                  {formatBRL(t.amt, { sign: true })}
-                </span>
-                <div className={styles.actions}>
-                  <button className={styles.action} onClick={() => openEdit(t)} title="Editar">
-                    ✏️
-                  </button>
-                  <button
-                    className={styles.action}
-                    onClick={() => setConfirmDelete(t)}
-                    title="Excluir"
-                  >
-                    🗑
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
+      <div className="card fadein">
+        <GroupedTransactionList
+          transactions={monthTxs}
+          accounts={data.bankAccounts}
+          onEdit={openEdit}
+        />
+      </div>
 
       <TransactionModal
         open={modalOpen}
@@ -175,7 +143,7 @@ export function TransactionsPage() {
           </>
         }
       >
-        <p className={styles.muted}>
+        <p style={{ color: 'var(--muted)', fontSize: 14 }}>
           Excluir <b>{confirmDelete?.name}</b>? Esta ação não pode ser desfeita.
         </p>
       </Modal>

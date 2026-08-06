@@ -1,20 +1,18 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useAuth } from '@/app/SessionProvider'
 import { useFinanceData } from '@/data/hooks'
 import { useRates } from '@/data/useMarket'
 import { PageHeader } from '@/components/PageHeader'
-import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
-import { ProGate } from '@/features/billing/ProGate'
+import { HeaderActionButton } from '@/components/legacy/HeaderActionButton'
 import { MarketSection } from '@/features/investments/MarketSection'
 import { InvestmentModal } from '@/features/investments/InvestmentModal'
 import { RescueModal } from '@/features/investments/RescueModal'
 import { useInvestmentMutations } from '@/features/investments/useInvestmentMutations'
-import { formatBRL, sub, sum } from '@/domain/money'
+import { formatBRL, sub, sum, ZERO, add as addMoney, type Cents } from '@/domain/money'
 import { DEFAULT_RATES, calcInvestment } from '@/domain/calc/investment'
 import type { Investment, InvestmentType } from '@/domain/entities'
-import styles from './InvestmentsPage.module.css'
 
 const TYPE_LABELS: Record<InvestmentType, string> = {
   cdb: 'CDB',
@@ -30,18 +28,6 @@ const TYPE_LABELS: Record<InvestmentType, string> = {
 }
 
 export function InvestmentsPage() {
-  return (
-    <ProGate
-      feature="Investimentos"
-      icon="📈"
-      description="Acompanhe sua carteira com rendimento real (CDI/IPCA do Banco Central) e o mercado ao vivo — câmbio, cripto e mais."
-    >
-      <InvestmentsPageContent />
-    </ProGate>
-  )
-}
-
-function InvestmentsPageContent() {
   const { user } = useAuth()
   const { data, isLoading, isError } = useFinanceData(user?.id)
   const rates = useRates()
@@ -51,108 +37,170 @@ function InvestmentsPageContent() {
   const [confirmDelete, setConfirmDelete] = useState<Investment | null>(null)
   const [rescuing, setRescuing] = useState<Investment | null>(null)
 
+  const now = useMemo(() => new Date(), [])
+  const marketRates = rates.data ? { cdi: rates.data.cdi, ipca: rates.data.ipca } : DEFAULT_RATES
+
+  const rows = useMemo(() => {
+    if (!data) return []
+    return data.investments.map((inv) => ({
+      inv,
+      r: calcInvestment(
+        {
+          amount: inv.amount,
+          type: inv.type,
+          date: inv.date,
+          pct: inv.pct,
+          spread: inv.spread,
+          yield: inv.yield,
+        },
+        now,
+        marketRates,
+      ),
+    }))
+  }, [data, marketRates, now])
+
+  const distribution = useMemo(() => {
+    const map = new Map<InvestmentType, Cents>()
+    for (const { inv } of rows) {
+      map.set(inv.type, addMoney(map.get(inv.type) ?? ZERO, inv.amount))
+    }
+    return [...map.entries()].sort((a, b) => b[1] - a[1])
+  }, [rows])
+
   if (isLoading) return <PageHeader title="Investimentos" subtitle="Carregando…" />
   if (isError || !data) {
     return (
       <>
         <PageHeader title="Investimentos" />
-        <Card>
-          <p className={styles.muted}>Não foi possível carregar sua carteira.</p>
-        </Card>
+        <div className="card">
+          <p style={{ color: 'var(--muted)', fontSize: 14 }}>Não foi possível carregar sua carteira.</p>
+        </div>
       </>
     )
   }
 
-  const now = new Date()
-  const marketRates = rates.data
-    ? { cdi: rates.data.cdi, ipca: rates.data.ipca }
-    : DEFAULT_RATES
-  const rows = data.investments.map((inv) => ({
-    inv,
-    r: calcInvestment(
-      { amount: inv.amount, type: inv.type, date: inv.date, pct: inv.pct, spread: inv.spread, yield: inv.yield },
-      now,
-      marketRates,
-    ),
-  }))
   const applied = sum(data.investments.map((i) => i.amount))
+  const grossYield = sum(rows.map((x) => x.r.grossYield))
   const netTotal = sum(rows.map((x) => x.r.netAmount))
   const netYield = sub(netTotal, applied)
-  const positive = netYield >= 0
 
   return (
     <>
       <PageHeader
         title="Investimentos"
-        subtitle={rates.data ? 'Rendimento com CDI/IPCA em tempo real' : 'Sua carteira'}
-        action={<Button onClick={() => setModalOpen(true)}>＋ Investir</Button>}
+        subtitle="Rendimentos em tempo real"
+        action={<HeaderActionButton onClick={() => setModalOpen(true)}>＋ Adicionar</HeaderActionButton>}
       />
 
-      <Card title="Minha carteira">
-        {data.investments.length === 0 ? (
-          <p className={styles.muted}>
-            Nenhum investimento ainda. Clique em <b>＋ Investir</b> e acompanhe o rendimento com as
-            taxas reais do mercado.
-          </p>
-        ) : (
-          <>
-            <div className={styles.totals}>
-              <div>
-                <span className={styles.totLabel}>Aplicado</span>
-                <span className={styles.totValue}>{formatBRL(applied)}</span>
-              </div>
-              <div>
-                <span className={styles.totLabel}>Valor atual (líquido)</span>
-                <span className={styles.totValue}>{formatBRL(netTotal)}</span>
-              </div>
-              <div>
-                <span className={styles.totLabel}>Rendimento líquido</span>
-                <span className={`${styles.totValue} ${positive ? styles.pos : styles.neg}`}>
-                  {formatBRL(netYield, { sign: true })}
-                </span>
-              </div>
-            </div>
+      <div className="grid3" style={{ marginBottom: 16 }}>
+        <div className="card card-sm" style={{ textAlign: 'center' }}>
+          <div className="card-label">Total aplicado</div>
+          <div className="num-md" style={{ color: 'var(--blue)' }}>
+            {formatBRL(applied)}
+          </div>
+        </div>
+        <div className="card card-sm" style={{ textAlign: 'center' }}>
+          <div className="card-label">Rendimento bruto</div>
+          <div className="num-md num-green">{formatBRL(grossYield, { sign: true })}</div>
+        </div>
+        <div className="card card-sm" style={{ textAlign: 'center' }}>
+          <div className="card-label">Rendimento líquido</div>
+          <div className="num-md" style={{ color: '#a78bfa' }}>
+            {formatBRL(netYield, { sign: true })}
+          </div>
+        </div>
+      </div>
 
-            <div className={styles.list}>
-              {rows.map(({ inv, r }) => (
-                <div key={inv.id} className={styles.row}>
-                  <div className={styles.info}>
-                    <span className={styles.name}>{inv.name}</span>
-                    <span className={styles.sub}>
-                      {TYPE_LABELS[inv.type]}
-                      {inv.bank ? ` · ${inv.bank}` : ''} · {r.days}d
-                    </span>
-                  </div>
-                  <div className={styles.right}>
-                    <span className={styles.netAmt}>{formatBRL(r.netAmount)}</span>
-                    <span className={r.netYield >= 0 ? styles.pos : styles.neg}>
-                      {formatBRL(r.netYield, { sign: true })}
-                    </span>
-                  </div>
-                  <div className={styles.rowActions}>
-                    <Button variant="ghost" onClick={() => setRescuing(inv)}>
-                      Resgatar
-                    </Button>
-                    <button
-                      className={styles.del}
-                      title="Excluir sem resgatar (corrigir lançamento errado)"
-                      onClick={() => setConfirmDelete(inv)}
-                    >
-                      🗑
-                    </button>
+      <div className="cdi-bar fadein">
+        <span style={{ fontSize: 16 }}>📡</span>
+        <span style={{ color: 'var(--muted)' }}>CDI anual:</span>
+        <span style={{ color: 'var(--blue)', fontWeight: 700, fontFamily: 'var(--num)' }}>
+          {rates.isLoading
+            ? 'carregando…'
+            : `${((marketRates.cdi ?? DEFAULT_RATES.cdi) * 100).toFixed(2).replace('.', ',')}%`}
+        </span>
+        {rates.dataUpdatedAt > 0 && (
+          <span style={{ color: 'var(--muted)', fontSize: 11, marginLeft: 'auto' }}>
+            {new Date(rates.dataUpdatedAt).toLocaleString('pt-BR')}
+          </span>
+        )}
+      </div>
+
+      {distribution.length > 1 && (
+        <div className="card fadein" style={{ marginBottom: 16 }}>
+          <div className="card-title">
+            <span className="icon">🥧</span> Distribuição por tipo
+          </div>
+          {distribution.map(([type, amt]) => {
+            const pct = applied > 0 ? (amt / applied) * 100 : 0
+            return (
+              <div key={type} className="cat-row">
+                <span className="cat-name">{TYPE_LABELS[type]}</span>
+                <div className="cat-bar-wrap">
+                  <div className="prog">
+                    <div className="prog-fill" style={{ width: `${pct}%`, background: 'var(--blue)' }} />
                   </div>
                 </div>
-              ))}
-            </div>
-            <p className={styles.note}>
-              Rendimento estimado (juros compostos) com IR simplificado. Valores de renda variável
-              usam a rentabilidade estimada informada.
-            </p>
-          </>
-        )}
-      </Card>
+                <span className="cat-amt">{formatBRL(amt)}</span>
+              </div>
+            )
+          })}
+        </div>
+      )}
 
-      <MarketSection />
+      {data.investments.length === 0 ? (
+        <div className="card">
+          <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.6 }}>
+            Nenhum investimento ainda. Clique em <b>＋ Adicionar</b> e acompanhe o rendimento com as taxas reais
+            do mercado.
+          </p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {rows.map(({ inv, r }) => (
+            <div key={inv.id} className="card fadein">
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+                <div className="tx-info" style={{ flex: 1, minWidth: 180 }}>
+                  <div className="tx-name" style={{ fontSize: 15, fontWeight: 700 }}>
+                    {inv.name}
+                  </div>
+                  <div className="tx-meta">
+                    {TYPE_LABELS[inv.type]}
+                    {inv.bank ? ` · ${inv.bank}` : ''} · {r.days}d
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div className="num-md">{formatBRL(r.netAmount)}</div>
+                  <div style={{ color: r.netYield >= 0 ? 'var(--green)' : 'var(--red)', fontFamily: 'var(--num)', fontSize: 13 }}>
+                    {formatBRL(r.netYield, { sign: true })}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <Button variant="ghost" onClick={() => setRescuing(inv)}>
+                    Resgatar
+                  </Button>
+                  <button
+                    type="button"
+                    title="Excluir sem resgatar"
+                    onClick={() => setConfirmDelete(inv)}
+                    style={{ opacity: 0.65, fontSize: 16, background: 'none', border: 'none' }}
+                  >
+                    🗑
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+          <p style={{ color: 'var(--muted)', fontSize: 12, lineHeight: 1.6 }}>
+            Rendimento estimado (juros compostos) com IR simplificado. Valores de renda variável usam a rentabilidade
+            estimada informada.
+          </p>
+        </div>
+      )}
+
+      <div style={{ marginTop: 16 }}>
+        <MarketSection />
+      </div>
 
       <InvestmentModal
         open={modalOpen}
@@ -202,10 +250,9 @@ function InvestmentsPageContent() {
           </>
         }
       >
-        <p className={styles.muted}>
-          Excluir <b>{confirmDelete?.name}</b> sem resgatar? Use isto só para corrigir um
-          lançamento errado — nenhum valor é creditado em conta. Para sacar o dinheiro de verdade,
-          use <b>Resgatar</b>.
+        <p style={{ color: 'var(--muted)', fontSize: 14 }}>
+          Excluir <b>{confirmDelete?.name}</b> sem resgatar? Use isto só para corrigir um lançamento errado — nenhum
+          valor é creditado em conta. Para sacar o dinheiro de verdade, use <b>Resgatar</b>.
         </p>
       </Modal>
     </>

@@ -6,12 +6,10 @@ import { useBillMutations } from '@/features/bills/useBillMutations'
 import { FixedBillModal } from '@/features/bills/FixedBillModal'
 import { PayBillModal } from '@/features/bills/PayBillModal'
 import { PageHeader } from '@/components/PageHeader'
-import { Card } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
+import { HeaderActionButton } from '@/components/legacy/HeaderActionButton'
 import { formatBRL, sum } from '@/domain/money'
 import { upcomingCardInvoices } from '@/domain/calc/cards'
 import type { FixedBill } from '@/domain/entities'
-import styles from './BillsPage.module.css'
 
 type Row =
   | { kind: 'fixed'; dueDay: number; bill: FixedBill }
@@ -31,21 +29,18 @@ export function BillsPage() {
     return (
       <>
         <PageHeader title="Contas fixas" />
-        <Card>
-          <p className={styles.muted}>Não foi possível carregar suas contas.</p>
-        </Card>
+        <div className="card">
+          <p style={{ color: 'var(--muted)', fontSize: 14 }}>Não foi possível carregar suas contas.</p>
+        </div>
       </>
     )
   }
 
   const fixedBills = [...data.fixedBills].sort((a, b) => a.dueDay - b.dueDay)
-  const total = sum(fixedBills.map((b) => b.amt))
-  const paid = sum(fixedBills.filter((b) => b.paid).map((b) => b.amt))
-  const pending = sum(fixedBills.filter((b) => !b.paid).map((b) => b.amt))
+  const totalFixed = sum(fixedBills.map((b) => b.amt))
+  const paidCount = fixedBills.filter((b) => b.paid).length
+  const pendingCount = fixedBills.filter((b) => !b.paid).length
 
-  // Faturas de cartão em aberto (só o mês atual) somam-se à visão unificada de
-  // vencimentos, sem entrar nos totais de "pagas/pendentes" acima — o
-  // acompanhamento de pagamento do cartão continua na página Cartões.
   const cardInvoices = upcomingCardInvoices(data.cards, new Date(), 1)
 
   const rows: Row[] = [
@@ -74,88 +69,186 @@ export function BillsPage() {
     <>
       <PageHeader
         title="Contas fixas"
-        subtitle="Vencimentos do mês (contas fixas + fatura do cartão)"
-        action={<Button onClick={openNew}>＋ Nova</Button>}
+        subtitle="Água, luz, internet e mais"
+        action={<HeaderActionButton onClick={openNew}>＋ Nova conta</HeaderActionButton>}
       />
 
       {rows.length === 0 ? (
-        <Card>
-          <p className={styles.muted}>
+        <div className="card">
+          <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.6 }}>
             Nenhuma conta fixa. Cadastre aluguel, luz, internet… e acompanhe os vencimentos.
           </p>
-        </Card>
+        </div>
       ) : (
         <>
-          <div className={styles.summary}>
-            <Card title="Total do mês">
-              <div className={styles.num}>{formatBRL(total)}</div>
-            </Card>
-            <Card title="Pagas">
-              <div className={`${styles.num} ${styles.pos}`}>{formatBRL(paid)}</div>
-            </Card>
-            <Card title="Pendentes">
-              <div className={`${styles.num} ${styles.neg}`}>{formatBRL(pending)}</div>
-            </Card>
+          <div className="grid3" style={{ marginBottom: 20 }}>
+            <div className="card card-sm" style={{ textAlign: 'center' }}>
+              <div className="card-label">Total fixo/mês</div>
+              <div className="num-md num-red">{formatBRL(totalFixed)}</div>
+            </div>
+            <div className="card card-sm" style={{ textAlign: 'center' }}>
+              <div className="card-label">Pagas este mês</div>
+              <div className="num-md num-green">{paidCount}</div>
+            </div>
+            <div className="card card-sm" style={{ textAlign: 'center' }}>
+              <div className="card-label">Pendentes</div>
+              <div className="num-md" style={{ color: 'var(--amber)' }}>
+                {pendingCount}
+              </div>
+            </div>
           </div>
 
-          <Card title="Contas" className={styles.mt}>
-            <div className={styles.list}>
-              {rows.map((row) =>
-                row.kind === 'fixed' ? (
-                  <div
-                    key={`fixed-${row.bill.id}`}
-                    className={`${styles.row} ${row.bill.paid ? styles.rowPaid : ''}`}
+          <div className="card fadein">
+            <div className="card-title">
+              <span className="icon">🏠</span> Suas contas
+            </div>
+            {rows.map((row) =>
+              row.kind === 'fixed' ? (
+                <div
+                  key={`fixed-${row.bill.id}`}
+                  className={['bill-row fadein', row.bill.paid ? 'paid' : ''].filter(Boolean).join(' ')}
+                >
+                  <button
+                    type="button"
+                    title={row.bill.paid ? 'Marcar como não paga' : 'Marcar como paga'}
+                    disabled={setPaid.isPending}
+                    onClick={() => {
+                      if (row.bill.paid) {
+                        void setPaid.mutateAsync({
+                          bill: row.bill,
+                          paid: false,
+                          existingTxId: txIdForBill(row.bill.id),
+                        })
+                      } else {
+                        setPayBill(row.bill)
+                      }
+                    }}
+                    style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: '50%',
+                      flexShrink: 0,
+                      cursor: 'pointer',
+                      border: `2px solid ${row.bill.paid ? 'var(--green)' : 'var(--muted2)'}`,
+                      background: row.bill.paid ? 'var(--green)' : 'transparent',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 13,
+                      color: '#000',
+                    }}
                   >
-                    <span className={styles.icon}>{row.bill.icon}</span>
-                    <button
-                      className={styles.info}
-                      onClick={() => {
-                        setEditing(row.bill)
-                        setModalOpen(true)
+                    {row.bill.paid ? '✓' : ''}
+                  </button>
+                  <div
+                    className="tx-ico"
+                    style={{
+                      filter: row.bill.paid ? 'grayscale(0.5)' : 'none',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                    }}
+                  >
+                    {row.bill.icon}
+                  </div>
+                  <div className="tx-info" style={{ minWidth: 0 }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        textDecoration: row.bill.paid ? 'line-through' : 'none',
+                        textDecorationColor: 'rgba(255,255,255,0.25)',
                       }}
                     >
-                      <span className={styles.name}>{row.bill.name}</span>
-                      <span className={styles.sub}>
-                        vence dia {row.bill.dueDay} · {row.bill.category}
-                      </span>
-                    </button>
-                    <span className={styles.amt}>{formatBRL(row.bill.amt)}</span>
-                    {row.bill.paid ? (
-                      <button
-                        className={styles.undo}
-                        disabled={setPaid.isPending}
-                        onClick={() =>
-                          void setPaid.mutateAsync({
-                            bill: row.bill,
-                            paid: false,
-                            existingTxId: txIdForBill(row.bill.id),
-                          })
-                        }
+                      <span
+                        className="tx-name"
+                        style={{ color: row.bill.paid ? 'var(--muted)' : 'var(--text)', fontWeight: 600 }}
                       >
-                        ✓ paga
-                      </button>
-                    ) : (
-                      <Button onClick={() => setPayBill(row.bill)}>Pagar</Button>
-                    )}
-                  </div>
-                ) : (
-                  <div key={`card-${row.invoiceId}`} className={styles.row}>
-                    <span className={styles.icon} style={{ background: `${row.color}22` }}>
-                      💳
-                    </span>
-                    <div className={styles.info}>
-                      <span className={styles.name}>{row.cardName} · fatura</span>
-                      <span className={styles.sub}>vence dia {row.dueDay} · cartão de crédito</span>
+                        {row.bill.name}
+                      </span>
+                      <span className="badge badge-muted">fixo</span>
                     </div>
-                    <span className={styles.amt}>{formatBRL(row.amt)}</span>
-                    <Link to="/app/cartoes" className={styles.cardLink}>
-                      Ver fatura →
-                    </Link>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        marginTop: 2,
+                        color: row.bill.paid ? 'var(--green)' : 'var(--muted)',
+                        fontWeight: 500,
+                      }}
+                    >
+                      {row.bill.paid ? '✓ Paga este mês' : `Vence dia ${row.bill.dueDay}`}
+                    </div>
                   </div>
-                ),
-              )}
-            </div>
-          </Card>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <div
+                      className="num-md"
+                      style={{
+                        fontSize: 15,
+                        color: row.bill.paid ? 'var(--green)' : 'var(--text)',
+                      }}
+                    >
+                      {formatBRL(row.bill.amt)}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    title="Editar"
+                    onClick={() => {
+                      setEditing(row.bill)
+                      setModalOpen(true)
+                    }}
+                    style={{
+                      background: 'var(--card2)',
+                      border: '1px solid var(--border2)',
+                      borderRadius: 8,
+                      width: 30,
+                      height: 30,
+                      color: 'var(--muted)',
+                      fontSize: 12,
+                      flexShrink: 0,
+                    }}
+                  >
+                    ✎
+                  </button>
+                </div>
+              ) : (
+                <div key={`card-${row.invoiceId}`} className="bill-row fadein">
+                  <div style={{ width: 28, flexShrink: 0 }} />
+                  <div
+                    className="tx-ico"
+                    style={{
+                      background: `${row.color}20`,
+                      border: `1px solid ${row.color}40`,
+                    }}
+                  >
+                    💳
+                  </div>
+                  <div className="tx-info">
+                    <div className="tx-name">{row.cardName} · fatura</div>
+                    <div className="tx-meta">Vence dia {row.dueDay} · cartão de crédito</div>
+                  </div>
+                  <div className="num-md" style={{ fontSize: 15 }}>
+                    {formatBRL(row.amt)}
+                  </div>
+                  <Link
+                    to="/app/cartoes"
+                    className="card-link"
+                    style={{
+                      background: 'rgba(239,68,68,0.07)',
+                      border: '1px solid rgba(239,68,68,0.18)',
+                      borderRadius: 8,
+                      padding: '5px 9px',
+                      color: '#f87171',
+                      fontSize: 11,
+                      fontWeight: 600,
+                    }}
+                  >
+                    ver →
+                  </Link>
+                </div>
+              ),
+            )}
+          </div>
         </>
       )}
 

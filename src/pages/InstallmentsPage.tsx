@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useAuth } from '@/app/SessionProvider'
 import { useFinanceData } from '@/data/hooks'
 import { PageHeader } from '@/components/PageHeader'
-import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { AdvanceModal } from '@/features/installments/AdvanceModal'
 import { useAdvanceInstallment } from '@/features/installments/useAdvance'
@@ -15,7 +14,6 @@ import {
   summarizeInstallments,
   type DerivedInstallment,
 } from '@/domain/calc/installments'
-import styles from './InstallmentsPage.module.css'
 
 export function InstallmentsPage() {
   const { user } = useAuth()
@@ -28,9 +26,9 @@ export function InstallmentsPage() {
     return (
       <>
         <PageHeader title="Parcelas" />
-        <Card>
-          <p className={styles.muted}>Não foi possível carregar seus parcelamentos.</p>
-        </Card>
+        <div className="card">
+          <p style={{ color: 'var(--muted)', fontSize: 14 }}>Não foi possível carregar seus parcelamentos.</p>
+        </div>
       </>
     )
   }
@@ -45,59 +43,65 @@ export function InstallmentsPage() {
 
   return (
     <>
-      <PageHeader title="Parcelas" subtitle="Parcelamentos ativos" />
+      <PageHeader title="Parcelas" subtitle="Acompanhe e adiante suas parcelas" />
 
       {list.length === 0 ? (
-        <Card>
-          <p className={styles.muted}>
+        <div className="card">
+          <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.6 }}>
             Nenhum parcelamento ativo. Compras parceladas no cartão aparecem aqui automaticamente.
           </p>
-        </Card>
+        </div>
       ) : (
         <>
-          <div className={styles.summary}>
-            <Card title="Total ainda devido">
-              <div className={styles.num}>{formatBRL(summary.totalRemaining)}</div>
-            </Card>
-            <Card title="Comprometido por mês">
-              <div className={`${styles.num} ${styles.neg}`}>{formatBRL(summary.monthly)}</div>
-            </Card>
+          <div className="grid2" style={{ marginBottom: 16 }}>
+            <div className="card card-sm" style={{ textAlign: 'center' }}>
+              <div className="card-label">Total em parcelas</div>
+              <div className="num-md num-red">{formatBRL(summary.totalRemaining)}</div>
+            </div>
+            <div className="card card-sm" style={{ textAlign: 'center' }}>
+              <div className="card-label">Parcela mensal</div>
+              <div className="num-md" style={{ color: 'var(--amber)' }}>
+                {formatBRL(summary.monthly)}
+              </div>
+            </div>
           </div>
 
-          <div className={styles.list}>
+          <div className="card fadein">
+            <div className="card-title">
+              <span className="icon">📅</span> Seus parcelamentos
+            </div>
             {list.map((inst) => {
               const { remaining, pct, parcel } = installmentProgress(inst)
               const color = effectiveColor(inst)
               const canAdvance = inst.source === 'card' && remaining > 1 && cardFor(inst) !== null
               return (
-                <Card key={inst.id} className={styles.item}>
-                  <div className={styles.top}>
-                    <span className={styles.icon} style={{ background: `${color}22` }}>
-                      {inst.icon}
-                    </span>
-                    <div className={styles.info}>
-                      <span className={styles.name}>{inst.name}</span>
-                      <span className={styles.sub}>
-                        {inst.paid}/{inst.parcels} pagas · {formatBRL(parcel)}/mês
-                        {inst.cardName ? ` · ${inst.cardName}` : ''}
-                      </span>
+                <div key={inst.id} className="inst-row">
+                  <div
+                    className="tx-ico"
+                    style={{ background: `${color}22`, border: `1px solid ${color}40` }}
+                  >
+                    {inst.icon}
+                  </div>
+                  <div className="tx-info">
+                    <div className="tx-name">{inst.name}</div>
+                    <div className="tx-meta">
+                      {inst.paid}/{inst.parcels} pagas · {formatBRL(parcel)}/mês
+                      {inst.cardName ? ` · ${inst.cardName}` : ''}
                     </div>
-                    <div className={styles.right}>
-                      <span className={styles.remainVal}>{formatBRL(mul(parcel, remaining))}</span>
-                      <span className={styles.remainLbl}>restam {remaining}x</span>
+                    <div className="prog" style={{ marginTop: 8 }}>
+                      <div className="prog-fill" style={{ width: `${pct}%`, background: color }} />
                     </div>
                   </div>
-                  <div className={styles.bar}>
-                    <div className={styles.fill} style={{ width: `${pct}%`, background: color }} />
-                  </div>
-                  {canAdvance && (
-                    <div className={styles.actions}>
-                      <Button variant="ghost" onClick={() => setAdvancing(inst)}>
-                        ⚡ Adiantar parcelas
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <div className="num-md">{formatBRL(mul(parcel, remaining))}</div>
+                    <div style={{ color: 'var(--muted)', fontSize: 11 }}>restam {remaining}x</div>
+                    {canAdvance && (
+                      <Button variant="ghost" style={{ marginTop: 6, height: 32, fontSize: 12 }} onClick={() => setAdvancing(inst)}>
+                        ⚡ Adiantar
                       </Button>
-                    </div>
-                  )}
-                </Card>
+                    )}
+                  </div>
+                </div>
               )
             })}
           </div>

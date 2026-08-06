@@ -2,9 +2,8 @@ import { useState } from 'react'
 import { useAuth } from '@/app/SessionProvider'
 import { useFinanceData } from '@/data/hooks'
 import { PageHeader } from '@/components/PageHeader'
-import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { ProGate } from '@/features/billing/ProGate'
+import { HeaderActionButton } from '@/components/legacy/HeaderActionButton'
 import { GoalModal } from '@/features/goals/GoalModal'
 import { GoalDepositModal } from '@/features/goals/GoalDepositModal'
 import { useGoalMutations } from '@/features/goals/useGoalMutations'
@@ -13,21 +12,8 @@ import { toISODate } from '@/domain/dates'
 import { goalProgress } from '@/domain/calc/goals'
 import { formatDate } from '@/lib/format'
 import type { Goal } from '@/domain/entities'
-import styles from './GoalsPage.module.css'
 
 export function GoalsPage() {
-  return (
-    <ProGate
-      feature="Metas"
-      icon="🎯"
-      description="Crie metas com prazo e valor alvo, e acompanhe o progresso a cada depósito ou retirada."
-    >
-      <GoalsPageContent />
-    </ProGate>
-  )
-}
-
-function GoalsPageContent() {
   const { user } = useAuth()
   const { data, isLoading, isError } = useFinanceData(user?.id)
   const { save, remove, transact } = useGoalMutations(user?.id)
@@ -41,9 +27,9 @@ function GoalsPageContent() {
     return (
       <>
         <PageHeader title="Metas" />
-        <Card>
-          <p className={styles.muted}>Não foi possível carregar suas metas.</p>
-        </Card>
+        <div className="card">
+          <p style={{ color: 'var(--muted)', fontSize: 14 }}>Não foi possível carregar suas metas.</p>
+        </div>
       </>
     )
   }
@@ -57,61 +43,71 @@ function GoalsPageContent() {
     <>
       <PageHeader
         title="Metas"
-        subtitle="Seus objetivos financeiros"
-        action={<Button onClick={openNew}>＋ Nova meta</Button>}
+        subtitle="Seu progresso financeiro"
+        action={<HeaderActionButton onClick={openNew}>＋ Nova</HeaderActionButton>}
       />
 
       {data.goals.length === 0 ? (
-        <Card>
-          <p className={styles.muted}>
-            Nenhuma meta ainda. Crie uma (viagem, reserva, um sonho) e acompanhe o progresso a cada
-            depósito.
+        <div className="card">
+          <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.6 }}>
+            Nenhuma meta ainda. Crie uma (viagem, reserva, um sonho) e acompanhe o progresso a cada depósito.
           </p>
-        </Card>
+        </div>
       ) : (
-        <div className={styles.grid}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {data.goals.map((g) => {
             const { pct, remaining } = goalProgress(g)
             const done = remaining <= 0
             return (
-              <Card key={g.id} className={styles.goal}>
-                <div className={styles.top}>
-                  <span className={styles.icon} style={{ background: `${g.color}22` }}>
+              <div key={g.id} className="card fadein">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                  <div
+                    className="tx-ico"
+                    style={{ background: `${g.color}22`, border: `1px solid ${g.color}40`, width: 44, height: 44 }}
+                  >
                     {g.icon}
-                  </span>
-                  <div className={styles.info}>
-                    <button className={styles.name} onClick={() => {
-                      setEditing(g)
-                      setModalOpen(true)
-                    }}>
+                  </div>
+                  <div className="tx-info">
+                    <button
+                      type="button"
+                      className="tx-name"
+                      style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 15, fontWeight: 700 }}
+                      onClick={() => {
+                        setEditing(g)
+                        setModalOpen(true)
+                      }}
+                    >
                       {g.name} ✏️
                     </button>
-                    <span className={styles.sub}>
+                    <div className="tx-meta">
                       {formatBRL(g.saved)} de {formatBRL(g.target)}
                       {g.deadline && ` · até ${formatDate(g.deadline)}`}
-                    </span>
+                    </div>
                   </div>
-                  <span className={done ? styles.pctDone : styles.pct}>{Math.round(pct)}%</span>
-                </div>
-
-                <div className={styles.bar}>
                   <div
-                    className={styles.fill}
+                    className="num-md"
+                    style={{ color: done ? 'var(--green)' : g.color, flexShrink: 0 }}
+                  >
+                    {Math.round(pct)}%
+                  </div>
+                </div>
+                <div className="prog" style={{ height: 7, marginBottom: 12 }}>
+                  <div
+                    className="prog-fill"
                     style={{ width: `${pct}%`, background: done ? 'var(--green)' : g.color }}
                   />
                 </div>
-
-                <div className={styles.actions}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                   {done ? (
-                    <span className={styles.doneLabel}>🎉 Concluída</span>
+                    <span style={{ color: 'var(--green)', fontSize: 13, fontWeight: 600 }}>🎉 Concluída</span>
                   ) : (
-                    <span className={styles.remaining}>faltam {formatBRL(remaining)}</span>
+                    <span style={{ color: 'var(--muted)', fontSize: 13 }}>faltam {formatBRL(remaining)}</span>
                   )}
                   <Button variant="ghost" onClick={() => setDepositGoal(g)}>
                     Depositar / retirar
                   </Button>
                 </div>
-              </Card>
+              </div>
             )
           })}
         </div>
