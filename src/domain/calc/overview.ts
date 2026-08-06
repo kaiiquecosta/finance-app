@@ -7,7 +7,7 @@
  * de contas fixas caía sempre em 0 no "potencial de investimento". Aqui somamos
  * o valor de todas as contas fixas.
  */
-import { abs, add, max, mul, sub, sum, ZERO, type Cents } from '@/domain/money'
+import { abs, add, max, mul, sub, sum, ZERO, formatBRL, type Cents } from '@/domain/money'
 import { parseISODate } from '@/domain/dates'
 import { inferCategory, resolveExpenseCategory } from '@/domain/categories'
 import { billsForMonth, invoiceTotal } from './cards'
@@ -68,6 +68,27 @@ export function expenseByCategory(
   }
 
   return byCat as Record<string, Cents>
+}
+
+/** Variação percentual de gastos vs mês anterior. */
+export function spendVariation(spent: Cents, prevSpent: Cents): number {
+  if (prevSpent <= 0) return 0
+  return ((Number(spent) - Number(prevSpent)) / Number(prevSpent)) * 100
+}
+
+/** Texto de insight do hero da Visão geral. */
+export function insightMessage(
+  top: { category: string; amount: Cents } | null,
+  variationPct: number,
+): string {
+  if (!top) {
+    return 'Adicione suas transações para ver insights personalizados.'
+  }
+  const spike =
+    variationPct > 20
+      ? ` Seus gastos aumentaram ${Math.round(variationPct)}% vs. mês passado. Que tal revisar?`
+      : ' Você está no controle dos gastos este mês 👍'
+  return `Seu maior gasto este mês foi em ${top.category} (${formatBRL(top.amount)}).${spike}`
 }
 
 /** Categoria de maior gasto (rótulo + valor) ou null. */

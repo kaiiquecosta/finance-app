@@ -18,6 +18,16 @@ export function formatRelativeDate(date: ISODate | Date, asOf: Date = new Date()
   return dt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
 }
 
+/** Data longa para cabeçalho da Visão geral (ex.: "quinta-feira, 6 de agosto de 2026"). */
+export function formatLongDate(date: Date): string {
+  return date.toLocaleDateString('pt-BR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
 /** "dd/mm/aaaa". */
 export function formatDate(date: ISODate | Date): string {
   const dt = date instanceof Date ? date : new Date(date)

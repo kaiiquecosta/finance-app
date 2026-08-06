@@ -5,6 +5,7 @@ import { App } from '@/app/App'
 import { ErrorBoundary } from '@/app/ErrorBoundary'
 import { initNativeAuthListener } from '@/app/nativeAuth'
 import '@/styles/global.css'
+import '@/styles/legacy-ui.css'
 
 initNativeAuthListener()
 

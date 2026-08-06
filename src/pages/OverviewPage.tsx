@@ -1,33 +1,57 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/app/SessionProvider'
 import { useFinanceData } from '@/data/hooks'
+import { useRates } from '@/data/useMarket'
 import { PageHeader } from '@/components/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { BankAccountsModal } from '@/features/accounts/BankAccountsModal'
 import { IncomeModal } from '@/features/income/IncomeModal'
+import { TransactionModal } from '@/features/transactions/TransactionModal'
+import { useTransactionMutations } from '@/features/transactions/useTransactionMutations'
 import { useEntityMutations } from '@/data/useEntityMutations'
 import { toIncomeRow } from '@/data/mappers'
+import { HeroInsight } from '@/features/overview/HeroInsight'
+import { CategoryDonut } from '@/features/overview/CategoryDonut'
+import { CreditLimit } from '@/features/overview/CreditLimit'
+import { IncomeList } from '@/features/overview/IncomeList'
+import { CardInvoices } from '@/features/overview/CardInvoices'
+import { UpcomingBills } from '@/features/overview/UpcomingBills'
+import { AnnualView } from '@/features/overview/AnnualView'
+import { InvestPotential } from '@/features/overview/InvestPotential'
+import { OverviewGoalsSnapshot } from '@/features/overview/OverviewGoalsSnapshot'
+import { OverviewInvestmentsSnapshot } from '@/features/overview/OverviewInvestmentsSnapshot'
 import { formatBRL } from '@/domain/money'
-import { parseISODate } from '@/domain/dates'
-import { MONTHS_FULL, colorFor, iconFor } from '@/domain/categories'
-import { consolidatedBalance, expenseByCategory, summarizeTransactions } from '@/domain/calc/overview'
-import { receiptStatus, totalMonthlyExpected, totalReceived } from '@/domain/calc/income'
-import { formatRelativeDate } from '@/lib/format'
-import type { Income, Transaction } from '@/domain/entities'
+import { addMonths, parseISODate } from '@/domain/dates'
+import { colorFor, iconFor, MONTHS_FULL } from '@/domain/categories'
+import {
+  consolidatedBalance,
+  expenseByCategory,
+  summarizeTransactions,
+} from '@/domain/calc/overview'
+import { formatLongDate, formatRelativeDate } from '@/lib/format'
+import { withAlpha } from '@/lib/color'
+import type { BankAccount, Income, Transaction } from '@/domain/entities'
+import overviewStyles from '@/features/overview/overview.module.css'
 import styles from './OverviewPage.module.css'
+
+const RECENT_LIMIT = 6
 
 export function OverviewPage() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const { data, isLoading, isError } = useFinanceData(user?.id)
   const incomeMutations = useEntityMutations<Income>('incomes', toIncomeRow, user?.id)
+  const txMutations = useTransactionMutations(user?.id)
+  const rates = useRates()
 
   const [accountsOpen, setAccountsOpen] = useState(false)
   const [incomeOpen, setIncomeOpen] = useState(false)
   const [editingIncome, setEditingIncome] = useState<Income | null>(null)
+  const [quickExpenseOpen, setQuickExpenseOpen] = useState(false)
 
   const now = new Date()
-  const monthLabel = `${MONTHS_FULL[now.getMonth()]} de ${now.getFullYear()}`
 
   if (isLoading) {
     return <PageHeader title="Visão geral" subtitle="Carregando seus dados…" />
@@ -37,9 +61,7 @@ export function OverviewPage() {
       <>
         <PageHeader title="Visão geral" />
         <Card>
-          <p className={styles.muted}>
-            Não foi possível carregar seus dados. Verifique a conexão e tente novamente.
-          </p>
+          <p className={styles.muted}>Não foi possível carregar seus dados.</p>
         </Card>
       </>
     )
@@ -47,10 +69,14 @@ export function OverviewPage() {
 
   const month = now.getMonth()
   const year = now.getFullYear()
-  const monthTxs = data.transactions.filter((t) => {
+  const prev = addMonths(month, year, -1)
+
+  const inMonth = (t: Transaction, m: number, y: number) => {
     const d = parseISODate(t.date)
-    return d.getMonth() === month && d.getFullYear() === year
-  })
+    return d.getMonth() === m && d.getFullYear() === y
+  }
+  const monthTxs = data.transactions.filter((t) => inMonth(t, month, year))
+  const prevMonthTxs = data.transactions.filter((t) => inMonth(t, prev.month, prev.year))
 
   const balance = consolidatedBalance(data.bankAccounts, data.transactions)
   const summary = summarizeTransactions(monthTxs)
@@ -59,166 +85,183 @@ export function OverviewPage() {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
   const maxCat = cats[0]?.[1] ?? 1
-  const recent = [...data.transactions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 6)
-
-  const empty =
-    !data.transactions.length && !data.bankAccounts.length && !data.cards.length
+  const recent = [...monthTxs].sort((a, b) => b.date.localeCompare(a.date)).slice(0, RECENT_LIMIT)
+  const accountsById = new Map(data.bankAccounts.map((a) => [a.id, a]))
 
   return (
     <>
-      <PageHeader title="Visão geral" subtitle={monthLabel} />
-
-      {empty && (
-        <Card>
-          <p className={styles.muted}>
-            👋 Bem-vindo! Comece adicionando suas contas bancárias e lançando transações — seu
-            painel se preenche automaticamente.
-          </p>
-        </Card>
-      )}
-
-      <div className={styles.grid}>
-        <Card
-          title="Saldo consolidado"
-          action={
-            <button className={styles.cardLink} onClick={() => setAccountsOpen(true)}>
-              gerenciar
-            </button>
-          }
-        >
-          <div className={`${styles.big} ${balance < 0 ? styles.neg : ''}`}>
-            {formatBRL(balance)}
-          </div>
-          <p className={styles.hint}>
-            {data.bankAccounts.length === 0
-              ? 'Nenhuma conta — clique em gerenciar para adicionar'
-              : `${data.bankAccounts.length} conta(s) · saldo inicial + transações`}
-          </p>
-        </Card>
-
-        <Card title={`Este mês · ${MONTHS_FULL[month]}`}>
-          <div className={styles.rows}>
-            <Row label="Receitas" value={formatBRL(summary.income)} tone="pos" />
-            <Row label="Gastos" value={formatBRL(summary.spent)} tone="neg" />
-            <div className={styles.divider} />
-            <Row
-              label="Saldo do mês"
-              value={formatBRL(summary.balance, { sign: true })}
-              tone={summary.balance >= 0 ? 'pos' : 'neg'}
-              strong
-            />
-          </div>
-        </Card>
-      </div>
-
-      <Card
-        title="Minhas rendas"
-        className={styles.mt}
+      <PageHeader
+        title="Visão geral"
+        subtitle={formatLongDate(now)}
         action={
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setEditingIncome(null)
-              setIncomeOpen(true)
-            }}
-          >
-            ＋ {data.incomes.length ? 'Outra renda' : 'Renda'}
+          <Button className="btn-glow" onClick={() => setQuickExpenseOpen(true)}>
+            ＋ Gasto rápido
           </Button>
         }
-      >
+      />
+
+      <Card className={overviewStyles.incomeCard} title="💰 Minhas rendas" action={
+        <Button variant="primary" onClick={() => { setEditingIncome(null); setIncomeOpen(true) }}>
+          ＋ {data.incomes.length ? 'Renda' : 'Renda'}
+        </Button>
+      }>
         {data.incomes.length === 0 ? (
-          <p className={styles.muted}>
-            Nenhuma renda cadastrada. Adicione seu salário para ver o previsto do mês.
-          </p>
+          <p className={styles.muted}>Nenhuma renda cadastrada.</p>
         ) : (
-          <>
-            <div className={styles.txs}>
-              {data.incomes.map((inc) => {
-                const status = receiptStatus(inc, now)
-                return (
-                  <button
-                    key={inc.id}
-                    className={styles.incomeRow}
-                    onClick={() => {
-                      setEditingIncome(inc)
-                      setIncomeOpen(true)
-                    }}
-                  >
-                    <span className={styles.txIcon}>{inc.icon}</span>
-                    <div className={styles.txInfo}>
-                      <span className={styles.txName}>{inc.name}</span>
-                      <span className={styles.txSub}>
-                        {inc.freq}
-                        {inc.days.length > 0 && ` · ${inc.days.map((d) => `dia ${d}`).join(', ')}`}
-                      </span>
-                    </div>
-                    <div className={styles.incomeRight}>
-                      <span className={styles.pos}>{formatBRL(inc.amt)}</span>
-                      <span className={styles.txSub}>
-                        {status === 'full'
-                          ? '✓ recebido'
-                          : status === 'partial'
-                            ? 'parcial'
-                            : 'a receber'}
-                      </span>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-            <div className={styles.divider} />
-            <div className={styles.rows}>
-              <Row
-                label="Total mensal previsto"
-                value={formatBRL(totalMonthlyExpected(data.incomes))}
-                tone="pos"
-              />
-              <Row
-                label="Recebido este mês"
-                value={formatBRL(totalReceived(data.incomes, now))}
-              />
-            </div>
-          </>
+          <IncomeList
+            incomes={data.incomes}
+            asOf={now}
+            onEdit={(inc) => {
+              setEditingIncome(inc)
+              setIncomeOpen(true)
+            }}
+          />
         )}
       </Card>
 
-      <Card title="Gastos por categoria" className={styles.mt}>
-        {cats.length === 0 ? (
-          <p className={styles.muted}>Sem gastos neste mês ainda.</p>
-        ) : (
-          <div className={styles.cats}>
-            {cats.map(([cat, amount]) => (
-              <div key={cat} className={styles.catRow}>
-                <span className={styles.catIcon}>{iconFor(cat)}</span>
-                <div className={styles.catBarWrap}>
-                  <div className={styles.catTop}>
-                    <span className={styles.catName}>{cat}</span>
-                    <span className={styles.catVal}>{formatBRL(amount)}</span>
-                  </div>
-                  <div className={styles.bar}>
+      <HeroInsight monthTxs={monthTxs} prevMonthTxs={prevMonthTxs} byCat={byCat} />
+
+      <div className="grid2" style={{ marginTop: 16, marginBottom: 16 }}>
+        <Card
+          title="🏦 Contas correntes"
+          action={
+            <button type="button" className="card-link" onClick={() => setAccountsOpen(true)}>
+              gerenciar →
+            </button>
+          }
+        >
+          <div className={`num-lg ${balance < 0 ? 'num-red' : ''}`}>{formatBRL(balance)}</div>
+          <div className={styles.hint}>saldo total</div>
+          <div className="divider" />
+          <div className="stat-row">
+            <span className="stat-label">↑ Receitas</span>
+            <span className="stat-val num-green">{formatBRL(summary.income)}</span>
+          </div>
+          <div className="stat-row">
+            <span className="stat-label">↓ Gastos</span>
+            <span className="stat-val num-red">{formatBRL(summary.spent)}</span>
+          </div>
+          <div className="stat-row">
+            <span className="stat-label">✦ Sobrou</span>
+            <span className={`stat-val ${summary.balance >= 0 ? 'num-green' : 'num-red'}`}>
+              {formatBRL(summary.balance, { sign: true })}
+            </span>
+          </div>
+        </Card>
+
+        <Card
+          title="🍩 Gastos por categoria"
+          action={
+            <button type="button" className="card-link" onClick={() => navigate('/app/transacoes')}>
+              ver todas →
+            </button>
+          }
+        >
+          <CategoryDonut byCat={byCat} />
+        </Card>
+      </div>
+
+      <div className="grid2" style={{ marginBottom: 16 }}>
+        <Card
+          title="💳 Limite disponível"
+          action={
+            <button type="button" className="card-link" onClick={() => navigate('/app/cartoes')}>
+              ver detalhes →
+            </button>
+          }
+        >
+          <CreditLimit cards={data.cards} asOf={now} />
+        </Card>
+
+        <Card title={`🏷 Principais categorias · ${MONTHS_FULL[month]}`}>
+          {cats.length === 0 ? (
+            <p className={styles.muted}>Sem gastos neste mês.</p>
+          ) : (
+            cats.map(([cat, amount]) => (
+              <div key={cat} className="cat-row">
+                <div className="cat-name">
+                  <span>{iconFor(cat)}</span>
+                  {cat}
+                </div>
+                <div className="cat-bar-wrap">
+                  <div className="prog">
                     <div
-                      className={styles.barFill}
+                      className="prog-fill"
                       style={{ width: `${(amount / maxCat) * 100}%`, background: colorFor(cat) }}
                     />
                   </div>
                 </div>
+                <div className="cat-amt">{formatBRL(amount)}</div>
               </div>
-            ))}
-          </div>
+            ))
+          )}
+        </Card>
+      </div>
+
+      <CardInvoices
+        cards={data.cards}
+        subscriptions={data.subscriptions}
+        asOf={now}
+        onSeeBills={() => navigate('/app/contas')}
+      />
+
+      <Card
+        title="↕ Transações recentes"
+        action={
+          <button type="button" className="card-link" onClick={() => navigate('/app/transacoes')}>
+            ver todas →
+          </button>
+        }
+      >
+        {recent.length === 0 ? (
+          <p className={styles.muted}>Nenhuma transação neste mês.</p>
+        ) : (
+          recent.map((t) => (
+            <TxRow
+              key={t.id}
+              tx={t}
+              account={t.accountId != null ? accountsById.get(t.accountId) : undefined}
+            />
+          ))
         )}
       </Card>
 
-      <Card title="Transações recentes" className={styles.mt}>
-        {recent.length === 0 ? (
-          <p className={styles.muted}>Nenhuma transação ainda.</p>
-        ) : (
-          <div className={styles.txs}>
-            {recent.map((t) => (
-              <TxRow key={t.id} tx={t} />
-            ))}
-          </div>
-        )}
+      <Card
+        style={{ marginTop: 16 }}
+        title="📅 Gastos previstos — contas fixas"
+        action={
+          <button type="button" className="card-link" onClick={() => navigate('/app/contas')}>
+            gerenciar →
+          </button>
+        }
+      >
+        <UpcomingBills bills={data.fixedBills} asOf={now} onAdd={() => navigate('/app/contas')} />
       </Card>
+
+      <div className="grid2" style={{ marginTop: 16, marginBottom: 16 }}>
+        <AnnualView
+          year={year}
+          txs={data.transactions}
+          cards={data.cards}
+          subscriptions={data.subscriptions}
+          currentMonth={month}
+        />
+        <InvestPotential year={year} txs={data.transactions} fixedBills={data.fixedBills} />
+      </div>
+
+      <div className="grid2" style={{ marginBottom: 16 }}>
+        <OverviewGoalsSnapshot
+          goals={data.goals}
+          onSeeAll={() => navigate('/app/metas')}
+          onAdd={() => navigate('/app/metas')}
+        />
+        <OverviewInvestmentsSnapshot
+          investments={data.investments}
+          market={rates.data ? { cdi: rates.data.cdi, ipca: rates.data.ipca } : null}
+          onSeeAll={() => navigate('/app/investimentos')}
+          onAdd={() => navigate('/app/investimentos')}
+        />
+      </div>
 
       <BankAccountsModal
         open={accountsOpen}
@@ -243,49 +286,52 @@ export function OverviewPage() {
           setIncomeOpen(false)
         }}
       />
+
+      <TransactionModal
+        open={quickExpenseOpen}
+        accounts={data.bankAccounts}
+        saving={txMutations.save.isPending}
+        onClose={() => setQuickExpenseOpen(false)}
+        onSave={async (draft) => {
+          await txMutations.save.mutateAsync(draft)
+          setQuickExpenseOpen(false)
+        }}
+      />
     </>
   )
 }
 
-function Row({
-  label,
-  value,
-  tone,
-  strong,
-}: {
-  label: string
-  value: string
-  tone?: 'pos' | 'neg'
-  strong?: boolean
-}) {
-  return (
-    <div className={styles.row}>
-      <span className={styles.rowLabel}>{label}</span>
-      <span
-        className={[
-          styles.rowValue,
-          strong ? styles.rowStrong : '',
-          tone === 'pos' ? styles.pos : tone === 'neg' ? styles.neg : '',
-        ]
-          .filter(Boolean)
-          .join(' ')}
-      >
-        {value}
-      </span>
-    </div>
-  )
-}
-
-function TxRow({ tx }: { tx: Transaction }) {
+function TxRow({ tx, account }: { tx: Transaction; account?: BankAccount }) {
   const positive = tx.amt >= 0
+  const catColor = colorFor(tx.cat)
   return (
-    <div className={styles.tx}>
-      <span className={styles.txIcon}>{iconFor(tx.cat)}</span>
-      <div className={styles.txInfo}>
-        <span className={styles.txName}>{tx.name}</span>
-        <span className={styles.txSub}>{formatRelativeDate(tx.date)}</span>
+    <div className="fadein" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
+      <span
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: 10,
+          display: 'grid',
+          placeItems: 'center',
+          background: withAlpha(catColor, 0.09),
+          border: `1px solid ${withAlpha(catColor, 0.16)}`,
+        }}
+      >
+        {iconFor(tx.cat)}
+      </span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13, fontWeight: 500 }}>{tx.name}</div>
+        <div style={{ fontSize: 11, color: 'var(--muted)', display: 'flex', gap: 6, marginTop: 2 }}>
+          <span className="badge badge-muted">{tx.cat}</span>
+          {account && (
+            <span className="badge" style={{ color: account.color, border: `1px solid ${withAlpha(account.color, 0.25)}` }}>
+              {account.name}
+            </span>
+          )}
+          <span>{formatRelativeDate(tx.date)}</span>
+        </div>
       </div>
-      <span className={positive ? styles.pos : styles.neg}>
+      <span className={positive ? 'num-green' : 'num-red'} style={{ fontFamily: 'var(--num)', fontWeight: 600 }}>
         {formatBRL(tx.amt, { sign: true })}
       </span>
     </div>
