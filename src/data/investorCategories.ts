@@ -103,6 +103,7 @@ export const INVESTOR_CATEGORIES: InvestorCategory[] = [
       { id: 'pap', label: 'Papel', tag: 'papel' },
       { id: 'log', label: 'Logístico', tag: 'logistico' },
       { id: 'hib', label: 'Híbrido', tag: 'hibrido' },
+      { id: 'inf', label: 'Infra', tag: 'infra' },
     ],
     rankings: [
       { id: 'up', label: 'Maiores altas', sort: 'change_desc' },

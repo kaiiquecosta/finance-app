@@ -6,11 +6,17 @@ import {
   categoryById,
   defMatchesCategory,
   INVESTOR_CATEGORIES,
-  sortQuotes,
   type InvestorCategoryId,
   type QuoteSortMode,
 } from '@/data/investorCategories'
-import { resolveSearchSymbol, stockByYahoo, type AssetKind } from '@/data/stocksCatalog'
+import {
+  ALL_STOCKS,
+  normalizeSearchTicker,
+  resolveSearchSymbol,
+  stockByYahoo,
+  type AssetKind,
+  type StockDef,
+} from '@/data/stocksCatalog'
 import { loadFavorites, saveFavorites } from '@/lib/favorites'
 import { AssetDetail } from './AssetDetail'
 import { InvestorFixedIncomePanel } from './InvestorFixedIncomePanel'
@@ -30,7 +36,9 @@ type Props = {
   onOpenMarket?: () => void
 }
 
-function formatPrice(q: StockQuote): string {
+type CatalogRow = { def: StockDef; quote?: StockQuote }
+
+function formatPriceQuote(q: StockQuote): string {
   const locale = q.currency === 'BRL' ? 'pt-BR' : 'en-US'
   return q.price.toLocaleString(locale, {
     style: 'currency',
@@ -39,6 +47,7 @@ function formatPrice(q: StockQuote): string {
     maximumFractionDigits: 2,
   })
 }
+
 
 function MiniSpark({ values }: { values: number[] }) {
   if (values.length < 2) return <div className={styles.sparkEmpty} />
@@ -66,24 +75,27 @@ function marketSessionLabel(): { label: string; open: boolean } {
   return { label: brOpen ? 'B3 aberta' : 'B3 fechada', open: brOpen }
 }
 
-function PopularRow({ q, onOpen }: { q: StockQuote; onOpen: (s: string) => void }) {
+function PopularRow({ row, onOpen }: { row: CatalogRow; onOpen: (s: string) => void }) {
+  const q = row.quote
   return (
-    <button type="button" className={styles.popRow} onClick={() => onOpen(q.yahoo)}>
+    <button type="button" className={styles.popRow} onClick={() => onOpen(row.def.yahoo)}>
       <span className={styles.popSym}>
-        {q.icon} {q.symbol}
+        {row.def.icon} {row.def.symbol}
       </span>
-      <span className={styles.popPx}>{formatPrice(q)}</span>
-      <span className={q.pctChange >= 0 ? styles.up : styles.down}>
-        {q.pctChange >= 0 ? '+' : ''}
-        {q.pctChange.toFixed(2)}%
-      </span>
+      <span className={styles.popPx}>{q ? formatPriceQuote(q) : '—'}</span>
+      {q ? (
+        <span className={q.pctChange >= 0 ? styles.up : styles.down}>
+          {q.pctChange >= 0 ? '+' : ''}
+          {q.pctChange.toFixed(2)}%
+        </span>
+      ) : (
+        <span className={styles.na}>…</span>
+      )}
     </button>
   )
 }
 
 export function InvestorHub({ onOpenMarket }: Props) {
-  const stocks = useStockQuotes()
-  const rates = useRates()
   const searchRef = useRef<HTMLInputElement>(null)
 
   const [categoryId, setCategoryId] = useState<InvestorCategoryId>('ideas')
@@ -95,6 +107,21 @@ export function InvestorHub({ onOpenMarket }: Props) {
   const session = marketSessionLabel()
   const category = categoryById(categoryId)
 
+  const categoryDefs = useMemo((): StockDef[] => {
+    if (categoryId === 'favorites') {
+      return favorites
+        .map((y) => stockByYahoo(y))
+        .filter((d): d is StockDef => !!d)
+    }
+    if (categoryId === 'ideas') return ALL_STOCKS
+    return ALL_STOCKS.filter((d) => defMatchesCategory(d, categoryId))
+  }, [categoryId, favorites])
+
+  const categorySymbols = useMemo(() => categoryDefs.map((d) => d.yahoo), [categoryDefs])
+
+  const stocks = useStockQuotes(category.hasQuotes && categorySymbols.length ? categorySymbols : undefined)
+  const rates = useRates()
+
   const toggleFavorite = (yahoo: string) => {
     setFavorites((prev) => {
       const next = prev.includes(yahoo) ? prev.filter((s) => s !== yahoo) : [...prev, yahoo]
@@ -103,46 +130,64 @@ export function InvestorHub({ onOpenMarket }: Props) {
     })
   }
 
-  const all = useMemo(() => stocks.data ?? [], [stocks.data])
+  const quoteByYahoo = useMemo(() => {
+    const map = new Map<string, StockQuote>()
+    for (const q of stocks.data ?? []) map.set(q.yahoo, q)
+    return map
+  }, [stocks.data])
 
-  const categoryQuotes = useMemo(() => {
-    if (categoryId === 'favorites') {
-      return all.filter((q) => favorites.includes(q.yahoo))
-    }
-    if (categoryId === 'ideas') {
-      return all
-    }
-    return all.filter((q) => {
-      const def = stockByYahoo(q.yahoo)
-      return def ? defMatchesCategory(def, categoryId) : false
-    })
-  }, [all, categoryId, favorites])
+  const catalogRows = useMemo((): CatalogRow[] => {
+    return categoryDefs.map((def) => ({ def, quote: quoteByYahoo.get(def.yahoo) }))
+  }, [categoryDefs, quoteByYahoo])
 
   const sectorFiltered = useMemo(() => {
-    if (!sectorTag) return categoryQuotes
-    return categoryQuotes.filter((q) => stockByYahoo(q.yahoo)?.tags?.includes(sectorTag))
-  }, [categoryQuotes, sectorTag])
+    if (!sectorTag) return catalogRows
+    return catalogRows.filter(({ def }) => def.tags?.includes(sectorTag))
+  }, [catalogRows, sectorTag])
 
   const filtered = useMemo(() => {
     let list = sectorFiltered
-    const term = search.trim().toLowerCase()
+    const term = normalizeSearchTicker(search).toLowerCase()
     if (term) {
       list = list.filter(
-        (q) => q.symbol.toLowerCase().includes(term) || q.name.toLowerCase().includes(term),
+        ({ def }) =>
+          def.symbol.toLowerCase().includes(term) ||
+          def.name.toLowerCase().includes(term) ||
+          def.yahoo.toLowerCase().includes(term),
       )
     }
-    return sortQuotes(list, listSort)
+    const sortable = list.map((row) => ({
+      row,
+      pct: row.quote?.pctChange ?? -Infinity,
+      price: row.quote?.price ?? 0,
+      name: row.def.name,
+    }))
+    sortable.sort((a, b) => {
+      switch (listSort) {
+        case 'change_desc':
+          return b.pct - a.pct
+        case 'change_asc':
+          return a.pct - b.pct
+        case 'name':
+          return a.name.localeCompare(b.name, 'pt-BR')
+        case 'price_desc':
+          return b.price - a.price
+        default:
+          return 0
+      }
+    })
+    return sortable.map((s) => s.row)
   }, [sectorFiltered, search, listSort])
 
-  const popular = useMemo(
-    () => sortQuotes(categoryQuotes, 'change_desc').slice(0, 10),
-    [categoryQuotes],
-  )
+  const popular = useMemo(() => {
+    const withQuotes = [...catalogRows].filter((r) => r.quote)
+    withQuotes.sort((a, b) => (b.quote!.pctChange ?? 0) - (a.quote!.pctChange ?? 0))
+    return withQuotes.slice(0, 10)
+  }, [catalogRows])
 
   const tape = useMemo(() => {
-    if (categoryId === 'ideas') return all.slice(0, 14)
-    return categoryQuotes.slice(0, 14)
-  }, [all, categoryQuotes, categoryId])
+    return catalogRows.filter((r) => r.quote).slice(0, 14)
+  }, [catalogRows])
 
   const searchSymbol = resolveSearchSymbol(search)
   const showSearchOpen = search.trim().length >= 2 && filtered.length === 0 && searchSymbol
@@ -218,8 +263,8 @@ export function InvestorHub({ onOpenMarket }: Props) {
                 <section className={styles.megaCol}>
                   <h3 className={styles.panelTitle}>Mais buscados</h3>
                   {popular.length === 0 && <p className={styles.muted}>Sem cotações nesta categoria.</p>}
-                  {popular.map((q) => (
-                    <PopularRow key={q.yahoo} q={q} onOpen={setDetail} />
+                  {popular.map((row) => (
+                    <PopularRow key={row.def.yahoo} row={row} onOpen={setDetail} />
                   ))}
                 </section>
 
@@ -282,23 +327,25 @@ export function InvestorHub({ onOpenMarket }: Props) {
               {tape.length > 0 && (
                 <div className={styles.tickerWrap} aria-label="Ticker de cotações">
                   <div className={styles.tickerTrack}>
-                    {[...tape, ...tape].map((q, i) => (
+                    {[...tape, ...tape].map((row, i) => {
+                      const q = row.quote!
+                      return (
                       <button
-                        key={`${q.symbol}-${i}`}
+                        key={`${row.def.symbol}-${i}`}
                         type="button"
                         className={styles.tickerItem}
-                        onClick={() => setDetail(q.yahoo)}
+                        onClick={() => setDetail(row.def.yahoo)}
                       >
                         <span className={styles.tickerSym}>
-                          {q.icon} {q.symbol}
+                          {row.def.icon} {row.def.symbol}
                         </span>
-                        <span className={styles.tickerPx}>{formatPrice(q)}</span>
+                        <span className={styles.tickerPx}>{formatPriceQuote(q)}</span>
                         <span className={q.pctChange >= 0 ? styles.up : styles.down}>
                           {q.pctChange >= 0 ? '+' : ''}
                           {q.pctChange.toFixed(2)}%
                         </span>
                       </button>
-                    ))}
+                    )})}
                   </div>
                 </div>
               )}
@@ -327,7 +374,9 @@ export function InvestorHub({ onOpenMarket }: Props) {
               <div className={styles.tableCard}>
                 <div className={styles.tableHead}>
                   <span />
-                  <span>Ativo</span>
+                  <span>
+                    Ativo {filtered.length > 0 ? `(${filtered.length})` : ''}
+                  </span>
                   <span>Preço</span>
                   <span>Var. dia</span>
                   <span className={styles.colSpark}>Intraday</span>
@@ -352,36 +401,37 @@ export function InvestorHub({ onOpenMarket }: Props) {
                   </button>
                 )}
 
-                {!stocks.isLoading &&
-                  !stocks.isError &&
-                  filtered.map((q) => {
-                    const fav = favorites.includes(q.yahoo)
-                    const kind = stockByYahoo(q.yahoo)?.kind ?? 'stock'
+                {filtered.map(({ def, quote: q }) => {
+                    const fav = favorites.includes(def.yahoo)
                     return (
-                      <div key={q.yahoo} className={styles.tableRow}>
+                      <div key={def.yahoo} className={styles.tableRow}>
                         <button
                           type="button"
                           className={[styles.starBtn, fav ? styles.starActive : ''].filter(Boolean).join(' ')}
-                          onClick={() => toggleFavorite(q.yahoo)}
+                          onClick={() => toggleFavorite(def.yahoo)}
                           title={fav ? 'Remover dos favoritos' : 'Favoritar'}
                         >
                           {fav ? '★' : '☆'}
                         </button>
-                        <button type="button" className={styles.assetCell} onClick={() => setDetail(q.yahoo)}>
-                          <span className={styles.assetIcon}>{q.icon}</span>
+                        <button type="button" className={styles.assetCell} onClick={() => setDetail(def.yahoo)}>
+                          <span className={styles.assetIcon}>{def.icon}</span>
                           <span className={styles.assetText}>
-                            <span className={styles.assetName}>{q.name}</span>
+                            <span className={styles.assetName}>{def.name}</span>
                             <span className={styles.assetSub}>
-                              {q.symbol} · {q.exchange} · {KIND_LABEL[kind]}
+                              {def.symbol} · {def.exchange} · {KIND_LABEL[def.kind]}
                             </span>
                           </span>
                         </button>
-                        <span className={styles.priceCell}>{formatPrice(q)}</span>
-                        <span className={q.pctChange >= 0 ? styles.up : styles.down}>
-                          {q.pctChange >= 0 ? '+' : ''}
-                          {q.pctChange.toFixed(2)}%
-                        </span>
-                        <MiniSpark values={q.sparkline} />
+                        <span className={styles.priceCell}>{q ? formatPriceQuote(q) : '—'}</span>
+                        {q ? (
+                          <span className={q.pctChange >= 0 ? styles.up : styles.down}>
+                            {q.pctChange >= 0 ? '+' : ''}
+                            {q.pctChange.toFixed(2)}%
+                          </span>
+                        ) : (
+                          <span className={styles.na}>…</span>
+                        )}
+                        {q ? <MiniSpark values={q.sparkline} /> : <div className={styles.sparkEmpty} />}
                       </div>
                     )
                   })}

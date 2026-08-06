@@ -402,6 +402,13 @@
   font-size: 13px;
   padding: 16px 8px;
 }
+.na {
+  color: var(--muted);
+  font-family: var(--num);
+  font-size: 12px;
+  text-align: right;
+}
+
 .disclaimer {
   margin-top: 10px;
   font-size: 11px;
