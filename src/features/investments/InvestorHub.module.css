@@ -14,10 +14,10 @@
   background: linear-gradient(
     135deg,
     var(--card) 0%,
-    color-mix(in srgb, var(--green) 8%, var(--card)) 48%,
-    color-mix(in srgb, var(--blue) 6%, var(--card2)) 100%
+    color-mix(in srgb, var(--primary) 8%, var(--card)) 48%,
+    color-mix(in srgb, var(--primary) 6%, var(--card2)) 100%
   );
-  border: 1px solid color-mix(in srgb, var(--green) 18%, var(--border));
+  border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--border));
   margin-bottom: 14px;
 }
 
@@ -258,9 +258,9 @@
   font-family: var(--font);
 }
 .filterActive {
-  background: var(--green);
-  color: #000;
-  border-color: var(--green);
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
 }
 
 .tableCard {
@@ -328,7 +328,7 @@
   padding: 0;
 }
 .assetCell:hover .assetName {
-  color: var(--green);
+  color: var(--primary);
 }
 .assetIcon {
   font-size: 18px;
@@ -463,8 +463,8 @@
   color: var(--text);
 }
 .catBtnActive {
-  background: color-mix(in srgb, var(--green) 16%, transparent);
-  color: var(--green);
+  background: color-mix(in srgb, var(--primary) 16%, transparent);
+  color: var(--primary);
 }
 
 .catIcon {
@@ -582,9 +582,9 @@
   border-color: var(--border2);
 }
 .rankLinkActive {
-  border-color: color-mix(in srgb, var(--green) 40%, transparent);
-  background: color-mix(in srgb, var(--green) 10%, transparent);
-  color: var(--green);
+  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
 }
 
 .toolLabel {
@@ -614,9 +614,9 @@
   font-family: var(--font);
 }
 .sectorChipActive {
-  background: var(--green);
-  color: #000;
-  border-color: var(--green);
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
 }
 
 .fixedIncome {

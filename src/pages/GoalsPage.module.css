@@ -41,7 +41,7 @@
   text-align: left;
 }
 .name:hover {
-  color: var(--green);
+  color: var(--primary);
 }
 .sub {
   font-size: 12px;

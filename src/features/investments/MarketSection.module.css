@@ -188,9 +188,9 @@
   font-family: var(--font);
 }
 .tabActive {
-  background: var(--green);
-  color: #000;
-  border-color: var(--green);
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
 }
 .panel {
   display: flex;

@@ -96,7 +96,7 @@
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: var(--green);
+  background: var(--primary);
 }
 
 .tabs {
@@ -144,8 +144,8 @@
   flex-shrink: 0;
 }
 .planPro {
-  color: var(--green);
-  border-color: color-mix(in srgb, var(--green) 40%, transparent);
+  color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
 }
 .iconBtn {
   width: 34px;
@@ -225,7 +225,7 @@
     white-space: nowrap;
   }
   .mtabActive {
-    color: var(--green);
-    background: color-mix(in srgb, var(--green) 12%, transparent);
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
   }
 }

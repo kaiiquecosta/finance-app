@@ -28,11 +28,11 @@
 }
 
 .primary {
-  background: var(--green);
-  color: #05130a;
+  background: var(--primary);
+  color: #ffffff;
 }
 .primary:hover:not(:disabled) {
-  background: var(--green-d);
+  background: var(--primary-d);
 }
 
 .ghost {

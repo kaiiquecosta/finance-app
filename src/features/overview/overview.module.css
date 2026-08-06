@@ -3,7 +3,7 @@
   margin-bottom: 16px;
 }
 .kicker {
-  color: var(--green);
+  color: var(--primary);
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 8px;
@@ -114,7 +114,7 @@
   padding: 18px 20px 14px;
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--green) 12%, transparent) 0%,
+    color-mix(in srgb, var(--primary) 12%, transparent) 0%,
     transparent 80%
   );
 }
@@ -166,8 +166,8 @@
   font-size: 13px;
 }
 .scenarioHi {
-  background: color-mix(in srgb, var(--green) 6%, transparent);
-  border-color: color-mix(in srgb, var(--green) 20%, transparent);
+  background: color-mix(in srgb, var(--primary) 6%, transparent);
+  border-color: color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 .upcomingTitle {

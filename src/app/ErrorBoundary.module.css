@@ -34,8 +34,8 @@
   height: 44px;
   padding: 0 20px;
   border-radius: 12px;
-  background: var(--green);
-  color: #05130a;
+  background: var(--primary);
+  color: #ffffff;
   font-weight: 600;
   font-size: 14px;
 }

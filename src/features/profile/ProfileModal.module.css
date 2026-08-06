@@ -3,7 +3,7 @@
   text-align: center;
   background: linear-gradient(
     160deg,
-    color-mix(in srgb, var(--green) 12%, transparent) 0%,
+    color-mix(in srgb, var(--primary) 12%, transparent) 0%,
     transparent 70%
   );
   margin: -20px -20px 0;
@@ -25,8 +25,8 @@
   font-size: 42px;
   cursor: pointer;
   overflow: hidden;
-  border: 3px solid color-mix(in srgb, var(--green) 35%, transparent);
-  background: color-mix(in srgb, var(--green) 12%, transparent);
+  border: 3px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
 .avatarBig img {
@@ -42,7 +42,7 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--green);
+  background: var(--primary);
   border: 2px solid var(--card);
   display: grid;
   place-items: center;
@@ -97,8 +97,8 @@
   cursor: pointer;
 }
 .emojiBtnActive {
-  border-color: var(--green);
-  background: color-mix(in srgb, var(--green) 12%, transparent);
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
 .editBlock {

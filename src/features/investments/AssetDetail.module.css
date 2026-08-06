@@ -136,9 +136,9 @@
   font-family: var(--num);
 }
 .rangeActive {
-  background: var(--green);
-  color: #000;
-  border-color: var(--green);
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
 }
 
 .chartWrap {

@@ -34,7 +34,7 @@ export function ProfileModal({ open, onClose, user, profile, onOpenAccount }: Pr
     (user?.user_metadata?.avatar_url as string | undefined) ||
     null
   const emoji = profile?.emoji || '😊'
-  const accent = profile?.color || '#22c55e'
+  const accent = profile?.color || '#820ad1'
 
   const [name, setName] = useState(defaultName)
   const [phone, setPhone] = useState(profile?.phone ?? '')

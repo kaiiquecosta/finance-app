@@ -39,14 +39,14 @@
   background-color: var(--bg);
   background-repeat: no-repeat;
   /* Mesma estrutura do gradiente da referência (origem no alto à esquerda, raio
-     largo, verde saturando embaixo), mas no verde do Flux — não no lime da
-     AbacatePay. Primeira parada em var(--bg) em vez de `transparent` porque
-     transparent interpola como preto transparente em sRGB e sujaria a mistura. */
+     largo, saturando embaixo), agora no roxo de marca do Flux. Primeira parada
+     em var(--bg) em vez de `transparent` porque transparent interpola como
+     preto transparente em sRGB e sujaria a mistura. */
   background-image: radial-gradient(
     205% 89% at 38% 4%,
     var(--bg) 48%,
-    color-mix(in srgb, var(--green) 26%, #d7fa7a) 76%,
-    var(--green) 100%
+    color-mix(in srgb, var(--primary) 26%, #e4c9ff) 76%,
+    var(--primary) 100%
   );
 }
 
@@ -68,17 +68,17 @@
   --chip-bg: var(--card2);
   --chip-shadow: 0 10px 26px -16px rgb(0 0 0 / 0.85);
   --card-shadow: 0 30px 70px -32px rgb(0 0 0 / 0.8), 0 2px 8px rgb(0 0 0 / 0.28);
-  /* No escuro o verde entra como aurora subindo do rodapé, na mesma faixa dos
+  /* No escuro o roxo entra como aurora subindo do rodapé, na mesma faixa dos
      glows que a landing já usa (LandingPage.legacy.css: alpha 0.04–0.10). */
   background-image:
     radial-gradient(
       118% 76% at 50% 116%,
-      color-mix(in srgb, var(--green) 26%, transparent) 0%,
+      color-mix(in srgb, var(--primary) 26%, transparent) 0%,
       transparent 62%
     ),
     radial-gradient(
       68% 44% at 50% 107%,
-      color-mix(in srgb, var(--green) 15%, transparent) 0%,
+      color-mix(in srgb, var(--primary) 15%, transparent) 0%,
       transparent 68%
     );
 }
@@ -111,7 +111,7 @@
 }
 .themeToggle svg {
   flex: none;
-  color: var(--green);
+  color: var(--primary);
 }
 [data-theme='dark'] .themeToggle {
   background: color-mix(in srgb, var(--text) 7%, var(--card2));
@@ -173,11 +173,11 @@
   stop-opacity: 0.42;
 }
 .stopMid {
-  stop-color: var(--green);
+  stop-color: var(--primary);
   stop-opacity: 0.32;
 }
 .stopNear {
-  stop-color: var(--green);
+  stop-color: var(--primary);
   stop-opacity: 0.85;
 }
 
@@ -256,7 +256,7 @@
 .chipIcon {
   display: block;
   flex: none;
-  color: var(--green);
+  color: var(--primary);
 }
 /* Ponto de solda: fica sempre exatamente na âncora do fio e sempre redondo
    (por isso é pseudo-elemento do chip, não um <circle> no SVG). Vive no pill,
@@ -268,8 +268,8 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 16%, transparent);
+  background: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 16%, transparent);
   transform: translateY(-50%);
 }
 .railLeft .chip::after {
@@ -366,14 +366,11 @@
   display: grid;
   place-items: center;
   border-radius: 12px;
-  background: var(--green);
+  background: var(--primary);
   color: #ffffff;
   font-family: var(--num);
   font-weight: 700;
   font-size: 22px;
-}
-[data-theme='dark'] .logo {
-  color: #05130a;
 }
 .brandName {
   font-family: var(--num);
@@ -397,7 +394,7 @@
 }
 .titleBrand {
   display: block;
-  color: var(--green);
+  color: var(--primary);
 }
 .subtitle {
   font-size: 13px;
@@ -430,9 +427,9 @@
 }
 .info {
   font-size: 13px;
-  color: var(--green);
-  background: color-mix(in srgb, var(--green) 10%, transparent);
-  border: 1px solid color-mix(in srgb, var(--green) 25%, transparent);
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
   padding: 8px 12px;
   border-radius: 10px;
   text-align: center;
@@ -491,7 +488,7 @@ button.googleBtn:hover:not(:disabled) {
   color: var(--muted);
 }
 .linkInline {
-  color: var(--green);
+  color: var(--primary);
   font-weight: 600;
   background: none;
   border: none;

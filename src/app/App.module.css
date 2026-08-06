@@ -23,8 +23,8 @@
   display: grid;
   place-items: center;
   border-radius: 16px;
-  background: var(--green);
-  color: #05130a;
+  background: var(--primary);
+  color: #ffffff;
   font-family: var(--num);
   font-weight: 700;
   font-size: 28px;
@@ -51,8 +51,8 @@
   margin-top: 4px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--green);
-  background: color-mix(in srgb, var(--green) 14%, transparent);
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
   padding: 4px 12px;
   border-radius: 999px;
 }

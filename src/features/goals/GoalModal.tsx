@@ -52,7 +52,7 @@ export function GoalModal({ open, onClose, onSave, onDelete, saving, editing }: 
         target,
         saved: editing?.saved ?? ZERO,
         icon,
-        color: '#22c55e',
+        color: '#820ad1',
         deadline: deadline || null,
       })
     } catch (e) {

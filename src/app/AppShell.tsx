@@ -37,7 +37,7 @@ export function AppShell() {
   const navPhoto =
     profile?.avatarUrl || (user?.user_metadata?.avatar_url as string | undefined) || null
   const navEmoji = profile?.emoji || '😊'
-  const navColor = profile?.color || '#22c55e'
+  const navColor = profile?.color || '#820ad1'
 
   const pro = isPro(plan.data)
   const label = planLabel(plan.data)

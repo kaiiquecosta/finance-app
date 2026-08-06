@@ -29,9 +29,9 @@
   color: var(--text);
 }
 .chipActive {
-  border-color: color-mix(in srgb, var(--green) 45%, transparent);
-  background: color-mix(in srgb, var(--green) 14%, transparent);
-  color: var(--green);
+  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+  color: var(--primary);
 }
 .hint {
   font-size: 12px;

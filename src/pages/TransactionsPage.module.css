@@ -36,7 +36,7 @@
 }
 .today {
   font-size: 12px;
-  color: var(--green);
+  color: var(--primary);
   font-weight: 600;
 }
 

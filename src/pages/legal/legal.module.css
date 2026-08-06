@@ -23,7 +23,7 @@
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: var(--green);
+  background: var(--primary);
 }
 .back {
   font-size: 14px;
@@ -68,7 +68,7 @@
   gap: 6px;
 }
 .prose a {
-  color: var(--green);
+  color: var(--primary);
 }
 .prose strong {
   font-weight: 700;

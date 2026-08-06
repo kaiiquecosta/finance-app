@@ -61,7 +61,7 @@
   text-align: left;
 }
 .info:hover .name {
-  color: var(--green);
+  color: var(--primary);
 }
 .name {
   font-size: 14px;
@@ -95,7 +95,7 @@
 .cardLink {
   font-size: 12px;
   font-weight: 600;
-  color: var(--green);
+  color: var(--primary);
   white-space: nowrap;
   padding: 8px 4px;
 }

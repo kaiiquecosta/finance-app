@@ -8,7 +8,7 @@ interface Props {
   onClick: () => void
 }
 
-export function UserBadge({ name, emoji, photoUrl, accent = '#22c55e', onClick }: Props) {
+export function UserBadge({ name, emoji, photoUrl, accent = '#820ad1', onClick }: Props) {
   const short = name.trim().split(/\s+/)[0] || name
   return (
     <button type="button" className={styles.badge} onClick={onClick} title="Meu perfil">
