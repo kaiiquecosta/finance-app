@@ -44,7 +44,9 @@ function insertTable(
     })
     return `  (${vals.join(', ')})`
   })
-  return `-- ${table}\nINSERT INTO public.${table} (${columns.join(', ')})\nVALUES\n${lines.join(',\n')}\nON CONFLICT (id) DO UPDATE SET\n  name = EXCLUDED.name,\n  amt = EXCLUDED.amt;\n\n`
+  const updateCols = columns.filter((c) => c !== 'id')
+  const updateSet = updateCols.map((c) => `${c} = EXCLUDED.${c}`).join(',\n  ')
+  return `-- ${table}\nINSERT INTO public.${table} (${columns.join(', ')})\nVALUES\n${lines.join(',\n')}\nON CONFLICT (id) DO UPDATE SET\n  ${updateSet};\n\n`
 }
 
 const uid = `(SELECT id FROM auth.users WHERE email = ${sqlStr(EMAIL)} LIMIT 1)`

@@ -17,8 +17,11 @@ VALUES
   (7102, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'Itaú — salário', '#f97316', 'corrente', 1250),
   (7103, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'Poupança reserva', '#22c55e', 'poupanca', 8500)
 ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
   name = EXCLUDED.name,
-  amt = EXCLUDED.amt;
+  color = EXCLUDED.color,
+  account_type = EXCLUDED.account_type,
+  initial_balance = EXCLUDED.initial_balance;
 
 -- cards
 INSERT INTO public.cards (id, user_id, name, color, card_limit, close_day, due_day, card_type)
@@ -26,8 +29,13 @@ VALUES
   (7201, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'Nubank', '#8b5cf6', 8500, 10, 17, 'Crédito'),
   (7202, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'Itaú Click', '#f97316', 12000, 5, 12, 'Crédito')
 ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
   name = EXCLUDED.name,
-  amt = EXCLUDED.amt;
+  color = EXCLUDED.color,
+  card_limit = EXCLUDED.card_limit,
+  close_day = EXCLUDED.close_day,
+  due_day = EXCLUDED.due_day,
+  card_type = EXCLUDED.card_type;
 
 -- card_bills
 INSERT INTO public.card_bills (id, user_id, card_id, description, amt, date, is_past_paid, recurring)
@@ -40,8 +48,13 @@ VALUES
   (7311, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 7202, 'Restaurante Outback', 198, '2026-08-01', false, false),
   (7312, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 7202, 'Decathlon', 449.99, '2026-07-22', false, false)
 ON CONFLICT (id) DO UPDATE SET
-  name = EXCLUDED.name,
-  amt = EXCLUDED.amt;
+  user_id = EXCLUDED.user_id,
+  card_id = EXCLUDED.card_id,
+  description = EXCLUDED.description,
+  amt = EXCLUDED.amt,
+  date = EXCLUDED.date,
+  is_past_paid = EXCLUDED.is_past_paid,
+  recurring = EXCLUDED.recurring;
 
 -- fixed_bills
 INSERT INTO public.fixed_bills (id, user_id, name, amt, due_day, icon, color, category, paid, paid_at, paid_amount)
@@ -55,8 +68,16 @@ VALUES
   (7407, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'Plano de saúde Unimed', 456.8, 3, '🏥', '#ef4444', 'Saúde', true, '2026-08-03', 456.8),
   (7408, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'Seguro auto Porto', 289.9, 25, '🚗', '#64748b', 'Transporte', false, null, null)
 ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
   name = EXCLUDED.name,
-  amt = EXCLUDED.amt;
+  amt = EXCLUDED.amt,
+  due_day = EXCLUDED.due_day,
+  icon = EXCLUDED.icon,
+  color = EXCLUDED.color,
+  category = EXCLUDED.category,
+  paid = EXCLUDED.paid,
+  paid_at = EXCLUDED.paid_at,
+  paid_amount = EXCLUDED.paid_amount;
 
 -- subscriptions
 INSERT INTO public.subscriptions (id, user_id, name, amt, day, icon, color, card_id)
@@ -68,8 +89,13 @@ VALUES
   (7505, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'iCloud+ 200GB', 19.9, 1, '☁️', '#64748b', 7201),
   (7506, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'Smart Fit', 119.9, 5, '💪', '#eab308', null)
 ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
   name = EXCLUDED.name,
-  amt = EXCLUDED.amt;
+  amt = EXCLUDED.amt,
+  day = EXCLUDED.day,
+  icon = EXCLUDED.icon,
+  color = EXCLUDED.color,
+  card_id = EXCLUDED.card_id;
 
 -- installments
 INSERT INTO public.installments (id, user_id, name, total, parcels, paid, icon, color, card_id)
@@ -77,8 +103,14 @@ VALUES
   (7601, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'iPhone 15 — Apple Store', 6599, 12, 4, '📱', '#64748b', 7201),
   (7602, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'Geladeira Brastemp', 2899, 10, 7, '🧊', '#06b6d4', 7202)
 ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
   name = EXCLUDED.name,
-  amt = EXCLUDED.amt;
+  total = EXCLUDED.total,
+  parcels = EXCLUDED.parcels,
+  paid = EXCLUDED.paid,
+  icon = EXCLUDED.icon,
+  color = EXCLUDED.color,
+  card_id = EXCLUDED.card_id;
 
 -- goals
 INSERT INTO public.goals (id, user_id, name, target, saved, icon, color, deadline)
@@ -87,8 +119,13 @@ VALUES
   (7702, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'Reserva de emergência', 18000, 11200, '🛡️', '#3b82f6', null),
   (7703, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'Entrada do apê', 80000, 24500, '🏠', '#f97316', '2028-12-01')
 ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
   name = EXCLUDED.name,
-  amt = EXCLUDED.amt;
+  target = EXCLUDED.target,
+  saved = EXCLUDED.saved,
+  icon = EXCLUDED.icon,
+  color = EXCLUDED.color,
+  deadline = EXCLUDED.deadline;
 
 -- incomes
 INSERT INTO public.incomes (id, user_id, name, amt, freq, icon, color, account_id, days, received, auto)
@@ -96,8 +133,16 @@ VALUES
   (7901, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'Salário — Empresa XYZ', 6500, 'mensal', '💼', '#22c55e', 7102, '[5]', '["2026-08-05"]', true),
   (7902, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'Freelance design', 1800, 'mensal', '🎨', '#8b5cf6', 7101, '[15]', '["2026-07-15"]', false)
 ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
   name = EXCLUDED.name,
-  amt = EXCLUDED.amt;
+  amt = EXCLUDED.amt,
+  freq = EXCLUDED.freq,
+  icon = EXCLUDED.icon,
+  color = EXCLUDED.color,
+  account_id = EXCLUDED.account_id,
+  days = EXCLUDED.days,
+  received = EXCLUDED.received,
+  auto = EXCLUDED.auto;
 
 -- investments
 INSERT INTO public.investments (id, user_id, name, bank, amount, date, inv_type, pct, spread, yield_pct, ticker, account_id)
@@ -106,8 +151,17 @@ VALUES
   (7802, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'Tesouro Selic 2029', 'Tesouro Direto', 5200, '2026-01-20', 'selic', 100, 0, 0, null, null),
   (7803, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'Maxi Renda', 'XP', 2400, '2026-03-05', 'fii', 0, 0, 8.2, 'MXRF11', null)
 ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
   name = EXCLUDED.name,
-  amt = EXCLUDED.amt;
+  bank = EXCLUDED.bank,
+  amount = EXCLUDED.amount,
+  date = EXCLUDED.date,
+  inv_type = EXCLUDED.inv_type,
+  pct = EXCLUDED.pct,
+  spread = EXCLUDED.spread,
+  yield_pct = EXCLUDED.yield_pct,
+  ticker = EXCLUDED.ticker,
+  account_id = EXCLUDED.account_id;
 
 -- transactions
 INSERT INTO public.transactions (id, user_id, name, cat, amt, date, account_id, investment_id, bill_id, income_key, is_new)
@@ -133,8 +187,16 @@ VALUES
   (8019, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'Pix recebido — freelance', 'freelance', 1800, '2026-06-15', 7101, null, null, null, false),
   (8020, (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1), 'Salário junho', 'salario', 6500, '2026-06-05', 7102, null, null, null, false)
 ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
   name = EXCLUDED.name,
-  amt = EXCLUDED.amt;
+  cat = EXCLUDED.cat,
+  amt = EXCLUDED.amt,
+  date = EXCLUDED.date,
+  account_id = EXCLUDED.account_id,
+  investment_id = EXCLUDED.investment_id,
+  bill_id = EXCLUDED.bill_id,
+  income_key = EXCLUDED.income_key,
+  is_new = EXCLUDED.is_new;
 
 UPDATE public.profiles SET name = 'Mariana Costa', emoji = '👩‍💻', color = '#8b5cf6'
 WHERE id = (SELECT id FROM auth.users WHERE email = 'contatokaiiquecosta@gmail.com' LIMIT 1);
