@@ -34,6 +34,11 @@ export function formatDate(date: ISODate | Date): string {
   return dt.toLocaleDateString('pt-BR')
 }
 
+/** Percentual inteiro para UI (ex.: 62.22 → "62%"). */
+export function formatPercent(pct: number): string {
+  return `${Math.round(Math.min(Math.max(pct, 0), 100))}%`
+}
+
 /** "Mês/aaaa" abreviado a partir de índice de mês (0..11) e ano. */
 export function formatMonthYear(monthIndex: number, year: number): string {
   return `${MONTHS[monthIndex] ?? '?'}/${year}`

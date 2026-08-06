@@ -2,6 +2,7 @@ import { formatBRL } from '@/domain/money'
 import { goalProgress } from '@/domain/calc/goals'
 import type { Goal } from '@/domain/entities'
 import { Card } from '@/components/ui/Card'
+import { formatPercent } from '@/lib/format'
 
 export function OverviewGoalsSnapshot({
   goals,
@@ -67,7 +68,7 @@ export function OverviewGoalsSnapshot({
                   <div className="prog-fill" style={{ width: `${pct}%`, background: g.color }} />
                 </div>
               </div>
-              <div style={{ fontFamily: 'var(--num)', fontWeight: 700, color: g.color }}>{pct}%</div>
+              <div style={{ fontFamily: 'var(--num)', fontWeight: 700, color: g.color }}>{formatPercent(pct)}</div>
             </div>
           )
         })

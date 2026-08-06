@@ -4,7 +4,13 @@ import styles from './overview.module.css'
 
 const FALLBACK = ['#3b82f6', '#f97316', '#22c55e', '#8b5cf6', '#f59e0b', '#ec4899']
 
-export function CategoryDonut({ byCat }: { byCat: Record<string, Cents> }) {
+export function CategoryDonut({
+  byCat,
+  categoryLabel = (cat) => cat,
+}: {
+  byCat: Record<string, Cents>
+  categoryLabel?: (cat: string) => string
+}) {
   const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1])
   const total = cats.reduce((s, [, v]) => s + Number(v), 0)
 
@@ -96,7 +102,7 @@ export function CategoryDonut({ byCat }: { byCat: Record<string, Cents> }) {
                   }}
                 >
                   <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'capitalize' }}>
-                    {cat}
+                    {categoryLabel(cat)}
                   </span>
                   <span style={{ fontFamily: 'var(--num)', fontSize: 10, fontWeight: 700, color: clr }}>
                     {Math.round(pct)}%

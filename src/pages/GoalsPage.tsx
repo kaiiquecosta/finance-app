@@ -10,7 +10,7 @@ import { useGoalMutations } from '@/features/goals/useGoalMutations'
 import { formatBRL } from '@/domain/money'
 import { toISODate } from '@/domain/dates'
 import { goalProgress } from '@/domain/calc/goals'
-import { formatDate } from '@/lib/format'
+import { formatDate, formatPercent } from '@/lib/format'
 import type { Goal } from '@/domain/entities'
 
 export function GoalsPage() {
@@ -88,7 +88,7 @@ export function GoalsPage() {
                     className="num-md"
                     style={{ color: done ? 'var(--green)' : g.color, flexShrink: 0 }}
                   >
-                    {Math.round(pct)}%
+                    {formatPercent(pct)}
                   </div>
                 </div>
                 <div className="prog" style={{ height: 7, marginBottom: 12 }}>

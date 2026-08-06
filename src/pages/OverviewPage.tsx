@@ -24,7 +24,7 @@ import { OverviewGoalsSnapshot } from '@/features/overview/OverviewGoalsSnapshot
 import { OverviewInvestmentsSnapshot } from '@/features/overview/OverviewInvestmentsSnapshot'
 import { formatBRL } from '@/domain/money'
 import { addMonths, parseISODate } from '@/domain/dates'
-import { colorFor, iconFor, MONTHS_FULL } from '@/domain/categories'
+import { colorFor, iconFor, formatCategoryLabel, MONTHS_FULL } from '@/domain/categories'
 import {
   consolidatedBalance,
   expenseByCategory,
@@ -80,7 +80,13 @@ export function OverviewPage() {
 
   const balance = consolidatedBalance(data.bankAccounts, data.transactions)
   const summary = summarizeTransactions(monthTxs)
-  const byCat = expenseByCategory(data.transactions, data.cards, month, year)
+  const { amounts: byCat, hints: catHints } = expenseByCategory(
+    data.transactions,
+    data.cards,
+    month,
+    year,
+  )
+  const categoryLabel = (cat: string) => formatCategoryLabel(cat, catHints[cat] ?? [])
   const cats = Object.entries(byCat)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
@@ -119,7 +125,12 @@ export function OverviewPage() {
         )}
       </Card>
 
-      <HeroInsight monthTxs={monthTxs} prevMonthTxs={prevMonthTxs} byCat={byCat} />
+      <HeroInsight
+        monthTxs={monthTxs}
+        prevMonthTxs={prevMonthTxs}
+        byCat={byCat}
+        categoryLabel={categoryLabel}
+      />
 
       <div className="grid2" style={{ marginTop: 16, marginBottom: 16 }}>
         <Card
@@ -157,7 +168,7 @@ export function OverviewPage() {
             </button>
           }
         >
-          <CategoryDonut byCat={byCat} />
+          <CategoryDonut byCat={byCat} categoryLabel={categoryLabel} />
         </Card>
       </div>
 
@@ -181,7 +192,7 @@ export function OverviewPage() {
               <div key={cat} className="cat-row">
                 <div className="cat-name">
                   <span>{iconFor(cat)}</span>
-                  {cat}
+                  {categoryLabel(cat)}
                 </div>
                 <div className="cat-bar-wrap">
                   <div className="prog">

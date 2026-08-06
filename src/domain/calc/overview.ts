@@ -9,7 +9,7 @@
  */
 import { abs, add, max, mul, sub, sum, ZERO, formatBRL, type Cents } from '@/domain/money'
 import { parseISODate } from '@/domain/dates'
-import { inferCategory, resolveExpenseCategory, groupCategoryForOverview } from '@/domain/categories'
+import { inferCategory, resolveExpenseCategory, groupCategoryForOverview, merchantHintFromDescription } from '@/domain/categories'
 import { billsForMonth, invoiceTotal } from './cards'
 import type { BankAccount, Card, FixedBill, Subscription, Transaction } from '@/domain/entities'
 
@@ -38,6 +38,11 @@ export function summarizeTransactions(txs: Transaction[]): TransactionSummary {
   return { income, spent, balance: sub(income, spent) }
 }
 
+export interface ExpenseByCategoryResult {
+  amounts: Record<string, Cents>
+  hints: Record<string, string[]>
+}
+
 /**
  * Gastos por categoria no mês: transações de gasto (exceto pagamento de fatura)
  * + lançamentos da fatura do cartão do mês (exceto parcelas retroativas pagas).
@@ -47,8 +52,19 @@ export function expenseByCategory(
   cards: Card[],
   month: number,
   year: number,
-): Record<string, Cents> {
+): ExpenseByCategoryResult {
   const byCat: Record<string, number> = {}
+  const hints: Record<string, string[]> = {}
+
+  const push = (cat: string, amount: number, hintSource?: string) => {
+    byCat[cat] = (byCat[cat] ?? 0) + amount
+    const hint = hintSource ? merchantHintFromDescription(hintSource) : null
+    if (hint) {
+      const arr = hints[cat] ?? []
+      if (!arr.includes(hint)) arr.push(hint)
+      hints[cat] = arr
+    }
+  }
 
   for (const t of txs) {
     if (t.amt >= 0) continue
@@ -56,18 +72,18 @@ export function expenseByCategory(
     if (d.getMonth() !== month || d.getFullYear() !== year) continue
     if (t.cat === 'cartão' && t.billId) continue // ignora pagamento de fatura
     const cat = groupCategoryForOverview(resolveExpenseCategory(t.name, t.cat))
-    byCat[cat] = (byCat[cat] ?? 0) + Math.abs(t.amt)
+    push(cat, Math.abs(t.amt), t.name)
   }
 
   for (const card of cards) {
     for (const b of billsForMonth(card, month, year)) {
       if (b.pastPaid) continue
       const cat = groupCategoryForOverview(inferCategory(b.description, 'compras'))
-      byCat[cat] = (byCat[cat] ?? 0) + b.amt
+      push(cat, b.amt, b.description)
     }
   }
 
-  return byCat as Record<string, Cents>
+  return { amounts: byCat as Record<string, Cents>, hints }
 }
 
 /** Variação percentual de gastos vs mês anterior. */
@@ -163,9 +179,12 @@ export function fixedBillsTotal(bills: FixedBill[]): Cents {
   return sum(bills.map((b) => b.amt))
 }
 
-/** Sobra mensal disponível para investir: média de receita − média de gasto − fixas. */
+/** Sobra mensal disponível para investir (nunca negativa). */
 export function monthlyPotential(avgIncome: Cents, avgSpent: Cents, fixedTotal: Cents): Cents {
-  return max(ZERO, sub(sub(avgIncome, avgSpent), fixedTotal))
+  // Evita somar gasto médio + fixas quando ambos cobrem o mesmo comprometimento:
+  // usa o maior dos dois como base de saída recorrente.
+  const committed = max(avgSpent, fixedTotal)
+  return max(ZERO, sub(avgIncome, committed))
 }
 
 /** Médias mensais de receita e gasto no ano (só meses com movimento). */

@@ -169,6 +169,49 @@ export function groupCategoryForOverview(category: string): string {
   return category
 }
 
+const MERCHANT_LABELS: [RegExp, string][] = [
+  [/amazon/i, 'Amazon'],
+  [/shopee/i, 'Shopee'],
+  [/mercado\s*livre|mercadolivre/i, 'Mercado Livre'],
+  [/magalu|magazine\s*luiza/i, 'Magalu'],
+  [/shein/i, 'Shein'],
+  [/aliexpress/i, 'AliExpress'],
+  [/ifood/i, 'iFood'],
+  [/uber\s*eats/i, 'Uber Eats'],
+  [/netflix/i, 'Netflix'],
+  [/spotify/i, 'Spotify'],
+  [/disney/i, 'Disney+'],
+  [/hbo|max\b/i, 'HBO Max'],
+  [/decathlon/i, 'Decathlon'],
+  [/pão\s*de\s*açúcar|pao\s*de\s*acucar/i, 'Pão de Açúcar'],
+  [/carrefour/i, 'Carrefour'],
+  [/americanas/i, 'Americanas'],
+]
+
+/** Nome curto da loja/serviço para enriquecer rótulos “outros” e “compras”. */
+export function merchantHintFromDescription(desc: string): string | null {
+  const d = (desc ?? '').trim()
+  if (!d) return null
+  for (const [re, label] of MERCHANT_LABELS) {
+    if (re.test(d)) return label
+  }
+  const word = d.split(/\s+/)[0]?.replace(/[^\p{L}\d]/gu, '')
+  if (!word || word.length < 3) return null
+  if (/^(pix|pgto|pagamento|compra|debito|credito)$/i.test(word)) return null
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+}
+
+const CATEGORY_HINT_KEYS = new Set(['outros', 'compras', OVERVIEW_HOUSEHOLD_LABEL])
+
+/** Ex.: "outros (Amazon, Shopee)" quando houver compras identificáveis. */
+export function formatCategoryLabel(category: string, hints: string[]): string {
+  const key = category.trim().toLowerCase()
+  if (!CATEGORY_HINT_KEYS.has(key) || hints.length === 0) return category
+  const uniq = [...new Set(hints.map((h) => h.trim()).filter(Boolean))].slice(0, 3)
+  if (!uniq.length) return category
+  return `${category} (${uniq.join(', ')})`
+}
+
 /** Infere a categoria a partir do nome/descrição (fallback quando não definida). */
 export function inferCategory(desc: string | null | undefined, fallback = 'outros'): string {
   const d = (desc ?? '').toLowerCase()

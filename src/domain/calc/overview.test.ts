@@ -89,7 +89,8 @@ describe('expenseByCategory / topCategory', () => {
     tx({ name: 'Compra', cat: 'mercado', amt: reais(-150), date: '2026-01-02' }),
   ]
   const card = cardWith([{ description: 'Loja Y', amt: reais(100), date: '2026-01-03' }])
-  const byCat = expenseByCategory(txs, [card], 0, 2026)
+  const result = expenseByCategory(txs, [card], 0, 2026)
+  const byCat = result.amounts
 
   it('agrega gastos e ignora pagamento de fatura', () => {
     expect(byCat).toEqual({ streaming: 2690, mercado: 15000, compras: 10000 })
@@ -107,7 +108,7 @@ describe('expenseByCategory / topCategory', () => {
       [],
       7,
       2026,
-    )
+    ).amounts
     expect(util['contas de casa']).toBe(15000)
     expect(util.energia).toBeUndefined()
   })
@@ -149,8 +150,11 @@ describe('potencial de investimento', () => {
     expect(fixedBillsTotal([fb(reais(560)), fb(reais(200))])).toBe(76000)
   })
   it('sobra mensal, nunca negativa', () => {
-    expect(monthlyPotential(reais(1500) as Cents, reais(350) as Cents, reais(760) as Cents)).toBe(39000)
+    expect(monthlyPotential(reais(1500) as Cents, reais(350) as Cents, reais(760) as Cents)).toBe(74000)
     expect(monthlyPotential(reais(100) as Cents, reais(200) as Cents, reais(0) as Cents)).toBe(0)
+    expect(monthlyPotential(reais(6800) as Cents, reais(2393.24) as Cents, reais(4761.1) as Cents)).toBe(
+      203890,
+    )
   })
   it('valor futuro de aportes (juros compostos)', () => {
     expect(futureValue(reais(100), 12, 0)).toBe(120000) // sem juros = soma

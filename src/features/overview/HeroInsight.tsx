@@ -13,9 +13,10 @@ interface Props {
   monthTxs: Transaction[]
   prevMonthTxs: Transaction[]
   byCat: Record<string, Cents>
+  categoryLabel?: (cat: string) => string
 }
 
-export function HeroInsight({ monthTxs, prevMonthTxs, byCat }: Props) {
+export function HeroInsight({ monthTxs, prevMonthTxs, byCat, categoryLabel = (c) => c }: Props) {
   const spent = summarizeTransactions(monthTxs).spent
   const prevSpent = summarizeTransactions(prevMonthTxs).spent
   const variation = spendVariation(spent, prevSpent)
@@ -40,7 +41,7 @@ export function HeroInsight({ monthTxs, prevMonthTxs, byCat }: Props) {
         </div>
         <div>
           <div className={styles.metricLabel}>Maior gasto</div>
-          <div className="num-md">{top ? `${iconFor(top.category)} ${top.category}` : '—'}</div>
+          <div className="num-md">{top ? `${iconFor(top.category)} ${categoryLabel(top.category)}` : '—'}</div>
         </div>
       </div>
     </div>

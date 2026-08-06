@@ -1,5 +1,5 @@
 import { formatBRL, sum, type Cents } from '@/domain/money'
-import { getInvoiceMonth, invoiceTotal } from '@/domain/calc/cards'
+import { getInvoiceMonth, invoiceTotal, cardDisplayName } from '@/domain/calc/cards'
 import type { Card, Subscription } from '@/domain/entities'
 import styles from './overview.module.css'
 
@@ -32,7 +32,7 @@ export function CardInvoices({
     grandTotal += fat
     rows.push({
       key: String(card.id),
-      name: card.name,
+      name: cardDisplayName(card, cards),
       color: card.color,
       amt: fat as Cents,
     })

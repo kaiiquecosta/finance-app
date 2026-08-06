@@ -101,6 +101,14 @@ export function totalAvailableLimit(cards: Card[], asOf: Date): Cents {
   return sub(limit, open)
 }
 
+/** Diferencia cartões com o mesmo nome (ex.: dois Nubank). */
+export function cardDisplayName(card: Card, allCards: Card[]): string {
+  const norm = card.name.trim().toLowerCase()
+  const dupes = allCards.filter((c) => c.name.trim().toLowerCase() === norm)
+  if (dupes.length <= 1) return card.name
+  return `${card.name} · fecha dia ${card.closeDay}`
+}
+
 /** Fatura de cartão com valor a vencer, para unificar com contas fixas. */
 export interface UpcomingCardInvoice {
   id: string
@@ -133,7 +141,7 @@ export function upcomingCardInvoices(
         out.push({
           id: `cc-${card.id}-${year}-${month}`,
           cardId: card.id,
-          cardName: card.name,
+          cardName: cardDisplayName(card, cards),
           color: card.color,
           amt,
           dueDay: card.dueDay,

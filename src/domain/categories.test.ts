@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { colorFor, iconFor, inferCategory, resolveExpenseCategory } from './categories'
+import { colorFor, formatCategoryLabel, iconFor, inferCategory, resolveExpenseCategory } from './categories'
 
 describe('inferCategory', () => {
   it('reconhece por palavras-chave', () => {
@@ -43,5 +43,13 @@ describe('iconFor / colorFor', () => {
   it('cai no fallback para categoria desconhecida', () => {
     expect(iconFor('inexistente')).toBe('💳')
     expect(colorFor('inexistente')).toBe('#64748b')
+  })
+})
+
+describe('formatCategoryLabel', () => {
+  it('enriquece outros e compras com lojas', () => {
+    expect(formatCategoryLabel('outros', ['Amazon', 'Shopee'])).toBe('outros (Amazon, Shopee)')
+    expect(formatCategoryLabel('compras', ['Decathlon'])).toBe('compras (Decathlon)')
+    expect(formatCategoryLabel('mercado', ['Pão de Açúcar'])).toBe('mercado')
   })
 })

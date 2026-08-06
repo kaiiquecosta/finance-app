@@ -13,6 +13,7 @@ import { MONTHS_FULL } from '@/domain/categories'
 import {
   availableLimit,
   billsForMonth,
+  cardDisplayName,
   getInvoiceMonth,
   invoiceTotal,
 } from '@/domain/calc/cards'
@@ -141,7 +142,7 @@ export function CardsPage() {
                       </div>
                       <div>
                         <div style={{ color: 'var(--text)', fontSize: 15, fontWeight: 700, fontFamily: 'var(--num)' }}>
-                          {card.name}
+                          {cardDisplayName(card, data.cards)}
                         </div>
                         <div style={{ color: 'var(--muted)', fontSize: 12 }}>{card.type === 'debito' ? 'Débito' : 'Crédito'}</div>
                       </div>
