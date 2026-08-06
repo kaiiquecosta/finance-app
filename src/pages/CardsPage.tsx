@@ -8,6 +8,8 @@ import { PageHeader } from '@/components/PageHeader'
 import { HeaderActionButton } from '@/components/legacy/HeaderActionButton'
 import { InvoiceEvolutionChart } from '@/components/legacy/InvoiceEvolutionChart'
 import { MonthNav, labelMonthYear, monthOffsetFrom } from '@/components/legacy/MonthNav'
+import { Modal } from '@/components/ui/Modal'
+import { Button } from '@/components/ui/Button'
 import { formatBRL, percentOf, sub, sum } from '@/domain/money'
 import { MONTHS_FULL } from '@/domain/categories'
 import {
@@ -17,17 +19,20 @@ import {
   getInvoiceMonth,
   invoiceTotal,
 } from '@/domain/calc/cards'
-import type { Card as CardEntity } from '@/domain/entities'
+import type { Card as CardEntity, CardBill } from '@/domain/entities'
+import { showSaveToast } from '@/lib/toast'
+import styles from './CardsPage.module.css'
 
 export function CardsPage() {
   const { user } = useAuth()
   const { data, isLoading, isError } = useFinanceData(user?.id)
-  const { saveCard, removeCard, addBills } = useCardMutations(user?.id)
+  const { saveCard, removeCard, addBills, removeBill } = useCardMutations(user?.id)
 
   const [monthOffset, setMonthOffset] = useState(0)
   const [cardModalOpen, setCardModalOpen] = useState(false)
   const [editing, setEditing] = useState<CardEntity | null>(null)
   const [purchaseCard, setPurchaseCard] = useState<CardEntity | null>(null)
+  const [confirmDeleteBill, setConfirmDeleteBill] = useState<CardBill | null>(null)
 
   const now = new Date()
 
@@ -245,19 +250,25 @@ export function CardsPage() {
                       >
                         Lançamentos ({bills.length})
                       </div>
-                      {bills.slice(0, 8).map((b) => (
-                        <div key={b.id} className="stat-row">
-                          <span className="stat-label">{b.description}</span>
-                          <span className="stat-val" style={{ color: 'var(--red)' }}>
-                            -{formatBRL(b.amt)}
-                          </span>
-                        </div>
-                      ))}
-                      {bills.length > 8 && (
-                        <div style={{ color: 'var(--muted)', fontSize: 12, textAlign: 'center', paddingTop: 6 }}>
-                          +{bills.length - 8} mais
-                        </div>
-                      )}
+                      <div className={styles.billsScroll}>
+                        {bills.map((b) => (
+                          <div key={b.id} className={styles.billRow}>
+                            <div className={styles.billRowMain}>
+                              <span className={styles.billDesc}>{b.description}</span>
+                              <span className={styles.billAmt}>-{formatBRL(b.amt)}</span>
+                            </div>
+                            <button
+                              type="button"
+                              className={styles.billDel}
+                              title="Excluir lançamento"
+                              disabled={removeBill.isPending}
+                              onClick={() => setConfirmDeleteBill(b)}
+                            >
+                              🗑
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ) : (
                     <div
@@ -305,6 +316,39 @@ export function CardsPage() {
           setPurchaseCard(null)
         }}
       />
+
+      <Modal
+        open={confirmDeleteBill !== null}
+        title="Excluir lançamento"
+        onClose={() => setConfirmDeleteBill(null)}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setConfirmDeleteBill(null)} disabled={removeBill.isPending}>
+              Cancelar
+            </Button>
+            <Button
+              variant="danger"
+              loading={removeBill.isPending}
+              onClick={() => {
+                if (!confirmDeleteBill) return
+                void removeBill.mutateAsync(confirmDeleteBill.id).then(() => {
+                  showSaveToast('Lançamento removido', 'var(--muted)', undefined, '🗑️')
+                  setConfirmDeleteBill(null)
+                })
+              }}
+            >
+              Excluir
+            </Button>
+          </>
+        }
+      >
+        {confirmDeleteBill && (
+          <p style={{ margin: 0, fontSize: 14, lineHeight: 1.55, color: 'var(--muted)' }}>
+            Remover <b style={{ color: 'var(--text)' }}>{confirmDeleteBill.description}</b> (
+            {formatBRL(confirmDeleteBill.amt)}) desta fatura? Isso não pode ser desfeito.
+          </p>
+        )}
+      </Modal>
     </>
   )
 }

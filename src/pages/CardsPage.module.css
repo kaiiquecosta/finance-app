@@ -162,6 +162,52 @@
   font-family: var(--num);
   font-weight: 600;
   font-size: 13px;
+  color: var(--red);
+  white-space: nowrap;
+}
+
+.billsScroll {
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.billRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.billRow:last-child {
+  border-bottom: none;
+}
+.billRowMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.billDel {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--red) 25%, transparent);
+  background: color-mix(in srgb, var(--red) 10%, transparent);
+  font-size: 13px;
+  opacity: 0.85;
+}
+.billDel:hover {
+  opacity: 1;
+}
+.billDel:disabled {
+  opacity: 0.4;
 }
 
 @media (max-width: 720px) {

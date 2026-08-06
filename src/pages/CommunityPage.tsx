@@ -7,7 +7,12 @@ import { CommunityBoard } from '@/features/community/CommunityBoard'
 import { CommunityItemModal, CreateCommunityItemModal } from '@/features/community/CommunityModals'
 import { useCommunityBoard, useCommunityMutations } from '@/features/community/useCommunity'
 import { isCommunityAdmin } from '@/lib/isCommunityAdmin'
-import type { CommunityItem } from '@/domain/community'
+import { showSaveToast } from '@/lib/toast'
+import {
+  communityStatusAdminToast,
+  pushCommunityStatusAlert,
+} from '@/features/community/communityStatusNotify'
+import type { CommunityItem, CommunityItemStatus } from '@/domain/community'
 
 export function CommunityPage() {
   const { user } = useAuth()
@@ -21,6 +26,35 @@ export function CommunityPage() {
   const isAdmin = isCommunityAdmin(user, profileQuery.data)
   const canEditSelected =
     !!selected && !!user?.id && (selected.authorId === user.id || isAdmin)
+
+  const handleStatusChange = (id: number, status: CommunityItemStatus) => {
+    const item = board.data?.find((i) => i.id === id)
+    const prev = item?.status
+    if (!item || prev === status) return
+    mutations.updateItem.mutate(
+      { id, status },
+      {
+        onSuccess: () => {
+          if (isAdmin) {
+            showSaveToast(
+              communityStatusAdminToast(status),
+              'var(--primary)',
+              'Comunidade',
+              '📣',
+            )
+          }
+          if (item.authorId === user?.id && prev != null) {
+            pushCommunityStatusAlert({
+              itemId: id,
+              title: item.title,
+              status,
+              previousStatus: prev,
+            })
+          }
+        },
+      },
+    )
+  }
 
   useEffect(() => {
     setSelected((cur) => {
@@ -71,7 +105,7 @@ export function CommunityPage() {
         isAdmin={isAdmin}
         onOpenItem={(item) => setSelected(item)}
         onQuickAddBacklog={openCreate}
-        onStatusChange={(id, status) => mutations.updateItem.mutate({ id, status })}
+        onStatusChange={handleStatusChange}
         onToggleLike={(item) => mutations.toggleLike.mutate({ itemId: item.id, liked: item.likedByMe })}
         likePending={mutations.toggleLike.isPending}
       />

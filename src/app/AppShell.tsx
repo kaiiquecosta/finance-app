@@ -12,6 +12,8 @@ import { ProfileModal } from '@/features/profile/ProfileModal'
 import { UserBadge } from '@/features/profile/UserBadge'
 import { ReminderPopup } from '@/features/reminders/ReminderPopup'
 import { useReminders } from '@/features/reminders/useReminders'
+import { CommunityStatusPopup } from '@/features/community/CommunityStatusPopup'
+import { useCommunityStatusAlerts } from '@/features/community/useCommunityStatusAlerts'
 import { isDemoPersonaEnabled, DEMO_PERSONA_LABEL } from '@/demo/isDemoPersona'
 import { NAV_ITEMS } from './navItems'
 import styles from './AppShell.module.css'
@@ -22,6 +24,8 @@ export function AppShell() {
   const finance = useFinanceData(user?.id)
   const profileQuery = useProfile(user?.id)
   const { reminders, dismiss } = useReminders(finance.data)
+  const { queue: communityAlerts, dismissHead: dismissCommunityAlert } =
+    useCommunityStatusAlerts(user?.id)
   const theme = useTheme((s) => s.theme)
   const toggle = useTheme((s) => s.toggle)
   const [upgradeOpen, setUpgradeOpen] = useState(false)
@@ -142,6 +146,7 @@ export function AppShell() {
       />
       <AccountModal open={accountOpen} onClose={() => setAccountOpen(false)} />
       <ReminderPopup reminders={reminders} onDismiss={dismiss} />
+      <CommunityStatusPopup queue={communityAlerts} onDismiss={dismissCommunityAlert} />
     </div>
   )
 }
