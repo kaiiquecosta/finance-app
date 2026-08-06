@@ -8,17 +8,56 @@
   left: 0;
   right: 0;
   z-index: 100;
-  height: var(--nav-h);
+  min-height: var(--nav-h);
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 16px;
+  padding: 6px 12px 4px;
   background: var(--card);
   border-bottom: 1px solid var(--border);
-  overflow-x: auto;
+  overflow: hidden;
 }
-.topnav::-webkit-scrollbar {
-  height: 0;
+
+.topnavStart,
+.topnavEnd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Só as abas rolam — com “trilho” visível para arrastar (tablet / janela estreita). */
+.tabsScroll {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted2) transparent;
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    #000 12px,
+    #000 calc(100% - 12px),
+    transparent 100%
+  );
+}
+.tabsScroll::-webkit-scrollbar {
+  height: 6px;
+}
+.tabsScroll::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--text) 4%, transparent);
+  border-radius: 99px;
+  margin: 0 4px;
+}
+.tabsScroll::-webkit-scrollbar-thumb {
+  background: var(--muted2);
+  border-radius: 99px;
+  min-width: 48px;
+}
+.tabsScroll::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
 }
 
 .brand {
@@ -42,6 +81,8 @@
 .tabs {
   display: flex;
   gap: 4px;
+  width: max-content;
+  padding: 2px 4px 4px;
 }
 .tab {
   display: flex;
@@ -55,6 +96,7 @@
   white-space: nowrap;
   border: 1px solid transparent;
   transition: all 0.15s;
+  flex-shrink: 0;
 }
 .tab:hover {
   color: var(--text);
@@ -69,6 +111,7 @@
 .spacer {
   flex: 1;
 }
+
 .plan {
   font-size: 11px;
   font-weight: 700;
@@ -98,7 +141,7 @@
 }
 
 .main {
-  margin-top: var(--nav-h);
+  margin-top: calc(var(--nav-h) + 6px);
   padding: 24px 20px 108px;
   max-width: 1180px;
   margin-left: auto;
@@ -111,7 +154,7 @@
 }
 
 @media (max-width: 768px) {
-  .tabs {
+  .tabsScroll {
     display: none;
   }
   .bottomnav {
@@ -126,9 +169,16 @@
     background: var(--card);
     border-top: 1px solid var(--border);
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--muted2) transparent;
   }
   .bottomnav::-webkit-scrollbar {
-    height: 0;
+    height: 5px;
+  }
+  .bottomnav::-webkit-scrollbar-thumb {
+    background: var(--muted2);
+    border-radius: 99px;
   }
   .mtab {
     display: flex;

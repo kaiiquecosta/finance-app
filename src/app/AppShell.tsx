@@ -49,46 +49,53 @@ export function AppShell() {
   return (
     <div className={styles.app}>
       <header className={styles.topnav}>
-        <UserBadge
-          name={displayName}
-          emoji={navEmoji}
-          photoUrl={navPhoto}
-          accent={navColor}
-          onClick={() => setProfileOpen(true)}
-        />
-        <div className={styles.brand}>
-          <span className={styles.logoDot} />
-          Flux
+        <div className={styles.topnavStart}>
+          <UserBadge
+            name={displayName}
+            emoji={navEmoji}
+            photoUrl={navPhoto}
+            accent={navColor}
+            onClick={() => setProfileOpen(true)}
+          />
+          <div className={styles.brand}>
+            <span className={styles.logoDot} />
+            Flux
+          </div>
         </div>
-        <nav className={styles.tabs}>
-          {NAV_ITEMS.map((n) => (
-            <NavLink
-              key={n.to}
-              to={n.to}
-              end={n.end}
-              className={({ isActive }) =>
-                isActive ? `${styles.tab} ${styles.tabActive}` : styles.tab
-              }
-            >
-              <span aria-hidden>{n.icon}</span>
-              {n.label}
-            </NavLink>
-          ))}
-        </nav>
-        <div className={styles.spacer} />
-        <button
-          className={`${styles.plan} ${pro ? styles.planPro : ''}`}
-          onClick={onBadgeClick}
-          title={label === 'PRO' ? 'Gerenciar assinatura' : 'Assinar o Pro'}
-        >
-          {label}
-        </button>
-        <button className={styles.iconBtn} onClick={toggle} title="Alternar tema">
-          {theme === 'dark' ? '☀️' : '🌙'}
-        </button>
-        <button className={styles.iconBtn} onClick={() => void signOut()} title="Sair">
-          ⎋
-        </button>
+
+        <div className={styles.tabsScroll} aria-label="Abas do app">
+          <nav className={styles.tabs}>
+            {NAV_ITEMS.map((n) => (
+              <NavLink
+                key={n.to}
+                to={n.to}
+                end={n.end}
+                className={({ isActive }) =>
+                  isActive ? `${styles.tab} ${styles.tabActive}` : styles.tab
+                }
+              >
+                <span aria-hidden>{n.icon}</span>
+                {n.label}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
+
+        <div className={styles.topnavEnd}>
+          <button
+            className={`${styles.plan} ${pro ? styles.planPro : ''}`}
+            onClick={onBadgeClick}
+            title={label === 'PRO' ? 'Gerenciar assinatura' : 'Assinar o Pro'}
+          >
+            {label}
+          </button>
+          <button className={styles.iconBtn} onClick={toggle} title="Alternar tema">
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
+          <button className={styles.iconBtn} onClick={() => void signOut()} title="Sair">
+            ⎋
+          </button>
+        </div>
       </header>
 
       <main className={styles.main}>
