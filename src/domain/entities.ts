@@ -168,6 +168,7 @@ export interface Profile {
   avatarUrl?: string | null
   color?: string | null
   emoji?: string | null
+  isAdmin?: boolean
 }
 
 export type PlanTier = 'free' | 'pro'

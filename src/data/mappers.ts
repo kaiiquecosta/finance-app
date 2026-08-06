@@ -49,6 +49,7 @@ export function rowToProfile(r: ProfileRow): Profile {
     avatarUrl: r.avatar_url,
     color: r.color,
     emoji: r.emoji,
+    isAdmin: r.is_admin ?? false,
   }
 }
 

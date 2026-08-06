@@ -34,6 +34,9 @@ const CardsPage = lazy(() => import('@/pages/CardsPage').then((m) => ({ default:
 const InstallmentsPage = lazy(() =>
   import('@/pages/InstallmentsPage').then((m) => ({ default: m.InstallmentsPage })),
 )
+const CommunityPage = lazy(() =>
+  import('@/pages/CommunityPage').then((m) => ({ default: m.CommunityPage })),
+)
 
 export function App() {
   const theme = useTheme((s) => s.theme)
@@ -76,6 +79,7 @@ export function App() {
               <Route path="contas" element={<BillsPage />} />
               <Route path="metas" element={<GoalsPage />} />
               <Route path="investimentos" element={<InvestmentsPage />} />
+              <Route path="comunidade" element={<CommunityPage />} />
             </Route>
             <Route path="*" element={<Navigate to="/app" replace />} />
           </>
