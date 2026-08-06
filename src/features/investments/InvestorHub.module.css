@@ -93,7 +93,10 @@
   gap: 28px;
   padding: 10px 16px;
   width: max-content;
-  animation: ticker 38s linear infinite;
+  animation: ticker 44s linear infinite;
+}
+.tickerWrap:hover .tickerTrack {
+  animation-play-state: paused;
 }
 @keyframes ticker {
   from {
@@ -109,6 +112,11 @@
   gap: 8px;
   font-size: 12px;
   white-space: nowrap;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  padding: 0;
 }
 .tickerSym {
   font-weight: 700;
@@ -119,40 +127,112 @@
   color: var(--text);
 }
 
-.featureGrid {
+.rankGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin-bottom: 14px;
 }
-.featureCard {
-  padding: 14px 16px;
+.rankCard {
+  padding: 12px 14px;
   border-radius: 14px;
   background: var(--card);
   border: 1px solid var(--border2);
 }
-.featureTop {
+.rankTitle {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.rankEmpty {
+  color: var(--muted);
+  font-size: 12px;
+  padding: 8px 0;
+}
+.rankRow {
+  display: grid;
+  grid-template-columns: 26px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  padding: 6px 4px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 12px;
+  text-align: left;
+}
+.rankRow:hover {
+  background: color-mix(in srgb, var(--text) 6%, transparent);
+}
+.rankPos {
+  color: var(--muted);
+  font-family: var(--num);
+  font-weight: 700;
+  font-size: 11px;
+}
+.rankSym {
+  font-weight: 700;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.controls {
   display: flex;
   gap: 10px;
-  align-items: center;
   margin-bottom: 10px;
+  flex-wrap: wrap;
 }
-.featureIcon {
-  font-size: 22px;
+.searchBox {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 0 12px;
 }
-.featureName {
+.searchIcon {
   font-size: 13px;
-  font-weight: 700;
-}
-.featureMeta {
-  font-size: 11px;
   color: var(--muted);
 }
-.featurePrice {
-  font-family: var(--num);
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 4px;
+.searchInput {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 13px;
+  font-family: var(--font);
+  height: 40px;
+}
+.searchInput::placeholder {
+  color: var(--muted);
+}
+.searchClear {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+.sortSelect {
+  background: var(--card2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 12px;
+  font-family: var(--font);
+  padding: 0 12px;
+  height: 40px;
+  cursor: pointer;
 }
 
 .filters {
@@ -187,10 +267,10 @@
 .tableHead,
 .tableRow {
   display: grid;
-  grid-template-columns: 1fr auto auto 64px;
+  grid-template-columns: 32px 1fr auto auto 64px;
   gap: 10px;
   align-items: center;
-  padding: 10px 6px;
+  padding: 9px 6px;
 }
 .tableHead {
   font-size: 10px;
@@ -210,18 +290,54 @@
   text-align: right;
 }
 
+.starBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 15px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+.starBtn:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--text) 7%, transparent);
+}
+.starActive {
+  color: #fbbf24;
+  opacity: 1;
+}
+
 .assetCell {
   display: flex;
   align-items: center;
   gap: 10px;
   min-width: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  text-align: left;
+  padding: 0;
+}
+.assetCell:hover .assetName {
+  color: var(--green);
 }
 .assetIcon {
   font-size: 18px;
   flex-shrink: 0;
 }
+.assetText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
 .assetName {
   font-weight: 600;
+  color: var(--text);
+  font-size: 13px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -229,6 +345,9 @@
 .assetSub {
   font-size: 11px;
   color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .priceCell {
   font-family: var(--num);
@@ -265,6 +384,19 @@
   margin-left: auto;
 }
 
+.searchOpenBtn {
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px dashed color-mix(in srgb, var(--blue) 40%, transparent);
+  background: color-mix(in srgb, var(--blue) 7%, transparent);
+  color: var(--blue);
+  font-size: 13px;
+  cursor: pointer;
+  font-family: var(--font);
+}
+
 .muted {
   color: var(--muted);
   font-size: 13px;
@@ -278,7 +410,7 @@
 }
 
 @media (max-width: 768px) {
-  .featureGrid {
+  .rankGrid {
     grid-template-columns: 1fr;
   }
   .tableHead .colSpark,
@@ -288,6 +420,6 @@
   }
   .tableHead,
   .tableRow {
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: 32px 1fr auto auto;
   }
 }
