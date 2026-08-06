@@ -45,7 +45,11 @@ export function ReminderPopup({ reminders, onDismiss }: Props) {
   const navigate = useNavigate()
 
   useEffect(() => {
-    setIndex(0)
+    if (reminders.length === 0) {
+      setIndex(0)
+      return
+    }
+    setIndex((i) => Math.min(i, reminders.length - 1))
   }, [reminders.length])
 
   useEffect(() => {
@@ -60,18 +64,22 @@ export function ReminderPopup({ reminders, onDismiss }: Props) {
   const reminder = reminders[safeIndex]
   const ctaColor = reminder.labelColor ?? CTA_COLOR[reminder.urgency]
 
+  /** Próximo = vi este lembrete; não mostrar de novo nesta entrada no app. */
   const goNext = () => {
-    if (safeIndex < reminders.length - 1) setIndex(safeIndex + 1)
-    else onDismiss(reminder.id)
+    onDismiss(reminder.id)
   }
 
   const goPrev = () => {
     if (safeIndex > 0) setIndex(safeIndex - 1)
   }
 
-  const dismissAndNext = () => {
+  const dismissCurrent = () => {
     onDismiss(reminder.id)
-    setIndex((i) => Math.min(i, Math.max(0, reminders.length - 2)))
+  }
+
+  /** Fechar no fim da fila: garante que nenhum item “pulado” volte a aparecer. */
+  const finishQueue = () => {
+    for (const r of reminders) onDismiss(r.id)
   }
 
   const node = (
@@ -91,7 +99,7 @@ export function ReminderPopup({ reminders, onDismiss }: Props) {
           <button
             type="button"
             className={styles.close}
-            onClick={dismissAndNext}
+            onClick={reminders.length > 1 ? finishQueue : dismissCurrent}
             aria-label="Dispensar"
           >
             ×
@@ -123,7 +131,7 @@ export function ReminderPopup({ reminders, onDismiss }: Props) {
                   Próximo →
                 </button>
               ) : (
-                <button type="button" className={`${styles.action} ${styles.actionMuted}`} onClick={dismissAndNext}>
+                <button type="button" className={`${styles.action} ${styles.actionMuted}`} onClick={finishQueue}>
                   Fechar
                 </button>
               )}
@@ -138,7 +146,7 @@ export function ReminderPopup({ reminders, onDismiss }: Props) {
               >
                 Ver →
               </button>
-              <button type="button" className={`${styles.action} ${styles.actionMuted}`} onClick={dismissAndNext}>
+              <button type="button" className={`${styles.action} ${styles.actionMuted}`} onClick={dismissCurrent}>
                 Fechar
               </button>
             </>
