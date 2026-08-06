@@ -84,7 +84,10 @@ export function ReminderPopup({ reminders, onDismiss }: Props) {
 
   const node = (
     <div className={styles.wrap} role="dialog" aria-live="polite">
-      <div className={`${styles.card} ${URGENCY_CLASS[reminder.urgency]}`}>
+      <div
+        className={`${styles.card} ${URGENCY_CLASS[reminder.urgency]}`}
+        style={{ ['--rem-accent' as string]: ctaColor }}
+      >
         <div className={styles.top}>
           <div className={styles.icon}>{reminder.icon ?? KIND_ICON[reminder.kind]}</div>
           <div className={styles.body}>

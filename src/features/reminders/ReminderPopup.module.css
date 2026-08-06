@@ -19,14 +19,20 @@
 }
 
 .card {
+  --rem-accent: var(--primary);
   pointer-events: all;
-  background: color-mix(in srgb, var(--card) 92%, transparent);
+  background: color-mix(in srgb, var(--card) 94%, transparent);
   backdrop-filter: blur(16px);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 10px 12px 8px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  /* Contorno da cor do lembrete + leve brilho (só borda, estilo “neon” suave) */
+  border: 1px solid color-mix(in srgb, var(--rem-accent) 52%, transparent);
+  box-shadow:
+    0 10px 32px color-mix(in srgb, var(--text) 14%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--rem-accent) 18%, transparent),
+    0 0 18px -4px color-mix(in srgb, var(--rem-accent) 38%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--rem-accent) 22%, transparent);
   animation: remIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
 }
 
 @keyframes remIn {
@@ -40,17 +46,18 @@
   }
 }
 
+/* Fallback se --rem-accent não vier inline */
 .urgent {
-  border-color: color-mix(in srgb, var(--red) 35%, transparent);
+  --rem-accent: var(--red);
 }
 .warn {
-  border-color: color-mix(in srgb, var(--amber) 30%, transparent);
+  --rem-accent: var(--amber);
 }
 .income {
-  border-color: color-mix(in srgb, var(--green) 30%, transparent);
+  --rem-accent: var(--green);
 }
 .normal {
-  border-color: color-mix(in srgb, var(--text) 8%, transparent);
+  --rem-accent: #94a3b8;
 }
 
 .top {
@@ -107,7 +114,7 @@
   justify-content: space-between;
   margin-top: 8px;
   padding-top: 6px;
-  border-top: 1px solid var(--hairline, var(--border));
+  border-top: 1px solid color-mix(in srgb, var(--rem-accent) 14%, var(--border));
   gap: 6px;
 }
 
