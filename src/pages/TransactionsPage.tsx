@@ -112,6 +112,7 @@ export function TransactionsPage() {
         open={modalOpen}
         editing={editing}
         accounts={data.bankAccounts}
+        userId={user?.id}
         saving={save.isPending}
         onClose={() => setModalOpen(false)}
         onSave={async (draft) => {

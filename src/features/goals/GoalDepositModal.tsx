@@ -5,6 +5,7 @@ import { MoneyField } from '@/components/ui/MoneyField'
 import { ZERO, formatBRL, sub, type Cents } from '@/domain/money'
 import { goalProgress } from '@/domain/calc/goals'
 import type { BankAccount, Goal } from '@/domain/entities'
+import { AccountPicker } from '@/components/accounts/AccountPicker'
 import styles from './GoalDepositModal.module.css'
 
 type Mode = 'add' | 'remove'
@@ -13,12 +14,13 @@ interface Props {
   open: boolean
   goal: Goal | null
   accounts: BankAccount[]
+  userId: string | undefined
   saving?: boolean
   onClose: () => void
   onConfirm: (input: { amount: Cents; mode: Mode; accountId: number | null }) => Promise<void>
 }
 
-export function GoalDepositModal({ open, goal, accounts, saving, onClose, onConfirm }: Props) {
+export function GoalDepositModal({ open, goal, accounts, userId, saving, onClose, onConfirm }: Props) {
   const [mode, setMode] = useState<Mode>('add')
   const [amount, setAmount] = useState<Cents>(ZERO)
   const [accountId, setAccountId] = useState<number | null>(null)
@@ -102,32 +104,13 @@ export function GoalDepositModal({ open, goal, accounts, saving, onClose, onConf
         autoFocus
       />
 
-      {accounts.length > 0 && (
-        <div>
-          <span className={styles.label}>
-            {mode === 'add' ? 'De qual conta sai?' : 'Para qual conta vai?'}
-          </span>
-          <div className={styles.chips}>
-            {accounts.map((a) => (
-              <button
-                key={a.id}
-                type="button"
-                className={accountId === a.id ? `${styles.chip} ${styles.chipActive}` : styles.chip}
-                onClick={() => setAccountId(a.id)}
-              >
-                {a.name}
-              </button>
-            ))}
-            <button
-              type="button"
-              className={accountId === null ? `${styles.chip} ${styles.chipActive}` : styles.chip}
-              onClick={() => setAccountId(null)}
-            >
-              Sem conta
-            </button>
-          </div>
-        </div>
-      )}
+      <AccountPicker
+        label={mode === 'add' ? 'De qual conta sai?' : 'Para qual conta vai?'}
+        accounts={accounts}
+        value={accountId}
+        onChange={setAccountId}
+        userId={userId}
+      />
 
       {remaining <= 0 && mode === 'add' && (
         <p className={styles.done}>🎉 Meta concluída! Depósitos extras não passam do alvo.</p>

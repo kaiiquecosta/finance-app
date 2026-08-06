@@ -3,18 +3,20 @@ import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { formatBRL } from '@/domain/money'
 import type { BankAccount, FixedBill } from '@/domain/entities'
+import { AccountPicker } from '@/components/accounts/AccountPicker'
 import styles from './PayBillModal.module.css'
 
 interface Props {
   open: boolean
   bill: FixedBill | null
   accounts: BankAccount[]
+  userId: string | undefined
   saving?: boolean
   onClose: () => void
   onConfirm: (accountId: number | null) => Promise<void>
 }
 
-export function PayBillModal({ open, bill, accounts, saving, onClose, onConfirm }: Props) {
+export function PayBillModal({ open, bill, accounts, userId, saving, onClose, onConfirm }: Props) {
   const [accountId, setAccountId] = useState<number | null>(null)
 
   useEffect(() => {
@@ -42,30 +44,13 @@ export function PayBillModal({ open, bill, accounts, saving, onClose, onConfirm 
       <p className={styles.text}>
         Vou registrar o pagamento de <b>{formatBRL(bill.amt)}</b> e lançar um gasto.
       </p>
-      {accounts.length > 0 && (
-        <div>
-          <span className={styles.label}>De qual conta sai?</span>
-          <div className={styles.chips}>
-            {accounts.map((a) => (
-              <button
-                key={a.id}
-                type="button"
-                className={accountId === a.id ? `${styles.chip} ${styles.chipActive}` : styles.chip}
-                onClick={() => setAccountId(a.id)}
-              >
-                {a.name}
-              </button>
-            ))}
-            <button
-              type="button"
-              className={accountId === null ? `${styles.chip} ${styles.chipActive}` : styles.chip}
-              onClick={() => setAccountId(null)}
-            >
-              Sem conta
-            </button>
-          </div>
-        </div>
-      )}
+      <AccountPicker
+        label="De qual conta sai?"
+        accounts={accounts}
+        value={accountId}
+        onChange={setAccountId}
+        userId={userId}
+      />
     </Modal>
   )
 }

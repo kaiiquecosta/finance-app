@@ -3,25 +3,15 @@ import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { TextField } from '@/components/ui/TextField'
 import { MoneyField } from '@/components/ui/MoneyField'
+import { BankPresetPicker } from '@/components/banks/BankPresetPicker'
+import { BankMark } from '@/components/banks/BankMark'
 import { useEntityMutations } from '@/data/useEntityMutations'
 import { toBankAccountRow } from '@/data/mappers'
 import { formatBRL, ZERO, type Cents } from '@/domain/money'
 import { accountBalance } from '@/domain/calc/overview'
+import { BRAZIL_BANK_PRESETS, matchBankPreset, type BankPreset } from '@/domain/banks'
 import type { AccountType, BankAccount, Transaction } from '@/domain/entities'
 import styles from './BankAccountsModal.module.css'
-
-const BANK_COLORS = [
-  { name: 'Nubank', color: '#8b5cf6' },
-  { name: 'Inter', color: '#f97316' },
-  { name: 'Itaú', color: '#f59e0b' },
-  { name: 'Bradesco', color: '#ef4444' },
-  { name: 'Santander', color: '#dc2626' },
-  { name: 'Banco do Brasil', color: '#facc15' },
-  { name: 'Caixa', color: '#2563eb' },
-  { name: 'C6 Bank', color: '#334155' },
-  { name: 'PicPay', color: '#22c55e' },
-  { name: 'Mercado Pago', color: '#0ea5e9' },
-]
 
 const ACCOUNT_TYPES: { id: AccountType; label: string }[] = [
   { id: 'corrente', label: 'Corrente' },
@@ -46,8 +36,8 @@ export function BankAccountsModal({ open, onClose, userId, accounts, transaction
     userId,
   )
   const [adding, setAdding] = useState(false)
+  const [presetId, setPresetId] = useState<string | null>(BRAZIL_BANK_PRESETS[0]?.id ?? null)
   const [name, setName] = useState('')
-  const [color, setColor] = useState(BANK_COLORS[0].color)
   const [accountType, setAccountType] = useState<AccountType>('corrente')
   const [initialBalance, setInitialBalance] = useState<Cents>(ZERO)
   const [error, setError] = useState('')
@@ -58,18 +48,32 @@ export function BankAccountsModal({ open, onClose, userId, accounts, transaction
     setError('')
   }, [open, accounts.length])
 
+  const pickPreset = (p: BankPreset) => {
+    setPresetId(p.id)
+    setName(p.name)
+  }
+
   const reset = () => {
+    setPresetId(BRAZIL_BANK_PRESETS[0]?.id ?? null)
     setName('')
-    setColor(BANK_COLORS[0].color)
     setAccountType('corrente')
     setInitialBalance(ZERO)
   }
+
+  const selectedPreset =
+    (presetId ? BRAZIL_BANK_PRESETS.find((p) => p.id === presetId) : undefined) ??
+    BRAZIL_BANK_PRESETS[0]
 
   const submit = async () => {
     setError('')
     if (!name.trim()) return setError('Informe o nome da conta.')
     try {
-      await save.mutateAsync({ name: name.trim(), color, accountType, initialBalance })
+      await save.mutateAsync({
+        name: name.trim(),
+        color: selectedPreset.color,
+        accountType,
+        initialBalance,
+      })
       reset()
       setAdding(false)
     } catch (e) {
@@ -81,31 +85,40 @@ export function BankAccountsModal({ open, onClose, userId, accounts, transaction
     <Modal open={open} title="🏦 Contas bancárias" onClose={onClose}>
       {accounts.length > 0 && (
         <div className={styles.list}>
-          {accounts.map((a) => (
-            <div key={a.id} className={styles.item}>
-              <span className={styles.dot} style={{ background: a.color }} />
-              <div className={styles.info}>
-                <span className={styles.name}>{a.name}</span>
-                <span className={styles.sub}>{a.accountType}</span>
+          {accounts.map((a) => {
+            const vis = matchBankPreset(a.name) ?? {
+              id: `acc-${a.id}`,
+              name: a.name,
+              color: a.color,
+              mark: a.name.slice(0, 2),
+            }
+            return (
+              <div key={a.id} className={styles.item}>
+                <BankMark preset={vis} size="sm" />
+                <div className={styles.info}>
+                  <span className={styles.name}>{a.name}</span>
+                  <span className={styles.sub}>{a.accountType}</span>
+                </div>
+                <span className={styles.balance}>
+                  {formatBRL(accountBalance(a, transactions))}
+                </span>
+                <button
+                  className={styles.del}
+                  title="Excluir conta"
+                  disabled={remove.isPending}
+                  onClick={() => void remove.mutateAsync(a.id)}
+                >
+                  🗑
+                </button>
               </div>
-              <span className={styles.balance}>
-                {formatBRL(accountBalance(a, transactions))}
-              </span>
-              <button
-                className={styles.del}
-                title="Excluir conta"
-                disabled={remove.isPending}
-                onClick={() => void remove.mutateAsync(a.id)}
-              >
-                🗑
-              </button>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
       {adding ? (
         <div className={styles.form}>
+          <BankPresetPicker selectedId={presetId} onSelect={pickPreset} />
           <TextField
             label="Nome da conta"
             name="acc-name"
@@ -114,25 +127,6 @@ export function BankAccountsModal({ open, onClose, userId, accounts, transaction
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-          <div>
-            <span className={styles.label}>Banco / cor</span>
-            <div className={styles.chips}>
-              {BANK_COLORS.map((b) => (
-                <button
-                  key={b.name}
-                  type="button"
-                  className={color === b.color ? `${styles.chip} ${styles.chipActive}` : styles.chip}
-                  onClick={() => {
-                    setColor(b.color)
-                    if (!name.trim()) setName(b.name)
-                  }}
-                >
-                  <span className={styles.dot} style={{ background: b.color }} />
-                  {b.name}
-                </button>
-              ))}
-            </div>
-          </div>
           <div>
             <span className={styles.label}>Tipo</span>
             <div className={styles.chips}>

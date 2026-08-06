@@ -132,6 +132,7 @@ export function GoalsPage() {
         open={depositGoal !== null}
         goal={depositGoal}
         accounts={data.bankAccounts}
+        userId={user?.id}
         saving={transact.isPending}
         onClose={() => setDepositGoal(null)}
         onConfirm={async ({ amount, mode, accountId }) => {

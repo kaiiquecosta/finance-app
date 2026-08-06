@@ -8,6 +8,7 @@ import { toISODate } from '@/domain/dates'
 import { CATEGORY_ICONS, inferCategory } from '@/domain/categories'
 import type { BankAccount, Transaction } from '@/domain/entities'
 import type { TransactionDraft } from './useTransactionMutations'
+import { AccountPicker } from '@/components/accounts/AccountPicker'
 import styles from './TransactionModal.module.css'
 
 type Kind = 'expense' | 'income'
@@ -31,11 +32,12 @@ interface Props {
   onSave: (draft: TransactionDraft) => Promise<void> | void
   saving?: boolean
   accounts: BankAccount[]
+  userId: string | undefined
   /** Preenchido quando estamos editando. */
   editing?: Transaction | null
 }
 
-export function TransactionModal({ open, onClose, onSave, saving, accounts, editing }: Props) {
+export function TransactionModal({ open, onClose, onSave, saving, accounts, userId, editing }: Props) {
   const [kind, setKind] = useState<Kind>('expense')
   const [name, setName] = useState('')
   const [amount, setAmount] = useState<Cents>(ZERO)
@@ -154,30 +156,14 @@ export function TransactionModal({ open, onClose, onSave, saving, accounts, edit
         </div>
       )}
 
-      {accounts.length > 0 && (
-        <div>
-          <span className={styles.label}>Conta</span>
-          <div className={styles.chips}>
-            {accounts.map((a) => (
-              <button
-                key={a.id}
-                type="button"
-                className={accountId === a.id ? `${styles.chip} ${styles.chipActive}` : styles.chip}
-                onClick={() => setAccountId(a.id)}
-              >
-                {a.name}
-              </button>
-            ))}
-            <button
-              type="button"
-              className={accountId === null ? `${styles.chip} ${styles.chipActive}` : styles.chip}
-              onClick={() => setAccountId(null)}
-            >
-              Sem conta
-            </button>
-          </div>
-        </div>
-      )}
+      <AccountPicker
+        label="Conta"
+        accounts={accounts}
+        value={accountId}
+        onChange={setAccountId}
+        userId={userId}
+        allowNone
+      />
 
       {error && <p className={styles.error}>{error}</p>}
     </Modal>

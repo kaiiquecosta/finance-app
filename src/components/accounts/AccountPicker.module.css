@@ -1,0 +1,99 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.subLabel {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.accountChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px 6px 6px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  font-size: 12px;
+  font-weight: 700;
+  max-width: 100%;
+}
+.accountChipActive {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 40%, transparent);
+}
+.chipName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 140px;
+}
+.noneChip,
+.addChip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px dashed var(--border2);
+  background: var(--card2);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.noneChip:hover,
+.addChip:hover {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--primary) 35%, transparent);
+}
+.noneChipActive {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+}
+.addPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card2);
+}
+.typeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.typeChip {
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  font-size: 11px;
+  color: var(--muted);
+}
+.typeChipActive {
+  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+}
+.addActions {
+  display: flex;
+  gap: 8px;
+}
+.error {
+  font-size: 13px;
+  color: var(--red);
+  margin: 0;
+}

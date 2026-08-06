@@ -271,6 +271,7 @@ export function BillsPage() {
         open={payBill !== null}
         bill={payBill}
         accounts={data.bankAccounts}
+        userId={user?.id}
         saving={setPaid.isPending}
         onClose={() => setPayBill(null)}
         onConfirm={async (accountId) => {

@@ -113,6 +113,7 @@ export function InstallmentsPage() {
         installment={advancing}
         card={advancing ? cardFor(advancing) : null}
         accounts={data.bankAccounts}
+        userId={user?.id}
         saving={advance.isPending}
         onClose={() => setAdvancing(null)}
         onConfirm={async (plan, accountId, label) => {

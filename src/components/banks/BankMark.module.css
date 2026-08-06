@@ -1,0 +1,21 @@
+.mark {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 8px;
+  font-weight: 800;
+  line-height: 1;
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+}
+.sm {
+  width: 26px;
+  height: 26px;
+  font-size: 10px;
+  border-radius: 7px;
+}
+.md {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 6px;
+  font-size: 12px;
+}

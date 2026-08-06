@@ -5,19 +5,21 @@ import { MoneyField } from '@/components/ui/MoneyField'
 import { formatBRL, ZERO, type Cents } from '@/domain/money'
 import { calcInvestment, DEFAULT_RATES, type MarketRates } from '@/domain/calc/investment'
 import type { BankAccount, Investment } from '@/domain/entities'
+import { AccountPicker } from '@/components/accounts/AccountPicker'
 import styles from './RescueModal.module.css'
 
 interface Props {
   open: boolean
   investment: Investment | null
   accounts: BankAccount[]
+  userId: string | undefined
   rates?: MarketRates
   saving?: boolean
   onClose: () => void
   onConfirm: (input: { amount: Cents; accountId: number | null }) => Promise<void>
 }
 
-export function RescueModal({ open, investment, accounts, rates, saving, onClose, onConfirm }: Props) {
+export function RescueModal({ open, investment, accounts, userId, rates, saving, onClose, onConfirm }: Props) {
   const [amount, setAmount] = useState<Cents>(ZERO)
   const [accountId, setAccountId] = useState<number | null>(null)
   const [error, setError] = useState('')
@@ -80,30 +82,13 @@ export function RescueModal({ open, investment, accounts, rates, saving, onClose
         Resgatar tudo ({formatBRL(result.netAmount)})
       </Button>
 
-      {accounts.length > 0 && (
-        <div>
-          <span className={styles.label}>Para qual conta vai?</span>
-          <div className={styles.chips}>
-            {accounts.map((a) => (
-              <button
-                key={a.id}
-                type="button"
-                className={accountId === a.id ? `${styles.chip} ${styles.chipActive}` : styles.chip}
-                onClick={() => setAccountId(a.id)}
-              >
-                {a.name}
-              </button>
-            ))}
-            <button
-              type="button"
-              className={accountId === null ? `${styles.chip} ${styles.chipActive}` : styles.chip}
-              onClick={() => setAccountId(null)}
-            >
-              Sem conta
-            </button>
-          </div>
-        </div>
-      )}
+      <AccountPicker
+        label="Para qual conta vai?"
+        accounts={accounts}
+        value={accountId}
+        onChange={setAccountId}
+        userId={userId}
+      />
 
       {amount > 0 && amount < result.netAmount && (
         <p className={styles.hint}>

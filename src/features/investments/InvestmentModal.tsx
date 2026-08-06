@@ -7,6 +7,7 @@ import { ZERO, type Cents } from '@/domain/money'
 import { toISODate } from '@/domain/dates'
 import type { BankAccount, InvestmentType } from '@/domain/entities'
 import type { InvestmentDraft } from './useInvestmentMutations'
+import { AccountPicker } from '@/components/accounts/AccountPicker'
 import styles from './InvestmentModal.module.css'
 
 type ExtraField = 'pct' | 'spread' | 'yield' | null
@@ -39,9 +40,10 @@ interface Props {
   onSave: (draft: InvestmentDraft) => Promise<void>
   saving?: boolean
   accounts: BankAccount[]
+  userId: string | undefined
 }
 
-export function InvestmentModal({ open, onClose, onSave, saving, accounts }: Props) {
+export function InvestmentModal({ open, onClose, onSave, saving, accounts, userId }: Props) {
   const [typeId, setTypeId] = useState<InvestmentType>('cdb')
   const [name, setName] = useState('')
   const [bank, setBank] = useState('')
@@ -161,32 +163,13 @@ export function InvestmentModal({ open, onClose, onSave, saving, accounts }: Pro
         onChange={(e) => setDate(e.target.value)}
       />
 
-      {accounts.length > 0 && (
-        <div>
-          <span className={styles.label}>De qual conta saiu o dinheiro?</span>
-          <div className={styles.chips}>
-            {accounts.map((a) => (
-              <button
-                key={a.id}
-                type="button"
-                className={
-                  debitAccountId === a.id ? `${styles.chip} ${styles.chipActive}` : styles.chip
-                }
-                onClick={() => setDebitAccountId(a.id)}
-              >
-                {a.name}
-              </button>
-            ))}
-            <button
-              type="button"
-              className={debitAccountId === null ? `${styles.chip} ${styles.chipActive}` : styles.chip}
-              onClick={() => setDebitAccountId(null)}
-            >
-              Sem conta
-            </button>
-          </div>
-        </div>
-      )}
+      <AccountPicker
+        label="De qual conta saiu o dinheiro?"
+        accounts={accounts}
+        value={debitAccountId}
+        onChange={setDebitAccountId}
+        userId={userId}
+      />
 
       {error && <p className={styles.error}>{error}</p>}
     </Modal>

@@ -3,21 +3,12 @@ import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { TextField } from '@/components/ui/TextField'
 import { MoneyField } from '@/components/ui/MoneyField'
+import { BankPresetPicker } from '@/components/banks/BankPresetPicker'
+import { BRAZIL_BANK_PRESETS, type BankPreset } from '@/domain/banks'
 import { ZERO, type Cents } from '@/domain/money'
 import type { Card as CardEntity } from '@/domain/entities'
 import type { CardDraft } from './useCardMutations'
 import styles from './CardModal.module.css'
-
-const COLORS = [
-  { name: 'Nubank', color: '#8b5cf6' },
-  { name: 'Inter', color: '#f97316' },
-  { name: 'Itaú', color: '#f59e0b' },
-  { name: 'C6', color: '#334155' },
-  { name: 'Santander', color: '#dc2626' },
-  { name: 'XP', color: '#111827' },
-  { name: 'Bradesco', color: '#ef4444' },
-  { name: 'Azul', color: '#3b82f6' },
-]
 
 interface Props {
   open: boolean
@@ -30,11 +21,20 @@ interface Props {
 
 export function CardModal({ open, onClose, onSave, onDelete, saving, editing }: Props) {
   const [name, setName] = useState('')
-  const [color, setColor] = useState(COLORS[0].color)
+  const [presetId, setPresetId] = useState<string | null>(BRAZIL_BANK_PRESETS[0]?.id ?? null)
+  const [color, setColor] = useState(BRAZIL_BANK_PRESETS[0]?.color ?? '#8b5cf6')
   const [limit, setLimit] = useState<Cents>(ZERO)
   const [closeDay, setCloseDay] = useState('5')
   const [dueDay, setDueDay] = useState('12')
   const [error, setError] = useState('')
+
+  const pickPreset = (p: BankPreset) => {
+    setPresetId(p.id)
+    setColor(p.color)
+    if (!name.trim() || BRAZIL_BANK_PRESETS.some((b) => b.name === name.trim())) {
+      setName(p.name)
+    }
+  }
 
   useEffect(() => {
     if (!open) return
@@ -42,12 +42,15 @@ export function CardModal({ open, onClose, onSave, onDelete, saving, editing }: 
     if (editing) {
       setName(editing.name)
       setColor(editing.color)
+      setPresetId(null)
       setLimit(editing.limit)
       setCloseDay(String(editing.closeDay))
       setDueDay(String(editing.dueDay))
     } else {
+      const first = BRAZIL_BANK_PRESETS[0]
       setName('')
-      setColor(COLORS[0].color)
+      setPresetId(first?.id ?? null)
+      setColor(first?.color ?? '#8b5cf6')
       setLimit(ZERO)
       setCloseDay('5')
       setDueDay('12')
@@ -97,6 +100,8 @@ export function CardModal({ open, onClose, onSave, onDelete, saving, editing }: 
         </>
       }
     >
+      <BankPresetPicker selectedId={presetId} onSelect={pickPreset} />
+
       <TextField
         label="Nome do cartão"
         name="card-name"
@@ -105,26 +110,6 @@ export function CardModal({ open, onClose, onSave, onDelete, saving, editing }: 
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
-
-      <div>
-        <span className={styles.label}>Cor / banco</span>
-        <div className={styles.chips}>
-          {COLORS.map((c) => (
-            <button
-              key={c.name}
-              type="button"
-              className={color === c.color ? `${styles.chip} ${styles.chipActive}` : styles.chip}
-              onClick={() => {
-                setColor(c.color)
-                if (!name.trim()) setName(c.name)
-              }}
-            >
-              <span className={styles.dot} style={{ background: c.color }} />
-              {c.name}
-            </button>
-          ))}
-        </div>
-      </div>
 
       <MoneyField label="Limite total" value={limit} onChange={setLimit} />
 

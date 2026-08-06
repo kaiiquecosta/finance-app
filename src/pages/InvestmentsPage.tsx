@@ -235,6 +235,7 @@ export function InvestmentsPage() {
       <InvestmentModal
         open={modalOpen}
         accounts={data.bankAccounts}
+        userId={user?.id}
         saving={add.isPending}
         onClose={() => setModalOpen(false)}
         onSave={async (draft) => {
@@ -247,6 +248,7 @@ export function InvestmentsPage() {
         open={rescuing !== null}
         investment={rescuing}
         accounts={data.bankAccounts}
+        userId={user?.id}
         rates={marketRates}
         saving={rescue.isPending}
         onClose={() => setRescuing(null)}

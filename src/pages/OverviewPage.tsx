@@ -286,6 +286,7 @@ export function OverviewPage() {
         open={incomeOpen}
         editing={editingIncome}
         accounts={data.bankAccounts}
+        userId={user?.id}
         saving={incomeMutations.save.isPending || incomeMutations.remove.isPending}
         onClose={() => setIncomeOpen(false)}
         onSave={async (draft) => {
@@ -301,6 +302,7 @@ export function OverviewPage() {
       <TransactionModal
         open={quickExpenseOpen}
         accounts={data.bankAccounts}
+        userId={user?.id}
         saving={txMutations.save.isPending}
         onClose={() => setQuickExpenseOpen(false)}
         onSave={async (draft) => {

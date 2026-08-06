@@ -5,6 +5,7 @@ import { TextField } from '@/components/ui/TextField'
 import { MoneyField } from '@/components/ui/MoneyField'
 import { ZERO, type Cents } from '@/domain/money'
 import type { BankAccount, Income, IncomeFrequency } from '@/domain/entities'
+import { AccountPicker } from '@/components/accounts/AccountPicker'
 import styles from './IncomeModal.module.css'
 
 const FREQUENCIES: { id: IncomeFrequency; label: string }[] = [
@@ -27,6 +28,7 @@ interface Props {
   onDelete?: (id: number) => Promise<void>
   saving?: boolean
   accounts: BankAccount[]
+  userId: string | undefined
   editing?: Income | null
 }
 
@@ -37,6 +39,7 @@ export function IncomeModal({
   onDelete,
   saving,
   accounts,
+  userId,
   editing,
 }: Props) {
   const [name, setName] = useState('')
@@ -209,23 +212,14 @@ export function IncomeModal({
         </div>
       )}
 
-      {accounts.length > 0 && (
-        <div>
-          <span className={styles.label}>Para qual conta você recebe?</span>
-          <div className={styles.chips}>
-            {accounts.map((a) => (
-              <button
-                key={a.id}
-                type="button"
-                className={accountId === a.id ? `${styles.chip} ${styles.chipActive}` : styles.chip}
-                onClick={() => setAccountId(a.id)}
-              >
-                {a.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      <AccountPicker
+        label="Para qual conta você recebe?"
+        accounts={accounts}
+        value={accountId}
+        onChange={setAccountId}
+        userId={userId}
+        allowNone={false}
+      />
 
       <label className={styles.check}>
         <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} />

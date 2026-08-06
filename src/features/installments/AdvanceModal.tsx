@@ -6,6 +6,7 @@ import { parseISODate } from '@/domain/dates'
 import { MONTHS } from '@/domain/categories'
 import { planAdvance, type AdvancePlan, type DerivedInstallment } from '@/domain/calc/installments'
 import type { BankAccount, Card as CardEntity } from '@/domain/entities'
+import { AccountPicker } from '@/components/accounts/AccountPicker'
 import styles from './AdvanceModal.module.css'
 
 interface Props {
@@ -13,12 +14,13 @@ interface Props {
   installment: DerivedInstallment | null
   card: CardEntity | null
   accounts: BankAccount[]
+  userId: string | undefined
   saving?: boolean
   onClose: () => void
   onConfirm: (plan: AdvancePlan, accountId: number | null, label: string) => Promise<void>
 }
 
-export function AdvanceModal({ open, installment, card, accounts, saving, onClose, onConfirm }: Props) {
+export function AdvanceModal({ open, installment, card, accounts, userId, saving, onClose, onConfirm }: Props) {
   const [qty, setQty] = useState(1)
   const [accountId, setAccountId] = useState<number | null>(null)
   const [error, setError] = useState('')
@@ -107,30 +109,13 @@ export function AdvanceModal({ open, installment, card, accounts, saving, onClos
             agora.
           </p>
 
-          {accounts.length > 0 && (
-            <div>
-              <span className={styles.label}>De qual conta sai?</span>
-              <div className={styles.chips}>
-                {accounts.map((a) => (
-                  <button
-                    key={a.id}
-                    type="button"
-                    className={accountId === a.id ? `${styles.chip} ${styles.chipActive}` : styles.chip}
-                    onClick={() => setAccountId(a.id)}
-                  >
-                    {a.name}
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  className={accountId === null ? `${styles.chip} ${styles.chipActive}` : styles.chip}
-                  onClick={() => setAccountId(null)}
-                >
-                  Sem conta
-                </button>
-              </div>
-            </div>
-          )}
+          <AccountPicker
+            label="De qual conta sai?"
+            accounts={accounts}
+            value={accountId}
+            onChange={setAccountId}
+            userId={userId}
+          />
         </>
       )}
 
