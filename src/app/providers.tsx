@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { SessionProvider } from '@/app/SessionProvider'
+import { ToastHost } from '@/components/ui/ToastHost'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,7 +18,10 @@ export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          {children}
+          <ToastHost />
+        </SessionProvider>
       </BrowserRouter>
     </QueryClientProvider>
   )

@@ -1,39 +1,49 @@
+/* Portado de legacy/index.html (.reminder-popup) — centralizado na tela. */
 .wrap {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
-  z-index: 900;
-  max-width: 340px;
-  width: calc(100% - 40px);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 998;
+  min-width: min(400px, calc(100vw - 32px));
+  max-width: 400px;
+  width: calc(100vw - 32px);
+  pointer-events: none;
 }
 
 .card {
-  background: var(--card);
-  border: 1px solid var(--border2);
-  border-left: 3px solid var(--muted);
-  border-radius: 14px;
-  padding: 14px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
-  animation: rise 0.2s ease;
+  pointer-events: all;
+  background: color-mix(in srgb, var(--card) 97%, transparent);
+  backdrop-filter: blur(24px);
+  border-radius: 16px;
+  padding: 14px 14px 10px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  animation: remIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
 }
-@keyframes rise {
+
+@keyframes remIn {
   from {
-    transform: translateY(8px);
     opacity: 0;
+    transform: translateY(-14px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
 .urgent {
-  border-left-color: var(--red);
+  border-color: color-mix(in srgb, var(--red) 40%, transparent);
 }
 .warn {
-  border-left-color: var(--amber);
+  border-color: color-mix(in srgb, var(--amber) 35%, transparent);
 }
 .income {
-  border-left-color: var(--green);
+  border-color: color-mix(in srgb, var(--green) 35%, transparent);
 }
 .normal {
-  border-left-color: var(--purple);
+  border-color: color-mix(in srgb, var(--text) 10%, transparent);
 }
 
 .top {
@@ -42,86 +52,96 @@
   gap: 10px;
 }
 .icon {
-  font-size: 20px;
+  font-size: 26px;
+  line-height: 1;
   flex-shrink: 0;
+  margin-top: 1px;
 }
-.text {
+.body {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
   min-width: 0;
 }
+.label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
 .title {
-  font-size: 13px;
-  font-weight: 600;
   color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.sub {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 3px;
   line-height: 1.4;
 }
-.amount {
-  font-family: var(--num);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text);
-}
 .close {
-  width: 22px;
-  height: 22px;
-  display: grid;
-  place-items: center;
-  border-radius: 6px;
-  font-size: 11px;
+  background: none;
+  border: none;
   color: var(--muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
   flex-shrink: 0;
+  padding: 0;
 }
 .close:hover {
-  background: color-mix(in srgb, var(--text) 8%, transparent);
   color: var(--text);
 }
 
-.actions {
+.footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 10px;
-}
-.nav {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.nav button {
-  width: 22px;
-  height: 22px;
-  display: grid;
-  place-items: center;
-  border-radius: 6px;
-  color: var(--muted);
-  font-size: 14px;
-}
-.nav button:hover {
-  background: color-mix(in srgb, var(--text) 8%, transparent);
-  color: var(--text);
-}
-.count {
-  font-size: 11px;
-  color: var(--muted);
-}
-.cta {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--green);
-}
-.cta:hover {
-  text-decoration: underline;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--hairline, var(--border));
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-@media (max-width: 640px) {
-  .wrap {
-    right: 12px;
-    left: 12px;
-    bottom: 76px; /* acima da bottom nav */
-    width: auto;
-    max-width: none;
-  }
+.action {
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font);
+  padding: 0;
+}
+.action:hover {
+  opacity: 0.75;
+}
+.actionMuted {
+  color: var(--muted);
+}
+
+.dots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--text) 15%, transparent);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.dotActive {
+  background: var(--text);
+  width: 16px;
+  border-radius: 3px;
+}
+
+.counter {
+  font-size: 11px;
+  color: var(--muted);
 }

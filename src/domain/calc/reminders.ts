@@ -8,8 +8,8 @@
  * entidade `Goal` usando `deadline`, aqui ele funciona.
  */
 import { daysBetween, toISODate } from '@/domain/dates'
+import { formatBRL, max, sub, ZERO, type Cents } from '@/domain/money'
 import { monthKey, receiptKey } from './income'
-import type { Cents } from '@/domain/money'
 import type { FixedBill, Goal, Income, Subscription } from '@/domain/entities'
 import type { DerivedInstallment } from './installments'
 
@@ -22,6 +22,12 @@ export interface Reminder {
   urgency: ReminderUrgency
   daysUntil: number
   title: string
+  /** Linha secundária (valor · dia), como no legado. */
+  subtitle?: string
+  /** Rótulo superior colorido (ex.: "💰 Receber hoje"). */
+  label?: string
+  labelColor?: string
+  icon?: string
   amount?: Cents | null
   refId: string | number
 }
@@ -52,12 +58,20 @@ export function computeReminders(state: ReminderState, asOf: Date): Reminder[] {
     if (bill.paid) continue
     const diff = bill.dueDay - todayDay
     if (diff < 0 || diff > 5) continue
+    const when = whenLabel(diff)
+    const label =
+      diff === 0 ? '⚠️ Vence hoje' : diff === 1 ? '📅 Amanhã' : `📅 ${diff} dias`
+    const lColor = diff === 0 ? '#f87171' : diff === 1 ? '#f59e0b' : '#94a3b8'
     out.push({
       id: `bill-${bill.id}-${todayStr}`,
       kind: 'bill',
       urgency: diff === 0 ? 'urgent' : diff === 1 ? 'warn' : 'normal',
       daysUntil: diff,
-      title: `${bill.name} vence ${whenLabel(diff)}`,
+      title: `${bill.name} vence ${when}`,
+      subtitle: `${formatBRL(bill.amt)} · Dia ${bill.dueDay}`,
+      label,
+      labelColor: lColor,
+      icon: bill.icon,
       amount: bill.amt,
       refId: bill.id,
     })
@@ -67,12 +81,17 @@ export function computeReminders(state: ReminderState, asOf: Date): Reminder[] {
   for (const sub of state.subscriptions) {
     const diff = sub.day - todayDay
     if (diff < 0 || diff > 2) continue
+    const when = whenLabel(diff)
     out.push({
       id: `sub-${sub.id}-${todayStr}`,
       kind: 'subscription',
       urgency: diff === 0 ? 'urgent' : 'warn',
       daysUntil: diff,
-      title: `${sub.name} cobra ${whenLabel(diff)}`,
+      title: `${sub.name} cobra ${when}`,
+      subtitle: `${formatBRL(sub.amt)}/mês · Dia ${sub.day}`,
+      label: diff === 0 ? '💳 Cobra hoje' : '📅 Amanhã',
+      labelColor: diff === 0 ? '#f87171' : '#f59e0b',
+      icon: sub.icon || '🔁',
       amount: sub.amt,
       refId: sub.id,
     })
@@ -84,12 +103,17 @@ export function computeReminders(state: ReminderState, asOf: Date): Reminder[] {
       const diff = d - todayDay
       if (diff < 0 || diff > 2) continue
       if (inc.received.includes(receiptKey(mk, d))) continue
+      const when = diff === 0 ? 'hoje' : 'amanhã'
       out.push({
         id: `income-${inc.id}-${d}-${todayStr}`,
         kind: 'income',
         urgency: 'income',
         daysUntil: diff,
-        title: `${inc.name} — ${diff === 0 ? 'dia de receber' : 'chega ' + whenLabel(diff)}`,
+        title: `${inc.name} — ${diff === 0 ? 'dia de receber' : 'chega ' + when}`,
+        subtitle: `${formatBRL(inc.amt)} previsto · Dia ${d}`,
+        label: diff === 0 ? '💰 Receber hoje' : '💰 Amanhã',
+        labelColor: '#22c55e',
+        icon: inc.icon || '💰',
         amount: inc.amt,
         refId: inc.id,
       })
@@ -105,6 +129,10 @@ export function computeReminders(state: ReminderState, asOf: Date): Reminder[] {
         urgency: 'normal',
         daysUntil: 0,
         title: `Última parcela de "${inst.name}"`,
+        subtitle: `${formatBRL(inst.parcelAmount)} · Já pagou ${inst.paid}/${inst.parcels}`,
+        label: '🏁 Última parcela',
+        labelColor: '#a78bfa',
+        icon: inst.icon || '🏁',
         amount: inst.parcelAmount,
         refId: inst.id,
       })
@@ -122,6 +150,10 @@ export function computeReminders(state: ReminderState, asOf: Date): Reminder[] {
       urgency: daysLeft <= 1 ? 'urgent' : 'warn',
       daysUntil: daysLeft,
       title: `Meta "${goal.name}" ${daysLeft === 0 ? 'vence hoje' : 'em ' + daysLeft + ' dias'}`,
+      subtitle: `Faltam ${formatBRL(max(ZERO, sub(goal.target, goal.saved)))} para o alvo`,
+      label: daysLeft <= 1 ? '⚠️ Prazo crítico' : '📅 Prazo chegando',
+      labelColor: daysLeft <= 1 ? '#f87171' : '#f59e0b',
+      icon: goal.icon || '🎯',
       amount: null,
       refId: goal.id,
     })

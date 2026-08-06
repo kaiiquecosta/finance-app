@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
-import { formatBRL } from '@/domain/money'
 import type { Reminder, ReminderKind, ReminderUrgency } from '@/domain/calc/reminders'
 import styles from './ReminderPopup.module.css'
 
@@ -20,7 +20,14 @@ const KIND_ROUTE: Record<ReminderKind, string> = {
   goal: '/app/metas',
 }
 
-const URGENCY_STYLE: Record<ReminderUrgency, string> = {
+const CTA_COLOR: Record<ReminderUrgency, string> = {
+  urgent: '#f87171',
+  warn: '#f59e0b',
+  normal: '#a78bfa',
+  income: '#22c55e',
+}
+
+const URGENCY_CLASS: Record<ReminderUrgency, string> = {
   urgent: styles.urgent,
   warn: styles.warn,
   normal: styles.normal,
@@ -32,56 +39,119 @@ interface Props {
   onDismiss: (id: string) => void
 }
 
-/** Fila de lembretes (contas, assinaturas, rendas, parcelas, metas) um a um. */
+/** Fila de lembretes — popup centralizado (legado), um por vez. */
 export function ReminderPopup({ reminders, onDismiss }: Props) {
   const [index, setIndex] = useState(0)
   const navigate = useNavigate()
 
+  useEffect(() => {
+    setIndex(0)
+  }, [reminders.length])
+
+  useEffect(() => {
+    if (reminders.length !== 1) return
+    const t = window.setTimeout(() => onDismiss(reminders[0].id), 10_000)
+    return () => window.clearTimeout(t)
+  }, [reminders, onDismiss])
+
   if (reminders.length === 0) return null
+
   const safeIndex = Math.min(index, reminders.length - 1)
   const reminder = reminders[safeIndex]
+  const ctaColor = reminder.labelColor ?? CTA_COLOR[reminder.urgency]
 
-  const next = () => setIndex((i) => (i + 1) % reminders.length)
-  const prev = () => setIndex((i) => (i - 1 + reminders.length) % reminders.length)
+  const goNext = () => {
+    if (safeIndex < reminders.length - 1) setIndex(safeIndex + 1)
+    else onDismiss(reminder.id)
+  }
 
-  return (
-    <div className={styles.wrap}>
-      <div className={`${styles.card} ${URGENCY_STYLE[reminder.urgency]}`}>
+  const goPrev = () => {
+    if (safeIndex > 0) setIndex(safeIndex - 1)
+  }
+
+  const dismissAndNext = () => {
+    onDismiss(reminder.id)
+    setIndex((i) => Math.min(i, Math.max(0, reminders.length - 2)))
+  }
+
+  const node = (
+    <div className={styles.wrap} role="dialog" aria-live="polite">
+      <div className={`${styles.card} ${URGENCY_CLASS[reminder.urgency]}`}>
         <div className={styles.top}>
-          <span className={styles.icon}>{KIND_ICON[reminder.kind]}</span>
-          <div className={styles.text}>
-            <span className={styles.title}>{reminder.title}</span>
-            {reminder.amount != null && (
-              <span className={styles.amount}>{formatBRL(reminder.amount)}</span>
+          <div className={styles.icon}>{reminder.icon ?? KIND_ICON[reminder.kind]}</div>
+          <div className={styles.body}>
+            {reminder.label && (
+              <div className={styles.label} style={{ color: reminder.labelColor ?? ctaColor }}>
+                {reminder.label}
+              </div>
             )}
+            <div className={styles.title}>{reminder.title}</div>
+            {reminder.subtitle && <div className={styles.sub}>{reminder.subtitle}</div>}
           </div>
           <button
+            type="button"
             className={styles.close}
-            onClick={() => onDismiss(reminder.id)}
+            onClick={dismissAndNext}
             aria-label="Dispensar"
           >
-            ✕
+            ×
           </button>
         </div>
-        <div className={styles.actions}>
-          {reminders.length > 1 && (
-            <div className={styles.nav}>
-              <button onClick={prev} aria-label="Anterior">
-                ‹
+        <div className={styles.footer}>
+          {reminders.length > 1 ? (
+            <>
+              {safeIndex > 0 ? (
+                <button type="button" className={`${styles.action} ${styles.actionMuted}`} onClick={goPrev}>
+                  ← Anterior
+                </button>
+              ) : (
+                <span />
+              )}
+              <div className={styles.dots}>
+                {reminders.map((r, i) => (
+                  <button
+                    key={r.id}
+                    type="button"
+                    className={`${styles.dot} ${i === safeIndex ? styles.dotActive : ''}`}
+                    onClick={() => setIndex(i)}
+                    aria-label={`Lembrete ${i + 1}`}
+                  />
+                ))}
+              </div>
+              {safeIndex < reminders.length - 1 ? (
+                <button type="button" className={`${styles.action} ${styles.actionMuted}`} onClick={goNext}>
+                  Próximo →
+                </button>
+              ) : (
+                <button type="button" className={`${styles.action} ${styles.actionMuted}`} onClick={dismissAndNext}>
+                  Fechar
+                </button>
+              )}
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                className={styles.action}
+                style={{ color: ctaColor }}
+                onClick={() => navigate(KIND_ROUTE[reminder.kind])}
+              >
+                Ver →
               </button>
-              <span className={styles.count}>
-                {safeIndex + 1}/{reminders.length}
-              </span>
-              <button onClick={next} aria-label="Próximo">
-                ›
+              <button type="button" className={`${styles.action} ${styles.actionMuted}`} onClick={dismissAndNext}>
+                Fechar
               </button>
-            </div>
+            </>
           )}
-          <button className={styles.cta} onClick={() => navigate(KIND_ROUTE[reminder.kind])}>
-            Ver →
-          </button>
         </div>
+        {reminders.length > 1 && (
+          <div className={styles.counter} style={{ marginTop: 8, textAlign: 'center' }}>
+            {safeIndex + 1} de {reminders.length}
+          </div>
+        )}
       </div>
     </div>
   )
+
+  return createPortal(node, document.body)
 }

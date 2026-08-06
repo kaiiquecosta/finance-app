@@ -6,6 +6,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { deleteRow, upsertRows } from '@/data/api'
 import { toTransactionRow } from '@/data/mappers'
 import { queryKeys } from '@/data/queryKeys'
+import { iconFor } from '@/domain/categories'
+import { showTransactionToast, showSaveToast } from '@/lib/toast'
 import type { Transaction } from '@/domain/entities'
 
 export type TransactionDraft = Omit<Transaction, 'id'> & { id?: number }
@@ -27,14 +29,20 @@ export function useTransactionMutations(userId: string | undefined) {
       const tx: Transaction = { ...draft, id: draft.id ?? newId() }
       await upsertRows('transactions', [toTransactionRow(tx, userId)])
     },
-    onSuccess: invalidate,
+    onSuccess: (_void, draft) => {
+      invalidate()
+      showTransactionToast(draft.name, draft.amt, iconFor(draft.cat))
+    },
   })
 
   const remove = useMutation({
     mutationFn: async (id: number) => {
       await deleteRow('transactions', id)
     },
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate()
+      showSaveToast('Transação removida', 'var(--muted)', undefined, '🗑️')
+    },
   })
 
   return { save, remove }

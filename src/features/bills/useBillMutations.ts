@@ -11,6 +11,7 @@ import { queryKeys } from '@/data/queryKeys'
 import { neg } from '@/domain/money'
 import { toISODate } from '@/domain/dates'
 import { iconFor } from '@/domain/categories'
+import { showSaveToast } from '@/lib/toast'
 import type { FixedBill, Transaction } from '@/domain/entities'
 
 export interface SetPaidInput {
@@ -32,14 +33,20 @@ export function useBillMutations(userId: string | undefined) {
       const bill: FixedBill = { ...draft, id: draft.id ?? newId() }
       await upsertRows('fixed_bills', [toFixedBillRow(bill, userId)])
     },
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate()
+      showSaveToast('Conta fixa salva', 'var(--green)', 'Salvo', '💾')
+    },
   })
 
   const remove = useMutation({
     mutationFn: async (id: number) => {
       await deleteRow('fixed_bills', id)
     },
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate()
+      showSaveToast('Conta removida', 'var(--muted)', undefined, '🗑️')
+    },
   })
 
   const setPaid = useMutation({
@@ -67,7 +74,15 @@ export function useBillMutations(userId: string | undefined) {
         if (existingTxId != null) await deleteRow('transactions', existingTxId)
       }
     },
-    onSuccess: invalidate,
+    onSuccess: (_void, { paid, bill }) => {
+      invalidate()
+      showSaveToast(
+        paid ? `${bill.name} marcada como paga` : 'Pagamento desfeito',
+        paid ? 'var(--green)' : 'var(--amber)',
+        paid ? '✓ Pago' : 'Desfeito',
+        paid ? '✓' : '↩',
+      )
+    },
   })
 
   return { save, remove, setPaid }
