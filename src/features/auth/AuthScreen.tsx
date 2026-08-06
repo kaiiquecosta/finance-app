@@ -243,6 +243,20 @@ export function AuthScreen({ initialStep = 'login' }: { initialStep?: Step }) {
               <p className={styles.subtitle}>
                 Enviamos um código de 6 dígitos para <b>{email}</b>. Ele vale por pouco tempo.
               </p>
+              <p className={styles.info}>
+                Se o e-mail só trouxe um link &quot;Log In&quot; e não números, o template{' '}
+                <strong>Magic Link</strong> no Supabase precisa incluir <code>{'{{ .Token }}'}</code>{' '}
+                (veja <code>docs/AUTH.md</code> ou{' '}
+                <code>supabase/email-templates/magic-link.html</code>).
+              </p>
+              {import.meta.env.DEV && (
+                <p className={styles.info}>
+                  Desenvolvendo em <b>{window.location.origin}</b>: digite o código nesta aba para
+                  continuar no localhost. Clicar no link do e-mail pode abrir o site publicado na
+                  Vercel — libere <code>{window.location.origin}/**</code> em Redirect URLs no
+                  Supabase se quiser que o link também volte aqui.
+                </p>
+              )}
               <TextField
                 label="Código"
                 name="one-time-code"

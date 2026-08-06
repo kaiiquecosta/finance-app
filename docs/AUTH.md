@@ -7,15 +7,21 @@ existindo, mas atrás de um link discreto ("Entrar com senha").
 ## ⚠️ Passo obrigatório no painel do Supabase
 
 **Sem isto o fluxo não funciona.** Por padrão, `supabase.auth.signInWithOtp({ email })` envia um
-**link mágico**, não um código. A pessoa recebe um link e não tem nada para digitar na tela.
+**link mágico** (assunto em inglês “Your Magic Link”, botão “Log In”), **não** o código de 6
+dígitos. A tela do app pede para **digitar** o código — se o e-mail só traz link, a experiência
+quebra.
 
 Para o e-mail trazer o código:
 
 1. Supabase → **Authentication** → **Emails** (ou _Email Templates_)
 2. Abra o template **Magic Link**
-3. Inclua `{{ .Token }}` no corpo — é a variável que renderiza os 6 dígitos
+3. **Substitua** o corpo pelo arquivo pronto no repositório:
+   [`supabase/email-templates/magic-link.html`](../supabase/email-templates/magic-link.html)
+   (copie e cole no painel)
+4. Ajuste o **assunto** para algo como: `Seu código de acesso ao Flux`
+5. Confirme que o corpo inclui `{{ .Token }}` — é a variável que renderiza os 6 dígitos
 
-Exemplo de corpo:
+Exemplo mínimo (se preferir editar manualmente):
 
 ```html
 <h2>Seu código de acesso ao Flux</h2>
@@ -27,6 +33,26 @@ Exemplo de corpo:
 > Dá para manter o link (`{{ .ConfirmationURL }}`) junto do código no mesmo e-mail. Os dois
 > funcionam. Mas no app **nativo** o link tende a confundir: o código digitado dentro do app não
 > precisa de ida e volta pelo navegador, então o mais previsível é enviar só o código.
+
+## ⚠️ Desenvolvimento no localhost vs site na Vercel
+
+O app **não** redireciona sozinho para a Vercel depois do login. O que acontece na prática:
+
+| Como você entra | Onde você cai |
+| ----------------- | ---------------- |
+| **Digita o código** na mesma aba do `localhost` | Continua no **localhost** — é assim que você vê alterações locais |
+| **Clica no link** do e-mail | Vai para a URL de retorno configurada no Supabase — muitas vezes a **Site URL** de produção (`*.vercel.app`) se o localhost não estiver liberado |
+
+Para testar mudanças locais:
+
+1. Peça o código com o app em `http://localhost:5173` (ou a porta do Vite).
+2. **Digite os 6 dígitos** na tela “Digite o código” — **não** use o link do e-mail enquanto estiver desenvolvendo.
+3. No Supabase → **Authentication** → **URL Configuration**:
+   - **Site URL**: URL de produção (ex.: `https://finance-app-one-weld.vercel.app`)
+   - **Redirect URLs**: inclua **também** `http://localhost:5173/**` (e outras portas se usar)
+
+Sem o localhost na lista de Redirect URLs, o link do e-mail abre o site publicado — por isso parece
+que “depois de logar vai para a Vercel”, mesmo tendo começado no localhost.
 
 ## ⚠️ SMTP: o padrão do Supabase não serve para produção
 

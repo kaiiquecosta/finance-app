@@ -1,0 +1,13 @@
+<h2>Seu código de acesso ao Flux</h2>
+<p>Use este código de 6 dígitos na tela do app (campo &quot;Código&quot;):</p>
+<p style="font-size: 32px; font-weight: 800; letter-spacing: 8px; font-family: ui-monospace, monospace; margin: 16px 0">
+  {{ .Token }}
+</p>
+<p style="color: #64748b; font-size: 13px">
+  O código expira em poucos minutos. Se você não pediu este e-mail, pode ignorar.
+</p>
+<!-- Opcional: link alternativo (evite depender só dele no app — prefira digitar o código). -->
+<p style="color: #64748b; font-size: 12px; margin-top: 24px">
+  Ou entre por link:
+  <a href="{{ .ConfirmationURL }}">Confirmar e-mail</a>
+</p>
