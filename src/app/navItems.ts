@@ -15,4 +15,5 @@ export const NAV_ITEMS: NavItem[] = [
   { to: '/app/contas', label: 'Contas', icon: '🏠' },
   { to: '/app/metas', label: 'Metas', icon: '🎯' },
   { to: '/app/investimentos', label: 'Investimentos', icon: '📈' },
+  { to: '/app/comunidade', label: 'Comunidade', icon: '💬' },
 ]
