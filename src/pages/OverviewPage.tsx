@@ -238,18 +238,7 @@ export function OverviewPage() {
         <UpcomingBills bills={data.fixedBills} asOf={now} onAdd={() => navigate('/app/contas')} />
       </Card>
 
-      <div className="grid2" style={{ marginTop: 16, marginBottom: 16 }}>
-        <AnnualView
-          year={year}
-          txs={data.transactions}
-          cards={data.cards}
-          subscriptions={data.subscriptions}
-          currentMonth={month}
-        />
-        <InvestPotential year={year} txs={data.transactions} fixedBills={data.fixedBills} />
-      </div>
-
-      <div className="grid2" style={{ marginBottom: 16 }}>
+      <div className="grid2" style={{ marginTop: 16, marginBottom: 16 }} data-testid="overview-goals-investments">
         <OverviewGoalsSnapshot
           goals={data.goals}
           onSeeAll={() => navigate('/app/metas')}
@@ -261,6 +250,17 @@ export function OverviewPage() {
           onSeeAll={() => navigate('/app/investimentos')}
           onAdd={() => navigate('/app/investimentos')}
         />
+      </div>
+
+      <div className="grid2" style={{ marginBottom: 16 }} data-testid="overview-annual-potential">
+        <AnnualView
+          year={year}
+          txs={data.transactions}
+          cards={data.cards}
+          subscriptions={data.subscriptions}
+          currentMonth={month}
+        />
+        <InvestPotential year={year} txs={data.transactions} fixedBills={data.fixedBills} />
       </div>
 
       <BankAccountsModal

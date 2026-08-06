@@ -196,6 +196,7 @@ export function InvestorHub({ onOpenMarket }: Props) {
     setCategoryId(id)
     setSectorTag(null)
     setListSort('change_desc')
+    setSearch('')
   }
 
   const runTool = (action: 'favorites' | 'market' | 'focus_search') => {
@@ -231,6 +232,7 @@ export function InvestorHub({ onOpenMarket }: Props) {
             <button
               key={c.id}
               type="button"
+              data-testid={`investor-category-${c.id}`}
               className={[styles.catBtn, categoryId === c.id ? styles.catBtnActive : ''].filter(Boolean).join(' ')}
               onClick={() => onCategoryChange(c.id)}
             >
@@ -355,6 +357,7 @@ export function InvestorHub({ onOpenMarket }: Props) {
                   <span className={styles.searchIcon}>🔍</span>
                   <input
                     ref={searchRef}
+                    data-testid="investor-search-input"
                     className={styles.searchInput}
                     placeholder="Buscar ativo (ex.: AAPL, PETR4, MXRF11…)"
                     value={search}

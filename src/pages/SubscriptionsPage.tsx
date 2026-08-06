@@ -33,6 +33,8 @@ export function SubscriptionsPage() {
   const count = data.subscriptions.length
   const avg = count > 0 ? cents(Math.round(monthly / count)) : ZERO
   const subs = [...data.subscriptions].sort((a, b) => a.day - b.day)
+  const cardName = (id: number | null | undefined) =>
+    id != null ? data.cards.find((c) => c.id === id)?.name : null
 
   const openNew = () => {
     setEditing(null)
@@ -104,7 +106,10 @@ export function SubscriptionsPage() {
                 </div>
                 <div className="tx-info">
                   <div className="tx-name sub-name">{s.name}</div>
-                  <div className="tx-meta">Todo dia {s.day}</div>
+                  <div className="tx-meta">
+                    Todo dia {s.day}
+                    {cardName(s.cardId) ? ` · 💳 ${cardName(s.cardId)}` : ''}
+                  </div>
                 </div>
                 <div className="tx-amt">{formatBRL(s.amt)}/mês</div>
               </button>

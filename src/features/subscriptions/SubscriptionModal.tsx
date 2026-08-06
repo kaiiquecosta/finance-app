@@ -146,10 +146,33 @@ export function SubscriptionModal({ open, onClose, onSave, onDelete, saving, car
         onChange={(e) => setDay(e.target.value.replace(/\D/g, '').slice(0, 2))}
       />
 
-      {cards.length > 0 && (
+      {cards.length === 0 ? (
+        <p className={styles.hintCard}>
+          Cadastre um cartão em <b>Cartões</b> para vincular a cobrança a um cartão específico.
+        </p>
+      ) : (
         <div>
-          <span className={styles.label}>Cartão (opcional)</span>
-          <div className={styles.chips}>
+          <label className={styles.label} htmlFor="sub-card-select">
+            Cartão de crédito (opcional)
+          </label>
+          <select
+            id="sub-card-select"
+            data-testid="subscription-card-select"
+            className={styles.select}
+            value={cardId ?? ''}
+            onChange={(e) => {
+              const v = e.target.value
+              setCardId(v === '' ? null : Number(v))
+            }}
+          >
+            <option value="">Sem cartão / débito em conta</option>
+            {cards.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          <div className={styles.chips} aria-hidden>
             {cards.map((c) => (
               <button
                 key={c.id}
