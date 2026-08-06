@@ -79,7 +79,16 @@ export function AppShell() {
                   isActive ? `${styles.tab} ${styles.tabActive}` : styles.tab
                 }
               >
-                <span aria-hidden>{n.icon}</span>
+                <span
+                  className={
+                    n.to === '/app/cartoes'
+                      ? `${styles.tabIcon} ${styles.tabIconCartoes}`
+                      : styles.tabIcon
+                  }
+                  aria-hidden
+                >
+                  {n.icon}
+                </span>
                 {n.label}
               </NavLink>
             ))}
@@ -124,7 +133,14 @@ export function AppShell() {
               isActive ? `${styles.mtab} ${styles.mtabActive}` : styles.mtab
             }
           >
-            <span className={styles.micon} aria-hidden>
+            <span
+              className={
+                n.to === '/app/cartoes'
+                  ? `${styles.micon} ${styles.miconCartoes}`
+                  : styles.micon
+              }
+              aria-hidden
+            >
               {n.icon}
             </span>
             <span className={styles.mlabel}>{n.label}</span>
