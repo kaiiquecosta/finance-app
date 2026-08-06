@@ -532,14 +532,18 @@
   gap: 8px;
   align-items: center;
   width: 100%;
-  padding: 6px 4px;
+  padding: 9px 4px;
   border: none;
-  border-radius: 8px;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
   background: none;
   cursor: pointer;
   font-family: var(--font);
   font-size: 12px;
   text-align: left;
+}
+.popRow:last-child {
+  border-bottom: none;
 }
 .popRow:hover {
   background: color-mix(in srgb, var(--text) 5%, transparent);
