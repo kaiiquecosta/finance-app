@@ -11,6 +11,7 @@ export interface ProfileRow {
   avatar_url: string | null
   color: string | null
   emoji: string | null
+  is_admin?: boolean | null
   created_at?: string
 }
 
