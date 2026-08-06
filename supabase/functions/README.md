@@ -7,11 +7,22 @@ O cliente nunca escreve na tabela `plans` — quem concede o Pro é o `stripe-we
 ```
 functions/
 ├─ _shared/cors.ts        # headers CORS + helper json()
+├─ _shared/pluggyClient.ts # cliente HTTP Pluggy (Edge only)
 ├─ stripe-checkout/       # cria a sessão de Checkout (assinar)
 ├─ stripe-webhook/        # recebe eventos do Stripe e atualiza `plans`
 ├─ stripe-portal/         # abre o Billing Portal (gerenciar/cancelar)
-└─ delete-account/        # LGPD: cancela assinatura + apaga o usuário
-                           # (cascade remove todos os dados)
+├─ delete-account/        # LGPD: cancela assinatura + apaga o usuário
+├─ pluggy-register-item/  # registra Item ID (Meu Pluggy / Connect)
+├─ pluggy-sync/           # contas + transações → Postgres
+└─ pluggy-connect-token/  # token do widget Connect (Fase 2)
+```
+
+Open Finance: ver **`docs/PLUGGY.md`**. Segredos:
+
+```bash
+supabase secrets set PLUGGY_CLIENT_ID=...
+supabase secrets set PLUGGY_CLIENT_SECRET=...
+supabase functions deploy pluggy-register-item pluggy-sync pluggy-connect-token
 ```
 
 ## 1. Pré-requisitos no Stripe (dashboard.stripe.com)

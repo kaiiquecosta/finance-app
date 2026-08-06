@@ -34,7 +34,7 @@ supabase/
 └─ functions/   Edge Functions (stripe-checkout, stripe-webhook, stripe-portal, market-data)
 
 e2e/            Testes Playwright
-docs/           Documentação
+docs/           Documentação (incl. PLUGGY.md — Open Finance)
 legacy/         Monólito original (referência de paridade — removido ao final)
 ```
 
