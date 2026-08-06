@@ -118,7 +118,7 @@ export function InvestmentsPage() {
         ))}
       </div>
 
-      {view === 'investor' && <InvestorHub />}
+      {view === 'investor' && <InvestorHub onOpenMarket={() => setView('market')} />}
 
       {view === 'market' && <MarketSection />}
 
