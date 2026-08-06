@@ -7,12 +7,16 @@ import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { HeaderActionButton } from '@/components/legacy/HeaderActionButton'
 import { MarketSection } from '@/features/investments/MarketSection'
+import { InvestorHub } from '@/features/investments/InvestorHub'
 import { InvestmentModal } from '@/features/investments/InvestmentModal'
 import { RescueModal } from '@/features/investments/RescueModal'
 import { useInvestmentMutations } from '@/features/investments/useInvestmentMutations'
 import { formatBRL, sub, sum, ZERO, add as addMoney, type Cents } from '@/domain/money'
 import { DEFAULT_RATES, calcInvestment } from '@/domain/calc/investment'
 import type { Investment, InvestmentType } from '@/domain/entities'
+import styles from './InvestmentsPage.module.css'
+
+type InvView = 'wallet' | 'investor' | 'market'
 
 const TYPE_LABELS: Record<InvestmentType, string> = {
   cdb: 'CDB',
@@ -36,6 +40,7 @@ export function InvestmentsPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<Investment | null>(null)
   const [rescuing, setRescuing] = useState<Investment | null>(null)
+  const [view, setView] = useState<InvView>('wallet')
 
   const now = useMemo(() => new Date(), [])
   const marketRates = rates.data ? { cdi: rates.data.cdi, ipca: rates.data.ipca } : DEFAULT_RATES
@@ -92,6 +97,33 @@ export function InvestmentsPage() {
         action={<HeaderActionButton onClick={() => setModalOpen(true)}>＋ Adicionar</HeaderActionButton>}
       />
 
+      <div className={styles.viewTabs} role="tablist" aria-label="Seções de investimentos">
+        {(
+          [
+            ['wallet', '💼 Minha carteira'],
+            ['investor', '📈 Investidor'],
+            ['market', '🌐 Mercado ao vivo'],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={view === id}
+            className={[styles.viewTab, view === id ? styles.viewTabActive : ''].filter(Boolean).join(' ')}
+            onClick={() => setView(id)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {view === 'investor' && <InvestorHub />}
+
+      {view === 'market' && <MarketSection />}
+
+      {view === 'wallet' && (
+        <>
       <div className="grid3" style={{ marginBottom: 16 }}>
         <div className="card card-sm" style={{ textAlign: 'center' }}>
           <div className="card-label">Total aplicado</div>
@@ -197,10 +229,8 @@ export function InvestmentsPage() {
           </p>
         </div>
       )}
-
-      <div style={{ marginTop: 16 }}>
-        <MarketSection />
-      </div>
+        </>
+      )}
 
       <InvestmentModal
         open={modalOpen}

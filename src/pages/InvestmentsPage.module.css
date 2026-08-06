@@ -11,6 +11,29 @@
   line-height: 1.5;
 }
 
+.viewTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.viewTab {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: var(--card2);
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--font);
+}
+.viewTabActive {
+  background: var(--green);
+  color: #000;
+  border-color: var(--green);
+}
+
 .totals {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
