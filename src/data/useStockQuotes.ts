@@ -9,5 +9,6 @@ export function useStockQuotes() {
     refetchInterval: 30_000,
     staleTime: 20_000,
     refetchOnWindowFocus: true,
+    retry: 2,
   })
 }

@@ -18,7 +18,7 @@ export default async function handler(
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean)
-    .slice(0, 40)
+    .slice(0, 60)
 
   if (symbols.length === 0) {
     res.status(400).json({ error: 'symbols required' })

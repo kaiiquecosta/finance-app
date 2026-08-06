@@ -70,6 +70,15 @@ export function mergeSparkWithCatalog(data: Record<string, YahooSparkEntry>): St
 
 const YAHOO_SPARK = 'https://query2.finance.yahoo.com/v8/finance/spark'
 
+/** Yahoo spark falha acima de ~20 tickers na mesma URL — validado em produção. */
+export const SPARK_BATCH_SIZE = 18
+
+function chunk<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = []
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size))
+  return out
+}
+
 export async function fetchYahooSparkRaw(symbols: string[]): Promise<Record<string, YahooSparkEntry>> {
   if (symbols.length === 0) return {}
   const q = new URLSearchParams({
@@ -84,10 +93,31 @@ export async function fetchYahooSparkRaw(symbols: string[]): Promise<Record<stri
   return (await res.json()) as Record<string, YahooSparkEntry>
 }
 
+async function fetchSparkBatch(symbols: string[]): Promise<Record<string, YahooSparkEntry>> {
+  const res = await fetch(`/api/market/spark?symbols=${encodeURIComponent(symbols.join(','))}`)
+  if (!res.ok) {
+    const err = (await res.json().catch(() => null)) as { error?: string } | null
+    throw new Error(err?.error ?? `spark HTTP ${res.status}`)
+  }
+  return (await res.json()) as Record<string, YahooSparkEntry>
+}
+
 export async function fetchStockQuotes(symbols?: string[]): Promise<StockQuote[]> {
   const list = symbols ?? ALL_STOCKS.map((s) => s.yahoo)
-  const res = await fetch(`/api/market/spark?symbols=${encodeURIComponent(list.join(','))}`)
-  if (!res.ok) throw new Error('Falha ao buscar ações')
-  const data = (await res.json()) as Record<string, YahooSparkEntry>
-  return parseYahooSparkPayload(data)
+  const batches = chunk(list, SPARK_BATCH_SIZE)
+  const merged: Record<string, YahooSparkEntry> = {}
+
+  const results = await Promise.allSettled(batches.map((b) => fetchSparkBatch(b)))
+  let ok = 0
+  for (const r of results) {
+    if (r.status === 'fulfilled') {
+      ok++
+      Object.assign(merged, r.value)
+    }
+  }
+  if (ok === 0) throw new Error('Falha ao buscar ações')
+
+  const quotes = parseYahooSparkPayload(merged)
+  if (quotes.length === 0) throw new Error('Nenhuma cotação retornada')
+  return quotes
 }
