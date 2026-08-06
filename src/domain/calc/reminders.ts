@@ -61,7 +61,7 @@ export function computeReminders(state: ReminderState, asOf: Date): Reminder[] {
     const when = whenLabel(diff)
     const label =
       diff === 0 ? '⚠️ Vence hoje' : diff === 1 ? '📅 Amanhã' : `📅 ${diff} dias`
-    const lColor = diff === 0 ? '#f87171' : diff === 1 ? '#f59e0b' : '#94a3b8'
+    const lColor = diff === 0 ? '#f87171' : diff === 1 ? '#f59e0b' : '#38bdf8'
     out.push({
       id: `bill-${bill.id}-${todayStr}`,
       kind: 'bill',

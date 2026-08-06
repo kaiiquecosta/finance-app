@@ -91,11 +91,7 @@ export function ReminderPopup({ reminders, onDismiss }: Props) {
         <div className={styles.top}>
           <div className={styles.icon}>{reminder.icon ?? KIND_ICON[reminder.kind]}</div>
           <div className={styles.body}>
-            {reminder.label && (
-              <div className={styles.label} style={{ color: reminder.labelColor ?? ctaColor }}>
-                {reminder.label}
-              </div>
-            )}
+            {reminder.label && <div className={styles.label}>{reminder.label}</div>}
             <div className={styles.title}>{reminder.title}</div>
             {reminder.subtitle && <div className={styles.sub}>{reminder.subtitle}</div>}
           </div>

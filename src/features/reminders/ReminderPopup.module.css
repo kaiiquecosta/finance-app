@@ -57,7 +57,7 @@
   --rem-accent: var(--green);
 }
 .normal {
-  --rem-accent: #94a3b8;
+  --rem-accent: #38bdf8;
 }
 
 .top {
@@ -75,11 +75,17 @@
   min-width: 0;
 }
 .label {
+  display: inline-block;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: var(--rem-accent);
+  background: color-mix(in srgb, var(--rem-accent) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--rem-accent) 42%, transparent);
 }
 .title {
   color: var(--text);
