@@ -243,12 +243,21 @@ export function AuthScreen({ initialStep = 'login' }: { initialStep?: Step }) {
               <p className={styles.subtitle}>
                 Enviamos um código de 6 dígitos para <b>{email}</b>. Ele vale por pouco tempo.
               </p>
-              <p className={styles.info}>
-                Se o e-mail só trouxe um link &quot;Log In&quot; e não números, o template{' '}
-                <strong>Magic Link</strong> no Supabase precisa incluir <code>{'{{ .Token }}'}</code>{' '}
-                (veja <code>docs/AUTH.md</code> ou{' '}
-                <code>supabase/email-templates/magic-link.html</code>).
-              </p>
+              {import.meta.env.DEV ? (
+                <p className={styles.info}>
+                  Se o e-mail só trouxe um link &quot;Log In&quot; e não números, rode{' '}
+                  <code>npm run auth:push-email-template</code> ou ajuste o template{' '}
+                  <strong>Magic Link</strong> no Supabase (<code>{'{{ .Token }}'}</code> — ver{' '}
+                  <code>docs/AUTH.md</code>).
+                </p>
+              ) : (
+                <p className={styles.info}>
+                  Não viu números no e-mail? Confira spam, use <strong>Reenviar código</strong> ou
+                  entre com <strong>Entrar com senha</strong> / Google. Se só chegou um link
+                  &quot;Log In&quot;, o administrador precisa configurar o template Magic Link no
+                  Supabase (instruções em docs/AUTH.md).
+                </p>
+              )}
               {import.meta.env.DEV && (
                 <p className={styles.info}>
                   Desenvolvendo em <b>{window.location.origin}</b>: digite o código nesta aba para

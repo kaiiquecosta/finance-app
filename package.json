@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "seed:persona-sql": "vite-node scripts/generate-mariana-seed-sql.ts",
+    "auth:push-email-template": "vite-node scripts/push-magic-link-email-template.ts",
     "cap:sync": "npm run build && npx cap sync",
     "android:open": "npx cap open android",
     "ios:open": "npx cap open ios"

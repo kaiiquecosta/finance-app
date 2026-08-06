@@ -1,0 +1,16 @@
+# Configuração Supabase (CLI) — ver https://supabase.com/docs/guides/local-development/cli/config
+#
+# Template Magic Link com {{ .Token }} → e-mail traz o código de 6 dígitos que o app pede.
+# Projeto hospedado:
+#   1. Token: https://supabase.com/dashboard/account/tokens
+#   2. npm run auth:push-email-template   (usa Management API — ver scripts/push-magic-link-email-template.ts)
+#   — ou —
+#   npx supabase link --project-ref SEU_REF && npx supabase config push
+#
+# Manual no dashboard: docs/AUTH.md
+
+project_id = "flux"
+
+[auth.email.template.magic_link]
+subject = "Seu código de acesso ao Flux"
+content_path = "./supabase/email-templates/magic-link.html"

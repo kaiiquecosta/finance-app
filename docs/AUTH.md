@@ -21,6 +21,25 @@ Para o e-mail trazer o código:
 4. Ajuste o **assunto** para algo como: `Seu código de acesso ao Flux`
 5. Confirme que o corpo inclui `{{ .Token }}` — é a variável que renderiza os 6 dígitos
 
+### Opção automática (recomendada)
+
+Com um [token de acesso pessoal](https://supabase.com/dashboard/account/tokens) do Supabase:
+
+```bash
+export SUPABASE_ACCESS_TOKEN="sbp_..."
+# project ref = subdomínio da URL (https://SEU_REF.supabase.co)
+export SUPABASE_PROJECT_REF="SEU_REF"
+# ou deixe VITE_SUPABASE_URL no .env.local — o script lê o ref da URL
+
+npm run auth:push-email-template
+```
+
+O script envia o conteúdo de `supabase/email-templates/magic-link.html` para o template
+**Magic Link** via Management API. Depois, peça **Reenviar código** no app e confira o e-mail.
+
+Alternativa com CLI: `npx supabase link --project-ref SEU_REF` e `npx supabase config push`
+(usando `supabase/config.toml` deste repositório).
+
 Exemplo mínimo (se preferir editar manualmente):
 
 ```html

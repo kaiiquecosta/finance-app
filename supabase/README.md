@@ -9,7 +9,16 @@ supabase/
 │  └─ 0002_plans_backfill.sql  # dá 30 dias de trial a usuários que já existiam
 │                               # antes da tabela `plans`/trigger existirem
 └─ functions/                   # Edge Functions (Stripe, exclusão de conta)
+config.toml                     # template Magic Link (OTP) — ver docs/AUTH.md
+email-templates/magic-link.html # corpo do e-mail com {{ .Token }}
 ```
+
+## E-mail de login (código de 6 dígitos)
+
+O app usa `signInWithOtp` + digitação do código. No Supabase, isso depende do template
+**Magic Link** incluir `{{ .Token }}`. Passo a passo: [`docs/AUTH.md`](../docs/AUTH.md).
+
+Atalho: `npm run auth:push-email-template` (requer `SUPABASE_ACCESS_TOKEN`).
 
 ## Aplicar o schema
 
