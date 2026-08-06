@@ -5,6 +5,8 @@ import {
   availableLimit,
   billsForMonth,
   getInvoiceMonth,
+  invoiceMonthForPurchase,
+  invoicePaymentDue,
   invoiceTotal,
   openInvoiceMonth,
   totalAvailableLimit,
@@ -93,6 +95,19 @@ describe('upcomingCardInvoices', () => {
   it('ignora meses sem fatura e cartões sem saldo', () => {
     const empty = card([], { id: 2 })
     expect(upcomingCardInvoices([empty], asOf, 3)).toEqual([])
+  })
+})
+
+describe('invoiceMonthForPurchase / invoicePaymentDue', () => {
+  it('compra após o fechamento vai para fatura do mês seguinte', () => {
+    expect(invoiceMonthForPurchase('2026-03-10', 5)).toEqual({ month: 3, year: 2026 })
+    expect(invoiceMonthForPurchase('2026-03-03', 5)).toEqual({ month: 2, year: 2026 })
+    expect(invoiceMonthForPurchase('2026-03-05', 5)).toEqual({ month: 2, year: 2026 })
+  })
+
+  it('vencimento da fatura é no mês seguinte ao mês da fatura', () => {
+    expect(invoicePaymentDue(2, 2026)).toEqual({ month: 3, year: 2026 })
+    expect(invoicePaymentDue(11, 2026)).toEqual({ month: 0, year: 2027 })
   })
 })
 

@@ -4,7 +4,7 @@
  * renderCreditLimit). `asOf` é injetado para pureza/testes.
  */
 import { sub, sum, type Cents } from '@/domain/money'
-import { parseISODate } from '@/domain/dates'
+import { addMonths, parseISODate, toISODate } from '@/domain/dates'
 import type { Card, CardBill } from '@/domain/entities'
 
 /** Mês (0..11) e ano de uma fatura. */
@@ -28,19 +28,36 @@ export function getInvoiceMonth(offset: number, asOf: Date): InvoiceMonth {
   return { month: m, year: y }
 }
 
-/** Fatura em que uma compra cai: se o dia > fechamento, vai para o mês seguinte. */
-function billInvoiceMonth(dateStr: string, closeDay: number): InvoiceMonth {
+/**
+ * Fatura em que uma compra entra, pela data da compra e dia de fechamento.
+ * Compra no dia D: se D > fechamento, vai para a fatura do mês seguinte; senão, fatura do mês de D.
+ * Compra no dia do fechamento conta na fatura daquele mês (regra `>` , não `>=`).
+ */
+export function invoiceMonthForPurchase(dateStr: string, closeDay: number): InvoiceMonth {
   const d = parseISODate(dateStr)
   let fm = d.getMonth()
   let fy = d.getFullYear()
   if (d.getDate() > closeDay) {
-    fm++
-    if (fm > 11) {
-      fm = 0
-      fy++
-    }
+    const next = addMonths(fm, fy, 1)
+    fm = next.month
+    fy = next.year
   }
   return { month: fm, year: fy }
+}
+
+function billInvoiceMonth(dateStr: string, closeDay: number): InvoiceMonth {
+  return invoiceMonthForPurchase(dateStr, closeDay)
+}
+
+/**
+ * Mês/ano do vencimento do pagamento da fatura (mês da fatura + 1 — padrão dos bancos BR).
+ * Ex.: fatura de março (fecha ~dia 10) → vence dia 17 de abril.
+ */
+export function invoicePaymentDue(
+  invoiceMonth: number,
+  invoiceYear: number,
+): InvoiceMonth {
+  return addMonths(invoiceMonth, invoiceYear, 1)
 }
 
 /** Compara (year,month) cronologicamente: negativo se a < b, positivo se a > b. */
@@ -69,18 +86,9 @@ export function invoiceTotal(card: Card, month: number, year: number): Cents {
   return sum(billsForMonth(card, month, year).map((b) => b.amt))
 }
 
-/** Fatura aberta: mês em que novos gastos caem agora. */
+/** Fatura aberta: mês em que novos gastos de hoje entrariam. */
 export function openInvoiceMonth(card: Card, asOf: Date): InvoiceMonth {
-  let m = asOf.getMonth()
-  let y = asOf.getFullYear()
-  if (asOf.getDate() > card.closeDay) {
-    m++
-    if (m > 11) {
-      m = 0
-      y++
-    }
-  }
-  return { month: m, year: y }
+  return invoiceMonthForPurchase(toISODate(asOf), card.closeDay)
 }
 
 /** Limite disponível de um cartão (limite − fatura aberta). */

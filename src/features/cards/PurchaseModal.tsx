@@ -4,38 +4,25 @@ import { Button } from '@/components/ui/Button'
 import { TextField } from '@/components/ui/TextField'
 import { MoneyField } from '@/components/ui/MoneyField'
 import { ZERO, allocate, formatBRL, type Cents } from '@/domain/money'
-import { parseISODate, toISODate } from '@/domain/dates'
-import { newId } from '@/data/useEntityMutations'
-import type { Card as CardEntity, CardBill } from '@/domain/entities'
+import { toISODate } from '@/domain/dates'
+import { invoicePaymentDue } from '@/domain/calc/cards'
+import { MONTHS_FULL } from '@/domain/categories'
+import type { Card as CardEntity } from '@/domain/entities'
+import {
+  buildCardPurchaseBills,
+  previewPurchaseInvoices,
+} from '@/features/cards/buildCardPurchaseBills'
 import styles from './PurchaseModal.module.css'
 
 interface Props {
   open: boolean
   card: CardEntity | null
   onClose: () => void
-  onSave: (bills: CardBill[]) => Promise<void>
+  onSave: (bills: ReturnType<typeof buildCardPurchaseBills>) => Promise<void>
   saving?: boolean
 }
 
 const QUICK_PARCELS = [1, 2, 3, 6, 10, 12]
-
-/** Gera as faturas (1 para à vista, N para parcelado) a partir da compra. */
-function buildBills(cardId: number, desc: string, total: Cents, date: string, parcels: number): CardBill[] {
-  if (parcels <= 1) {
-    return [{ id: newId(), cardId, description: desc, amt: total, date, pastPaid: false, recurring: false }]
-  }
-  const parts = allocate(total, parcels)
-  const base = parseISODate(date)
-  return parts.map((amt, i) => ({
-    id: newId() + i,
-    cardId,
-    description: `${desc} (${i + 1}/${parcels})`,
-    amt,
-    date: toISODate(new Date(base.getFullYear(), base.getMonth() + i, base.getDate())),
-    pastPaid: false,
-    recurring: false,
-  }))
-}
 
 export function PurchaseModal({ open, card, onClose, onSave, saving }: Props) {
   const [desc, setDesc] = useState('')
@@ -58,13 +45,21 @@ export function PurchaseModal({ open, card, onClose, onSave, saving }: Props) {
     [total, parcels],
   )
 
+  const invoicePreview = useMemo(() => {
+    if (!card || !date) return []
+    const label = desc.trim() || 'Compra'
+    return previewPurchaseInvoices(date, card.closeDay, parcels, label)
+  }, [card, date, parcels, desc])
+
   const submit = async () => {
     setError('')
     if (!card) return
     if (!desc.trim()) return setError('Descreva a compra.')
     if (total <= 0) return setError('Informe o valor.')
     try {
-      await onSave(buildBills(card.id, desc.trim(), total, date, parcels))
+      await onSave(
+        buildCardPurchaseBills(card.id, desc.trim(), total, date, parcels),
+      )
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Não foi possível lançar.')
     }
@@ -88,6 +83,12 @@ export function PurchaseModal({ open, card, onClose, onSave, saving }: Props) {
         </>
       }
     >
+      <p className={styles.hint}>
+        Fechamento dia <b>{card.closeDay}</b> · vencimento dia <b>{card.dueDay}</b>. A fatura de
+        cada lançamento depende da <b>data da compra</b> (compra após o fechamento vai para o mês
+        seguinte).
+      </p>
+
       <TextField
         label="Descrição"
         name="purchase-desc"
@@ -122,6 +123,26 @@ export function PurchaseModal({ open, card, onClose, onSave, saving }: Props) {
         value={date}
         onChange={(e) => setDate(e.target.value)}
       />
+
+      {invoicePreview.length > 0 && (
+        <div className={styles.invoicePreview}>
+          <span className={styles.label}>Em qual fatura entra</span>
+          <ul className={styles.invoiceList}>
+            {invoicePreview.map((line, i) => {
+              const due = invoicePaymentDue(line.invoiceMonth, line.invoiceYear)
+              return (
+                <li key={i}>
+                  <span>{line.label}</span>
+                  <span className={styles.invoiceMeta}>
+                    Fatura {MONTHS_FULL[line.invoiceMonth]}/{line.invoiceYear} · vence{' '}
+                    {card.dueDay}/{MONTHS_FULL[due.month]}
+                  </span>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )}
 
       {parcels > 1 && total > 0 && (
         <p className={styles.preview}>

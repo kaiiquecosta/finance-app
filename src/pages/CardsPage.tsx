@@ -17,6 +17,7 @@ import {
   billsForMonth,
   cardDisplayName,
   getInvoiceMonth,
+  invoicePaymentDue,
   invoiceTotal,
 } from '@/domain/calc/cards'
 import type { Card as CardEntity, CardBill } from '@/domain/entities'
@@ -126,6 +127,7 @@ export function CardsPage() {
               const used = sub(card.limit, avail)
               const usedPct = percentOf(used, card.limit)
               const bills = billsForMonth(card, month, year)
+              const due = invoicePaymentDue(month, year)
               return (
                 <div key={card.id} className="cc-card fadein">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
@@ -209,7 +211,10 @@ export function CardsPage() {
                       Fecha <b style={{ color: 'var(--text)' }}>dia {card.closeDay}</b>
                     </span>
                     <span style={{ color: 'var(--muted)', fontSize: 12 }}>
-                      Vence <b style={{ color: 'var(--text)' }}>{card.dueDay} de {MONTHS_FULL[month]}.</b>
+                      Vence{' '}
+                      <b style={{ color: 'var(--text)' }}>
+                        {card.dueDay} de {MONTHS_FULL[due.month]}
+                      </b>
                     </span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>

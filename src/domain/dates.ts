@@ -51,3 +51,15 @@ export function addMonths(month: number, year: number, n: number): { month: numb
   }
   return { month: m, year: y }
 }
+
+/**
+ * Soma meses a uma data ISO preservando o dia (limitado ao último dia do mês alvo).
+ * Evita que 31/03 + 1 mês vire 01/05 por overflow do `Date`.
+ */
+export function addMonthsToISODate(isoDate: string, months: number): string {
+  const d = parseISODate(isoDate)
+  const { month, year } = addMonths(d.getMonth(), d.getFullYear(), months)
+  const lastDay = new Date(year, month + 1, 0).getDate()
+  const day = Math.min(d.getDate(), lastDay)
+  return toISODate(new Date(year, month, day))
+}
