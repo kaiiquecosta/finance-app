@@ -8,7 +8,8 @@
   background: color-mix(in srgb, var(--text) 3%, transparent);
   cursor: pointer;
   flex-shrink: 0;
-  max-width: 160px;
+  max-width: 180px;
+  margin-right: 6px;
   transition: background 0.2s;
 }
 .badge:hover {
@@ -34,6 +35,14 @@
   object-fit: cover;
 }
 
+.text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  min-width: 0;
+  text-align: left;
+}
+
 .name {
   font-size: 13px;
   font-weight: 600;
@@ -43,11 +52,17 @@
   text-overflow: ellipsis;
 }
 
+.hint {
+  font-size: 10px;
+  color: var(--muted);
+}
+
 @media (max-width: 480px) {
-  .name {
+  .hint {
     display: none;
   }
   .badge {
-    padding: 4px;
+    max-width: 120px;
+    padding: 4px 8px 4px 4px;
   }
 }

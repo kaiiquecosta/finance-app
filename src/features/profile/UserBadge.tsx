@@ -25,7 +25,10 @@ export function UserBadge({ name, emoji, photoUrl, accent = '#22c55e', onClick }
           <span aria-hidden>{emoji}</span>
         )}
       </span>
-      <span className={styles.name}>{short}</span>
+      <span className={styles.text}>
+        <span className={styles.name}>{short}</span>
+        <span className={styles.hint}>Ver perfil</span>
+      </span>
     </button>
   )
 }

@@ -49,6 +49,13 @@ export function AppShell() {
   return (
     <div className={styles.app}>
       <header className={styles.topnav}>
+        <UserBadge
+          name={displayName}
+          emoji={navEmoji}
+          photoUrl={navPhoto}
+          accent={navColor}
+          onClick={() => setProfileOpen(true)}
+        />
         <div className={styles.brand}>
           <span className={styles.logoDot} />
           Flux
@@ -79,13 +86,6 @@ export function AppShell() {
         <button className={styles.iconBtn} onClick={toggle} title="Alternar tema">
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
-        <UserBadge
-          name={displayName}
-          emoji={navEmoji}
-          photoUrl={navPhoto}
-          accent={navColor}
-          onClick={() => setProfileOpen(true)}
-        />
         <button className={styles.iconBtn} onClick={() => void signOut()} title="Sair">
           ⎋
         </button>
