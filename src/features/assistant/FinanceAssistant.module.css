@@ -49,6 +49,88 @@
   animation: slideUp 0.22s ease;
 }
 
+.permissionBackdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: color-mix(in srgb, #08050d 72%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.permissionDialog {
+  width: min(100%, 310px);
+  padding: 20px;
+  border-radius: 20px;
+  text-align: center;
+  background: var(--card);
+  border: 1px solid var(--border2);
+  box-shadow: 0 20px 55px color-mix(in srgb, #000 35%, transparent);
+}
+
+.permissionIcon {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 12px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 23px;
+  background: color-mix(in srgb, var(--primary) 13%, var(--card2));
+  border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--border));
+}
+
+.permissionTitle {
+  margin: 0 0 7px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.permissionText {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.permissionActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 17px;
+}
+
+.permissionCancel,
+.permissionAllow {
+  flex: 1;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 11px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.permissionCancel {
+  color: var(--muted);
+  background: var(--card2);
+  border: 1px solid var(--border2);
+}
+
+.permissionAllow {
+  color: var(--on-primary, #fff);
+  background: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+.permissionCancel:hover,
+.permissionAllow:hover {
+  filter: brightness(1.06);
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
