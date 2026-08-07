@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { lineFromSpeechResults } from './speechTranscript'
 
 type SpeechRecognitionCtor = new () => SpeechRecognitionInstance
 
@@ -63,19 +64,12 @@ export function detectAssistantSpeechMode(): AssistantSpeechMode {
   return 'none'
 }
 
-function transcriptFromResults(results: SpeechRecognitionResultList): string {
-  let out = ''
-  for (let i = 0; i < results.length; i++) {
-    out += results[i][0]?.transcript ?? ''
-  }
-  return out.trim()
-}
-
 async function requestMicrophone(): Promise<MediaStream> {
   return navigator.mediaDevices.getUserMedia({
     audio: {
       echoCancellation: true,
       noiseSuppression: true,
+      autoGainControl: true,
       channelCount: 1,
     },
   })
@@ -101,6 +95,7 @@ export function useAssistantSpeech(options: {
   const wantListenRef = useRef(false)
   const recRef = useRef<SpeechRecognitionInstance | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
+  const sessionFinalRef = useRef('')
 
   const releaseStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop())
@@ -109,6 +104,7 @@ export function useAssistantSpeech(options: {
 
   const stop = useCallback(() => {
     wantListenRef.current = false
+    sessionFinalRef.current = ''
     try {
       recRef.current?.stop()
     } catch {
@@ -122,6 +118,7 @@ export function useAssistantSpeech(options: {
   const startLive = useCallback(
     (Ctor: SpeechRecognitionCtor) => {
       wantListenRef.current = true
+      sessionFinalRef.current = ''
 
       try {
         recRef.current?.abort()
@@ -136,7 +133,19 @@ export function useAssistantSpeech(options: {
       rec.maxAlternatives = 1
 
       rec.onresult = (event) => {
-        const line = transcriptFromResults(event.results)
+        const slices = Array.from({ length: event.results.length }, (_, i) => {
+          const r = event.results[i]
+          return {
+            isFinal: r.isFinal,
+            transcript: r[0]?.transcript ?? '',
+          }
+        })
+        const { sessionFinal, line } = lineFromSpeechResults(
+          slices,
+          event.resultIndex,
+          sessionFinalRef.current,
+        )
+        sessionFinalRef.current = sessionFinal
         if (line) onTranscriptRef.current(line)
       }
 
@@ -163,6 +172,12 @@ export function useAssistantSpeech(options: {
         if (!wantListenRef.current) {
           setListening(false)
           releaseStream()
+          return
+        }
+        // iOS encerra após cada frase; reiniciar costuma duplicar o texto ouvido.
+        if (isAppleMobile()) {
+          wantListenRef.current = false
+          setListening(false)
           return
         }
         try {

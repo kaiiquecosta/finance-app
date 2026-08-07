@@ -166,8 +166,10 @@ export function FinanceAssistant() {
   )
 
   const mergeDictation = useCallback((spoken: string) => {
-    const base = dictationBaseRef.current
-    const merged = [base, spoken].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim()
+    const base = dictationBaseRef.current.trim()
+    const line = spoken.replace(/\s+/g, ' ').trim()
+    if (!line) return
+    const merged = base ? `${base} ${line}`.replace(/\s+/g, ' ').trim() : line
     setInput(merged)
   }, [])
 

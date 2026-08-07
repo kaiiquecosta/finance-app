@@ -142,11 +142,30 @@ function parseMoneyToken(token: string): Cents | null {
 }
 
 function cleanupDescription(s: string): string {
-  return s
+  const cleaned = s
     .replace(/\b(reais|real|r\$|rs|dollars?|bucks?)\b/gi, ' ')
     .replace(/\b(on|for|at|with|in|the|a|an|no|na|de|do|da|em|por|para|com)\b/gi, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+  return collapseRepeatedSpeech(cleaned)
+}
+
+/** Remove eco típico do ditado (palavras ou frase inteira repetida). */
+function collapseRepeatedSpeech(s: string): string {
+  const words = s.split(/\s+/).filter(Boolean)
+  if (words.length >= 2 && words.length % 2 === 0) {
+    const half = words.length / 2
+    const a = words.slice(0, half).join(' ')
+    const b = words.slice(half).join(' ')
+    if (a.toLowerCase() === b.toLowerCase()) return a
+  }
+  const out: string[] = []
+  for (const w of words) {
+    const prev = out[out.length - 1]
+    if (prev && prev.toLowerCase() === w.toLowerCase()) continue
+    out.push(w)
+  }
+  return out.join(' ')
 }
 
 function capitalizeName(name: string): string {
