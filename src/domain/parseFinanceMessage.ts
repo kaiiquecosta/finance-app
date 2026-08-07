@@ -1,5 +1,6 @@
 import { cents, type Cents } from '@/domain/money'
 import { inferCategory, normalizeMerchantName } from '@/domain/categories'
+import { normalizeSpokenNumbers } from '@/lib/spokenNumbers'
 import { toISODate } from '@/domain/dates'
 import type { ISODate } from '@/domain/entities'
 
@@ -25,7 +26,7 @@ export function parseFinanceMessage(
   raw: string,
   asOf: Date = new Date(),
 ): { ok: true; data: ParsedFinanceMessage } | { ok: false; error: string } {
-  let text = raw.trim()
+  let text = normalizeSpokenNumbers(raw.trim())
   if (!text) {
     return { ok: false, error: 'Digite ou fale algo como: 10 reais coxinha · I spent R$10 on coxinha' }
   }

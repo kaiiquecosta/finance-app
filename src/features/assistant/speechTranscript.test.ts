@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { appendSpeechFragment, lineFromSpeechResults } from './speechTranscript'
+import {
+  appendSpeechFragment,
+  lineFromSpeechResults,
+  polishDictationLine,
+  stabilizeDictationLine,
+} from './speechTranscript'
+import { normalizeSpokenNumbers } from '@/lib/spokenNumbers'
 
 describe('appendSpeechFragment', () => {
   it('evita colar palavras', () => {
@@ -55,5 +61,19 @@ describe('lineFromSpeechResults', () => {
       session,
     )
     expect(e2.line).toBe('coxinha r$ 10')
+  })
+
+  it('não perde número quando interim encurta', () => {
+    let best = '10 reais'
+    best = polishDictationLine(best, 'reais coxinha')
+    expect(best).toBe('10 reais coxinha')
+  })
+
+  it('converte dez falado em dígito', () => {
+    expect(normalizeSpokenNumbers('dez reais coxinha')).toBe('10 reais coxinha')
+  })
+
+  it('stabilize mantém prefixo numérico', () => {
+    expect(stabilizeDictationLine('10 reais coxinha', 'reais coxinha')).toBe('10 reais coxinha')
   })
 })

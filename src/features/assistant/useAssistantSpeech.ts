@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { lineFromSpeechResults } from './speechTranscript'
+import { lineFromSpeechResults, polishDictationLine } from './speechTranscript'
 
 type SpeechRecognitionCtor = new () => SpeechRecognitionInstance
 
@@ -96,6 +96,7 @@ export function useAssistantSpeech(options: {
   const recRef = useRef<SpeechRecognitionInstance | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const sessionFinalRef = useRef('')
+  const bestLineRef = useRef('')
 
   const releaseStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop())
@@ -105,6 +106,7 @@ export function useAssistantSpeech(options: {
   const stop = useCallback(() => {
     wantListenRef.current = false
     sessionFinalRef.current = ''
+    bestLineRef.current = ''
     try {
       recRef.current?.stop()
     } catch {
@@ -119,6 +121,7 @@ export function useAssistantSpeech(options: {
     (Ctor: SpeechRecognitionCtor) => {
       wantListenRef.current = true
       sessionFinalRef.current = ''
+      bestLineRef.current = ''
 
       try {
         recRef.current?.abort()
@@ -146,7 +149,9 @@ export function useAssistantSpeech(options: {
           sessionFinalRef.current,
         )
         sessionFinalRef.current = sessionFinal
-        if (line) onTranscriptRef.current(line)
+        const polished = polishDictationLine(bestLineRef.current, line)
+        bestLineRef.current = polished
+        if (polished) onTranscriptRef.current(polished)
       }
 
       rec.onerror = (ev) => {

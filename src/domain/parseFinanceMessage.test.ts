@@ -12,6 +12,13 @@ describe('parseFinanceMessage', () => {
     expect(r.data.cat).toBe('alimentação')
   })
 
+  it('interpreta dez reais coxinha (por extenso)', () => {
+    const r = parseFinanceMessage('dez reais coxinha')
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect(r.data.amount).toBe(1000)
+  })
+
   it('interpreta coxinha 10', () => {
     const r = parseFinanceMessage('coxinha 10')
     expect(r.ok).toBe(true)
