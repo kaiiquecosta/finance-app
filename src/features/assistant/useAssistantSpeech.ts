@@ -110,6 +110,7 @@ export function useAssistantSpeech(options: {
   const streamRef = useRef<MediaStream | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
+  const startRecordRef = useRef<(stream: MediaStream) => void>(() => {})
 
   const releaseStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop())
@@ -143,13 +144,14 @@ export function useAssistantSpeech(options: {
   }, [releaseStream])
 
   const stop = useCallback(() => {
-    if (activeMode === 'live' || (listening && mode === 'live')) stopLive()
+    if (activeMode === 'live') stopLive()
     else stopRecord()
-  }, [activeMode, listening, mode, stopLive, stopRecord])
+  }, [activeMode, stopLive, stopRecord])
 
   const startLive = useCallback((Ctor: SpeechRecognitionCtor) => {
     wantListenRef.current = true
     setActiveMode('live')
+    let switchedToRecording = false
 
     try {
       recRef.current?.abort()
@@ -169,22 +171,39 @@ export function useAssistantSpeech(options: {
         if (line) onTranscriptRef.current(line)
       }
 
-      rec.onerror = (ev) => {
-        if (ev.error === 'aborted' || ev.error === 'no-speech') return
+      const fallbackToRecording = (reason: string) => {
+        if (switchedToRecording) return
+        const stream = streamRef.current
+        if (stream && typeof MediaRecorder !== 'undefined') {
+          switchedToRecording = true
+          recRef.current = null
+          setError(null)
+          // A permissão do microfone já foi validada por getUserMedia.
+          // Se o serviço Web Speech do navegador bloquear, gravamos o mesmo
+          // stream e transcrevemos no servidor sem culpar a permissão.
+          startRecordRef.current(stream)
+          return
+        }
         wantListenRef.current = false
         setListening(false)
         setActiveMode('none')
-        if (ev.error === 'not-allowed') {
-          setError('Permita o microfone (cadeado na barra de endereço ou Ajustes do app).')
-        } else if (ev.error === 'network') {
-          setError('Ditado ao vivo precisa de internet. Tente o modo gravação ou digite.')
-        } else {
-          setError('Não foi possível ouvir. Tente de novo ou digite.')
-        }
+        setError(reason)
         releaseStream()
       }
 
+      rec.onerror = (ev) => {
+        if (ev.error === 'aborted' || ev.error === 'no-speech') return
+        if (ev.error === 'not-allowed') {
+          fallbackToRecording('O navegador bloqueou o reconhecimento de voz.')
+        } else if (ev.error === 'network') {
+          fallbackToRecording('Ditado ao vivo indisponível. Tente de novo ou digite.')
+        } else {
+          fallbackToRecording('Não foi possível ouvir. Tente de novo ou digite.')
+        }
+      }
+
       rec.onend = () => {
+        if (switchedToRecording) return
         if (!wantListenRef.current) {
           setListening(false)
           setActiveMode('none')
@@ -194,10 +213,7 @@ export function useAssistantSpeech(options: {
         try {
           rec.start()
         } catch {
-          wantListenRef.current = false
-          setListening(false)
-          setActiveMode('none')
-          releaseStream()
+          fallbackToRecording('O reconhecimento ao vivo foi interrompido.')
         }
       }
 
@@ -277,6 +293,7 @@ export function useAssistantSpeech(options: {
     },
     [releaseStream],
   )
+  startRecordRef.current = startRecord
 
   const start = useCallback(async () => {
     setError(null)
