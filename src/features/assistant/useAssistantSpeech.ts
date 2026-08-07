@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { transcribeAudioBlob, SpeechTranscribeError } from '@/data/speechTranscribe'
 
 type SpeechRecognitionCtor = new () => SpeechRecognitionInstance
 
@@ -26,7 +25,10 @@ type SpeechRecognitionResultEvent = {
   resultIndex: number
 }
 
-export type AssistantSpeechMode = 'live' | 'record' | 'none'
+export type AssistantSpeechMode = 'live' | 'none'
+
+const FREE_VOICE_HINT =
+  'Áudio por voz é grátis no Chrome, Edge ou Safari (incluindo PWA). Neste navegador, digite no campo.'
 
 function getSpeechRecognitionCtor(): SpeechRecognitionCtor | null {
   if (typeof window === 'undefined') return null
@@ -50,7 +52,6 @@ export function detectAssistantSpeechMode(): AssistantSpeechMode {
   if (!window.isSecureContext) return 'none'
   if (!navigator.mediaDevices?.getUserMedia) return 'none'
   if (getSpeechRecognitionCtor()) return 'live'
-  if (typeof MediaRecorder !== 'undefined') return 'record'
   return 'none'
 }
 
@@ -60,20 +61,6 @@ function transcriptFromResults(results: SpeechRecognitionResultList): string {
     out += results[i][0]?.transcript ?? ''
   }
   return out.trim()
-}
-
-function pickRecorderMime(): string | undefined {
-  const candidates = [
-    'audio/webm;codecs=opus',
-    'audio/webm',
-    'audio/mp4',
-    'audio/aac',
-    'audio/ogg;codecs=opus',
-  ]
-  for (const m of candidates) {
-    if (MediaRecorder.isTypeSupported(m)) return m
-  }
-  return undefined
 }
 
 async function requestMicrophone(): Promise<MediaStream> {
@@ -87,8 +74,7 @@ async function requestMicrophone(): Promise<MediaStream> {
 }
 
 /**
- * Ditado para o assistente: ao vivo (Web Speech) ou gravação + Whisper (fallback).
- * O texto vai para `onTranscript`; envio continua manual.
+ * Ditado gratuito via Web Speech API do navegador (sem API paga).
  */
 export function useAssistantSpeech(options: {
   onTranscript: (fullLine: string) => void
@@ -98,26 +84,21 @@ export function useAssistantSpeech(options: {
   onTranscriptRef.current = onTranscript
 
   const mode = detectAssistantSpeechMode()
-  const supported = mode !== 'none'
+  const supported = mode === 'live'
 
   const [listening, setListening] = useState(false)
-  const [transcribing, setTranscribing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [activeMode, setActiveMode] = useState<AssistantSpeechMode>('none')
 
   const wantListenRef = useRef(false)
   const recRef = useRef<SpeechRecognitionInstance | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
-  const chunksRef = useRef<Blob[]>([])
-  const startRecordRef = useRef<(stream: MediaStream) => void>(() => {})
 
   const releaseStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop())
     streamRef.current = null
   }, [])
 
-  const stopLive = useCallback(() => {
+  const stop = useCallback(() => {
     wantListenRef.current = false
     try {
       recRef.current?.stop()
@@ -125,41 +106,20 @@ export function useAssistantSpeech(options: {
       /* ignore */
     }
     recRef.current = null
-  }, [])
+    setListening(false)
+    releaseStream()
+  }, [releaseStream])
 
-  const stopRecord = useCallback(() => {
-    wantListenRef.current = false
-    const rec = mediaRecorderRef.current
-    if (rec && rec.state !== 'inactive') {
+  const startLive = useCallback(
+    (Ctor: SpeechRecognitionCtor) => {
+      wantListenRef.current = true
+
       try {
-        rec.stop()
+        recRef.current?.abort()
       } catch {
         /* ignore */
       }
-    } else {
-      releaseStream()
-      setListening(false)
-      setActiveMode('none')
-    }
-  }, [releaseStream])
 
-  const stop = useCallback(() => {
-    if (activeMode === 'live') stopLive()
-    else stopRecord()
-  }, [activeMode, stopLive, stopRecord])
-
-  const startLive = useCallback((Ctor: SpeechRecognitionCtor) => {
-    wantListenRef.current = true
-    setActiveMode('live')
-    let switchedToRecording = false
-
-    try {
-      recRef.current?.abort()
-    } catch {
-      /* ignore */
-    }
-
-    const attach = () => {
       const rec = new Ctor()
       rec.lang = 'pt-BR'
       rec.continuous = !isAppleMobile()
@@ -171,149 +131,67 @@ export function useAssistantSpeech(options: {
         if (line) onTranscriptRef.current(line)
       }
 
-      const fallbackToRecording = (reason: string) => {
-        if (switchedToRecording) return
-        const stream = streamRef.current
-        if (stream && typeof MediaRecorder !== 'undefined') {
-          switchedToRecording = true
-          recRef.current = null
-          setError(null)
-          // A permissão do microfone já foi validada por getUserMedia.
-          // Se o serviço Web Speech do navegador bloquear, gravamos o mesmo
-          // stream e transcrevemos no servidor sem culpar a permissão.
-          startRecordRef.current(stream)
-          return
-        }
-        wantListenRef.current = false
-        setListening(false)
-        setActiveMode('none')
-        setError(reason)
-        releaseStream()
-      }
-
       rec.onerror = (ev) => {
         if (ev.error === 'aborted' || ev.error === 'no-speech') return
+        wantListenRef.current = false
+        setListening(false)
+        releaseStream()
         if (ev.error === 'not-allowed') {
-          fallbackToRecording('O navegador bloqueou o reconhecimento de voz.')
+          setError('Permita o microfone no navegador (cadeado na barra de endereço).')
         } else if (ev.error === 'network') {
-          fallbackToRecording('Ditado ao vivo indisponível. Tente de novo ou digite.')
+          setError('Ditado precisa de internet. Verifique a conexão ou digite no campo.')
         } else {
-          fallbackToRecording('Não foi possível ouvir. Tente de novo ou digite.')
+          setError('Não foi possível ouvir. Tente de novo ou digite no campo.')
         }
       }
 
       rec.onend = () => {
-        if (switchedToRecording) return
         if (!wantListenRef.current) {
           setListening(false)
-          setActiveMode('none')
           releaseStream()
           return
         }
         try {
           rec.start()
         } catch {
-          fallbackToRecording('O reconhecimento ao vivo foi interrompido.')
+          wantListenRef.current = false
+          setListening(false)
+          releaseStream()
         }
       }
 
       recRef.current = rec
-      rec.start()
-      setListening(true)
-    }
-
-    attach()
-  }, [releaseStream])
-
-  const startRecord = useCallback(
-    (stream: MediaStream) => {
-      wantListenRef.current = true
-      setActiveMode('record')
-      chunksRef.current = []
-
-      const mime = pickRecorderMime()
-      let recorder: MediaRecorder
       try {
-        recorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream)
+        rec.start()
+        setListening(true)
       } catch {
-        setError('Gravação de áudio não suportada neste dispositivo.')
         wantListenRef.current = false
-        releaseStream()
-        return
-      }
-
-      recorder.ondataavailable = (ev) => {
-        if (ev.data.size > 0) chunksRef.current.push(ev.data)
-      }
-
-      recorder.onstop = () => {
-        setListening(false)
-        setActiveMode('none')
-        releaseStream()
-
-        const blob = new Blob(chunksRef.current, {
-          type: recorder.mimeType || mime || 'audio/webm',
-        })
-        chunksRef.current = []
-        mediaRecorderRef.current = null
-
-        if (blob.size < 100) {
-          setError('Gravação muito curta. Segure 🎤 e fale de novo.')
-          return
-        }
-
-        setTranscribing(true)
-        void transcribeAudioBlob(blob)
-          .then((text) => {
-            onTranscriptRef.current(text)
-          })
-          .catch((e) => {
-            if (e instanceof SpeechTranscribeError && e.code === 'transcription_unconfigured') {
-              setError(
-                'Neste navegador o áudio usa transcrição no servidor. Peça ao admin para configurar OPENAI_API_KEY no Supabase e publicar speech-transcribe.',
-              )
-            } else {
-              setError(e instanceof Error ? e.message : 'Falha ao transcrever.')
-            }
-          })
-          .finally(() => setTranscribing(false))
-      }
-
-      recorder.onerror = () => {
-        setError('Erro ao gravar áudio.')
-        wantListenRef.current = false
-        setListening(false)
-        setActiveMode('none')
+        setError('Não foi possível iniciar o ditado. Tente de novo.')
         releaseStream()
       }
-
-      mediaRecorderRef.current = recorder
-      recorder.start(250)
-      setListening(true)
     },
     [releaseStream],
   )
-  startRecordRef.current = startRecord
 
   const start = useCallback(async () => {
     setError(null)
     if (!supported) {
-      setError('Microfone indisponível. Use HTTPS e um navegador atualizado.')
+      setError(FREE_VOICE_HINT)
       return
     }
-    if (transcribing) return
+    if (listening) return
+
+    const Ctor = getSpeechRecognitionCtor()
+    if (!Ctor) {
+      setError(FREE_VOICE_HINT)
+      return
+    }
 
     try {
       releaseStream()
       const stream = await requestMicrophone()
       streamRef.current = stream
-
-      const Ctor = getSpeechRecognitionCtor()
-      if (mode === 'live' && Ctor) {
-        startLive(Ctor)
-        return
-      }
-      startRecord(stream)
+      startLive(Ctor)
     } catch (e) {
       const name = e instanceof DOMException ? e.name : ''
       if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
@@ -325,40 +203,36 @@ export function useAssistantSpeech(options: {
       }
       releaseStream()
     }
-  }, [supported, transcribing, releaseStream, mode, startLive, startRecord])
+  }, [supported, listening, releaseStream, startLive])
 
   const toggle = useCallback(() => {
-    if (listening) {
-      if (activeMode === 'live') stopLive()
-      else stopRecord()
-    } else {
-      void start()
-    }
-  }, [listening, activeMode, stopLive, stopRecord, start])
+    if (listening) stop()
+    else void start()
+  }, [listening, stop, start])
 
   useEffect(() => {
     return () => {
       wantListenRef.current = false
-      stopLive()
       try {
-        mediaRecorderRef.current?.stop()
+        recRef.current?.abort()
       } catch {
         /* ignore */
       }
       releaseStream()
     }
-  }, [releaseStream, stopLive])
+  }, [releaseStream])
 
   return {
     supported,
     mode,
-    activeMode,
+    activeMode: listening ? ('live' as const) : ('none' as const),
     listening,
-    transcribing,
+    transcribing: false,
     error,
     start,
     stop,
     toggle,
     clearError: () => setError(null),
+    freeVoiceHint: FREE_VOICE_HINT,
   }
 }

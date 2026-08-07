@@ -15,15 +15,9 @@ functions/
 ├─ pluggy-register-item/  # registra Item ID (Meu Pluggy / Connect)
 ├─ pluggy-sync/           # contas + transações → Postgres
 └─ pluggy-connect-token/  # token do widget Connect (Fase 2)
-└─ speech-transcribe/     # Whisper — áudio do assistente (Firefox/PWA)
 ```
 
-Assistente de voz: ver **`docs/SPEECH.md`**. Deploy:
-
-```bash
-supabase secrets set OPENAI_API_KEY=sk-...
-supabase functions deploy speech-transcribe
-```
+Assistente de voz (grátis, só navegador): **`docs/SPEECH.md`** — não exige OpenAI.
 
 ## Open Finance
 

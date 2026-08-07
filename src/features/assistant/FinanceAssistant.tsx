@@ -189,6 +189,17 @@ export function FinanceAssistant() {
       speech.stop()
       return
     }
+    if (!speech.supported) {
+      setMessages((m) => [
+        ...m,
+        {
+          id: `a-mic-${Date.now()}`,
+          role: 'assistant',
+          text: speech.freeVoiceHint,
+        },
+      ])
+      return
+    }
     const access = await readMicrophonePermission()
     setMicAccess(access)
     if (access === 'granted') {
@@ -258,7 +269,7 @@ export function FinanceAssistant() {
                   {micAccess === 'denied'
                     ? 'Ative o microfone nas permissões do navegador (cadeado na barra de endereço) ou nos Ajustes do PWA Flux e tente novamente.'
                     : micAccess === 'unsupported'
-                      ? 'Abra o Flux por HTTPS e verifique se este navegador ou PWA tem acesso ao microfone.'
+                      ? 'Áudio por voz grátis funciona no Chrome, Edge ou Safari (HTTPS). Você pode digitar no campo abaixo.'
                       : 'O Flux usará o áudio somente para transformar sua fala em texto. Você poderá revisar antes de enviar.'}
                 </p>
                 <div className={styles.permissionActions}>
@@ -285,7 +296,7 @@ export function FinanceAssistant() {
           <header className={styles.panelHead}>
             <div>
               <div className={styles.panelTitle}>Assistente</div>
-              <div className={styles.panelSub}>Texto ou áudio — funciona no app instalado (PWA)</div>
+              <div className={styles.panelSub}>Texto ou áudio grátis (Chrome, Edge, Safari)</div>
             </div>
             <button type="button" className={styles.closeBtn} onClick={() => setOpen(false)} aria-label="Fechar">
               ✕
@@ -293,18 +304,10 @@ export function FinanceAssistant() {
           </header>
 
           <div className={styles.messages} ref={listRef}>
-            {speech.transcribing && (
+            {speech.listening && (
               <div className={styles.listeningHint} role="status">
                 <span className={styles.listeningDot} aria-hidden />
-                Transcrevendo áudio…
-              </div>
-            )}
-            {speech.listening && !speech.transcribing && (
-              <div className={styles.listeningHint} role="status">
-                <span className={styles.listeningDot} aria-hidden />
-                {speech.activeMode === 'record'
-                  ? 'Gravando… fale e toque 🎤 para transcrever no campo'
-                  : 'Falando… o texto aparece no campo. Toque 🎤 para parar e envie com ↑'}
+                Falando… o texto aparece no campo. Toque 🎤 para parar e envie com ↑
               </div>
             )}
             {messages.map((msg) => (
@@ -338,14 +341,12 @@ export function FinanceAssistant() {
               aria-label={speech.listening ? 'Parar gravação' : 'Falar gasto ou receita'}
               title={
                 !speech.supported
-                  ? 'Microfone indisponível (use HTTPS)'
+                  ? 'Áudio grátis: Chrome, Edge ou Safari'
                   : speech.listening
                     ? 'Parar'
-                    : speech.mode === 'record'
-                      ? 'Gravar áudio (Firefox/Safari)'
-                      : 'Falar (ditado ao vivo)'
+                    : 'Falar (ditado grátis)'
               }
-              disabled={sending || speech.transcribing}
+              disabled={sending}
               onClick={() => void onMicClick()}
             >
               🎤
@@ -359,7 +360,7 @@ export function FinanceAssistant() {
               placeholder={speech.listening ? 'Escutando…' : 'Digite ou use o 🎤'}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              disabled={sending || speech.transcribing}
+              disabled={sending}
               autoComplete="off"
             />
             <button type="submit" className={styles.sendBtn} disabled={sending || !input.trim()}>

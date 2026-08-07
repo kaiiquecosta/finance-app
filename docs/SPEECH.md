@@ -1,27 +1,30 @@
-# Áudio no assistente (todos os navegadores + PWA)
+# Áudio no assistente (100% grátis)
 
-## No app (automático)
+O assistente usa **apenas o ditado do navegador** (Web Speech API). Não há cobrança da OpenAI nem outro serviço pago.
 
-1. **Chrome, Edge, Safari (ditado ao vivo)** — Web Speech API: texto aparece enquanto você fala.
-2. **Firefox e outros (gravação)** — grava ao tocar 🎤, transcreve ao parar via Edge Function `speech-transcribe`.
+## Onde funciona o 🎤
 
-Requisitos comuns:
+| Ambiente | Áudio por voz |
+|----------|----------------|
+| **Chrome** (PC ou Android) | Sim, grátis |
+| **Edge** | Sim, grátis |
+| **Safari** (iPhone/iPad/Mac) | Sim, grátis |
+| **PWA instalado** (tela inicial) | Sim, nos navegadores acima |
+| **Firefox** | Não — use digitação ou abra no Chrome/Edge |
 
-- **HTTPS** (ou `localhost`) — microfone no PWA instalado também exige conexão segura.
-- **Permissão de microfone** para o site/app Flux.
+## Requisitos
 
-## Servidor (Firefox / fallback)
+- Site em **HTTPS** (ou `localhost` no desenvolvimento).
+- **Permissão de microfone** para o Flux (o app pede ao tocar 🎤).
+- **Internet** — o ditado do Chrome/Safari usa o serviço de voz do próprio navegador (sem conta OpenAI sua).
 
-```bash
-supabase secrets set OPENAI_API_KEY=sk-...
-supabase functions deploy speech-transcribe
-```
+## Fluxo
 
-Sem `OPENAI_API_KEY`, o ditado **ao vivo** segue funcionando no Chrome/Edge/Safari; no Firefox o assistente avisa que falta configurar o secret.
+1. Toque **🎤** → confirme no popup do app → permita no **popup do navegador** (se ainda não tiver permitido).
+2. Fale; o texto aparece no campo.
+3. Toque **🎤** de novo para parar.
+4. Revise e envie com **↑**.
 
-Custo: áudio curto via [Whisper API](https://platform.openai.com/docs/guides/speech-to-text) (pay-as-you-go).
+## Função `speech-transcribe` (opcional / legado)
 
-## iOS / PWA
-
-- Instale o app pela tela inicial; na primeira gravação o iOS pede permissão de microfone.
-- Ditado ao vivo usa `pt-BR`; em iPhone o modo contínuo é ajustado automaticamente.
+A Edge Function `speech-transcribe` (Whisper/OpenAI) **não é usada** pelo app na versão atual. Você **não precisa** configurar `OPENAI_API_KEY` para o assistente.
