@@ -68,6 +68,16 @@ export const INVESTOR_CATEGORIES: InvestorCategory[] = [
     ],
   },
   {
+    id: 'favorites',
+    label: 'Favoritos',
+    icon: '⭐',
+    hint: 'Ativos que você marcou com estrela.',
+    hasQuotes: true,
+    match: () => true,
+    rankings: [{ id: 'name', label: 'Nome A–Z', sort: 'name' }],
+    tools: [],
+  },
+  {
     id: 'acoes_br',
     label: 'Ações',
     icon: '🇧🇷',
@@ -207,16 +217,6 @@ export const INVESTOR_CATEGORIES: InvestorCategory[] = [
     match: () => false,
     rankings: [],
     tools: [{ label: 'Ver Selic e IPCA', action: 'market' }],
-  },
-  {
-    id: 'favorites',
-    label: 'Favoritos',
-    icon: '⭐',
-    hint: 'Ativos que você marcou com estrela.',
-    hasQuotes: true,
-    match: () => true,
-    rankings: [{ id: 'name', label: 'Nome A–Z', sort: 'name' }],
-    tools: [],
   },
 ]
 

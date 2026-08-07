@@ -5,7 +5,108 @@
   width: 100%;
 }
 
-/* Mobile: colunas empilhadas (leitura vertical, sem scroll horizontal forçado) */
+.boardDesktop {
+  width: 100%;
+}
+
+.boardMobile {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.columnTabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px 8px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.columnTabs::-webkit-scrollbar {
+  display: none;
+}
+
+.columnTab {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  scroll-snap-align: start;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: var(--card2);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font);
+  white-space: nowrap;
+}
+.columnTabActive {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+.columnTabLabel {
+  line-height: 1;
+}
+.columnTabCount {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  font-family: var(--num);
+  display: inline-grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--text) 10%, transparent);
+}
+.columnTabActive .columnTabCount {
+  background: color-mix(in srgb, #fff 22%, transparent);
+  color: #fff;
+}
+
+.mobileColumnScroller {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  gap: 12px;
+  padding: 4px 2px 12px;
+  scrollbar-width: none;
+}
+.mobileColumnScroller::-webkit-scrollbar {
+  display: none;
+}
+
+.mobileColumnPane {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  min-width: 0;
+  background: var(--surface-grad, var(--card2));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  min-height: 220px;
+  box-shadow: var(--shadow-card);
+}
+
+.mobilePaneHead {
+  margin-bottom: 12px;
+}
+
+/* Mobile legado: coluna única empilhada — substituído por painéis deslizantes */
 @media (max-width: 639px) {
   .communityBoard {
     grid-template-columns: minmax(0, 1fr);
@@ -17,11 +118,16 @@
   }
 
   .columnTitle {
-    font-size: 13px;
+    font-size: 15px;
   }
 
   .itemTitle {
-    font-size: 13px;
+    font-size: 14px;
+  }
+
+  .itemCard {
+    border-radius: 14px;
+    padding: 14px;
   }
 }
 
@@ -48,11 +154,12 @@
 }
 
 .column {
-  background: var(--card2, rgba(255, 255, 255, 0.04));
+  background: var(--surface-grad, var(--card2));
   border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 12px;
   min-height: 160px;
+  box-shadow: var(--shadow-card);
 }
 
 .columnHead {
@@ -93,11 +200,11 @@
 .itemCard {
   background: var(--card, rgba(0, 0, 0, 0.25));
   border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 12px;
   margin-bottom: 10px;
   cursor: pointer;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
 }
 
 .itemCard:last-child {
@@ -106,6 +213,11 @@
 
 .itemCard:hover {
   border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+  box-shadow: var(--shadow-card-hover, var(--shadow-card));
+}
+
+.itemCard:active {
+  transform: scale(0.99);
 }
 
 .itemTitle {

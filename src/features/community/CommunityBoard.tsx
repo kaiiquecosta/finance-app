@@ -1,6 +1,7 @@
-import { useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CommunityItem, CommunityItemStatus } from '@/domain/community'
 import { COMMUNITY_COLUMNS, sortCommunityItems } from '@/domain/community'
+import { useMatchMedia } from '@/lib/useMatchMedia'
 import styles from './community.module.css'
 
 interface CommunityBoardProps {
@@ -13,6 +14,13 @@ interface CommunityBoardProps {
   likePending?: boolean
 }
 
+const COLUMN_SHORT: Record<CommunityItemStatus, string> = {
+  backlog: 'Backlog',
+  planned: 'Faremos',
+  in_progress: 'Cozinhando',
+  done: 'Pronto',
+}
+
 export function CommunityBoard({
   items,
   isAdmin,
@@ -22,6 +30,11 @@ export function CommunityBoard({
   onToggleLike,
   likePending,
 }: CommunityBoardProps) {
+  const isMobile = useMatchMedia('(max-width: 639px)')
+  const [activeStatus, setActiveStatus] = useState<CommunityItemStatus>('backlog')
+  const scrollerRef = useRef<HTMLDivElement>(null)
+  const columnRefs = useRef<Partial<Record<CommunityItemStatus, HTMLElement | null>>>({})
+
   const byStatus = useMemo(() => {
     const map = new Map<CommunityItemStatus, CommunityItem[]>()
     for (const col of COMMUNITY_COLUMNS) map.set(col.status, [])
@@ -36,39 +49,105 @@ export function CommunityBoard({
     return map
   }, [items])
 
+  const scrollToColumn = useCallback((status: CommunityItemStatus, behavior: ScrollBehavior = 'smooth') => {
+    setActiveStatus(status)
+    const el = columnRefs.current[status]
+    el?.scrollIntoView({ behavior, inline: 'start', block: 'nearest' })
+  }, [])
+
+  useEffect(() => {
+    if (!isMobile) return
+    const root = scrollerRef.current
+    if (!root) return
+
+    const onScroll = () => {
+      const left = root.scrollLeft
+      const width = root.clientWidth || 1
+      const index = Math.round(left / width)
+      const col = COMMUNITY_COLUMNS[index]?.status
+      if (col) setActiveStatus(col)
+    }
+
+    root.addEventListener('scroll', onScroll, { passive: true })
+    return () => root.removeEventListener('scroll', onScroll)
+  }, [isMobile])
+
   return (
-    <div className={styles.communityBoard}>
-      {COMMUNITY_COLUMNS.map((col) => {
-        const colItems = byStatus.get(col.status) ?? []
-        return (
-          <section key={col.status} className={styles.column} aria-label={col.title}>
-            <div className={styles.columnHead}>
-              <h2 className={styles.columnTitle}>{col.title}</h2>
-              <p className={styles.columnHint}>{col.hint}</p>
-            </div>
-            {col.status === 'backlog' && (
-              <button type="button" className={styles.addCard} onClick={onQuickAddBacklog}>
-                Adicionar sugestão +
+    <div className={isMobile ? styles.boardMobile : styles.boardDesktop}>
+      {isMobile && (
+        <div className={styles.columnTabs} role="tablist" aria-label="Colunas do roadmap">
+          {COMMUNITY_COLUMNS.map((col) => {
+            const count = byStatus.get(col.status)?.length ?? 0
+            const selected = activeStatus === col.status
+            return (
+              <button
+                key={col.status}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                className={[styles.columnTab, selected ? styles.columnTabActive : ''].filter(Boolean).join(' ')}
+                onClick={() => scrollToColumn(col.status)}
+              >
+                <span className={styles.columnTabLabel}>{COLUMN_SHORT[col.status]}</span>
+                <span className={styles.columnTabCount}>{count}</span>
               </button>
-            )}
-            {colItems.length === 0 ? (
-              <p className={styles.emptyCol}>Nenhuma ideia aqui ainda.</p>
-            ) : (
-              colItems.map((item) => (
-                <CommunityCard
-                  key={item.id}
-                  item={item}
-                  isAdmin={isAdmin}
-                  onOpen={() => onOpenItem(item)}
-                  onStatusChange={(status) => onStatusChange(item.id, status)}
-                  onToggleLike={() => onToggleLike(item)}
-                  likePending={likePending}
-                />
-              ))
-            )}
-          </section>
-        )
-      })}
+            )
+          })}
+        </div>
+      )}
+
+      <div
+        ref={scrollerRef}
+        className={isMobile ? styles.mobileColumnScroller : styles.communityBoard}
+      >
+        {COMMUNITY_COLUMNS.map((col) => {
+          const colItems = byStatus.get(col.status) ?? []
+          return (
+            <section
+              key={col.status}
+              ref={(node) => {
+                columnRefs.current[col.status] = node
+              }}
+              className={isMobile ? styles.mobileColumnPane : styles.column}
+              aria-label={col.title}
+              id={isMobile ? `community-col-${col.status}` : undefined}
+            >
+              {!isMobile && (
+                <div className={styles.columnHead}>
+                  <h2 className={styles.columnTitle}>{col.title}</h2>
+                  <p className={styles.columnHint}>{col.hint}</p>
+                </div>
+              )}
+              {isMobile && (
+                <div className={styles.mobilePaneHead}>
+                  <h2 className={styles.columnTitle}>{col.title}</h2>
+                  <p className={styles.columnHint}>{col.hint}</p>
+                </div>
+              )}
+              {col.status === 'backlog' && (
+                <button type="button" className={styles.addCard} onClick={onQuickAddBacklog}>
+                  Adicionar sugestão +
+                </button>
+              )}
+              {colItems.length === 0 ? (
+                <p className={styles.emptyCol}>Nenhuma ideia aqui ainda.</p>
+              ) : (
+                colItems.map((item) => (
+                  <CommunityCard
+                    key={item.id}
+                    item={item}
+                    isAdmin={isAdmin}
+                    onOpen={() => onOpenItem(item)}
+                    onStatusChange={(status) => onStatusChange(item.id, status)}
+                    onToggleLike={() => onToggleLike(item)}
+                    likePending={likePending}
+                  />
+                ))
+              )}
+            </section>
+          )
+        })}
+      </div>
     </div>
   )
 }

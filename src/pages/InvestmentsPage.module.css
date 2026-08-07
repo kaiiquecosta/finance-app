@@ -13,11 +13,21 @@
 
 .viewTabs {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
   margin-bottom: 18px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.viewTabs::-webkit-scrollbar {
+  display: none;
 }
 .viewTab {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
   font-size: 13px;
   font-weight: 600;
   padding: 8px 16px;
@@ -27,6 +37,7 @@
   color: var(--muted);
   cursor: pointer;
   font-family: var(--font);
+  white-space: nowrap;
 }
 .viewTabActive {
   background: var(--primary);
@@ -127,6 +138,19 @@
 }
 
 @media (max-width: 640px) {
+  .viewTabs {
+    position: sticky;
+    top: 0;
+    z-index: 9;
+    margin: 0 -4px 14px;
+    padding: 6px 4px 10px;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+  }
+  .viewTab {
+    font-size: 12px;
+    padding: 9px 14px;
+  }
   .totals {
     grid-template-columns: 1fr;
     gap: 8px;

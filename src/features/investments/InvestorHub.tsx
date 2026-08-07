@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMatchMedia } from '@/lib/useMatchMedia'
 import { useRates } from '@/data/useMarket'
 import { useStockQuotes } from '@/data/useStockQuotes'
 import type { StockQuote } from '@/data/marketSpark'
@@ -97,6 +98,9 @@ function PopularRow({ row, onOpen }: { row: CatalogRow; onOpen: (s: string) => v
 
 export function InvestorHub({ onOpenMarket }: Props) {
   const searchRef = useRef<HTMLInputElement>(null)
+  const sidebarRef = useRef<HTMLElement>(null)
+  const listAnchorRef = useRef<HTMLDivElement>(null)
+  const isMobileLayout = useMatchMedia('(max-width: 768px)')
 
   const [categoryId, setCategoryId] = useState<InvestorCategoryId>('ideas')
   const [sectorTag, setSectorTag] = useState<string | null>(null)
@@ -104,6 +108,7 @@ export function InvestorHub({ onOpenMarket }: Props) {
   const [search, setSearch] = useState('')
   const [detail, setDetail] = useState<string | null>(null)
   const [favorites, setFavorites] = useState<string[]>(() => loadFavorites())
+  const [insightsOpen, setInsightsOpen] = useState(false)
   const session = marketSessionLabel()
   const category = categoryById(categoryId)
 
@@ -197,7 +202,19 @@ export function InvestorHub({ onOpenMarket }: Props) {
     setSectorTag(null)
     setListSort('change_desc')
     setSearch('')
+    if (isMobileLayout) {
+      requestAnimationFrame(() => {
+        listAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    }
   }
+
+  useEffect(() => {
+    const root = sidebarRef.current
+    if (!root) return
+    const active = root.querySelector<HTMLElement>(`[data-category="${categoryId}"]`)
+    active?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+  }, [categoryId])
 
   const runTool = (action: 'favorites' | 'market' | 'focus_search') => {
     if (action === 'favorites') onCategoryChange('favorites')
@@ -206,13 +223,17 @@ export function InvestorHub({ onOpenMarket }: Props) {
   }
 
   return (
-    <div className={styles.wrap}>
+    <div className={[styles.wrap, isMobileLayout ? styles.wrapMobile : ''].filter(Boolean).join(' ')}>
       <div className={styles.heroBar}>
         <div className={styles.brand}>
           <span className={styles.brandIcon}>📈</span>
           <div>
             <div className={styles.brandTitle}>Investidor</div>
-            <div className={styles.brandSub}>Hub completo · ações, FIIs, stocks, ETFs, BDRs, cripto e mais</div>
+            <div className={styles.brandSub}>
+              {isMobileLayout
+                ? 'Cotações · busca · favoritos'
+                : 'Hub completo · ações, FIIs, stocks, ETFs, BDRs, cripto e mais'}
+            </div>
           </div>
         </div>
         <div className={styles.heroRight}>
@@ -227,12 +248,13 @@ export function InvestorHub({ onOpenMarket }: Props) {
       </div>
 
       <div className={styles.layout}>
-        <nav className={styles.sidebar} aria-label="Categorias de investimento">
+        <nav ref={sidebarRef} className={styles.sidebar} aria-label="Categorias de investimento">
           {INVESTOR_CATEGORIES.map((c) => (
             <button
               key={c.id}
               type="button"
               data-testid={`investor-category-${c.id}`}
+              data-category={c.id}
               className={[styles.catBtn, categoryId === c.id ? styles.catBtnActive : ''].filter(Boolean).join(' ')}
               onClick={() => onCategoryChange(c.id)}
             >
@@ -240,11 +262,41 @@ export function InvestorHub({ onOpenMarket }: Props) {
                 {c.icon}
               </span>
               <span className={styles.catLabel}>{c.label}</span>
+              {c.id === 'favorites' && favorites.length > 0 && (
+                <span className={styles.catBadge} aria-label={`${favorites.length} favoritos`}>
+                  {favorites.length}
+                </span>
+              )}
             </button>
           ))}
         </nav>
 
         <div className={styles.main}>
+          {isMobileLayout && category.hasQuotes && (
+            <div className={styles.mobileQuickRow}>
+              <button
+                type="button"
+                className={[
+                  styles.quickChip,
+                  categoryId === 'favorites' ? styles.quickChipActive : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                onClick={() => onCategoryChange('favorites')}
+              >
+                ⭐ Favoritos{favorites.length ? ` · ${favorites.length}` : ''}
+              </button>
+              <button type="button" className={styles.quickChip} onClick={() => searchRef.current?.focus()}>
+                🔍 Buscar
+              </button>
+              {onOpenMarket && (
+                <button type="button" className={styles.quickChip} onClick={() => onOpenMarket()}>
+                  🌐 Mercado
+                </button>
+              )}
+            </div>
+          )}
+
           <div className={styles.categoryHead}>
             <h2 className={styles.categoryTitle}>
               {category.icon} {category.label}
@@ -260,8 +312,163 @@ export function InvestorHub({ onOpenMarket }: Props) {
               onOpenMarket={onOpenMarket}
             />
           ) : (
-            <>
-              <div className={styles.megaGrid}>
+            <div className={styles.quoteFlow}>
+              <div className={[styles.controls, styles.blockSearch].join(' ')}>
+                <div className={styles.searchBox}>
+                  <span className={styles.searchIcon}>🔍</span>
+                  <input
+                    ref={searchRef}
+                    data-testid="investor-search-input"
+                    className={styles.searchInput}
+                    placeholder={
+                      isMobileLayout ? 'Ticker ou nome (PETR4, AAPL…)' : 'Buscar ativo (ex.: AAPL, PETR4, MXRF11…)'
+                    }
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && showSearchOpen && searchSymbol) setDetail(searchSymbol)
+                    }}
+                  />
+                  {search && (
+                    <button type="button" className={styles.searchClear} onClick={() => setSearch('')} aria-label="Limpar">
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {category.rankings.length > 0 && (
+                <div className={[styles.filterScroll, styles.blockFilters].join(' ')} role="group" aria-label="Ordenar lista">
+                  {category.rankings.map((r) => (
+                    <button
+                      key={r.id}
+                      type="button"
+                      className={[styles.filterPill, listSort === r.sort ? styles.filterPillActive : '']
+                        .filter(Boolean)
+                        .join(' ')}
+                      onClick={() => setListSort(r.sort)}
+                    >
+                      {r.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {category.sectors && category.sectors.length > 0 && (
+                <div className={[styles.filterScroll, styles.blockSectors].join(' ')} role="group" aria-label="Setores">
+                  <button
+                    type="button"
+                    className={[styles.filterPill, !sectorTag ? styles.filterPillActive : ''].filter(Boolean).join(' ')}
+                    onClick={() => setSectorTag(null)}
+                  >
+                    Todos
+                  </button>
+                  {category.sectors.map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      className={[styles.filterPill, sectorTag === s.tag ? styles.filterPillActive : '']
+                        .filter(Boolean)
+                        .join(' ')}
+                      onClick={() => setSectorTag(s.tag)}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <div ref={listAnchorRef} className={styles.listAnchor} aria-hidden />
+
+              <div className={[styles.tableCard, styles.blockTable].join(' ')}>
+                <div className={styles.tableHead}>
+                  <span />
+                  <span>
+                    Ativo {filtered.length > 0 ? `(${filtered.length})` : ''}
+                  </span>
+                  <span>Preço</span>
+                  <span>Var. dia</span>
+                  <span className={styles.colSpark}>Intraday</span>
+                </div>
+
+                {stocks.isLoading && <p className={styles.muted}>Carregando cotações…</p>}
+                {stocks.isError && (
+                  <p className={styles.muted}>Não foi possível carregar as cotações. Tente novamente em instantes.</p>
+                )}
+
+                {!stocks.isLoading && !stocks.isError && filtered.length === 0 && !showSearchOpen && (
+                  <p className={styles.muted}>
+                    {categoryId === 'favorites'
+                      ? 'Nenhum favorito — toque na estrela ☆ de um ativo.'
+                      : 'Nenhum ativo neste filtro.'}
+                  </p>
+                )}
+
+                {showSearchOpen && (
+                  <button type="button" className={styles.searchOpenBtn} onClick={() => setDetail(searchSymbol)}>
+                    🔎 Abrir cotação de <b>{search.trim().toUpperCase()}</b> no Yahoo Finance
+                  </button>
+                )}
+
+                {filtered.map(({ def, quote: q }) => {
+                  const fav = favorites.includes(def.yahoo)
+                  return (
+                    <div key={def.yahoo} className={styles.tableRow}>
+                      <button
+                        type="button"
+                        className={[styles.starBtn, fav ? styles.starActive : ''].filter(Boolean).join(' ')}
+                        onClick={() => toggleFavorite(def.yahoo)}
+                        title={fav ? 'Remover dos favoritos' : 'Favoritar'}
+                      >
+                        {fav ? '★' : '☆'}
+                      </button>
+                      <button type="button" className={styles.assetCell} onClick={() => setDetail(def.yahoo)}>
+                        <span className={styles.assetIcon}>{def.icon}</span>
+                        <span className={styles.assetText}>
+                          <span className={styles.assetName}>{def.name}</span>
+                          <span className={styles.assetSub}>
+                            {def.symbol} · {def.exchange} · {KIND_LABEL[def.kind]}
+                          </span>
+                        </span>
+                      </button>
+                      <span className={styles.priceCell}>{q ? formatPriceQuote(q) : '—'}</span>
+                      {q ? (
+                        <span className={q.pctChange >= 0 ? styles.up : styles.down}>
+                          {q.pctChange >= 0 ? '+' : ''}
+                          {q.pctChange.toFixed(2)}%
+                        </span>
+                      ) : (
+                        <span className={styles.na}>…</span>
+                      )}
+                      {q ? <MiniSpark values={q.sparkline} /> : <div className={styles.sparkEmpty} />}
+                    </div>
+                  )
+                })}
+              </div>
+
+              {isMobileLayout && (
+                <button
+                  type="button"
+                  className={[styles.insightsToggle, styles.blockInsightsToggle].join(' ')}
+                  aria-expanded={insightsOpen}
+                  onClick={() => setInsightsOpen((v) => !v)}
+                >
+                  {insightsOpen ? 'Ocultar destaques' : 'Ver mais buscados e ferramentas'}
+                  <span className={styles.insightsChevron} aria-hidden>
+                    {insightsOpen ? '▴' : '▾'}
+                  </span>
+                </button>
+              )}
+
+              <div
+                className={[
+                  styles.megaGrid,
+                  styles.blockMega,
+                  isMobileLayout && !insightsOpen ? styles.megaGridCollapsed : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+              >
                 <section className={styles.megaCol}>
                   <h3 className={styles.panelTitle}>Mais buscados</h3>
                   {popular.length === 0 && <p className={styles.muted}>Sem cotações nesta categoria.</p>}
@@ -327,119 +534,32 @@ export function InvestorHub({ onOpenMarket }: Props) {
               </div>
 
               {tape.length > 0 && (
-                <div className={styles.tickerWrap} aria-label="Ticker de cotações">
+                <div className={[styles.tickerWrap, styles.blockTicker].join(' ')} aria-label="Ticker de cotações">
                   <div className={styles.tickerTrack}>
                     {[...tape, ...tape].map((row, i) => {
                       const q = row.quote!
                       return (
-                      <button
-                        key={`${row.def.symbol}-${i}`}
-                        type="button"
-                        className={styles.tickerItem}
-                        onClick={() => setDetail(row.def.yahoo)}
-                      >
-                        <span className={styles.tickerSym}>
-                          {row.def.icon} {row.def.symbol}
-                        </span>
-                        <span className={styles.tickerPx}>{formatPriceQuote(q)}</span>
-                        <span className={q.pctChange >= 0 ? styles.up : styles.down}>
-                          {q.pctChange >= 0 ? '+' : ''}
-                          {q.pctChange.toFixed(2)}%
-                        </span>
-                      </button>
-                    )})}
-                  </div>
-                </div>
-              )}
-
-              <div className={styles.controls}>
-                <div className={styles.searchBox}>
-                  <span className={styles.searchIcon}>🔍</span>
-                  <input
-                    ref={searchRef}
-                    data-testid="investor-search-input"
-                    className={styles.searchInput}
-                    placeholder="Buscar ativo (ex.: AAPL, PETR4, MXRF11…)"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && showSearchOpen && searchSymbol) setDetail(searchSymbol)
-                    }}
-                  />
-                  {search && (
-                    <button type="button" className={styles.searchClear} onClick={() => setSearch('')} aria-label="Limpar">
-                      ✕
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className={styles.tableCard}>
-                <div className={styles.tableHead}>
-                  <span />
-                  <span>
-                    Ativo {filtered.length > 0 ? `(${filtered.length})` : ''}
-                  </span>
-                  <span>Preço</span>
-                  <span>Var. dia</span>
-                  <span className={styles.colSpark}>Intraday</span>
-                </div>
-
-                {stocks.isLoading && <p className={styles.muted}>Carregando cotações…</p>}
-                {stocks.isError && (
-                  <p className={styles.muted}>Não foi possível carregar as cotações. Tente novamente em instantes.</p>
-                )}
-
-                {!stocks.isLoading && !stocks.isError && filtered.length === 0 && !showSearchOpen && (
-                  <p className={styles.muted}>
-                    {categoryId === 'favorites'
-                      ? 'Nenhum favorito — toque na estrela ☆ de um ativo.'
-                      : 'Nenhum ativo neste filtro.'}
-                  </p>
-                )}
-
-                {showSearchOpen && (
-                  <button type="button" className={styles.searchOpenBtn} onClick={() => setDetail(searchSymbol)}>
-                    🔎 Abrir cotação de <b>{search.trim().toUpperCase()}</b> no Yahoo Finance
-                  </button>
-                )}
-
-                {filtered.map(({ def, quote: q }) => {
-                    const fav = favorites.includes(def.yahoo)
-                    return (
-                      <div key={def.yahoo} className={styles.tableRow}>
                         <button
+                          key={`${row.def.symbol}-${i}`}
                           type="button"
-                          className={[styles.starBtn, fav ? styles.starActive : ''].filter(Boolean).join(' ')}
-                          onClick={() => toggleFavorite(def.yahoo)}
-                          title={fav ? 'Remover dos favoritos' : 'Favoritar'}
+                          className={styles.tickerItem}
+                          onClick={() => setDetail(row.def.yahoo)}
                         >
-                          {fav ? '★' : '☆'}
-                        </button>
-                        <button type="button" className={styles.assetCell} onClick={() => setDetail(def.yahoo)}>
-                          <span className={styles.assetIcon}>{def.icon}</span>
-                          <span className={styles.assetText}>
-                            <span className={styles.assetName}>{def.name}</span>
-                            <span className={styles.assetSub}>
-                              {def.symbol} · {def.exchange} · {KIND_LABEL[def.kind]}
-                            </span>
+                          <span className={styles.tickerSym}>
+                            {row.def.icon} {row.def.symbol}
                           </span>
-                        </button>
-                        <span className={styles.priceCell}>{q ? formatPriceQuote(q) : '—'}</span>
-                        {q ? (
+                          <span className={styles.tickerPx}>{formatPriceQuote(q)}</span>
                           <span className={q.pctChange >= 0 ? styles.up : styles.down}>
                             {q.pctChange >= 0 ? '+' : ''}
                             {q.pctChange.toFixed(2)}%
                           </span>
-                        ) : (
-                          <span className={styles.na}>…</span>
-                        )}
-                        {q ? <MiniSpark values={q.sparkline} /> : <div className={styles.sparkEmpty} />}
-                      </div>
-                    )
-                  })}
-              </div>
-            </>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
           )}
 
           <p className={styles.disclaimer}>
