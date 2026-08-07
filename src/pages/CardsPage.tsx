@@ -174,8 +174,9 @@ export function CardsPage() {
                       </button>
                       <button
                         type="button"
-                        className={styles.ccLaunchBtn}
+                        className="btn-header"
                         style={{
+                          background: card.color,
                           color: bankButtonTextColor(card.color),
                         }}
                         onClick={() => setPurchaseCard(card)}

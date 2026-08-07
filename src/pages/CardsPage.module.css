@@ -138,35 +138,6 @@
   flex-shrink: 0;
 }
 
-.ccLaunchBtn {
-  border-radius: 10px;
-  padding: 8px 15px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  cursor: pointer;
-  border: 1px solid color-mix(in srgb, var(--card-accent, var(--primary)) 35%, #fff);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--card-accent, var(--primary)) 82%, #fff),
-    var(--card-accent, var(--primary))
-  );
-  box-shadow:
-    0 1px 0 color-mix(in srgb, #fff 40%, transparent) inset,
-    0 4px 16px color-mix(in srgb, var(--card-accent, var(--primary)) 50%, transparent);
-  transition:
-    filter 0.15s ease,
-    transform 0.12s ease;
-}
-
-.ccLaunchBtn:hover {
-  filter: brightness(1.1);
-}
-
-.ccLaunchBtn:active {
-  transform: scale(0.98);
-}
-
 .ccEditBtn {
   border-radius: 10px;
   padding: 7px 11px;
@@ -195,13 +166,6 @@
 [data-theme='dark'] .ccEditBtn:hover {
   background: rgba(255, 255, 255, 0.16);
   border-color: rgba(255, 255, 255, 0.32);
-}
-
-[data-theme='dark'] .ccLaunchBtn {
-  border-color: color-mix(in srgb, var(--card-accent, var(--primary)) 25%, #fff);
-  box-shadow:
-    0 1px 0 color-mix(in srgb, #fff 45%, transparent) inset,
-    0 6px 20px color-mix(in srgb, var(--card-accent, var(--primary)) 55%, transparent);
 }
 
 .bills {
