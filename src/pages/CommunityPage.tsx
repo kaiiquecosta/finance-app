@@ -12,6 +12,11 @@ import {
   communityStatusAdminToast,
   pushCommunityStatusAlert,
 } from '@/features/community/communityStatusNotify'
+import {
+  canUseBrowserNotifications,
+  ensureNotificationPermission,
+} from '@/features/community/communityBrowserNotify'
+import styles from '@/features/community/community.module.css'
 import type { CommunityItem, CommunityItemStatus } from '@/domain/community'
 
 export function CommunityPage() {
@@ -22,6 +27,12 @@ export function CommunityPage() {
 
   const [createOpen, setCreateOpen] = useState(false)
   const [selected, setSelected] = useState<CommunityItem | null>(null)
+  const [notifBanner, setNotifBanner] = useState(false)
+
+  useEffect(() => {
+    if (!canUseBrowserNotifications()) return
+    if (Notification.permission === 'default') setNotifBanner(true)
+  }, [])
 
   const isAdmin = isCommunityAdmin(user, profileQuery.data)
   const canEditSelected =
@@ -99,6 +110,21 @@ export function CommunityPage() {
           </Button>
         }
       />
+
+      {notifBanner && (
+        <p className={styles.notifHint} role="status">
+          Ative as notificações para saber quando sua sugestão mudar de coluna (Backlog → Faremos, etc.),
+          mesmo fora desta página.
+          <button
+            type="button"
+            onClick={() => {
+              void ensureNotificationPermission().then(() => setNotifBanner(false))
+            }}
+          >
+            Ativar notificações
+          </button>
+        </p>
+      )}
 
       <CommunityBoard
         items={items}

@@ -34,7 +34,8 @@ atual que já tem as tabelas com dados.
    já existentes ganhem os 30 dias de trial, e não fiquem bloqueadas de recursos
    Pro por falta de registro em `plans`)
 4. Para a aba **Comunidade**: `migrations/0004_community.sql` → **Run**
-5. Admin do roadmap (mover colunas): `scripts/comunidade-tornar-admin.sql` → **Run**
+5. Notificações de status (realtime): `migrations/0006_community_realtime.sql` → **Run**
+6. Admin do roadmap (mover colunas): `scripts/comunidade-tornar-admin.sql` → **Run**
    (ou use só o `update` com join em `auth.users` — **não** use `select name from auth.users`, essa coluna não existe)
 
 ### Opção B — Supabase CLI

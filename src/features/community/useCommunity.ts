@@ -17,6 +17,9 @@ export function useCommunityBoard(userId: string | undefined) {
     queryKey: queryKeys.community(),
     queryFn: () => fetchCommunityBoard(userId),
     enabled: !!userId,
+    refetchInterval: () => (document.visibilityState === 'visible' ? 25_000 : false),
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   })
 }
 
