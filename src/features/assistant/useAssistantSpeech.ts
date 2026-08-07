@@ -27,6 +27,14 @@ type SpeechRecognitionResultEvent = {
 
 export type AssistantSpeechMode = 'live' | 'none'
 
+export type AssistantSpeechErrorKind =
+  | 'mic-permission'
+  | 'speech-permission'
+  | 'network'
+  | 'unsupported'
+  | 'generic'
+  | null
+
 const FREE_VOICE_HINT =
   'Áudio por voz é grátis no Chrome, Edge ou Safari (incluindo PWA). Neste navegador, digite no campo.'
 
@@ -88,6 +96,7 @@ export function useAssistantSpeech(options: {
 
   const [listening, setListening] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [errorKind, setErrorKind] = useState<AssistantSpeechErrorKind>(null)
 
   const wantListenRef = useRef(false)
   const recRef = useRef<SpeechRecognitionInstance | null>(null)
@@ -137,10 +146,15 @@ export function useAssistantSpeech(options: {
         setListening(false)
         releaseStream()
         if (ev.error === 'not-allowed') {
-          setError('Permita o microfone no navegador (cadeado na barra de endereço).')
+          setErrorKind('speech-permission')
+          setError(
+            'O ditado por voz não foi autorizado. Confira o microfone no cadeado do site e tente de novo, ou digite no campo.',
+          )
         } else if (ev.error === 'network') {
+          setErrorKind('network')
           setError('Ditado precisa de internet. Verifique a conexão ou digite no campo.')
         } else {
+          setErrorKind('generic')
           setError('Não foi possível ouvir. Tente de novo ou digite no campo.')
         }
       }
@@ -166,6 +180,7 @@ export function useAssistantSpeech(options: {
         setListening(true)
       } catch {
         wantListenRef.current = false
+        setErrorKind('generic')
         setError('Não foi possível iniciar o ditado. Tente de novo.')
         releaseStream()
       }
@@ -175,7 +190,9 @@ export function useAssistantSpeech(options: {
 
   const start = useCallback(async () => {
     setError(null)
+    setErrorKind(null)
     if (!supported) {
+      setErrorKind('unsupported')
       setError(FREE_VOICE_HINT)
       return
     }
@@ -183,22 +200,28 @@ export function useAssistantSpeech(options: {
 
     const Ctor = getSpeechRecognitionCtor()
     if (!Ctor) {
+      setErrorKind('unsupported')
       setError(FREE_VOICE_HINT)
       return
     }
 
     try {
       releaseStream()
+      // Pede permissão ao usuário, mas libera o dispositivo antes do SpeechRecognition
+      // (manter getUserMedia aberto costuma impedir o ditado no Chrome).
       const stream = await requestMicrophone()
-      streamRef.current = stream
+      stream.getTracks().forEach((t) => t.stop())
       startLive(Ctor)
     } catch (e) {
       const name = e instanceof DOMException ? e.name : ''
       if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+        setErrorKind('mic-permission')
         setError('Permita o microfone para o Flux (site ou app instalado).')
       } else if (name === 'NotFoundError') {
+        setErrorKind('generic')
         setError('Nenhum microfone encontrado neste aparelho.')
       } else {
+        setErrorKind('generic')
         setError('Não foi possível acessar o microfone.')
       }
       releaseStream()
@@ -229,10 +252,14 @@ export function useAssistantSpeech(options: {
     listening,
     transcribing: false,
     error,
+    errorKind,
     start,
     stop,
     toggle,
-    clearError: () => setError(null),
+    clearError: () => {
+      setError(null)
+      setErrorKind(null)
+    },
     freeVoiceHint: FREE_VOICE_HINT,
   }
 }

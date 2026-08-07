@@ -202,11 +202,15 @@ export function FinanceAssistant() {
     }
     const access = await readMicrophonePermission()
     setMicAccess(access)
-    if (access === 'granted') {
-      await beginSpeech()
+    if (access === 'denied') {
+      setMicPromptOpen(true)
       return
     }
-    setMicPromptOpen(true)
+    if (access === 'prompt' || access === 'unknown') {
+      setMicPromptOpen(true)
+      return
+    }
+    await beginSpeech()
   }
 
   useEffect(() => {
@@ -216,15 +220,24 @@ export function FinanceAssistant() {
   useEffect(() => {
     if (!speech.error) return
     const msg = speech.error
-    if (/permita|microfone exige|indisponível/i.test(msg)) {
+    const kind = speech.errorKind
+
+    if (kind === 'mic-permission') {
       void readMicrophonePermission().then((access) => {
-        setMicAccess(access === 'prompt' ? 'denied' : access)
-        setMicPromptOpen(true)
+        setMicAccess(access)
+        if (access === 'denied') setMicPromptOpen(true)
+      })
+    } else if (kind === 'speech-permission') {
+      void readMicrophonePermission().then((access) => {
+        setMicAccess(access)
+        // Só mostra "bloqueado" se o navegador realmente negou o microfone.
+        if (access === 'denied') setMicPromptOpen(true)
       })
     }
+
     setMessages((m) => [...m, { id: `a-speech-${Date.now()}`, role: 'assistant', text: msg }])
     speech.clearError()
-  }, [speech.error, speech.clearError])
+  }, [speech.error, speech.errorKind, speech.clearError])
 
   const send = () => {
     speech.stop()
