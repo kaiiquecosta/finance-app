@@ -189,6 +189,12 @@
   border-color: color-mix(in srgb, var(--primary) 40%, transparent);
   background: color-mix(in srgb, var(--primary) 10%, transparent);
 }
+.pillTheme {
+  letter-spacing: 0.01em;
+  font-size: 10px;
+  font-weight: 650;
+  padding: 0 10px;
+}
 .pillDanger:hover {
   color: var(--red);
   border-color: color-mix(in srgb, var(--red) 38%, transparent);

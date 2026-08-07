@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/app/SessionProvider'
 import { usePlan, useFinanceData, useProfile } from '@/data/hooks'
-import { useTheme } from '@/app/theme'
+import { useTheme, themeToggleLabel } from '@/app/theme'
 import { signOut } from '@/data/auth'
 import { openBillingPortal } from '@/data/billing'
 import { isPro, planLabel, trialDaysLeft } from '@/domain/plan'
@@ -49,6 +49,7 @@ export function AppShell() {
 
   const pro = isPro(plan.data)
   const label = planLabel(plan.data)
+  const themeActionLabel = themeToggleLabel(theme)
 
   const onBadgeClick = () => {
     if (label === 'PRO') void openBillingPortal().catch(() => setUpgradeOpen(true))
@@ -108,11 +109,13 @@ export function AppShell() {
             {label}
           </button>
           <button
-            className={styles.pill}
+            type="button"
+            className={`${styles.pill} ${styles.pillTheme}`}
             onClick={toggle}
-            title={theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
+            title={themeActionLabel}
+            aria-label={themeActionLabel}
           >
-            {theme === 'dark' ? 'CLARO' : 'ESCURO'}
+            {themeActionLabel}
           </button>
           <button
             className={`${styles.pill} ${styles.pillDanger}`}

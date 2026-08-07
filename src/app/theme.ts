@@ -12,6 +12,11 @@ import { create } from 'zustand'
 export type Theme = 'dark' | 'light'
 const STORAGE_KEY = 'finance_theme'
 
+/** Rótulo do botão de tema: anuncia para qual modo o clique leva (igual login e apps grandes). */
+export function themeToggleLabel(theme: Theme): string {
+  return theme === 'light' ? 'Modo escuro' : 'Modo claro'
+}
+
 function initialTheme(): Theme {
   if (typeof localStorage === 'undefined') return 'light'
   return localStorage.getItem(STORAGE_KEY) === 'dark' ? 'dark' : 'light'

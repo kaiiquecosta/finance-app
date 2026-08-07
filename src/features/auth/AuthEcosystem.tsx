@@ -18,6 +18,7 @@
  */
 import type { CSSProperties, ReactElement } from 'react'
 import type { Theme } from '@/app/theme'
+import { themeToggleLabel } from '@/app/theme'
 import styles from './AuthScreen.module.css'
 
 const STAGE = { w: 1120, h: 720 } as const
@@ -302,7 +303,7 @@ export function AuthStrip() {
  */
 export function ThemeToggle({ theme, onToggle }: { theme: Theme; onToggle: () => void }) {
   const goingDark = theme === 'light'
-  const label = goingDark ? 'Modo escuro' : 'Modo claro'
+  const label = themeToggleLabel(theme)
   return (
     <button type="button" className={styles.themeToggle} onClick={onToggle} title={label}>
       <svg {...STROKE} width="15" height="15" aria-hidden="true">
