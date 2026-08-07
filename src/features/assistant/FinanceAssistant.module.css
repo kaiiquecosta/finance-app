@@ -127,10 +127,82 @@
 
 .composer {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  align-items: center;
   padding: 10px 12px 12px;
   border-top: 1px solid var(--border);
   background: var(--card);
+}
+
+.micBtn {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border2);
+  background: var(--card2);
+  color: var(--text);
+  font-size: 18px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.micBtn:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border2));
+  background: color-mix(in srgb, var(--primary) 8%, var(--card2));
+}
+
+.micBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.micBtnActive {
+  border-color: color-mix(in srgb, var(--red, #ef4444) 50%, var(--primary));
+  background: color-mix(in srgb, var(--red, #ef4444) 12%, var(--card2));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--red, #ef4444) 18%, transparent);
+  animation: micPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes micPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+.listeningHint {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 4px 8px;
+}
+
+.listeningDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red, #ef4444);
+  animation: listenBlink 1s ease-in-out infinite;
+}
+
+@keyframes listenBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
 }
 
 .input {
