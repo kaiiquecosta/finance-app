@@ -1,93 +1,398 @@
-.muted {
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.6;
-  padding: 6px 0;
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
+
+/* —— Resumo (estilo “widget” Apple) —— */
+.hero {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 4px 0 8px;
+}
+
+.heroStat {
+  padding: 16px 14px;
+  border-radius: 16px;
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--card) 92%, var(--primary) 8%) 0%,
+    var(--card) 55%,
+    var(--card2) 100%
+  );
+  border: 1px solid var(--border);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 6%, transparent) inset,
+    0 12px 32px color-mix(in srgb, #000 4%, transparent);
+}
+
+.heroLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.heroValue {
+  font-family: var(--num);
+  font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+.heroSub {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* —— Lista de metas —— */
 .grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 14px;
 }
-.goal {
+
+.card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+  padding: 18px 18px 16px;
+  border-radius: 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 5%, transparent) inset,
+    0 16px 40px color-mix(in srgb, #000 5%, transparent);
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
-.top {
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--goal-color, var(--primary)) 85%, transparent),
+    color-mix(in srgb, var(--goal-color, var(--primary)) 25%, transparent)
+  );
+  opacity: 0.9;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--goal-color, var(--primary)) 22%, var(--border));
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 6%, transparent) inset,
+    0 20px 48px color-mix(in srgb, var(--goal-color, var(--primary)) 8%, transparent);
+}
+
+.cardDone {
+  border-color: color-mix(in srgb, var(--green) 35%, var(--border));
+}
+
+.cardDone::before {
+  background: linear-gradient(90deg, var(--green), color-mix(in srgb, var(--green) 40%, transparent));
+}
+
+.cardTop {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  align-items: flex-start;
+  gap: 14px;
 }
+
 .icon {
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
   display: grid;
   place-items: center;
-  border-radius: 12px;
-  font-size: 20px;
+  border-radius: 14px;
+  font-size: 22px;
   flex-shrink: 0;
+  background: color-mix(in srgb, var(--goal-color, var(--primary)) 14%, var(--card2));
+  border: 1px solid color-mix(in srgb, var(--goal-color, var(--primary)) 28%, transparent);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--goal-color, var(--primary)) 12%, transparent);
 }
-.info {
+
+.head {
   flex: 1;
-  display: flex;
-  flex-direction: column;
   min-width: 0;
+  padding-top: 2px;
 }
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .name {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
   color: var(--text);
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
   text-align: left;
+  cursor: pointer;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
 .name:hover {
   color: var(--primary);
 }
-.sub {
+
+.editBtn {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  opacity: 0.65;
+  transition:
+    opacity 0.15s ease,
+    background 0.15s ease;
+}
+
+.editBtn:hover {
+  opacity: 1;
+  background: var(--card2);
+}
+
+.meta {
+  margin-top: 4px;
   font-size: 12px;
   color: var(--muted);
+  line-height: 1.45;
 }
-.pct {
-  font-family: var(--num);
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--text);
+
+.deadlineChip {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  background: var(--card2);
+  border: 1px solid var(--border);
 }
-.pctDone {
+
+.ringWrap {
+  flex-shrink: 0;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: conic-gradient(
+    from -90deg,
+    var(--ring-color, var(--primary)) calc(var(--pct, 0) * 1%),
+    var(--border2) 0
+  );
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ring-color, var(--primary)) 15%, transparent);
+}
+
+.ringInner {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--card);
+  display: grid;
+  place-items: center;
   font-family: var(--num);
-  font-weight: 700;
-  font-size: 16px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ring-color, var(--primary));
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 1px 4px color-mix(in srgb, #000 6%, transparent) inset;
+}
+
+.ringDone .ringInner {
   color: var(--green);
 }
-.bar {
-  height: 8px;
-  border-radius: 999px;
-  background: var(--border2);
-  overflow: hidden;
+
+.amounts {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
 }
-.fill {
+
+.saved {
+  font-family: var(--num);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.ofTarget {
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.barTrack {
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border2) 80%, transparent);
+  overflow: hidden;
+  box-shadow: 0 1px 2px color-mix(in srgb, #000 6%, transparent) inset;
+}
+
+.barFill {
   height: 100%;
   border-radius: 999px;
-  transition: width 0.5s ease;
+  transition: width 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--goal-color, var(--primary)) 92%, #fff),
+    var(--goal-color, var(--primary))
+  );
+  box-shadow: 0 0 12px color-mix(in srgb, var(--goal-color, var(--primary)) 45%, transparent);
 }
-.actions {
+
+.barFillDone {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--green) 90%, #fff), var(--green));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--green) 40%, transparent);
+}
+
+.cardFoot {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  padding-top: 2px;
 }
+
 .remaining {
   font-size: 13px;
   color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
+
 .doneLabel {
   font-size: 13px;
-  color: var(--green);
   font-weight: 600;
+  color: var(--green);
+}
+
+.depositBtn {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: none;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+  color: var(--on-primary, #fff);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--goal-color, var(--primary)) 95%, #fff),
+    var(--goal-color, var(--primary))
+  );
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 25%, transparent) inset,
+    0 4px 14px color-mix(in srgb, var(--goal-color, var(--primary)) 35%, transparent);
+  transition:
+    transform 0.12s ease,
+    filter 0.15s ease;
+}
+
+.depositBtn:hover {
+  filter: brightness(1.06);
+}
+
+.depositBtn:active {
+  transform: scale(0.98);
+}
+
+/* —— Empty —— */
+.empty {
+  padding: 36px 24px;
+  border-radius: 20px;
+  text-align: center;
+  background: linear-gradient(180deg, var(--card) 0%, var(--card2) 100%);
+  border: 1px dashed color-mix(in srgb, var(--primary) 25%, var(--border));
+}
+
+.emptyIcon {
+  font-size: 40px;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 8px 16px color-mix(in srgb, var(--primary) 20%, transparent));
+}
+
+.emptyTitle {
+  margin: 0 0 8px;
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.emptyText {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 @media (max-width: 640px) {
-  .grid {
+  .hero {
     grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .heroStat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+  }
+
+  .heroLabel {
+    margin-bottom: 0;
+  }
+
+  .heroSub {
+    display: none;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .saved {
+    font-size: 1.2rem;
   }
 }
