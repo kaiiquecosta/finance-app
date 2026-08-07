@@ -52,6 +52,22 @@
   --num: 'Bricolage Grotesque', var(--font);
   --nav-h: 56px;
   --sidebar-w: 220px;
+
+  /* —— Superfície premium (recipe usada em Metas: gradiente sutil + sombra em duas camadas) —— */
+  --surface-grad: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--card) 92%, var(--primary) 8%) 0%,
+    var(--card) 55%,
+    var(--card2) 100%
+  );
+  --shadow-card:
+    0 1px 0 color-mix(in srgb, #fff 6%, transparent) inset,
+    0 14px 34px color-mix(in srgb, #000 5%, transparent);
+  --shadow-card-hover:
+    0 1px 0 color-mix(in srgb, #fff 7%, transparent) inset,
+    0 20px 44px color-mix(in srgb, #000 7%, transparent);
+  --radius-card: 18px;
+  --radius-card-sm: 14px;
 }
 
 [data-theme='dark'] {

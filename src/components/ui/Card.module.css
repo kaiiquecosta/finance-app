@@ -1,8 +1,9 @@
 .card {
-  background: var(--card);
+  background: var(--surface-grad);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 18px;
+  box-shadow: var(--shadow-card);
 }
 .header {
   display: flex;

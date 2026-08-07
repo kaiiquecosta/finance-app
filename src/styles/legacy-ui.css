@@ -1,10 +1,11 @@
 /* Utilitários portados do legado (Visão geral e telas internas). */
 
 .card {
-  background: var(--card);
+  background: var(--surface-grad);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 20px;
+  box-shadow: var(--shadow-card);
 }
 
 .page-hdr {
@@ -63,7 +64,7 @@
 
 .card-sm {
   padding: 16px;
-  border-radius: 14px;
+  border-radius: var(--radius-card-sm);
 }
 .card-label {
   color: var(--muted);
@@ -190,12 +191,13 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--card);
+  background: var(--surface-grad);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-card-sm);
   padding: 10px 16px;
   margin-bottom: 20px;
   position: relative;
+  box-shadow: var(--shadow-card);
 }
 .month-btn {
   width: 32px;
@@ -365,10 +367,20 @@
 .cc-card {
   background: linear-gradient(145deg, var(--card2) 0%, var(--card) 100%);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 20px;
   position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+.cc-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--card-accent, var(--primary)) 20%, var(--border));
+  box-shadow: var(--shadow-card-hover);
 }
 .cc-card::before {
   content: '';
@@ -477,11 +489,13 @@
 }
 
 .overview-hero {
-  background: var(--card);
+  background: var(--surface-grad);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 20px;
-  box-shadow: inset 3px 0 0 var(--primary);
+  box-shadow:
+    inset 3px 0 0 var(--primary),
+    var(--shadow-card);
 }
 
 .fadein {
@@ -499,25 +513,32 @@
 }
 
 .btn-glow {
-  box-shadow:
-    0 0 16px color-mix(in srgb, var(--primary) 50%, transparent),
-    0 2px 8px rgba(0, 0, 0, 0.25);
+  filter: drop-shadow(0 0 16px color-mix(in srgb, var(--primary) 45%, transparent));
 }
 
 .btn-header {
-  background: var(--primary);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--primary) 94%, #fff), var(--primary));
   border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
+  border-radius: 999px;
+  padding: 9px 18px;
   color: #ffffff;
   font-size: 13px;
   font-weight: 700;
   font-family: var(--font);
   cursor: pointer;
   white-space: nowrap;
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 25%, transparent) inset,
+    0 6px 16px color-mix(in srgb, var(--primary) 35%, transparent);
+  transition:
+    filter 0.15s ease,
+    transform 0.12s ease;
 }
 .btn-header:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.06);
+}
+.btn-header:active {
+  transform: scale(0.97);
 }
 .btn-header:disabled {
   opacity: 0.6;

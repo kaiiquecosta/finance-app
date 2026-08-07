@@ -101,17 +101,25 @@ export function AppShell() {
 
         <div className={styles.topnavEnd}>
           <button
-            className={`${styles.plan} ${pro ? styles.planPro : ''}`}
+            className={`${styles.pill} ${pro ? styles.pillPro : ''}`}
             onClick={onBadgeClick}
             title={label === 'PRO' ? 'Gerenciar assinatura' : 'Assinar o Pro'}
           >
             {label}
           </button>
-          <button className={styles.iconBtn} onClick={toggle} title="Alternar tema">
-            {theme === 'dark' ? '☀️' : '🌙'}
+          <button
+            className={styles.pill}
+            onClick={toggle}
+            title={theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
+          >
+            {theme === 'dark' ? 'CLEAR' : 'DARK'}
           </button>
-          <button className={styles.iconBtn} onClick={() => void signOut()} title="Sair">
-            ⎋
+          <button
+            className={`${styles.pill} ${styles.pillDanger}`}
+            onClick={() => void signOut()}
+            title="Sair"
+          >
+            EXIT
           </button>
         </div>
       </header>

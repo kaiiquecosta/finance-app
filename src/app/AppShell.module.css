@@ -34,7 +34,9 @@
   align-items: center;
   gap: 8px;
   padding: 6px 12px 4px;
-  background: var(--card);
+  background: color-mix(in srgb, var(--card) 80%, transparent);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
   border-bottom: 1px solid var(--border);
   overflow: hidden;
 }
@@ -88,9 +90,13 @@
   font-family: var(--num);
   font-weight: 700;
   font-size: 16px;
-  color: var(--text);
+  letter-spacing: -0.01em;
   flex-shrink: 0;
   margin-right: 4px;
+  background: linear-gradient(135deg, var(--text) 20%, var(--primary) 120%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
 }
 .logoDot {
   width: 9px;
@@ -127,6 +133,7 @@
   color: var(--text);
   background: color-mix(in srgb, var(--text) 9%, transparent);
   border-color: var(--border2);
+  box-shadow: 0 1px 0 color-mix(in srgb, #fff 8%, transparent) inset;
 }
 .tabIcon {
   display: inline-flex;
@@ -147,32 +154,45 @@
   flex: 1;
 }
 
-.plan {
-  font-size: 11px;
+/* Pílulas simétricas — mesma altura, largura mínima e tipografia para as três ações. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  height: 27px;
+  padding: 0 11px;
+  font-size: 10.5px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   color: var(--muted);
+  background: color-mix(in srgb, var(--text) 3%, transparent);
   border: 1px solid var(--border2);
   border-radius: 999px;
-  padding: 3px 9px;
   flex-shrink: 0;
+  white-space: nowrap;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.12s ease;
 }
-.planPro {
+.pill:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+.pill:active {
+  transform: scale(0.94);
+}
+.pillPro {
   color: var(--primary);
   border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
 }
-.iconBtn {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border-radius: 10px;
-  font-size: 15px;
-  color: var(--text);
-  flex-shrink: 0;
-}
-.iconBtn:hover {
-  background: color-mix(in srgb, var(--text) 8%, transparent);
+.pillDanger:hover {
+  color: var(--red);
+  border-color: color-mix(in srgb, var(--red) 38%, transparent);
+  background: color-mix(in srgb, var(--red) 10%, transparent);
 }
 
 .appDemo .main {
@@ -205,7 +225,9 @@
     display: flex;
     gap: 2px;
     padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
-    background: var(--card);
+    background: color-mix(in srgb, var(--card) 82%, transparent);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
     border-top: 1px solid var(--border);
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
