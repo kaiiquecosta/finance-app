@@ -312,7 +312,7 @@ export function FinanceAssistant() {
             {speech.listening && (
               <div className={styles.listeningHint} role="status">
                 <span className={styles.listeningDot} aria-hidden />
-                Falando… o texto aparece no campo. Toque 🎤 para parar e envie com ↑
+                {speech.listeningHint}
               </div>
             )}
             {messages.map((msg) => (

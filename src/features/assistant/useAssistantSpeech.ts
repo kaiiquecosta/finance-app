@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { lineFromSpeechResults, polishDictationLine } from './speechTranscript'
+import {
+  getDictationListeningHint,
+  isAndroid,
+  pickRecognitionTranscript,
+  useSingleUtteranceDictation,
+} from './speechPlatform'
 
 type SpeechRecognitionCtor = new () => SpeechRecognitionInstance
 
@@ -46,14 +52,6 @@ function getSpeechRecognitionCtor(): SpeechRecognitionCtor | null {
     webkitSpeechRecognition?: SpeechRecognitionCtor
   }
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null
-}
-
-function isAppleMobile(): boolean {
-  if (typeof navigator === 'undefined') return false
-  return (
-    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-  )
 }
 
 export function detectAssistantSpeechMode(): AssistantSpeechMode {
@@ -131,16 +129,19 @@ export function useAssistantSpeech(options: {
 
       const rec = new Ctor()
       rec.lang = 'pt-BR'
-      rec.continuous = !isAppleMobile()
+      rec.continuous = !useSingleUtteranceDictation()
       rec.interimResults = true
-      rec.maxAlternatives = 1
+      rec.maxAlternatives = isAndroid() ? 3 : 1
 
       rec.onresult = (event) => {
+        const preferNumeric = isAndroid()
         const slices = Array.from({ length: event.results.length }, (_, i) => {
           const r = event.results[i]
+          const altCount = Math.max(1, (r as { length?: number }).length ?? 1)
+          const alts = Array.from({ length: altCount }, (_, j) => r[j])
           return {
             isFinal: r.isFinal,
-            transcript: r[0]?.transcript ?? '',
+            transcript: pickRecognitionTranscript(alts, preferNumeric),
           }
         })
         const { sessionFinal, line } = lineFromSpeechResults(
@@ -179,8 +180,8 @@ export function useAssistantSpeech(options: {
           releaseStream()
           return
         }
-        // iOS encerra após cada frase; reiniciar costuma duplicar o texto ouvido.
-        if (isAppleMobile()) {
+        // Celular: não reiniciar — evita cortar número e duplicar texto.
+        if (useSingleUtteranceDictation()) {
           wantListenRef.current = false
           setListening(false)
           return
@@ -281,5 +282,6 @@ export function useAssistantSpeech(options: {
       setErrorKind(null)
     },
     freeVoiceHint: FREE_VOICE_HINT,
+    listeningHint: getDictationListeningHint(),
   }
 }
