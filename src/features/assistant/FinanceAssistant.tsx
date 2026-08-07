@@ -191,16 +191,15 @@ export function FinanceAssistant() {
     onTranscript: mergeDictation,
   })
 
-  const beginSpeech = async () => {
+  const beginSpeech = () => {
     dictationBaseRef.current = input.trim()
     setMicPromptOpen(false)
-    // A chamada abaixo é disparada pelo clique em “Ativar”; o navegador/PWA
-    // mostra então o seu próprio prompt nativo de permissão.
-    await speech.start()
-    setMicAccess(await readMicrophonePermission())
+    // start() é síncrono: mantém o gesto do clique exigido pelo ditado do navegador.
+    speech.start()
+    void readMicrophonePermission().then(setMicAccess)
   }
 
-  const onMicClick = async () => {
+  const onMicClick = () => {
     if (speech.listening) {
       speech.stop()
       return
@@ -218,7 +217,7 @@ export function FinanceAssistant() {
     }
     // Sempre tenta o ditado no clique (gesto do usuário). O navegador/PWA mostra o prompt nativo.
     // Não confiar só na Permissions API — no mobile ela costuma marcar "denied" antes da 1ª tentativa.
-    await beginSpeech()
+    beginSpeech()
   }
 
   useEffect(() => {
@@ -303,7 +302,7 @@ export function FinanceAssistant() {
                     <button
                       type="button"
                       className={styles.permissionAllow}
-                      onClick={() => void beginSpeech()}
+                      onClick={() => beginSpeech()}
                     >
                       {micAccess === 'denied' ? 'Tentar novamente' : 'Ativar microfone'}
                     </button>
@@ -366,7 +365,7 @@ export function FinanceAssistant() {
                     : 'Falar'
               }
               disabled={sending}
-              onClick={() => void onMicClick()}
+              onClick={() => onMicClick()}
             >
               🎤
             </button>

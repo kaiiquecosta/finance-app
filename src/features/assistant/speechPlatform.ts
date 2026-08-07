@@ -18,6 +18,14 @@ export function useSingleUtteranceDictation(): boolean {
   return isAppleMobile() || isAndroid()
 }
 
+/** Safari/WebKit costuma falhar com várias hipóteses no ditado. */
+export function speechRecognitionMaxAlternatives(): number {
+  if (typeof navigator === 'undefined') return 3
+  const ua = navigator.userAgent
+  if (/Safari/i.test(ua) && !/Chrome|Chromium|CriOS|Edg/i.test(ua)) return 1
+  return 3
+}
+
 export function getDictationListeningHint(): string {
   return 'Fale o valor primeiro, depois o item. Ex.: “10 reais coxinha”. Toque 🎤 para parar e ↑ para enviar.'
 }

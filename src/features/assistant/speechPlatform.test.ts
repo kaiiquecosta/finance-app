@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { pickRecognitionTranscript, useSingleUtteranceDictation } from './speechPlatform'
+import { pickRecognitionTranscript, speechRecognitionMaxAlternatives, useSingleUtteranceDictation } from './speechPlatform'
 
 describe('speechPlatform', () => {
   it('Android usa frase única', () => {
@@ -19,5 +19,14 @@ describe('speechPlatform', () => {
       { transcript: '10 reais coxinha' },
     ])
     expect(t).toBe('10 reais coxinha')
+  })
+
+  it('Safari usa uma hipótese no ditado', () => {
+    vi.stubGlobal('navigator', {
+      userAgent:
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Version/17.0 Mobile/15E148 Safari/604.1',
+    })
+    expect(speechRecognitionMaxAlternatives()).toBe(1)
+    vi.unstubAllGlobals()
   })
 })

@@ -3,6 +3,7 @@ import { lineFromSpeechResults, polishDictationLine } from './speechTranscript'
 import {
   getDictationListeningHint,
   pickRecognitionTranscript,
+  speechRecognitionMaxAlternatives,
   useSingleUtteranceDictation,
 } from './speechPlatform'
 
@@ -61,17 +62,6 @@ export function detectAssistantSpeechMode(): AssistantSpeechMode {
   return 'none'
 }
 
-async function requestMicrophone(): Promise<MediaStream> {
-  return navigator.mediaDevices.getUserMedia({
-    audio: {
-      echoCancellation: true,
-      noiseSuppression: true,
-      autoGainControl: true,
-      channelCount: 1,
-    },
-  })
-}
-
 /**
  * Ditado gratuito via Web Speech API do navegador (sem API paga).
  */
@@ -91,19 +81,15 @@ export function useAssistantSpeech(options: {
 
   const wantListenRef = useRef(false)
   const recRef = useRef<SpeechRecognitionInstance | null>(null)
-  const streamRef = useRef<MediaStream | null>(null)
   const sessionFinalRef = useRef('')
   const bestLineRef = useRef('')
-
-  const releaseStream = useCallback(() => {
-    streamRef.current?.getTracks().forEach((t) => t.stop())
-    streamRef.current = null
-  }, [])
+  const heardSpeechRef = useRef(false)
 
   const stop = useCallback(() => {
     wantListenRef.current = false
     sessionFinalRef.current = ''
     bestLineRef.current = ''
+    heardSpeechRef.current = false
     try {
       recRef.current?.stop()
     } catch {
@@ -111,14 +97,14 @@ export function useAssistantSpeech(options: {
     }
     recRef.current = null
     setListening(false)
-    releaseStream()
-  }, [releaseStream])
+  }, [])
 
   const startLive = useCallback(
     (Ctor: SpeechRecognitionCtor) => {
       wantListenRef.current = true
       sessionFinalRef.current = ''
       bestLineRef.current = ''
+      heardSpeechRef.current = false
 
       try {
         recRef.current?.abort()
@@ -130,9 +116,10 @@ export function useAssistantSpeech(options: {
       rec.lang = 'pt-BR'
       rec.continuous = !useSingleUtteranceDictation()
       rec.interimResults = true
-      rec.maxAlternatives = 5
+      rec.maxAlternatives = speechRecognitionMaxAlternatives()
 
       rec.onresult = (event) => {
+        heardSpeechRef.current = true
         const slices = Array.from({ length: event.results.length }, (_, i) => {
           const r = event.results[i]
           const altCount = Math.max(1, (r as { length?: number }).length ?? 1)
@@ -150,14 +137,18 @@ export function useAssistantSpeech(options: {
         sessionFinalRef.current = sessionFinal
         const polished = polishDictationLine(bestLineRef.current, line)
         bestLineRef.current = polished
-        if (polished) onTranscriptRef.current(polished)
+        const out = polished || line.replace(/\s+/g, ' ').trim()
+        if (out) onTranscriptRef.current(out)
       }
 
       rec.onerror = (ev) => {
-        if (ev.error === 'aborted' || ev.error === 'no-speech') return
+        if (ev.error === 'aborted') return
+        if (ev.error === 'no-speech') {
+          if (useSingleUtteranceDictation()) wantListenRef.current = false
+          return
+        }
         wantListenRef.current = false
         setListening(false)
-        releaseStream()
         if (ev.error === 'not-allowed') {
           setErrorKind('speech-permission')
           setError(
@@ -175,13 +166,18 @@ export function useAssistantSpeech(options: {
       rec.onend = () => {
         if (!wantListenRef.current) {
           setListening(false)
-          releaseStream()
           return
         }
         // Celular: não reiniciar — evita cortar número e duplicar texto.
         if (useSingleUtteranceDictation()) {
           wantListenRef.current = false
           setListening(false)
+          if (!heardSpeechRef.current && !bestLineRef.current.trim()) {
+            setErrorKind('generic')
+            setError(
+              'Não ouvi nada. Fale mais perto do microfone ou digite no campo.',
+            )
+          }
           return
         }
         try {
@@ -189,7 +185,6 @@ export function useAssistantSpeech(options: {
         } catch {
           wantListenRef.current = false
           setListening(false)
-          releaseStream()
         }
       }
 
@@ -201,13 +196,12 @@ export function useAssistantSpeech(options: {
         wantListenRef.current = false
         setErrorKind('generic')
         setError('Não foi possível iniciar o ditado. Tente de novo.')
-        releaseStream()
       }
     },
-    [releaseStream],
+    [],
   )
 
-  const start = useCallback(async () => {
+  const start = useCallback(() => {
     setError(null)
     setErrorKind(null)
     if (!supported) {
@@ -224,32 +218,13 @@ export function useAssistantSpeech(options: {
       return
     }
 
-    try {
-      releaseStream()
-      // Pede permissão ao usuário, mas libera o dispositivo antes do SpeechRecognition
-      // (manter getUserMedia aberto costuma impedir o ditado no Chrome).
-      const stream = await requestMicrophone()
-      stream.getTracks().forEach((t) => t.stop())
-      startLive(Ctor)
-    } catch (e) {
-      const name = e instanceof DOMException ? e.name : ''
-      if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
-        setErrorKind('mic-permission')
-        setError('Permita o microfone para o Flux (site ou app instalado).')
-      } else if (name === 'NotFoundError') {
-        setErrorKind('generic')
-        setError('Nenhum microfone encontrado neste aparelho.')
-      } else {
-        setErrorKind('generic')
-        setError('Não foi possível acessar o microfone.')
-      }
-      releaseStream()
-    }
-  }, [supported, listening, releaseStream, startLive])
+    // SpeechRecognition.start() precisa rodar no mesmo gesto do clique (sem await antes).
+    startLive(Ctor)
+  }, [supported, listening, startLive])
 
   const toggle = useCallback(() => {
     if (listening) stop()
-    else void start()
+    else start()
   }, [listening, stop, start])
 
   useEffect(() => {
@@ -260,9 +235,8 @@ export function useAssistantSpeech(options: {
       } catch {
         /* ignore */
       }
-      releaseStream()
     }
-  }, [releaseStream])
+  }, [])
 
   return {
     supported,
