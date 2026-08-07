@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { lineFromSpeechResults, polishDictationLine } from './speechTranscript'
 import {
   getDictationListeningHint,
-  isAndroid,
   pickRecognitionTranscript,
   useSingleUtteranceDictation,
 } from './speechPlatform'
@@ -42,8 +41,8 @@ export type AssistantSpeechErrorKind =
   | 'generic'
   | null
 
-const FREE_VOICE_HINT =
-  'Áudio por voz é grátis no Chrome, Edge ou Safari (incluindo PWA). Neste navegador, digite no campo.'
+const UNSUPPORTED_VOICE_HINT =
+  'Neste navegador o microfone por voz não está disponível. Digite no campo abaixo.'
 
 function getSpeechRecognitionCtor(): SpeechRecognitionCtor | null {
   if (typeof window === 'undefined') return null
@@ -131,17 +130,16 @@ export function useAssistantSpeech(options: {
       rec.lang = 'pt-BR'
       rec.continuous = !useSingleUtteranceDictation()
       rec.interimResults = true
-      rec.maxAlternatives = isAndroid() ? 3 : 1
+      rec.maxAlternatives = 5
 
       rec.onresult = (event) => {
-        const preferNumeric = isAndroid()
         const slices = Array.from({ length: event.results.length }, (_, i) => {
           const r = event.results[i]
           const altCount = Math.max(1, (r as { length?: number }).length ?? 1)
           const alts = Array.from({ length: altCount }, (_, j) => r[j])
           return {
             isFinal: r.isFinal,
-            transcript: pickRecognitionTranscript(alts, preferNumeric),
+            transcript: pickRecognitionTranscript(alts),
           }
         })
         const { sessionFinal, line } = lineFromSpeechResults(
@@ -214,7 +212,7 @@ export function useAssistantSpeech(options: {
     setErrorKind(null)
     if (!supported) {
       setErrorKind('unsupported')
-      setError(FREE_VOICE_HINT)
+      setError(UNSUPPORTED_VOICE_HINT)
       return
     }
     if (listening) return
@@ -222,7 +220,7 @@ export function useAssistantSpeech(options: {
     const Ctor = getSpeechRecognitionCtor()
     if (!Ctor) {
       setErrorKind('unsupported')
-      setError(FREE_VOICE_HINT)
+      setError(UNSUPPORTED_VOICE_HINT)
       return
     }
 
@@ -281,7 +279,7 @@ export function useAssistantSpeech(options: {
       setError(null)
       setErrorKind(null)
     },
-    freeVoiceHint: FREE_VOICE_HINT,
+    unsupportedVoiceHint: UNSUPPORTED_VOICE_HINT,
     listeningHint: getDictationListeningHint(),
   }
 }

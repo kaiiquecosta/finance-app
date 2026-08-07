@@ -70,7 +70,16 @@ export function normalizeSpokenNumbers(text: string): string {
     s = s.replace(new RegExp(`\\b${word}\\b`, 'gi'), String(num))
   }
 
-  s = s.replace(/\bcem\b|\bcento\b|\bhundred\b/gi, '100')
+  s = s.replace(/\bcem\b|\bcento\b/gi, '100')
+
+  s = s.replace(
+    /\b(cinco|seis|sete|oito|nove|dez|onze|doze|treze|catorze|quatorze|quinze|dezesseis|dezessete|dezoito|dezenove|vinte|trinta|quarenta|cinquenta|sessenta|setenta|oitenta|noventa)\s+reais\b/gi,
+    (m) => {
+      const word = m.split(/\s+/)[0].toLowerCase()
+      const n = ONES[word] ?? TENS[word]
+      return n != null ? `${n} reais` : m
+    },
+  )
 
   return s.replace(/\s+/g, ' ').trim()
 }

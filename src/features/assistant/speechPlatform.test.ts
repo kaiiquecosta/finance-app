@@ -13,11 +13,11 @@ describe('speechPlatform', () => {
     vi.unstubAllGlobals()
   })
 
-  it('prefere alternativa com número no Android', () => {
-    const t = pickRecognitionTranscript(
-      [{ transcript: 'reais coxinha' }, { transcript: '10 reais coxinha' }],
-      true,
-    )
+  it('prefere alternativa com número', () => {
+    const t = pickRecognitionTranscript([
+      { transcript: 'reais coxinha' },
+      { transcript: '10 reais coxinha' },
+    ])
     expect(t).toBe('10 reais coxinha')
   })
 })

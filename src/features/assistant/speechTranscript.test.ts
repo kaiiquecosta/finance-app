@@ -73,7 +73,10 @@ describe('lineFromSpeechResults', () => {
     expect(normalizeSpokenNumbers('dez reais coxinha')).toBe('10 reais coxinha')
   })
 
-  it('stabilize mantém prefixo numérico', () => {
-    expect(stabilizeDictationLine('10 reais coxinha', 'reais coxinha')).toBe('10 reais coxinha')
+  it('normaliza dez reais antes de estabilizar', () => {
+    let best = ''
+    best = polishDictationLine(best, 'dez reais')
+    best = polishDictationLine(best, 'reais coxinha')
+    expect(best).toBe('10 reais coxinha')
   })
 })

@@ -19,37 +19,36 @@ export function useSingleUtteranceDictation(): boolean {
 }
 
 export function getDictationListeningHint(): string {
-  if (isAndroid()) {
-    return 'Fale numa frase só: “10 reais coxinha” (ou “dez reais…”). Toque 🎤 para parar e ↑ para enviar.'
-  }
-  if (isAppleMobile()) {
-    return 'Fale a frase inteira. Toque 🎤 para parar e envie com ↑.'
-  }
-  return 'Falando… o texto aparece no campo. Toque 🎤 para parar e envie com ↑'
+  return 'Fale o valor primeiro, depois o item. Ex.: “10 reais coxinha”. Toque 🎤 para parar e ↑ para enviar.'
 }
 
-/** No Android, alternativas do Google às vezes trazem o número num hipótese diferente. */
+/** Escolhe a melhor hipótese para gastos (valor + descrição em português). */
 export function pickRecognitionTranscript(
   alternatives: ReadonlyArray<{ transcript?: string } | undefined>,
-  preferNumeric: boolean,
 ): string {
   const texts = alternatives
     .map((a) => a?.transcript?.replace(/\s+/g, ' ').trim())
     .filter((t): t is string => Boolean(t))
   if (!texts.length) return ''
-  if (!preferNumeric) return texts[0]
 
   let best = texts[0]
-  for (const t of texts) {
-    const norm = normalizeSpokenNumbers(t)
-    const bestNorm = normalizeSpokenNumbers(best)
-    const tNum = /\d/.test(norm)
-    const bestNum = /\d/.test(bestNorm)
-    if (tNum && !bestNum) {
-      best = t
-      continue
+  let bestScore = scoreFinanceTranscript(best)
+  for (let i = 1; i < texts.length; i++) {
+    const score = scoreFinanceTranscript(texts[i])
+    if (score > bestScore) {
+      best = texts[i]
+      bestScore = score
     }
-    if (tNum === bestNum && norm.length > bestNorm.length) best = t
   }
   return best
+}
+
+function scoreFinanceTranscript(raw: string): number {
+  const norm = normalizeSpokenNumbers(raw)
+  let score = norm.length
+  if (/\d/.test(norm)) score += 120
+  if (/\d+[.,]?\d*\s*(?:reais|real|r\$)/i.test(norm)) score += 80
+  if (/(?:reais|real|r\$)\s*\d+/i.test(norm)) score += 60
+  if (/\b(recebi|gastei|paguei|comprei)\b/i.test(norm)) score += 20
+  return score
 }

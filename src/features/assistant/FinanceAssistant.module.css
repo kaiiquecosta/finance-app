@@ -260,18 +260,25 @@
 }
 
 .listeningHint {
-  align-self: center;
+  align-self: stretch;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
-  font-size: 12px;
-  color: var(--muted);
-  padding: 4px 8px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text);
+  padding: 8px 10px;
+  margin-bottom: 4px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary) 8%, var(--card2));
+  border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--border));
 }
 
 .listeningDot {
   width: 8px;
   height: 8px;
+  margin-top: 5px;
+  flex-shrink: 0;
   border-radius: 50%;
   background: var(--red, #ef4444);
   animation: listenBlink 1s ease-in-out infinite;
@@ -308,6 +315,11 @@
 .inputListening {
   border-color: color-mix(in srgb, var(--red, #ef4444) 40%, var(--primary));
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--red, #ef4444) 12%, transparent);
+  font-family: var(--num);
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
 }
 
 .sendBtn {

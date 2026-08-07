@@ -65,7 +65,9 @@ function mergeKeepingLeadingAmount(prev: string, cand: string): string | null {
 }
 
 export function polishDictationLine(previous: string, candidate: string): string {
-  return stabilizeDictationLine(previous, normalizeSpokenNumbers(candidate))
+  const prev = normalizeSpokenNumbers(previous)
+  const cand = normalizeSpokenNumbers(candidate)
+  return stabilizeDictationLine(prev, cand)
 }
 
 type ResultSlice = {
@@ -84,14 +86,14 @@ export function lineFromSpeechResults(
     const piece = results[i].transcript.replace(/\s+/g, ' ').trim()
     if (!piece) continue
     if (results[i].isFinal) {
-      finals = appendSpeechFragment(finals, piece)
+      finals = appendSpeechFragment(finals, normalizeSpokenNumbers(piece))
     }
   }
 
   let interim = ''
   for (let i = results.length - 1; i >= 0; i--) {
     if (results[i].isFinal) continue
-    interim = results[i].transcript.replace(/\s+/g, ' ').trim()
+    interim = normalizeSpokenNumbers(results[i].transcript.replace(/\s+/g, ' ').trim())
     break
   }
 

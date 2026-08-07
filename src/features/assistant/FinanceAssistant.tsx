@@ -8,6 +8,7 @@ import {
   newId,
   useTransactionMutations,
 } from '@/features/transactions/useTransactionMutations'
+import { normalizeSpokenNumbers } from '@/lib/spokenNumbers'
 import { useAssistantSpeech } from './useAssistantSpeech'
 import styles from './FinanceAssistant.module.css'
 
@@ -45,7 +46,7 @@ export function FinanceAssistant() {
     {
       id: 'welcome',
       role: 'assistant',
-      text: 'Oi! Digite ou fale em PT/EN. Ex.: 10 reais coxinha · I spent R$10 on coxinha · I earned 500',
+      text: 'Oi! Digite ou fale em português. Ex.: 10 reais coxinha · gastei 45 no uber · recebi 500',
     },
   ])
   const [sending, setSending] = useState(false)
@@ -166,8 +167,8 @@ export function FinanceAssistant() {
   )
 
   const mergeDictation = useCallback((spoken: string) => {
-    const base = dictationBaseRef.current.trim()
-    const line = spoken.replace(/\s+/g, ' ').trim()
+    const base = normalizeSpokenNumbers(dictationBaseRef.current.trim())
+    const line = normalizeSpokenNumbers(spoken.replace(/\s+/g, ' ').trim())
     if (!line) return
     const merged = base ? `${base} ${line}`.replace(/\s+/g, ' ').trim() : line
     setInput(merged)
@@ -197,7 +198,7 @@ export function FinanceAssistant() {
         {
           id: `a-mic-${Date.now()}`,
           role: 'assistant',
-          text: speech.freeVoiceHint,
+          text: speech.unsupportedVoiceHint,
         },
       ])
       return
@@ -274,8 +275,8 @@ export function FinanceAssistant() {
                   {micAccess === 'denied'
                     ? 'No celular: Ajustes do Android → Apps → Chrome (ou Flux) → Permissões → Microfone. No iPhone: Ajustes → Safari/Flux → Microfone. Depois toque em Tentar novamente.'
                     : micAccess === 'unsupported'
-                      ? 'Áudio por voz grátis funciona no Chrome, Edge ou Safari (HTTPS). Você pode digitar no campo abaixo.'
-                      : 'O Flux usará o áudio somente para transformar sua fala em texto. Você poderá revisar antes de enviar.'}
+                      ? 'Use o teclado para digitar gastos e receitas.'
+                      : 'O Flux usa o microfone só para transformar sua fala em texto. Você revisa antes de enviar.'}
                 </p>
                 <div className={styles.permissionActions}>
                   <button
@@ -301,7 +302,7 @@ export function FinanceAssistant() {
           <header className={styles.panelHead}>
             <div>
               <div className={styles.panelTitle}>Assistente</div>
-              <div className={styles.panelSub}>Texto ou áudio grátis (Chrome, Edge, Safari)</div>
+              <div className={styles.panelSub}>Registre gastos e receitas</div>
             </div>
             <button type="button" className={styles.closeBtn} onClick={() => setOpen(false)} aria-label="Fechar">
               ✕
@@ -346,10 +347,10 @@ export function FinanceAssistant() {
               aria-label={speech.listening ? 'Parar gravação' : 'Falar gasto ou receita'}
               title={
                 !speech.supported
-                  ? 'Áudio grátis: Chrome, Edge ou Safari'
+                  ? 'Microfone indisponível neste navegador'
                   : speech.listening
                     ? 'Parar'
-                    : 'Falar (ditado grátis)'
+                    : 'Falar'
               }
               disabled={sending}
               onClick={() => void onMicClick()}
@@ -362,7 +363,9 @@ export function FinanceAssistant() {
               className={
                 speech.listening ? `${styles.input} ${styles.inputListening}` : styles.input
               }
-              placeholder={speech.listening ? 'Escutando…' : 'Digite ou use o 🎤'}
+              placeholder={
+                speech.listening ? 'Ouvindo… fale o valor primeiro' : 'Ex.: 10 reais coxinha'
+              }
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={sending}
