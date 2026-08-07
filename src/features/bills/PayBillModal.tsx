@@ -20,7 +20,16 @@ export function PayBillModal({ open, bill, accounts, userId, saving, onClose, on
   const [accountId, setAccountId] = useState<number | null>(null)
 
   useEffect(() => {
-    if (open) setAccountId(accounts[0]?.id ?? null)
+    if (!open) return
+    setAccountId(accounts[0]?.id ?? null)
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    setAccountId((current) => {
+      if (current != null && accounts.some((a) => a.id === current)) return current
+      return accounts[0]?.id ?? current
+    })
   }, [open, accounts])
 
   if (!bill) return null

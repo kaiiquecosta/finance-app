@@ -69,8 +69,12 @@ export function AccountPicker({
     BRAZIL_BANK_PRESETS[0]
 
   const pickPreset = (p: BankPreset) => {
+    setCustomName((prev) => {
+      const prevPreset = presetId ? BRAZIL_BANK_PRESETS.find((x) => x.id === presetId) : undefined
+      if (!prev.trim() || (prevPreset && prev === prevPreset.name)) return p.name
+      return prev
+    })
     setPresetId(p.id)
-    setCustomName(p.name)
   }
 
   const resetAdd = () => {

@@ -46,7 +46,7 @@ export function TransactionModal({ open, onClose, onSave, saving, accounts, user
   const [accountId, setAccountId] = useState<number | null>(null)
   const [error, setError] = useState('')
 
-  // Sincroniza o formulário ao abrir (novo ou edição).
+  // Sincroniza o formulário ao abrir (novo ou edição) — não quando `accounts` muda (ex.: criar conta).
   useEffect(() => {
     if (!open) return
     setError('')
@@ -65,6 +65,15 @@ export function TransactionModal({ open, onClose, onSave, saving, accounts, user
       setCat('outros')
       setAccountId(accounts[0]?.id ?? null)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- accounts omitido de propósito
+  }, [open, editing?.id])
+
+  useEffect(() => {
+    if (!open || editing) return
+    setAccountId((current) => {
+      if (current != null && accounts.some((a) => a.id === current)) return current
+      return accounts[0]?.id ?? current
+    })
   }, [open, editing, accounts])
 
   const submit = async () => {

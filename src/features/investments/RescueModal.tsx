@@ -29,6 +29,15 @@ export function RescueModal({ open, investment, accounts, userId, rates, saving,
     setAmount(ZERO)
     setAccountId(accounts[0]?.id ?? null)
     setError('')
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- accounts omitido de propósito
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    setAccountId((current) => {
+      if (current != null && accounts.some((a) => a.id === current)) return current
+      return accounts[0]?.id ?? current
+    })
   }, [open, accounts])
 
   if (!investment) return null

@@ -65,6 +65,15 @@ export function InvestmentModal({ open, onClose, onSave, saving, accounts, userI
     setDate(toISODate(new Date()))
     setExtra(100)
     setDebitAccountId(accounts[0]?.id ?? null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- accounts omitido de propósito
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    setDebitAccountId((current) => {
+      if (current != null && accounts.some((a) => a.id === current)) return current
+      return accounts[0]?.id ?? current
+    })
   }, [open, accounts])
 
   const selectType = (t: TypeDef) => {
