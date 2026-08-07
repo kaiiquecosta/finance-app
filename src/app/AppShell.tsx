@@ -112,14 +112,14 @@ export function AppShell() {
             onClick={toggle}
             title={theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
           >
-            {theme === 'dark' ? 'CLEAR' : 'DARK'}
+            {theme === 'dark' ? 'CLARO' : 'ESCURO'}
           </button>
           <button
             className={`${styles.pill} ${styles.pillDanger}`}
             onClick={() => void signOut()}
             title="Sair"
           >
-            EXIT
+            SAIR
           </button>
         </div>
       </header>
