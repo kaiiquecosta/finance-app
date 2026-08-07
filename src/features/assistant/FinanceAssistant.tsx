@@ -8,7 +8,7 @@ import {
   newId,
   useTransactionMutations,
 } from '@/features/transactions/useTransactionMutations'
-import { useSpeechInput } from './useSpeechInput'
+import { useAssistantSpeech } from './useAssistantSpeech'
 import styles from './FinanceAssistant.module.css'
 
 type ChatMessage = {
@@ -148,7 +148,7 @@ export function FinanceAssistant() {
     setInput(merged)
   }, [])
 
-  const speech = useSpeechInput({
+  const speech = useAssistantSpeech({
     onTranscript: mergeDictation,
   })
 
@@ -158,7 +158,7 @@ export function FinanceAssistant() {
       return
     }
     dictationBaseRef.current = input.trim()
-    speech.start()
+    void speech.start()
   }
 
   useEffect(() => {
@@ -196,7 +196,7 @@ export function FinanceAssistant() {
           <header className={styles.panelHead}>
             <div>
               <div className={styles.panelTitle}>Assistente</div>
-              <div className={styles.panelSub}>Texto ou áudio — gastos e receitas naturais</div>
+              <div className={styles.panelSub}>Texto ou áudio — funciona no app instalado (PWA)</div>
             </div>
             <button type="button" className={styles.closeBtn} onClick={() => setOpen(false)} aria-label="Fechar">
               ✕
@@ -204,10 +204,18 @@ export function FinanceAssistant() {
           </header>
 
           <div className={styles.messages} ref={listRef}>
-            {speech.listening && (
+            {speech.transcribing && (
               <div className={styles.listeningHint} role="status">
                 <span className={styles.listeningDot} aria-hidden />
-                Falando… o texto aparece abaixo. Toque 🎤 para parar e envie com ↑
+                Transcrevendo áudio…
+              </div>
+            )}
+            {speech.listening && !speech.transcribing && (
+              <div className={styles.listeningHint} role="status">
+                <span className={styles.listeningDot} aria-hidden />
+                {speech.activeMode === 'record'
+                  ? 'Gravando… fale e toque 🎤 para transcrever no campo'
+                  : 'Falando… o texto aparece no campo. Toque 🎤 para parar e envie com ↑'}
               </div>
             )}
             {messages.map((msg) => (
@@ -240,13 +248,15 @@ export function FinanceAssistant() {
               }
               aria-label={speech.listening ? 'Parar gravação' : 'Falar gasto ou receita'}
               title={
-                speech.supported
-                  ? speech.listening
+                !speech.supported
+                  ? 'Microfone indisponível (use HTTPS)'
+                  : speech.listening
                     ? 'Parar'
-                    : 'Gravar áudio'
-                  : 'Áudio: use Chrome ou Edge'
+                    : speech.mode === 'record'
+                      ? 'Gravar áudio (Firefox/Safari)'
+                      : 'Falar (ditado ao vivo)'
               }
-              disabled={sending || !speech.supported}
+              disabled={sending || speech.transcribing || !speech.supported}
               onClick={onMicClick}
             >
               🎤
@@ -260,7 +270,7 @@ export function FinanceAssistant() {
               placeholder={speech.listening ? 'Escutando…' : 'Digite ou use o 🎤'}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              disabled={sending}
+              disabled={sending || speech.transcribing}
               autoComplete="off"
             />
             <button type="submit" className={styles.sendBtn} disabled={sending || !input.trim()}>
