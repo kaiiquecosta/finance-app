@@ -47,7 +47,7 @@ export function parseFinanceMessage(
     }
   }
 
-  let name = extractDescription(amountResult.rest, kind)
+  let name = extractDescription(amountResult.rest)
   if (!name) name = kind === 'income' ? 'Receita' : 'Gasto'
 
   const cat = kind === 'income' ? 'receita' : inferCategory(name)
@@ -77,7 +77,7 @@ function detectKind(text: string): 'expense' | 'income' {
   return 'expense'
 }
 
-function extractDescription(rest: string, kind: 'expense' | 'income'): string {
+function extractDescription(rest: string): string {
   let s = rest
   s = s.replace(INCOME_VERB, ' ')
   s = s.replace(EXPENSE_VERB, ' ')

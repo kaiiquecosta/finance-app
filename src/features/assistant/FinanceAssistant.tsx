@@ -36,6 +36,7 @@ export function FinanceAssistant() {
   const listRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const sendingRef = useRef(false)
+  const dictationBaseRef = useRef('')
 
   useEffect(() => {
     if (open) inputRef.current?.focus()
@@ -141,13 +142,24 @@ export function FinanceAssistant() {
     [pickAccountId, save],
   )
 
+  const mergeDictation = useCallback((spoken: string) => {
+    const base = dictationBaseRef.current
+    const merged = [base, spoken].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim()
+    setInput(merged)
+  }, [])
+
   const speech = useSpeechInput({
-    onInterim: (t) => setInput(t),
-    onFinal: (t) => {
-      setInput(t)
-      void submitMessage(t)
-    },
+    onTranscript: mergeDictation,
   })
+
+  const onMicClick = () => {
+    if (speech.listening) {
+      speech.stop()
+      return
+    }
+    dictationBaseRef.current = input.trim()
+    speech.start()
+  }
 
   useEffect(() => {
     if (!open) speech.stop()
@@ -160,7 +172,10 @@ export function FinanceAssistant() {
     speech.clearError()
   }, [speech.error, speech.clearError])
 
-  const send = () => void submitMessage(input)
+  const send = () => {
+    speech.stop()
+    void submitMessage(input)
+  }
 
   if (!user) return null
 
@@ -192,7 +207,7 @@ export function FinanceAssistant() {
             {speech.listening && (
               <div className={styles.listeningHint} role="status">
                 <span className={styles.listeningDot} aria-hidden />
-                Ouvindo… fale agora
+                Falando… o texto aparece abaixo. Toque 🎤 para parar e envie com ↑
               </div>
             )}
             {messages.map((msg) => (
@@ -232,15 +247,17 @@ export function FinanceAssistant() {
                   : 'Áudio: use Chrome ou Edge'
               }
               disabled={sending || !speech.supported}
-              onClick={speech.toggle}
+              onClick={onMicClick}
             >
               🎤
             </button>
             <input
               ref={inputRef}
               type="text"
-              className={styles.input}
-              placeholder="Digite ou use o 🎤"
+              className={
+                speech.listening ? `${styles.input} ${styles.inputListening}` : styles.input
+              }
+              placeholder={speech.listening ? 'Escutando…' : 'Digite ou use o 🎤'}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={sending}

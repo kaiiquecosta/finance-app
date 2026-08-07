@@ -223,6 +223,11 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
+.inputListening {
+  border-color: color-mix(in srgb, var(--red, #ef4444) 40%, var(--primary));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--red, #ef4444) 12%, transparent);
+}
+
 .sendBtn {
   width: 42px;
   height: 42px;

@@ -15,6 +15,11 @@ type SpeechRecognitionInstance = {
   onend: (() => void) | null
 }
 
+type SpeechRecognitionResultList = {
+  length: number
+  [index: number]: { isFinal: boolean; [index: number]: { transcript: string } | undefined }
+}
+
 type SpeechRecognitionResultEvent = {
   results: SpeechRecognitionResultList
   resultIndex: number
@@ -30,32 +35,61 @@ function getSpeechRecognition(): SpeechRecognitionCtor | null {
 }
 
 export function isSpeechRecognitionSupported(): boolean {
+  if (typeof window !== 'undefined' && !window.isSecureContext) return false
   return getSpeechRecognition() != null
 }
 
-/** Ditado por voz (Web Speech API, pt-BR). */
+function transcriptFromResults(results: SpeechRecognitionResultList): string {
+  let out = ''
+  for (let i = 0; i < results.length; i++) {
+    out += results[i][0]?.transcript ?? ''
+  }
+  return out.trim()
+}
+
+/**
+ * Ditado contínuo (Web Speech API). Envia o texto acumulado a cada atualização;
+ * quem usa decide se grava ou só preenche o campo (envio manual).
+ */
 export function useSpeechInput(options: {
-  onFinal: (transcript: string) => void
-  onInterim?: (transcript: string) => void
+  onTranscript: (fullLine: string) => void
+  onSessionEnd?: () => void
 }) {
-  const { onFinal, onInterim } = options
+  const { onTranscript, onSessionEnd } = options
+  const onTranscriptRef = useRef(onTranscript)
+  onTranscriptRef.current = onTranscript
+
   const [listening, setListening] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const recRef = useRef<SpeechRecognitionInstance | null>(null)
+  const wantListenRef = useRef(false)
   const supported = isSpeechRecognitionSupported()
 
   const stop = useCallback(() => {
-    recRef.current?.stop()
+    wantListenRef.current = false
+    try {
+      recRef.current?.stop()
+    } catch {
+      /* ignore */
+    }
     setListening(false)
-  }, [])
+    onSessionEnd?.()
+  }, [onSessionEnd])
 
   const start = useCallback(() => {
     setError(null)
-    const Ctor = getSpeechRecognition()
-    if (!Ctor) {
-      setError('Áudio não disponível neste navegador. Use Chrome ou Edge no celular/PC.')
+    if (typeof window !== 'undefined' && !window.isSecureContext) {
+      setError('Microfone exige HTTPS (ou localhost). Abra o app em conexão segura.')
       return
     }
+
+    const Ctor = getSpeechRecognition()
+    if (!Ctor) {
+      setError('Áudio indisponível. Use Chrome ou Edge (desktop ou celular).')
+      return
+    }
+
+    wantListenRef.current = true
 
     try {
       recRef.current?.abort()
@@ -63,50 +97,60 @@ export function useSpeechInput(options: {
       /* ignore */
     }
 
-    const rec = new Ctor()
-    rec.lang = 'pt-BR'
-    rec.continuous = false
-    rec.interimResults = true
-    rec.maxAlternatives = 1
+    const attach = () => {
+      const rec = new Ctor()
+      rec.lang = 'pt-BR'
+      rec.continuous = true
+      rec.interimResults = true
+      rec.maxAlternatives = 1
 
-    rec.onresult = (event) => {
-      let interim = ''
-      let final = ''
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const piece = event.results[i][0]?.transcript ?? ''
-        if (event.results[i].isFinal) final += piece
-        else interim += piece
+      rec.onresult = (event) => {
+        const line = transcriptFromResults(event.results)
+        if (line) onTranscriptRef.current(line)
       }
-      const draft = (final || interim).trim()
-      if (interim.trim() && onInterim) onInterim(draft)
-      if (final.trim()) onFinal(final.trim())
-    }
 
-    rec.onerror = (ev) => {
-      if (ev.error === 'aborted' || ev.error === 'no-speech') {
+      rec.onerror = (ev) => {
+        if (ev.error === 'aborted') return
+        if (ev.error === 'no-speech') return
+        wantListenRef.current = false
         setListening(false)
-        if (ev.error === 'no-speech') setError('Não ouvi nada. Tente de novo.')
-        return
+        if (ev.error === 'not-allowed') {
+          setError('Permita o microfone no navegador (ícone de cadeado na barra de endereço).')
+        } else if (ev.error === 'network') {
+          setError('Reconhecimento de voz precisa de internet. Verifique a conexão.')
+        } else {
+          setError('Não foi possível usar o microfone. Tente digitar.')
+        }
       }
-      if (ev.error === 'not-allowed') {
-        setError('Permita o microfone nas configurações do navegador.')
-      } else {
-        setError('Não foi possível usar o microfone. Tente digitar.')
+
+      rec.onend = () => {
+        if (!wantListenRef.current) {
+          setListening(false)
+          onSessionEnd?.()
+          return
+        }
+        try {
+          rec.start()
+        } catch {
+          wantListenRef.current = false
+          setListening(false)
+          onSessionEnd?.()
+        }
       }
-      setListening(false)
-    }
 
-    rec.onend = () => setListening(false)
-
-    recRef.current = rec
-    try {
+      recRef.current = rec
       rec.start()
       setListening(true)
+    }
+
+    try {
+      attach()
     } catch {
       setError('Microfone ocupado ou indisponível.')
+      wantListenRef.current = false
       setListening(false)
     }
-  }, [onFinal, onInterim])
+  }, [onSessionEnd])
 
   const toggle = useCallback(() => {
     if (listening) stop()
@@ -115,6 +159,7 @@ export function useSpeechInput(options: {
 
   useEffect(() => {
     return () => {
+      wantListenRef.current = false
       try {
         recRef.current?.abort()
       } catch {
@@ -123,5 +168,5 @@ export function useSpeechInput(options: {
     }
   }, [])
 
-  return { supported, listening, error, toggle, stop, clearError: () => setError(null) }
+  return { supported, listening, error, start, stop, toggle, clearError: () => setError(null) }
 }
