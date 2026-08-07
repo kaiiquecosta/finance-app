@@ -116,6 +116,7 @@ export function OverviewPage() {
         ) : (
           <IncomeList
             incomes={data.incomes}
+            accounts={data.bankAccounts}
             asOf={now}
             onEdit={(inc) => {
               setEditingIncome(inc)
