@@ -44,6 +44,9 @@
   flex-wrap: wrap;
   gap: 6px;
 }
+.customParcels {
+  margin-top: 10px;
+}
 .chip {
   padding: 7px 13px;
   border-radius: 999px;

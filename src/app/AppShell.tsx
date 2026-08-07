@@ -38,8 +38,11 @@ export function AppShell() {
     (user?.user_metadata?.full_name as string | undefined) ||
     user?.email?.split('@')[0] ||
     'Você'
+  const metaPhoto = (user?.user_metadata?.avatar_url as string | undefined) || null
   const navPhoto =
-    profile?.avatarUrl || (user?.user_metadata?.avatar_url as string | undefined) || null
+    profile !== undefined && profile !== null
+      ? profile.avatarUrl ?? null
+      : metaPhoto
   const navEmoji = profile?.emoji || '😊'
   const navColor = profile?.color || '#820ad1'
 

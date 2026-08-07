@@ -29,10 +29,9 @@ export function ProfileModal({ open, onClose, user, profile, onOpenAccount }: Pr
 
   const metaName = (user?.user_metadata?.full_name as string | undefined) ?? ''
   const defaultName = profile?.name || metaName || user?.email?.split('@')[0] || 'Você'
+  const metaPhoto = (user?.user_metadata?.avatar_url as string | undefined) || null
   const photo =
-    profile?.avatarUrl ||
-    (user?.user_metadata?.avatar_url as string | undefined) ||
-    null
+    profile !== undefined && profile !== null ? profile.avatarUrl ?? null : metaPhoto
   const emoji = profile?.emoji || '😊'
   const accent = profile?.color || '#820ad1'
 

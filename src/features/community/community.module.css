@@ -256,9 +256,6 @@
 }
 
 .notifHint {
-  font-size: 12px;
-  color: var(--muted);
-  line-height: 1.5;
   margin: 0 0 12px;
   padding: 10px 12px;
   border-radius: 10px;
@@ -266,14 +263,43 @@
   background: color-mix(in srgb, var(--primary) 6%, transparent);
 }
 
-.notifHint button {
-  margin-top: 6px;
+.notifHintText {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.notifActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.notifBtnPrimary,
+.notifBtnGhost {
   font-size: 12px;
   font-weight: 600;
-  color: var(--primary);
-  background: none;
-  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
   cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
+  border: 1px solid transparent;
+}
+
+.notifBtnPrimary {
+  color: var(--primary-fg, #fff);
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.notifBtnGhost {
+  color: var(--muted);
+  background: var(--card2);
+  border-color: var(--border2);
+}
+
+.notifBtnPrimary:hover,
+.notifBtnGhost:hover {
+  filter: brightness(1.05);
 }

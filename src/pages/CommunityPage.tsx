@@ -13,8 +13,9 @@ import {
   pushCommunityStatusAlert,
 } from '@/features/community/communityStatusNotify'
 import {
-  canUseBrowserNotifications,
   ensureNotificationPermission,
+  markCommunityNotifPromptAnswered,
+  shouldShowCommunityNotifBanner,
 } from '@/features/community/communityBrowserNotify'
 import styles from '@/features/community/community.module.css'
 import type { CommunityItem, CommunityItemStatus } from '@/domain/community'
@@ -30,9 +31,13 @@ export function CommunityPage() {
   const [notifBanner, setNotifBanner] = useState(false)
 
   useEffect(() => {
-    if (!canUseBrowserNotifications()) return
-    if (Notification.permission === 'default') setNotifBanner(true)
+    setNotifBanner(shouldShowCommunityNotifBanner())
   }, [])
+
+  const dismissNotifBanner = () => {
+    markCommunityNotifPromptAnswered()
+    setNotifBanner(false)
+  }
 
   const isAdmin = isCommunityAdmin(user, profileQuery.data)
   const canEditSelected =
@@ -112,18 +117,26 @@ export function CommunityPage() {
       />
 
       {notifBanner && (
-        <p className={styles.notifHint} role="status">
-          Ative as notificações para saber quando sua sugestão mudar de coluna (Backlog → Faremos, etc.),
-          mesmo fora desta página.
-          <button
-            type="button"
-            onClick={() => {
-              void ensureNotificationPermission().then(() => setNotifBanner(false))
-            }}
-          >
-            Ativar notificações
-          </button>
-        </p>
+        <div className={styles.notifHint} role="status">
+          <p className={styles.notifHintText}>
+            Ative as notificações para saber quando sua sugestão mudar de coluna (Backlog → Faremos,
+            etc.), mesmo fora desta página.
+          </p>
+          <div className={styles.notifActions}>
+            <button
+              type="button"
+              className={styles.notifBtnPrimary}
+              onClick={() => {
+                void ensureNotificationPermission().finally(dismissNotifBanner)
+              }}
+            >
+              Sim, ativar
+            </button>
+            <button type="button" className={styles.notifBtnGhost} onClick={dismissNotifBanner}>
+              Agora não
+            </button>
+          </div>
+        </div>
       )}
 
       <CommunityBoard

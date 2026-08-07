@@ -23,12 +23,15 @@ interface Props {
 }
 
 const QUICK_PARCELS = [1, 2, 3, 6, 10, 12]
+const MIN_PARCELS = 1
+const MAX_PARCELS = 48
 
 export function PurchaseModal({ open, card, onClose, onSave, saving }: Props) {
   const [desc, setDesc] = useState('')
   const [total, setTotal] = useState<Cents>(ZERO)
   const [date, setDate] = useState(toISODate(new Date()))
   const [parcels, setParcels] = useState(1)
+  const [customParcels, setCustomParcels] = useState('')
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -38,7 +41,22 @@ export function PurchaseModal({ open, card, onClose, onSave, saving }: Props) {
     setTotal(ZERO)
     setDate(toISODate(new Date()))
     setParcels(1)
+    setCustomParcels('')
   }, [open])
+
+  const pickQuickParcels = (p: number) => {
+    setParcels(p)
+    setCustomParcels('')
+  }
+
+  const onCustomParcelsChange = (raw: string) => {
+    setCustomParcels(raw)
+    const n = parseInt(raw, 10)
+    if (raw === '' || Number.isNaN(n)) return
+    if (n >= MIN_PARCELS && n <= MAX_PARCELS) setParcels(n)
+  }
+
+  const customActive = !QUICK_PARCELS.includes(parcels)
 
   const perParcel = useMemo(
     () => (parcels > 1 && total > 0 ? allocate(total, parcels)[0] : total),
@@ -56,6 +74,9 @@ export function PurchaseModal({ open, card, onClose, onSave, saving }: Props) {
     if (!card) return
     if (!desc.trim()) return setError('Descreva a compra.')
     if (total <= 0) return setError('Informe o valor.')
+    if (parcels < MIN_PARCELS || parcels > MAX_PARCELS) {
+      return setError(`Parcelas entre ${MIN_PARCELS} e ${MAX_PARCELS}.`)
+    }
     try {
       await onSave(
         buildCardPurchaseBills(card.id, desc.trim(), total, date, parcels),
@@ -108,11 +129,27 @@ export function PurchaseModal({ open, card, onClose, onSave, saving }: Props) {
               key={p}
               type="button"
               className={parcels === p ? `${styles.chip} ${styles.chipActive}` : styles.chip}
-              onClick={() => setParcels(p)}
+              onClick={() => pickQuickParcels(p)}
             >
               {p === 1 ? 'À vista' : `${p}x`}
             </button>
           ))}
+        </div>
+        <div className={styles.customParcels}>
+          <TextField
+            label="Outro número de parcelas"
+            name="purchase-parcels"
+            type="number"
+            min={MIN_PARCELS}
+            max={MAX_PARCELS}
+            inputMode="numeric"
+            placeholder={`${MIN_PARCELS}–${MAX_PARCELS}x`}
+            value={customActive ? String(parcels) : customParcels}
+            onChange={(e) => onCustomParcelsChange(e.target.value)}
+            onFocus={() => {
+              if (!customActive) setCustomParcels(String(parcels))
+            }}
+          />
         </div>
       </div>
 
