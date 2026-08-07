@@ -130,6 +130,80 @@
   gap: 8px;
 }
 
+.cardHeadActions {
+  display: flex;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.ccLaunchBtn {
+  border-radius: 10px;
+  padding: 8px 15px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  border: 1px solid color-mix(in srgb, var(--card-accent, var(--primary)) 35%, #fff);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--card-accent, var(--primary)) 82%, #fff),
+    var(--card-accent, var(--primary))
+  );
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 40%, transparent) inset,
+    0 4px 16px color-mix(in srgb, var(--card-accent, var(--primary)) 50%, transparent);
+  transition:
+    filter 0.15s ease,
+    transform 0.12s ease;
+}
+
+.ccLaunchBtn:hover {
+  filter: brightness(1.1);
+}
+
+.ccLaunchBtn:active {
+  transform: scale(0.98);
+}
+
+.ccEditBtn {
+  border-radius: 10px;
+  padding: 7px 11px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text);
+  background: color-mix(in srgb, var(--card) 55%, var(--card2));
+  border: 1px solid var(--border2);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.ccEditBtn:hover {
+  border-color: color-mix(in srgb, var(--card-accent, var(--primary)) 30%, var(--border2));
+  background: color-mix(in srgb, var(--card-accent, var(--primary)) 8%, var(--card2));
+}
+
+[data-theme='dark'] .ccEditBtn {
+  color: #f4f2f8;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+[data-theme='dark'] .ccEditBtn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+[data-theme='dark'] .ccLaunchBtn {
+  border-color: color-mix(in srgb, var(--card-accent, var(--primary)) 25%, #fff);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 45%, transparent) inset,
+    0 6px 20px color-mix(in srgb, var(--card-accent, var(--primary)) 55%, transparent);
+}
+
 .bills {
   display: flex;
   flex-direction: column;

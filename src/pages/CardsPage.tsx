@@ -20,6 +20,7 @@ import {
   invoicePaymentDue,
   invoiceTotal,
 } from '@/domain/calc/cards'
+import { bankButtonTextColor } from '@/domain/banks'
 import type { Card as CardEntity, CardBill } from '@/domain/entities'
 import { showSaveToast } from '@/lib/toast'
 import { formatDate } from '@/lib/format'
@@ -130,7 +131,11 @@ export function CardsPage() {
               const bills = billsForMonth(card, month, year)
               const due = invoicePaymentDue(month, year)
               return (
-                <div key={card.id} className="cc-card fadein">
+                <div
+                  key={card.id}
+                  className="cc-card fadein"
+                  style={{ ['--card-accent' as string]: card.color }}
+                >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <div
@@ -155,19 +160,11 @@ export function CardsPage() {
                         <div style={{ color: 'var(--muted)', fontSize: 12 }}>{card.type === 'debito' ? 'Débito' : 'Crédito'}</div>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: 8, position: 'relative', zIndex: 1 }}>
+                    <div className={styles.cardHeadActions}>
                       <button
                         type="button"
                         title="Editar cartão"
-                        style={{
-                          background: 'rgba(255,255,255,0.06)',
-                          border: '1px solid rgba(255,255,255,0.1)',
-                          borderRadius: 8,
-                          padding: '7px 10px',
-                          color: 'var(--muted)',
-                          fontSize: 13,
-                          fontWeight: 600,
-                        }}
+                        className={styles.ccEditBtn}
                         onClick={() => {
                           setEditing(card)
                           setCardModalOpen(true)
@@ -177,14 +174,9 @@ export function CardsPage() {
                       </button>
                       <button
                         type="button"
+                        className={styles.ccLaunchBtn}
                         style={{
-                          background: `${card.color}20`,
-                          border: `1px solid ${card.color}40`,
-                          borderRadius: 8,
-                          padding: '7px 14px',
-                          color: card.color,
-                          fontSize: 12,
-                          fontWeight: 600,
+                          color: bankButtonTextColor(card.color),
                         }}
                         onClick={() => setPurchaseCard(card)}
                       >
