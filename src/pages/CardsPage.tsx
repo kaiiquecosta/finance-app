@@ -258,6 +258,7 @@ export function CardsPage() {
                       >
                         Lançamentos ({bills.length})
                       </div>
+                      <p className={styles.billsHint}>Toque no valor ou em ✎ para corrigir um lançamento.</p>
                       <div className={styles.billsScroll}>
                         {bills.map((b) => (
                           <div key={b.id} className={styles.billRow}>
@@ -275,15 +276,27 @@ export function CardsPage() {
                                 -{formatBRL(b.amt)}
                               </button>
                             </div>
-                            <button
-                              type="button"
-                              className={styles.billDel}
-                              title="Excluir lançamento"
-                              disabled={removeBill.isPending}
-                              onClick={() => setConfirmDeleteBill(b)}
-                            >
-                              🗑
-                            </button>
+                            <div className={styles.billRowActions}>
+                              <button
+                                type="button"
+                                className={styles.billEdit}
+                                title="Alterar valor"
+                                aria-label={`Alterar valor de ${b.description}`}
+                                onClick={() => setEditBill(b)}
+                              >
+                                ✎
+                              </button>
+                              <button
+                                type="button"
+                                className={styles.billDel}
+                                title="Excluir lançamento"
+                                aria-label={`Excluir ${b.description}`}
+                                disabled={removeBill.isPending}
+                                onClick={() => setConfirmDeleteBill(b)}
+                              >
+                                🗑
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
