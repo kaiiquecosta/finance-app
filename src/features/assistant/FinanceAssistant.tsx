@@ -10,6 +10,12 @@ import {
 } from '@/features/transactions/useTransactionMutations'
 import { normalizeSpokenNumbers } from '@/lib/spokenNumbers'
 import { useAssistantSpeech } from './useAssistantSpeech'
+import {
+  ASSISTANT_SUBTITLE,
+  ASSISTANT_WELCOME,
+  markAssistantCopyVersion,
+  shouldRefreshAssistantWelcome,
+} from './copy'
 import styles from './FinanceAssistant.module.css'
 
 type ChatMessage = {
@@ -46,7 +52,7 @@ export function FinanceAssistant() {
     {
       id: 'welcome',
       role: 'assistant',
-      text: 'Oi! Digite ou fale em português. Ex.: 10 reais coxinha · gastei 45 no uber · recebi 500',
+      text: ASSISTANT_WELCOME,
     },
   ])
   const [sending, setSending] = useState(false)
@@ -64,6 +70,13 @@ export function FinanceAssistant() {
   useEffect(() => {
     if (!open) return
     void readMicrophonePermission().then(setMicAccess)
+    if (shouldRefreshAssistantWelcome()) {
+      setMessages((m) => {
+        const rest = m.filter((msg) => msg.id !== 'welcome')
+        return [{ id: 'welcome', role: 'assistant', text: ASSISTANT_WELCOME }, ...rest]
+      })
+      markAssistantCopyVersion()
+    }
   }, [open])
 
   useEffect(() => {
@@ -302,7 +315,7 @@ export function FinanceAssistant() {
           <header className={styles.panelHead}>
             <div>
               <div className={styles.panelTitle}>Assistente</div>
-              <div className={styles.panelSub}>Registre gastos e receitas</div>
+              <div className={styles.panelSub}>{ASSISTANT_SUBTITLE}</div>
             </div>
             <button type="button" className={styles.closeBtn} onClick={() => setOpen(false)} aria-label="Fechar">
               ✕

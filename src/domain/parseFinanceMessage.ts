@@ -28,7 +28,7 @@ export function parseFinanceMessage(
 ): { ok: true; data: ParsedFinanceMessage } | { ok: false; error: string } {
   let text = normalizeSpokenNumbers(raw.trim())
   if (!text) {
-    return { ok: false, error: 'Digite ou fale algo como: 10 reais coxinha · I spent R$10 on coxinha' }
+    return { ok: false, error: 'Digite ou fale algo como: 10 reais coxinha · gastei 45 no uber' }
   }
 
   let kind = detectKind(text)
@@ -44,7 +44,7 @@ export function parseFinanceMessage(
   if (!amountResult) {
     return {
       ok: false,
-      error: 'Não achei o valor. Ex.: 10 reais coxinha · spent R$10 on coxinha · earned 500',
+      error: 'Não achei o valor. Ex.: 10 reais coxinha · gastei 45 · recebi 500',
     }
   }
 

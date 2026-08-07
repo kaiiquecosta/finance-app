@@ -3,7 +3,6 @@ import {
   appendSpeechFragment,
   lineFromSpeechResults,
   polishDictationLine,
-  stabilizeDictationLine,
 } from './speechTranscript'
 import { normalizeSpokenNumbers } from '@/lib/spokenNumbers'
 
