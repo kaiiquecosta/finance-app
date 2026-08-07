@@ -215,7 +215,7 @@ export function formatCategoryLabel(category: string, hints: string[]): string {
 /** Infere a categoria a partir do nome/descrição (fallback quando não definida). */
 export function inferCategory(desc: string | null | undefined, fallback = 'outros'): string {
   const d = (desc ?? '').toLowerCase()
-  if (/ifood|rappi|uber.?eat|delivery|restaurante|lanche|pizza|sushi|comida|padaria|cafe|café|açaí|acai|sorvete|doce|hamburguer|burger/.test(d)) return 'alimentação'
+  if (/ifood|rappi|uber.?eat|delivery|restaurante|lanche|pizza|sushi|comida|padaria|cafe|café|açaí|acai|sorvete|doce|hamburguer|burger|coxinha|salgado|pastel|empada|esfiha|marmita|refeição|refeicao|lanchonete|açai/.test(d)) return 'alimentação'
   if (/mercado|supermercado|hortifruti|feira|sacolão|atacado/.test(d)) return 'mercado'
   if (/uber|99|taxi|combustivel|gasolina|estacionamento|pedágio|pedagio|passagem|ônibus|onibus|metrô|metro/.test(d)) return 'transporte'
   if (/netflix|spotify|disney|hbo|prime|youtube|streaming|deezer|globoplay|paramount|apple tv/.test(d)) return 'streaming'

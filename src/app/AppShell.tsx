@@ -14,6 +14,7 @@ import { ReminderPopup } from '@/features/reminders/ReminderPopup'
 import { useReminders } from '@/features/reminders/useReminders'
 import { CommunityStatusPopup } from '@/features/community/CommunityStatusPopup'
 import { useCommunityStatusAlerts } from '@/features/community/useCommunityStatusAlerts'
+import { FinanceAssistant } from '@/features/assistant/FinanceAssistant'
 import { isDemoPersonaEnabled, DEMO_PERSONA_LABEL } from '@/demo/isDemoPersona'
 import { NAV_ITEMS } from './navItems'
 import styles from './AppShell.module.css'
@@ -166,6 +167,7 @@ export function AppShell() {
       <AccountModal open={accountOpen} onClose={() => setAccountOpen(false)} />
       <ReminderPopup reminders={reminders} onDismiss={dismiss} />
       <CommunityStatusPopup queue={communityAlerts} onDismiss={dismissCommunityAlert} />
+      <FinanceAssistant />
     </div>
   )
 }
