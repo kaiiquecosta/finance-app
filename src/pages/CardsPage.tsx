@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '@/app/SessionProvider'
 import { useFinanceData } from '@/data/hooks'
 import { useCardMutations } from '@/features/cards/useCardMutations'
@@ -10,7 +10,8 @@ import { InvoiceEvolutionChart } from '@/components/legacy/InvoiceEvolutionChart
 import { MonthNav, labelMonthYear, monthOffsetFrom } from '@/components/legacy/MonthNav'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
-import { formatBRL, percentOf, sub, sum } from '@/domain/money'
+import { MoneyField } from '@/components/ui/MoneyField'
+import { formatBRL, percentOf, sub, sum, ZERO, type Cents } from '@/domain/money'
 import { MONTHS_FULL } from '@/domain/categories'
 import {
   availableLimit,
@@ -29,13 +30,22 @@ import styles from './CardsPage.module.css'
 export function CardsPage() {
   const { user } = useAuth()
   const { data, isLoading, isError } = useFinanceData(user?.id)
-  const { saveCard, removeCard, addBills, removeBill } = useCardMutations(user?.id)
+  const { saveCard, removeCard, addBills, removeBill, updateBill } = useCardMutations(user?.id)
 
   const [monthOffset, setMonthOffset] = useState(0)
   const [cardModalOpen, setCardModalOpen] = useState(false)
   const [editing, setEditing] = useState<CardEntity | null>(null)
   const [purchaseCard, setPurchaseCard] = useState<CardEntity | null>(null)
   const [confirmDeleteBill, setConfirmDeleteBill] = useState<CardBill | null>(null)
+  const [editBill, setEditBill] = useState<CardBill | null>(null)
+  const [editAmount, setEditAmount] = useState<Cents>(ZERO)
+  const [editBillError, setEditBillError] = useState('')
+
+  useEffect(() => {
+    if (!editBill) return
+    setEditAmount(editBill.amt)
+    setEditBillError('')
+  }, [editBill])
 
   const now = new Date()
 
@@ -256,7 +266,14 @@ export function CardsPage() {
                                 <span className={styles.billDesc}>{b.description}</span>
                                 <span className={styles.billDate}>Compra {formatDate(b.date)}</span>
                               </div>
-                              <span className={styles.billAmt}>-{formatBRL(b.amt)}</span>
+                              <button
+                                type="button"
+                                className={styles.billAmtBtn}
+                                title="Alterar valor"
+                                onClick={() => setEditBill(b)}
+                              >
+                                -{formatBRL(b.amt)}
+                              </button>
                             </div>
                             <button
                               type="button"
@@ -317,6 +334,62 @@ export function CardsPage() {
           setPurchaseCard(null)
         }}
       />
+
+      <Modal
+        open={editBill !== null}
+        title="Alterar valor"
+        onClose={() => setEditBill(null)}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setEditBill(null)} disabled={updateBill.isPending}>
+              Cancelar
+            </Button>
+            <Button
+              block
+              loading={updateBill.isPending}
+              onClick={() => {
+                setEditBillError('')
+                if (!editBill) return
+                if (editAmount <= 0) {
+                  setEditBillError('Informe um valor maior que zero.')
+                  return
+                }
+                void updateBill
+                  .mutateAsync({ ...editBill, amt: editAmount })
+                  .then(() => {
+                    showSaveToast('Valor atualizado', 'var(--green)', 'Salvo', '✓')
+                    setEditBill(null)
+                  })
+                  .catch((e) => {
+                    setEditBillError(e instanceof Error ? e.message : 'Não foi possível salvar.')
+                  })
+              }}
+            >
+              Salvar
+            </Button>
+          </>
+        }
+      >
+        {editBill && (
+          <>
+            <p style={{ margin: '0 0 12px', fontSize: 14, lineHeight: 1.5, color: 'var(--muted)' }}>
+              Lançamento: <b style={{ color: 'var(--text)' }}>{editBill.description}</b>
+              <br />
+              Compra em {formatDate(editBill.date)}
+            </p>
+            <MoneyField
+              label="Valor da compra"
+              name="edit-bill-amt"
+              autoFocus
+              value={editAmount}
+              onChange={setEditAmount}
+            />
+            {editBillError && (
+              <p style={{ margin: '10px 0 0', fontSize: 13, color: 'var(--red)' }}>{editBillError}</p>
+            )}
+          </>
+        )}
+      </Modal>
 
       <Modal
         open={confirmDeleteBill !== null}

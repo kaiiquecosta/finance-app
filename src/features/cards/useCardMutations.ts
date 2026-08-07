@@ -52,5 +52,13 @@ export function useCardMutations(userId: string | undefined) {
     onSuccess: invalidate,
   })
 
-  return { saveCard, removeCard, addBills, removeBill }
+  const updateBill = useMutation({
+    mutationFn: async (bill: CardBill) => {
+      if (!userId) throw new Error('Sessão expirada. Entre novamente.')
+      await upsertRows('card_bills', [toCardBillRow(bill, userId)])
+    },
+    onSuccess: invalidate,
+  })
+
+  return { saveCard, removeCard, addBills, removeBill, updateBill }
 }

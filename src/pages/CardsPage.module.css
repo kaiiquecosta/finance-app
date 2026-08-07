@@ -204,6 +204,35 @@
   white-space: nowrap;
 }
 
+.billAmtBtn {
+  font-family: var(--num);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--red);
+  white-space: nowrap;
+  border: none;
+  background: none;
+  padding: 4px 6px;
+  margin: -4px -6px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition:
+    background 0.15s ease,
+    text-decoration-color 0.15s ease;
+}
+
+.billAmtBtn:hover {
+  background: color-mix(in srgb, var(--red) 10%, transparent);
+  text-decoration-color: color-mix(in srgb, var(--red) 55%, transparent);
+}
+
+.billAmtBtn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--red) 45%, transparent);
+  outline-offset: 2px;
+}
+
 .billsScroll {
   max-height: 240px;
   overflow-y: auto;
