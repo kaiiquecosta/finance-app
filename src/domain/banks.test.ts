@@ -13,6 +13,8 @@ describe('banks', () => {
     const list = filterBankPresets('')
     expect(list.length).toBe(FEATURED_BANK_PRESETS.length)
     expect(list.every((b) => b.featured)).toBe(true)
+    expect(list.some((b) => b.id === 'amex')).toBe(false)
+    expect(list.some((b) => b.id === 'nubank')).toBe(true)
   })
 
   it('busca parcial american encontra AmEx', () => {

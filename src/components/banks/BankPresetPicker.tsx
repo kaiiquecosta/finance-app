@@ -30,15 +30,15 @@ export function BankPresetPicker({ selectedId, onSelect, searchable = true, rese
           <TextField
             label="Buscar banco"
             name="bank-search"
-            placeholder="Ex.: American Express, Mercantil, Chase, Nubank…"
+            placeholder="Ex.: Nubank, Itaú, BB, Caixa, Bradesco…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoComplete="off"
           />
           {!searching && (
             <p className={styles.searchHint}>
-              Os bancos mais usados aparecem abaixo. Digite na busca para ver centenas de bancos no
-              Brasil e no mundo.
+              Os bancos mais usados no Brasil aparecem abaixo. Na busca, digite qualquer nome — inclusive
+              American Express, Mercantil, Chase e outros.
             </p>
           )}
         </>
