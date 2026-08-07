@@ -114,7 +114,7 @@ export function IncomeList({
                 </div>
 
                 <div className={styles.bankRow}>
-                  <BankMark preset={bank} size="sm" />
+                  <BankMark preset={bank} size="xs" />
                   <span className={styles.bankName}>{bankName}</span>
                 </div>
 
