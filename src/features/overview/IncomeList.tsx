@@ -30,10 +30,10 @@ function bankLabel(accounts: Map<number, BankAccount>, accountId?: number | null
 
 function bankPresetForAccount(accounts: Map<number, BankAccount>, accountId?: number | null) {
   if (accountId == null) {
-    return { mark: '?', color: '#64748b' as const }
+    return { name: 'Sem conta', mark: '?', color: '#64748b' as const }
   }
   const acc = accounts.get(accountId)
-  if (!acc) return { mark: '?', color: '#64748b' as const }
+  if (!acc) return { name: '?', mark: '?', color: '#64748b' as const }
   return (
     matchBankPreset(acc.name) ?? {
       id: `custom-${acc.id}`,

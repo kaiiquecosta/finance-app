@@ -13,7 +13,7 @@ export const BANK_CATALOG: Entry[] = [
   { id: 'caixa', name: 'Caixa', color: '#005CA9', mark: 'CX', rank: 6, featured: true, domain: 'caixa.gov.br', keywords: ['cef', 'caixa econômica'] },
   { id: 'inter', name: 'Inter', color: '#FF7A00', mark: 'inter', rank: 7, featured: true, domain: 'bancointer.com.br', keywords: ['banco inter'] },
   { id: 'c6', name: 'C6 Bank', color: '#242424', mark: 'C6', rank: 8, featured: true, domain: 'c6bank.com.br', keywords: ['c6 bank'] },
-  { id: 'amex', name: 'American Express', color: '#006FCF', mark: 'AmEx', rank: 9, featured: true, domain: 'americanexpress.com', keywords: ['american express', 'amex', 'express'] },
+  { id: 'amex', name: 'American Express', color: '#006FCF', mark: 'AmEx', rank: 9, featured: true, domain: 'americanexpress.com', keywords: ['american express', 'american', 'amex', 'express'] },
   { id: 'mercantil', name: 'Mercantil', color: '#003641', mark: 'M', rank: 10, featured: true, domain: 'mercantil.com.br', keywords: ['banco mercantil', 'mercantil do brasil'] },
   { id: 'btg', name: 'BTG Pactual', color: '#002855', mark: 'BTG', rank: 11, featured: true, domain: 'btgpactual.com', keywords: ['btg', 'pactual'] },
   { id: 'xp', name: 'XP', color: '#111111', mark: 'XP', rank: 12, featured: true, domain: 'xpinc.com', keywords: ['xp investimentos'] },

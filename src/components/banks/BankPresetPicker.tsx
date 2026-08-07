@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { TextField } from '@/components/ui/TextField'
 import { filterBankPresets, type BankPreset } from '@/domain/banks'
 import { BankMark } from './BankMark'
@@ -9,13 +9,19 @@ interface Props {
   onSelect: (preset: BankPreset) => void
   /** Mostrar campo de busca (padrão: true). */
   searchable?: boolean
+  /** Troca a instância (ex.: ao reabrir modal) e limpa a busca. */
+  resetKey?: string | number
 }
 
 /** Grade de bancos com cor de marca, logo e busca global. */
-export function BankPresetPicker({ selectedId, onSelect, searchable = true }: Props) {
+export function BankPresetPicker({ selectedId, onSelect, searchable = true, resetKey }: Props) {
   const [query, setQuery] = useState('')
   const list = useMemo(() => filterBankPresets(query), [query])
   const searching = query.trim().length > 0
+
+  useEffect(() => {
+    setQuery('')
+  }, [resetKey])
 
   return (
     <div className={styles.wrap}>

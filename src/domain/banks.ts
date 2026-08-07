@@ -36,11 +36,15 @@ const norm = (s: string) =>
     .toLowerCase()
     .trim()
 
+function presetSearchBlob(p: BankPreset): string {
+  return [p.name, p.mark, p.id, ...(p.keywords ?? [])].map(norm).join(' ')
+}
+
 function presetMatchesQuery(p: BankPreset, q: string): boolean {
-  if (norm(p.name).includes(q)) return true
-  if (norm(p.mark).includes(q)) return true
-  if (p.id.includes(q)) return true
-  return p.keywords?.some((k) => norm(k).includes(q)) ?? false
+  const tokens = q.split(/\s+/).filter(Boolean)
+  if (tokens.length === 0) return true
+  const blob = presetSearchBlob(p)
+  return tokens.every((token) => blob.includes(token))
 }
 
 function relevanceScore(p: BankPreset, q: string): number {
@@ -71,12 +75,12 @@ function sortPresets(list: BankPreset[], q?: string): BankPreset[] {
  */
 export function filterBankPresets(query: string, presets?: BankPreset[]): BankPreset[] {
   const q = norm(query)
-  if (presets) {
-    if (!q) return sortPresets(presets)
-    return sortPresets(presets.filter((p) => presetMatchesQuery(p, q)), q)
+  if (!q) {
+    const base = presets ?? FEATURED_BANK_PRESETS
+    return sortPresets(base)
   }
-  if (!q) return FEATURED_BANK_PRESETS
-  const matched = ALL_BANK_PRESETS.filter((p) => presetMatchesQuery(p, q))
+  const pool = ALL_BANK_PRESETS
+  const matched = pool.filter((p) => presetMatchesQuery(p, q))
   return sortPresets(matched, q)
 }
 
