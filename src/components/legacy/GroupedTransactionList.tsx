@@ -1,4 +1,9 @@
-import { colorFor, iconFor } from '@/domain/categories'
+import {
+  colorFor,
+  iconFor,
+  normalizeMerchantName,
+  resolveExpenseCategory,
+} from '@/domain/categories'
 import type { BankAccount, Transaction } from '@/domain/entities'
 import { formatBRL } from '@/domain/money'
 import { isManualExpenseTransaction } from '@/domain/transactions'
@@ -40,7 +45,11 @@ export function GroupedTransactionList({ transactions, accounts, onEdit }: Props
           <div className="tx-date-hdr">{dateGroupLabel(date)}</div>
           {groups.get(date)!.map((t) => {
             const editable = isManualExpenseTransaction(t)
-            const catColor = colorFor(t.cat)
+            const displayCategory =
+              t.amt < 0 ? resolveExpenseCategory(t.name, t.cat) : t.cat
+            const displayName =
+              t.amt < 0 ? normalizeMerchantName(t.name) : t.name
+            const catColor = colorFor(displayCategory)
             const acc = t.accountId != null ? accounts.find((a) => a.id === t.accountId) : null
             return (
               <div
@@ -63,13 +72,13 @@ export function GroupedTransactionList({ transactions, accounts, onEdit }: Props
                     border: `1px solid ${catColor}28`,
                   }}
                 >
-                  {iconFor(t.cat)}
+                  {iconFor(displayCategory)}
                 </div>
                 <div className="tx-info">
-                  <div className="tx-name">{t.name}</div>
+                  <div className="tx-name">{displayName}</div>
                   <div className="tx-meta">
                     <span className="badge badge-muted" style={{ padding: '1px 7px' }}>
-                      {t.cat}
+                      {displayCategory}
                     </span>
                     {acc && (
                       <span

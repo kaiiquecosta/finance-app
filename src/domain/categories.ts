@@ -212,9 +212,113 @@ export function formatCategoryLabel(category: string, hints: string[]): string {
   return `${category} (${uniq.join(', ')})`
 }
 
+type MerchantRule = {
+  name: string
+  category: string
+  aliases: string[]
+}
+
+/** Marcas comuns + grafias faladas/digitadas com erro. */
+const SMART_MERCHANTS: MerchantRule[] = [
+  { name: "McDonald's", category: 'alimentação', aliases: ['mcdonalds', 'mc donalds', 'mc donald', 'mc donals', 'mcdonals', 'méqui', 'mequi'] },
+  { name: 'Burger King', category: 'alimentação', aliases: ['burger king', 'burguer king', 'bk'] },
+  { name: 'iFood', category: 'alimentação', aliases: ['ifood', 'i food', 'ai food'] },
+  { name: 'Rappi', category: 'alimentação', aliases: ['rappi', 'rapi'] },
+  { name: 'Outback', category: 'alimentação', aliases: ['outback', 'out bak'] },
+  { name: 'Habib’s', category: 'alimentação', aliases: ['habibs', 'habib'] },
+  { name: 'Starbucks', category: 'alimentação', aliases: ['starbucks', 'star bucks', 'starbuck'] },
+  { name: 'Uber Eats', category: 'alimentação', aliases: ['uber eats', 'uber eat', 'ubereats'] },
+  { name: 'Uber', category: 'transporte', aliases: ['uber', 'úber'] },
+  { name: '99', category: 'transporte', aliases: ['99', 'noventa e nove'] },
+  { name: 'Netflix', category: 'streaming', aliases: ['netflix', 'net flix', 'netiflix'] },
+  { name: 'Spotify', category: 'streaming', aliases: ['spotify', 'spotfy', 'spotifi'] },
+  { name: 'Disney+', category: 'streaming', aliases: ['disney plus', 'disney+', 'disnei'] },
+  { name: 'Amazon Prime', category: 'streaming', aliases: ['amazon prime', 'prime video'] },
+  { name: 'Carrefour', category: 'mercado', aliases: ['carrefour', 'carrefur', 'carrefou'] },
+  { name: 'Pão de Açúcar', category: 'mercado', aliases: ['pão de açúcar', 'pao de acucar'] },
+  { name: 'Assaí', category: 'mercado', aliases: ['assaí', 'assai atacadista', 'assai'] },
+  { name: 'Atacadão', category: 'mercado', aliases: ['atacadão', 'atacadao'] },
+  { name: 'Drogasil', category: 'saúde', aliases: ['drogasil', 'droga sil'] },
+  { name: 'Droga Raia', category: 'saúde', aliases: ['droga raia', 'drogaraia'] },
+  { name: 'Smart Fit', category: 'saúde', aliases: ['smart fit', 'smartfit', 'smart feet'] },
+  { name: 'Renner', category: 'compras', aliases: ['renner', 'rener'] },
+  { name: 'Shopee', category: 'compras', aliases: ['shopee', 'shopi', 'shope'] },
+  { name: 'Mercado Livre', category: 'compras', aliases: ['mercado livre', 'mercadolivre'] },
+  { name: 'Amazon', category: 'compras', aliases: ['amazon', 'amazom'] },
+]
+
+function normalizeSmartText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLowerCase()
+    .replace(/[^\p{L}\d]+/gu, ' ')
+    .trim()
+}
+
+function editDistance(a: string, b: string): number {
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i)
+  for (let i = 1; i <= a.length; i++) {
+    let diagonal = prev[0]
+    prev[0] = i
+    for (let j = 1; j <= b.length; j++) {
+      const old = prev[j]
+      prev[j] = Math.min(prev[j] + 1, prev[j - 1] + 1, diagonal + (a[i - 1] === b[j - 1] ? 0 : 1))
+      diagonal = old
+    }
+  }
+  return prev[b.length]
+}
+
+function merchantCandidates(input: string): string[] {
+  const words = normalizeSmartText(input).split(/\s+/).filter(Boolean)
+  const candidates = new Set(words)
+  for (let size = 2; size <= Math.min(3, words.length); size++) {
+    for (let i = 0; i <= words.length - size; i++) {
+      candidates.add(words.slice(i, i + size).join(''))
+    }
+  }
+  return [...candidates]
+}
+
+function findSmartMerchant(desc: string): MerchantRule | null {
+  const normalized = normalizeSmartText(desc)
+  const compact = normalized.replace(/\s/g, '')
+  const candidates = merchantCandidates(normalized)
+
+  for (const merchant of SMART_MERCHANTS) {
+    for (const rawAlias of merchant.aliases) {
+      const alias = normalizeSmartText(rawAlias)
+      const aliasCompact = alias.replace(/\s/g, '')
+      if (normalized.includes(alias) || compact.includes(aliasCompact)) return merchant
+      if (aliasCompact.length < 5) continue
+      const tolerance = Math.min(2, Math.max(1, Math.floor(aliasCompact.length * 0.2)))
+      if (
+        candidates.some(
+          (candidate) =>
+            Math.abs(candidate.length - aliasCompact.length) <= tolerance &&
+            editDistance(candidate, aliasCompact) <= tolerance,
+        )
+      ) {
+        return merchant
+      }
+    }
+  }
+  return null
+}
+
+/** Corrige marcas conhecidas sem alterar descrições que não reconhecemos. */
+export function normalizeMerchantName(desc: string): string {
+  return findSmartMerchant(desc)?.name ?? desc.trim()
+}
+
 /** Infere a categoria a partir do nome/descrição (fallback quando não definida). */
 export function inferCategory(desc: string | null | undefined, fallback = 'outros'): string {
-  const d = (desc ?? '').toLowerCase()
+  const raw = desc ?? ''
+  const merchant = findSmartMerchant(raw)
+  if (merchant) return merchant.category
+
+  const d = normalizeSmartText(raw)
   if (/ifood|rappi|uber.?eat|delivery|restaurante|lanche|pizza|sushi|comida|padaria|cafe|café|açaí|acai|sorvete|doce|hamburguer|burger|coxinha|salgado|pastel|empada|esfiha|marmita|refeição|refeicao|lanchonete|açai/.test(d)) return 'alimentação'
   if (/mercado|supermercado|hortifruti|feira|sacolão|atacado/.test(d)) return 'mercado'
   if (/uber|99|taxi|combustivel|gasolina|estacionamento|pedágio|pedagio|passagem|ônibus|onibus|metrô|metro/.test(d)) return 'transporte'

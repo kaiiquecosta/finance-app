@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { colorFor, formatCategoryLabel, iconFor, inferCategory, resolveExpenseCategory } from './categories'
+import {
+  colorFor,
+  formatCategoryLabel,
+  iconFor,
+  inferCategory,
+  normalizeMerchantName,
+  resolveExpenseCategory,
+} from './categories'
 
 describe('inferCategory', () => {
   it('reconhece por palavras-chave', () => {
@@ -18,10 +25,24 @@ describe('inferCategory', () => {
     expect(inferCategory('', 'moradia')).toBe('moradia')
     expect(inferCategory(null)).toBe('outros')
   })
-  it('LIMITAÇÃO herdada do legado: acento em keyword não casa (ex.: "farmacia")', () => {
-    // A regex usa "farmacia" sem acento → "Farmácia" não é reconhecida como saúde.
-    // Preservado por fidelidade; candidato a normalizar acentos numa melhoria futura.
-    expect(inferCategory('Farmácia São João')).toBe('outros')
+  it('normaliza acentos antes de inferir', () => {
+    expect(inferCategory('Farmácia São João')).toBe('saúde')
+  })
+  it('tolera erros de digitação em marcas conhecidas', () => {
+    expect(inferCategory('Mc donals')).toBe('alimentação')
+    expect(inferCategory('Netiflix')).toBe('streaming')
+    expect(inferCategory('Carrefur')).toBe('mercado')
+    expect(inferCategory('Spotifi')).toBe('streaming')
+  })
+})
+
+describe('normalizeMerchantName', () => {
+  it('corrige o nome de marcas conhecidas', () => {
+    expect(normalizeMerchantName('Mc donals')).toBe("McDonald's")
+    expect(normalizeMerchantName('shopi')).toBe('Shopee')
+  })
+  it('preserva texto desconhecido', () => {
+    expect(normalizeMerchantName('Coxinha da esquina')).toBe('Coxinha da esquina')
   })
 })
 
@@ -32,6 +53,7 @@ describe('resolveExpenseCategory', () => {
   it('infere quando a categoria é genérica', () => {
     expect(resolveExpenseCategory('Netflix', 'outros')).toBe('streaming')
     expect(resolveExpenseCategory('Spotify', null)).toBe('streaming')
+    expect(resolveExpenseCategory('Mc donals', 'outros')).toBe('alimentação')
   })
 })
 

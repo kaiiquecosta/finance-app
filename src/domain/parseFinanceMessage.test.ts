@@ -64,4 +64,12 @@ describe('parseFinanceMessage', () => {
     expect(r.data.amount).toBe(1000)
     expect(r.data.name.toLowerCase()).toContain('coxinha')
   })
+
+  it('corrige marca digitada errado e categoriza', () => {
+    const r = parseFinanceMessage('25 reais mc donals')
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect(r.data.name).toBe("McDonald's")
+    expect(r.data.cat).toBe('alimentação')
+  })
 })

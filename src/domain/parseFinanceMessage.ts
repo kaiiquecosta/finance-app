@@ -1,5 +1,5 @@
 import { cents, type Cents } from '@/domain/money'
-import { inferCategory } from '@/domain/categories'
+import { inferCategory, normalizeMerchantName } from '@/domain/categories'
 import { toISODate } from '@/domain/dates'
 import type { ISODate } from '@/domain/entities'
 
@@ -51,6 +51,7 @@ export function parseFinanceMessage(
   if (!name) name = kind === 'income' ? 'Receita' : 'Gasto'
 
   const cat = kind === 'income' ? 'receita' : inferCategory(name)
+  if (kind === 'expense') name = normalizeMerchantName(name)
   const date = toISODate(asOf)
 
   if (amountResult.cents <= 0) {
