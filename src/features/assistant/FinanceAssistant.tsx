@@ -200,16 +200,8 @@ export function FinanceAssistant() {
       ])
       return
     }
-    const access = await readMicrophonePermission()
-    setMicAccess(access)
-    if (access === 'denied') {
-      setMicPromptOpen(true)
-      return
-    }
-    if (access === 'prompt' || access === 'unknown') {
-      setMicPromptOpen(true)
-      return
-    }
+    // Sempre tenta o ditado no clique (gesto do usuário). O navegador/PWA mostra o prompt nativo.
+    // Não confiar só na Permissions API — no mobile ela costuma marcar "denied" antes da 1ª tentativa.
     await beginSpeech()
   }
 
@@ -223,10 +215,8 @@ export function FinanceAssistant() {
     const kind = speech.errorKind
 
     if (kind === 'mic-permission') {
-      void readMicrophonePermission().then((access) => {
-        setMicAccess(access)
-        if (access === 'denied') setMicPromptOpen(true)
-      })
+      setMicAccess('denied')
+      setMicPromptOpen(true)
     } else if (kind === 'speech-permission') {
       void readMicrophonePermission().then((access) => {
         setMicAccess(access)
@@ -280,7 +270,7 @@ export function FinanceAssistant() {
                 </h3>
                 <p className={styles.permissionText}>
                   {micAccess === 'denied'
-                    ? 'Ative o microfone nas permissões do navegador (cadeado na barra de endereço) ou nos Ajustes do PWA Flux e tente novamente.'
+                    ? 'No celular: Ajustes do Android → Apps → Chrome (ou Flux) → Permissões → Microfone. No iPhone: Ajustes → Safari/Flux → Microfone. Depois toque em Tentar novamente.'
                     : micAccess === 'unsupported'
                       ? 'Áudio por voz grátis funciona no Chrome, Edge ou Safari (HTTPS). Você pode digitar no campo abaixo.'
                       : 'O Flux usará o áudio somente para transformar sua fala em texto. Você poderá revisar antes de enviar.'}
