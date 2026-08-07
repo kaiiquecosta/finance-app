@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { TextField } from '@/components/ui/TextField'
 import { MoneyField } from '@/components/ui/MoneyField'
 import { BankPresetPicker } from '@/components/banks/BankPresetPicker'
-import { BRAZIL_BANK_PRESETS, type BankPreset } from '@/domain/banks'
+import { BRAZIL_BANK_PRESETS, isKnownBankPresetName, type BankPreset } from '@/domain/banks'
 import { ZERO, type Cents } from '@/domain/money'
 import type { Card as CardEntity } from '@/domain/entities'
 import type { CardDraft } from './useCardMutations'
@@ -31,7 +31,7 @@ export function CardModal({ open, onClose, onSave, onDelete, saving, editing }: 
   const pickPreset = (p: BankPreset) => {
     setPresetId(p.id)
     setColor(p.color)
-    if (!name.trim() || BRAZIL_BANK_PRESETS.some((b) => b.name === name.trim())) {
+    if (!name.trim() || isKnownBankPresetName(name.trim())) {
       setName(p.name)
     }
   }

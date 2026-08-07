@@ -9,7 +9,7 @@ import { useEntityMutations } from '@/data/useEntityMutations'
 import { toBankAccountRow } from '@/data/mappers'
 import { formatBRL, ZERO, type Cents } from '@/domain/money'
 import { accountBalance } from '@/domain/calc/overview'
-import { BRAZIL_BANK_PRESETS, matchBankPreset, type BankPreset } from '@/domain/banks'
+import { BRAZIL_BANK_PRESETS, matchBankPreset, bankPresetById, type BankPreset } from '@/domain/banks'
 import type { AccountType, BankAccount, Transaction } from '@/domain/entities'
 import styles from './BankAccountsModal.module.css'
 
@@ -61,8 +61,7 @@ export function BankAccountsModal({ open, onClose, userId, accounts, transaction
   }
 
   const selectedPreset =
-    (presetId ? BRAZIL_BANK_PRESETS.find((p) => p.id === presetId) : undefined) ??
-    BRAZIL_BANK_PRESETS[0]
+    (presetId ? bankPresetById(presetId) : undefined) ?? BRAZIL_BANK_PRESETS[0]
 
   const submit = async () => {
     setError('')

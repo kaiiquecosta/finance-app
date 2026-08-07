@@ -25,3 +25,13 @@
   padding: 0 6px;
   font-size: 12px;
 }
+.markLogo {
+  padding: 2px;
+  overflow: hidden;
+}
+.logoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}

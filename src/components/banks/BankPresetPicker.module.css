@@ -3,6 +3,12 @@
   flex-direction: column;
   gap: 10px;
 }
+.searchHint {
+  margin: -4px 0 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));

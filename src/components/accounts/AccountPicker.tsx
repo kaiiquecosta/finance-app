@@ -7,7 +7,7 @@ import { BankMark } from '@/components/banks/BankMark'
 import { useEntityMutations, newId } from '@/data/useEntityMutations'
 import { toBankAccountRow } from '@/data/mappers'
 import { ZERO, type Cents } from '@/domain/money'
-import { BRAZIL_BANK_PRESETS, matchBankPreset, type BankPreset } from '@/domain/banks'
+import { BRAZIL_BANK_PRESETS, matchBankPreset, bankPresetById, type BankPreset } from '@/domain/banks'
 import type { AccountType, BankAccount } from '@/domain/entities'
 import styles from './AccountPicker.module.css'
 
@@ -65,12 +65,11 @@ export function AccountPicker({
   }, [accounts.length])
 
   const selectedPreset =
-    (presetId ? BRAZIL_BANK_PRESETS.find((p) => p.id === presetId) : undefined) ??
-    BRAZIL_BANK_PRESETS[0]
+    (presetId ? bankPresetById(presetId) : undefined) ?? BRAZIL_BANK_PRESETS[0]
 
   const pickPreset = (p: BankPreset) => {
     setCustomName((prev) => {
-      const prevPreset = presetId ? BRAZIL_BANK_PRESETS.find((x) => x.id === presetId) : undefined
+      const prevPreset = presetId ? bankPresetById(presetId) : undefined
       if (!prev.trim() || (prevPreset && prev === prevPreset.name)) return p.name
       return prev
     })
