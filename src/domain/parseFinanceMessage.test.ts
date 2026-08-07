@@ -36,4 +36,32 @@ describe('parseFinanceMessage', () => {
     expect(r.data.amount).toBe(300000)
     expect(r.data.cat).toBe('receita')
   })
+
+  it('interpreta inglês: I just spent R$10 on Coxinha', () => {
+    const r = parseFinanceMessage('I just spent R$10 on Coxinha')
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect(r.data.kind).toBe('expense')
+    expect(r.data.amount).toBe(1000)
+    expect(r.data.name).toBe('Coxinha')
+    expect(r.data.cat).toBe('alimentação')
+  })
+
+  it('interpreta inglês: I just earned R$500 and throw it', () => {
+    const r = parseFinanceMessage('I just earned R$500 and throw it')
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect(r.data.kind).toBe('income')
+    expect(r.data.amount).toBe(50000)
+    expect(r.data.cat).toBe('receita')
+  })
+
+  it('interpreta acabei de gastar com coxinha', () => {
+    const r = parseFinanceMessage('acabei de gastar 10 reais com coxinha')
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect(r.data.kind).toBe('expense')
+    expect(r.data.amount).toBe(1000)
+    expect(r.data.name.toLowerCase()).toContain('coxinha')
+  })
 })

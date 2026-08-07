@@ -11,29 +11,31 @@ export type ParsedFinanceMessage = {
   date: ISODate
 }
 
-const INCOME_HINT =
-  /^\s*(recebi|ganhei|entrada|sal[aá]rio|dep[oó]sito|credito|cr[eé]dito|pix\s+recebido)\b/i
+const INCOME_VERB =
+  /\b(recebi|ganhei|entrada|sal[aá]rio|dep[oó]sito|credito|cr[eé]dito|pix\s+recebido|earned|received|got\s+paid|income|salary|made)\b/i
 
-const EXPENSE_HINT = /^\s*(gastei|paguei|comprei|gasto|sa[ií]da|debito|d[eé]bito)\b/i
+const EXPENSE_VERB =
+  /\b(gastei|gastar|paguei|pagar|comprei|comprar|gasto|sa[ií]da|debito|d[eé]bito|spent|spend|paid|pay|bought|buy|purchased|purchase|cost(?:ed)?)\b/i
 
-/** Interpreta frases como "10 reais coxinha" ou "gastei 45 no uber". */
+const FILLER =
+  /\b(i|just|acabei\s+de|agora|hoje|please|plz|throw\s+it(?:\s+in)?|register(?:\s+it)?|add(?:\s+it)?|lan[cç]a(?:r)?|coloca(?:r)?|put(?:\s+it)?|and)\b/gi
+
+/** Interpreta frases curtas ou naturais (PT/EN): valor + descrição + gasto/receita. */
 export function parseFinanceMessage(
   raw: string,
   asOf: Date = new Date(),
 ): { ok: true; data: ParsedFinanceMessage } | { ok: false; error: string } {
   let text = raw.trim()
-  if (!text) return { ok: false, error: 'Digite algo como: 10 reais coxinha' }
+  if (!text) {
+    return { ok: false, error: 'Digite ou fale algo como: 10 reais coxinha · I spent R$10 on coxinha' }
+  }
 
-  let kind: 'expense' | 'income' = 'expense'
-  if (INCOME_HINT.test(text)) {
-    kind = 'income'
-    text = text.replace(INCOME_HINT, '').trim()
-  } else if (EXPENSE_HINT.test(text)) {
-    text = text.replace(EXPENSE_HINT, '').trim()
-  } else if (/^\+\s*/.test(text)) {
+  let kind = detectKind(text)
+  if (/^\+\s*/.test(text)) {
     kind = 'income'
     text = text.replace(/^\+\s*/, '').trim()
   } else if (/^-\s*/.test(text)) {
+    kind = 'expense'
     text = text.replace(/^-\s*/, '').trim()
   }
 
@@ -41,11 +43,11 @@ export function parseFinanceMessage(
   if (!amountResult) {
     return {
       ok: false,
-      error: 'Não achei o valor. Ex.: 10 reais coxinha · 45,90 uber · recebi 3000',
+      error: 'Não achei o valor. Ex.: 10 reais coxinha · spent R$10 on coxinha · earned 500',
     }
   }
 
-  let name = cleanupDescription(amountResult.rest)
+  let name = extractDescription(amountResult.rest, kind)
   if (!name) name = kind === 'income' ? 'Receita' : 'Gasto'
 
   const cat = kind === 'income' ? 'receita' : inferCategory(name)
@@ -61,6 +63,34 @@ export function parseFinanceMessage(
   }
 }
 
+function detectKind(text: string): 'expense' | 'income' {
+  const incomeAt = text.search(INCOME_VERB)
+  const expenseAt = text.search(EXPENSE_VERB)
+  const hasIncome = incomeAt >= 0
+  const hasExpense = expenseAt >= 0
+
+  if (hasIncome && !hasExpense) return 'income'
+  if (hasExpense && !hasIncome) return 'expense'
+  if (hasIncome && hasExpense) {
+    return incomeAt <= expenseAt ? 'income' : 'expense'
+  }
+  return 'expense'
+}
+
+function extractDescription(rest: string, kind: 'expense' | 'income'): string {
+  let s = rest
+  s = s.replace(INCOME_VERB, ' ')
+  s = s.replace(EXPENSE_VERB, ' ')
+  s = s.replace(FILLER, ' ')
+
+  const onMatch = /\b(?:on|for|at|with|in|com|em|no|na|de|do|da|por|para)\s+(.+)$/i.exec(s)
+  if (onMatch?.[1]) {
+    return cleanupDescription(onMatch[1])
+  }
+
+  return cleanupDescription(s)
+}
+
 function extractAmount(text: string): { cents: Cents; rest: string } | null {
   const patterns: { re: RegExp; pick: (m: RegExpMatchArray) => string }[] = [
     {
@@ -68,11 +98,15 @@ function extractAmount(text: string): { cents: Cents; rest: string } | null {
       pick: (m) => m[1],
     },
     {
-      re: /(\d+(?:[.,]\d{1,2})?)\s*(?:reais|real|rs\b|r\$)/i,
+      re: /(\d+(?:[.,]\d{1,2})?)\s*(?:reais|real|rs\b|r\$|dollars?|bucks?)/i,
       pick: (m) => m[1],
     },
     {
-      re: /(?:no|na|de|por|em)\s+(\d+(?:[.,]\d{1,2})?)(?:\s|$)/i,
+      re: /\b(\d+(?:[.,]\d{1,2})?)\s*(?:reais|real)\b/i,
+      pick: (m) => m[1],
+    },
+    {
+      re: /(?:no|na|de|por|em|on|for)\s+(\d+(?:[.,]\d{1,2})?)(?:\s|$)/i,
       pick: (m) => m[1],
     },
     {
@@ -83,11 +117,11 @@ function extractAmount(text: string): { cents: Cents; rest: string } | null {
 
   for (const { re, pick } of patterns) {
     const m = text.match(re)
-    if (!m) continue
-    const cents = parseMoneyToken(pick(m))
-    if (cents == null || cents <= 0) continue
-    const rest = (text.slice(0, m.index) + text.slice(m.index! + m[0].length)).trim()
-    return { cents, rest }
+    if (!m || m.index == null) continue
+    const parsed = parseMoneyToken(pick(m))
+    if (parsed == null || parsed <= 0) continue
+    const rest = (text.slice(0, m.index) + text.slice(m.index + m[0].length)).trim()
+    return { cents: parsed, rest }
   }
   return null
 }
@@ -103,16 +137,13 @@ function parseMoneyToken(token: string): Cents | null {
   const simple = t.replace(',', '.')
   const n = Number(simple)
   if (Number.isNaN(n) || n <= 0) return null
-  if (/^\d+$/.test(t.replace(',', '').replace('.', '')) && !t.includes(',') && !t.includes('.')) {
-    return cents(Math.round(n * 100))
-  }
   return cents(Math.round(n * 100))
 }
 
 function cleanupDescription(s: string): string {
   return s
-    .replace(/\b(reais|real|r\$|rs)\b/gi, ' ')
-    .replace(/\b(no|na|de|do|da|em|por|para|com)\b/gi, ' ')
+    .replace(/\b(reais|real|r\$|rs|dollars?|bucks?)\b/gi, ' ')
+    .replace(/\b(on|for|at|with|in|the|a|an|no|na|de|do|da|em|por|para|com)\b/gi, ' ')
     .replace(/\s+/g, ' ')
     .trim()
 }

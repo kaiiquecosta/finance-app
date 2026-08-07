@@ -29,7 +29,7 @@ export function FinanceAssistant() {
     {
       id: 'welcome',
       role: 'assistant',
-      text: 'Oi! Digite ou fale um gasto/receita. Ex.: 10 reais coxinha · gastei 45 uber · recebi 500 salário',
+      text: 'Oi! Digite ou fale em PT/EN. Ex.: 10 reais coxinha · I spent R$10 on coxinha · I earned 500',
     },
   ])
   const [sending, setSending] = useState(false)
