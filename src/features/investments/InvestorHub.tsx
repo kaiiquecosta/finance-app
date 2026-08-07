@@ -109,6 +109,7 @@ export function InvestorHub({ onOpenMarket }: Props) {
   const [detail, setDetail] = useState<string | null>(null)
   const [favorites, setFavorites] = useState<string[]>(() => loadFavorites())
   const [insightsOpen, setInsightsOpen] = useState(false)
+  const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false)
   const session = marketSessionLabel()
   const category = categoryById(categoryId)
 
@@ -202,6 +203,7 @@ export function InvestorHub({ onOpenMarket }: Props) {
     setSectorTag(null)
     setListSort('change_desc')
     setSearch('')
+    setMobileCategoriesOpen(false)
     if (isMobileLayout) {
       requestAnimationFrame(() => {
         listAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -248,51 +250,76 @@ export function InvestorHub({ onOpenMarket }: Props) {
       </div>
 
       <div className={styles.layout}>
-        <nav ref={sidebarRef} className={styles.sidebar} aria-label="Categorias de investimento">
-          {INVESTOR_CATEGORIES.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              data-testid={`investor-category-${c.id}`}
-              data-category={c.id}
-              className={[styles.catBtn, categoryId === c.id ? styles.catBtnActive : ''].filter(Boolean).join(' ')}
-              onClick={() => onCategoryChange(c.id)}
-            >
-              <span className={styles.catIcon} aria-hidden>
-                {c.icon}
-              </span>
-              <span className={styles.catLabel}>{c.label}</span>
-              {c.id === 'favorites' && favorites.length > 0 && (
-                <span className={styles.catBadge} aria-label={`${favorites.length} favoritos`}>
-                  {favorites.length}
+        {!isMobileLayout && (
+          <nav ref={sidebarRef} className={styles.sidebar} aria-label="Categorias de investimento">
+            {INVESTOR_CATEGORIES.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                data-testid={`investor-category-${c.id}`}
+                data-category={c.id}
+                className={[styles.catBtn, categoryId === c.id ? styles.catBtnActive : ''].filter(Boolean).join(' ')}
+                onClick={() => onCategoryChange(c.id)}
+              >
+                <span className={styles.catIcon} aria-hidden>
+                  {c.icon}
                 </span>
-              )}
-            </button>
-          ))}
-        </nav>
+                <span className={styles.catLabel}>{c.label}</span>
+                {c.id === 'favorites' && favorites.length > 0 && (
+                  <span className={styles.catBadge} aria-label={`${favorites.length} favoritos`}>
+                    {favorites.length}
+                  </span>
+                )}
+              </button>
+            ))}
+          </nav>
+        )}
 
         <div className={styles.main}>
-          {isMobileLayout && category.hasQuotes && (
-            <div className={styles.mobileQuickRow}>
+          {isMobileLayout && (
+            <div className={styles.mobileCategoryPicker}>
               <button
                 type="button"
-                className={[
-                  styles.quickChip,
-                  categoryId === 'favorites' ? styles.quickChipActive : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-                onClick={() => onCategoryChange('favorites')}
+                className={styles.mobileCategoryTrigger}
+                aria-expanded={mobileCategoriesOpen}
+                aria-controls="investor-mobile-categories"
+                onClick={() => setMobileCategoriesOpen((open) => !open)}
               >
-                ⭐ Favoritos{favorites.length ? ` · ${favorites.length}` : ''}
+                <span className={styles.mobileCategoryIcon} aria-hidden>
+                  {category.icon}
+                </span>
+                <span className={styles.mobileCategoryText}>
+                  <strong>{category.label}</strong>
+                  <small>{category.hint}</small>
+                </span>
+                <span className={styles.mobileCategoryChange}>
+                  Alterar {mobileCategoriesOpen ? '▴' : '▾'}
+                </span>
               </button>
-              <button type="button" className={styles.quickChip} onClick={() => searchRef.current?.focus()}>
-                🔍 Buscar
-              </button>
-              {onOpenMarket && (
-                <button type="button" className={styles.quickChip} onClick={() => onOpenMarket()}>
-                  🌐 Mercado
-                </button>
+
+              {mobileCategoriesOpen && (
+                <div id="investor-mobile-categories" className={styles.mobileCategoryMenu}>
+                  {INVESTOR_CATEGORIES.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      data-testid={`investor-category-${c.id}`}
+                      className={[
+                        styles.mobileCategoryOption,
+                        categoryId === c.id ? styles.mobileCategoryOptionActive : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                      onClick={() => onCategoryChange(c.id)}
+                    >
+                      <span aria-hidden>{c.icon}</span>
+                      <span>{c.label}</span>
+                      {c.id === 'favorites' && favorites.length > 0 && (
+                        <span className={styles.mobileOptionBadge}>{favorites.length}</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
               )}
             </div>
           )}
