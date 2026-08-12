@@ -3,8 +3,13 @@ import type { CSSProperties, MouseEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { TESTIMONIALS, avatarTone, initials } from './testimonials.data'
 import { HeroFluxScene } from './landing/HeroFluxScene'
-import { useLandingMotion } from './landing/useLandingMotion'
+import { LandingCursor } from './landing/LandingCursor'
+import { ScrollIndicator } from './landing/ScrollIndicator'
+import { SplitChars } from './landing/SplitChars'
+import { SplitWords } from './landing/SplitWords'
+import { useLandingCinematic } from './landing/useLandingCinematic'
 import './LandingPage.legacy.css'
+import './landing/landing.motion.css'
 
 /* ══════════════════════════════════════════════
    LANDING PAGE — porte fiel da landing legada
@@ -79,7 +84,7 @@ function ArrowRightIcon({ size = 15 }: { size?: number }) {
 export function LandingPage() {
   const navigate = useNavigate()
   const rootRef = useRef<HTMLDivElement>(null)
-  useLandingMotion(rootRef)
+  useLandingCinematic(rootRef)
 
   const [tab, setTab] = useState<TabId>('ov')
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -179,6 +184,9 @@ export function LandingPage() {
 
   return (
     <div className="landing-root" ref={rootRef}>
+      <LandingCursor />
+      <div className="landing-grain" aria-hidden />
+
       {/* MOBILE MENU */}
       <div className={`mob${mobileOpen ? ' open' : ''}`}>
         <button className="mob-x" type="button" onClick={() => setMobileOpen(false)}>
@@ -234,7 +242,7 @@ export function LandingPage() {
           <a href="#faq" className={`nb${ltSuffix}`}>
             FAQ
           </a>
-          <a href="/criar-conta" onClick={goRegister} className={`nb sol${ltSuffix}`}>
+          <a href="/criar-conta" onClick={goRegister} className={`nb sol${ltSuffix}`} data-magnetic data-magnetic-strength="0.22">
             Começar grátis
           </a>
           <button
@@ -267,12 +275,18 @@ export function LandingPage() {
           <div className="pill" data-motion="hero-pill">
             <div className="pill-dot"></div>30 dias grátis — sem cartão de crédito
           </div>
-          <h1 data-motion="hero-title">
-            Suas finanças,
+          <h1 data-motion="hero-title" aria-label="Suas finanças, finalmente claras.">
+            <span className="hero-title-line">
+              <SplitChars text="Suas finanças," />
+            </span>
             <br />
-            <span className="thin">finalmente</span>
+            <span className="hero-title-line thin">
+              <SplitChars text="finalmente" />
+            </span>
             <br />
-            <span className="accent">claras.</span>
+            <span className="hero-title-line accent">
+              <SplitChars text="claras." />
+            </span>
           </h1>
           <p className="hero-sub" data-motion="hero-copy">
             Do gasto diário ao investimento de longo prazo.
@@ -280,11 +294,11 @@ export function LandingPage() {
             <b>Tudo em um lugar, para qualquer dispositivo.</b>
           </p>
           <div className="hero-ctas" data-motion="hero-actions">
-            <a href="/criar-conta" onClick={goRegister} className="cta-wh">
+            <a href="/criar-conta" onClick={goRegister} className="cta-wh" data-magnetic>
               Abrir conta Flux
               <ArrowRightIcon />
             </a>
-            <a href="#funcionalidades" className="cta-ghost">
+            <a href="#funcionalidades" className="cta-ghost" data-magnetic data-magnetic-strength="0.2">
               Ver funcionalidades
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="m6 9 6 6 6-6" />
@@ -296,6 +310,8 @@ export function LandingPage() {
             <span>Cancele quando quiser</span>
             <span>Só você acessa seus dados</span>
           </div>
+
+          <ScrollIndicator />
 
           {/* APP MOCKUP */}
           <div className="mock" data-motion="hero-mock">
@@ -1004,7 +1020,7 @@ export function LandingPage() {
       </div>
 
       {/* ══════════ STATS (LIGHT) ══════════ */}
-      <div className="stats-row" data-motion="rise">
+      <div className="stats-row" data-motion="stagger">
         <div className="st-cell">
           <div className="st-v">8</div>
           <div className="st-l">módulos completos</div>
@@ -1034,15 +1050,17 @@ export function LandingPage() {
               <div className="sec-pill dk">
                 <span></span>Funcionalidades
               </div>
-              <h2 className="h2-dk h2-c">
-                Tudo para organizar
+              <h2 className="h2-dk h2-c" data-split-words>
+                <SplitWords text="Tudo para organizar" />
                 <br />
-                <em>sua vida financeira</em>
+                <em>
+                  <SplitWords text="sua vida financeira" />
+                </em>
               </h2>
               <p className="sub-dk sub-c">Sem planilhas. Sem complicação. Um app que realmente funciona no dia a dia.</p>
             </div>
             <div className="feat-grid" data-motion="stagger">
-              <div className="fc" style={{ '--motion-i': 0 } as CSSProperties}>
+              <div className="fc" data-tilt style={{ '--motion-i': 0 } as CSSProperties}>
                 <div className="fc-ico">💸</div>
                 <div className="fc-title">Controle de gastos</div>
                 <div className="fc-desc">Lance transações em segundos, categorize automaticamente e veja para onde seu dinheiro vai todo mês.</div>
@@ -1055,7 +1073,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc" style={{ '--motion-i': 1 } as CSSProperties}>
+              <div className="fc" data-tilt style={{ '--motion-i': 1 } as CSSProperties}>
                 <div className="fc-ico">💳</div>
                 <div className="fc-title">Cartões e faturas</div>
                 <div className="fc-desc">Múltiplos cartões com controle de limite em tempo real e aviso antes do vencimento da fatura.</div>
@@ -1067,7 +1085,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc" style={{ '--motion-i': 2 } as CSSProperties}>
+              <div className="fc" data-tilt style={{ '--motion-i': 2 } as CSSProperties}>
                 <div className="fc-ico">🔁</div>
                 <div className="fc-title">Assinaturas</div>
                 <div className="fc-desc">Netflix, Spotify, academia. Veja o total comprometido por mês e receba lembretes antes do vencimento.</div>
@@ -1079,7 +1097,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc" style={{ '--motion-i': 3 } as CSSProperties}>
+              <div className="fc" data-tilt style={{ '--motion-i': 3 } as CSSProperties}>
                 <div className="fc-ico">🏦</div>
                 <div className="fc-title">Contas bancárias</div>
                 <div className="fc-desc">Múltiplas contas com saldo calculado em tempo real baseado nas suas transações reais. Sempre preciso.</div>
@@ -1091,7 +1109,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc" style={{ '--motion-i': 4 } as CSSProperties}>
+              <div className="fc" data-tilt style={{ '--motion-i': 4 } as CSSProperties}>
                 <div className="fc-ico">📈</div>
                 <div className="fc-title">Investimentos</div>
                 <div className="fc-desc">CDB, LCI, LCA, Tesouro, ações B3, FIIs e cripto. CDI real via Banco Central. IR regressivo automático.</div>
@@ -1104,7 +1122,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc" style={{ '--motion-i': 5 } as CSSProperties}>
+              <div className="fc" data-tilt style={{ '--motion-i': 5 } as CSSProperties}>
                 <div className="fc-ico">🎯</div>
                 <div className="fc-title">Metas financeiras</div>
                 <div className="fc-desc">Viagem, emergência, carro. Crie metas com prazo e valor alvo. Acompanhe o progresso mês a mês.</div>
@@ -1355,8 +1373,8 @@ export function LandingPage() {
             </h2>
             <p className="sub-lt sub-c">Comece grátis. Upgrade quando fizer sentido para você.</p>
           </div>
-          <div className="pgrid">
-            <div className="pcard">
+          <div className="pgrid" data-motion="stagger">
+            <div className="pcard" data-tilt>
               <div className="pplan">Free</div>
               <div className="pprice">
                 R$<sub>/mês</sub>0
@@ -1385,11 +1403,11 @@ export function LandingPage() {
                   <div className="px">✕</div>Metas financeiras
                 </li>
               </ul>
-              <a href="/criar-conta" onClick={goRegister} className="pbtn">
+              <a href="/criar-conta" onClick={goRegister} className="pbtn" data-magnetic data-magnetic-strength="0.24">
                 Criar conta grátis
               </a>
             </div>
-            <div className="pcard pro">
+            <div className="pcard pro" data-tilt>
               <div className="pbadge">✦ POPULAR</div>
               <div className="pplan g">Pro</div>
               <div className="pprice">
@@ -1419,7 +1437,7 @@ export function LandingPage() {
                   <div className="pk">✓</div>Metas financeiras
                 </li>
               </ul>
-              <a href="/criar-conta" onClick={goRegister} className="pbtn s">
+              <a href="/criar-conta" onClick={goRegister} className="pbtn s" data-magnetic data-magnetic-strength="0.24">
                 Começar trial de 30 dias
               </a>
             </div>
@@ -1449,9 +1467,9 @@ export function LandingPage() {
                 Relatos de pessoas que organizaram as próprias finanças com o app.
               </p>
             </div>
-            <div className="tgrid">
+            <div className="tgrid" data-motion="stagger">
               {TESTIMONIALS.map((t) => (
-                <figure className="tcard" key={t.source}>
+                <figure className="tcard" data-tilt key={t.source}>
                   <div className="thead">
                     <div className={`tav tone${avatarTone(t.name)}`} aria-hidden="true">
                       {initials(t.name)}
@@ -1518,7 +1536,7 @@ export function LandingPage() {
             veja a diferença <em>amanhã</em>
           </h2>
           <p>30 dias grátis. Sem cartão. Sem complicação.</p>
-          <a href="/criar-conta" onClick={goRegister} className="cta-wh" style={{ fontSize: 16, padding: '16px 36px' }}>
+          <a href="/criar-conta" onClick={goRegister} className="cta-wh" data-magnetic style={{ fontSize: 16, padding: '16px 36px' }}>
             Abrir conta Flux
             <ArrowRightIcon size={16} />
           </a>
