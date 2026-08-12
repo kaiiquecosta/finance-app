@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import type { MouseEvent } from 'react'
+import type { CSSProperties, MouseEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { TESTIMONIALS, avatarTone, initials } from './testimonials.data'
+import { HeroFluxScene } from './landing/HeroFluxScene'
+import { useLandingMotion } from './landing/useLandingMotion'
 import './LandingPage.legacy.css'
 
 /* ══════════════════════════════════════════════
@@ -77,6 +79,7 @@ function ArrowRightIcon({ size = 15 }: { size?: number }) {
 export function LandingPage() {
   const navigate = useNavigate()
   const rootRef = useRef<HTMLDivElement>(null)
+  useLandingMotion(rootRef)
 
   const [tab, setTab] = useState<TabId>('ov')
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -249,28 +252,29 @@ export function LandingPage() {
 
       {/* ══════════ HERO (DARK) ══════════ */}
       <section className="hero">
+        <HeroFluxScene />
         <div className="hgrid"></div>
         <div className="hglow hg1"></div>
         <div className="hglow hg2"></div>
         <div className="hglow hg3"></div>
 
         <div className="hero-c">
-          <div className="pill">
+          <div className="pill" data-motion="hero-pill">
             <div className="pill-dot"></div>30 dias grátis — sem cartão de crédito
           </div>
-          <h1>
+          <h1 data-motion="hero-title">
             Suas finanças,
             <br />
             <span className="thin">finalmente</span>
             <br />
             <span className="accent">claras.</span>
           </h1>
-          <p className="hero-sub">
+          <p className="hero-sub" data-motion="hero-copy">
             Do gasto diário ao investimento de longo prazo.
             <br />
             <b>Tudo em um lugar, para qualquer dispositivo.</b>
           </p>
-          <div className="hero-ctas">
+          <div className="hero-ctas" data-motion="hero-actions">
             <a href="/criar-conta" onClick={goRegister} className="cta-wh">
               Abrir conta Flux
               <ArrowRightIcon />
@@ -282,14 +286,14 @@ export function LandingPage() {
               </svg>
             </a>
           </div>
-          <div className="hero-notes">
+          <div className="hero-notes" data-motion="hero-notes">
             <span>Sem cartão</span>
             <span>Cancele quando quiser</span>
             <span>Só você acessa seus dados</span>
           </div>
 
           {/* APP MOCKUP */}
-          <div className="mock">
+          <div className="mock" data-motion="hero-mock">
             <div className="mock-frame">
               <div className="chrome">
                 <div className="cdots">
@@ -995,7 +999,7 @@ export function LandingPage() {
       </div>
 
       {/* ══════════ STATS (LIGHT) ══════════ */}
-      <div className="stats-row">
+      <div className="stats-row" data-motion="rise">
         <div className="st-cell">
           <div className="st-v">8</div>
           <div className="st-l">módulos completos</div>
@@ -1021,7 +1025,7 @@ export function LandingPage() {
           <div className="dsec-glow dg2"></div>
           <div className="dsec-grid"></div>
           <div className="dsec-body">
-            <div style={{ textAlign: 'center', marginBottom: 0 }}>
+            <div style={{ textAlign: 'center', marginBottom: 0 }} data-motion="rise">
               <div className="sec-pill dk">
                 <span></span>Funcionalidades
               </div>
@@ -1032,8 +1036,8 @@ export function LandingPage() {
               </h2>
               <p className="sub-dk sub-c">Sem planilhas. Sem complicação. Um app que realmente funciona no dia a dia.</p>
             </div>
-            <div className="feat-grid">
-              <div className="fc">
+            <div className="feat-grid" data-motion="stagger">
+              <div className="fc" style={{ '--motion-i': 0 } as CSSProperties}>
                 <div className="fc-ico">💸</div>
                 <div className="fc-title">Controle de gastos</div>
                 <div className="fc-desc">Lance transações em segundos, categorize automaticamente e veja para onde seu dinheiro vai todo mês.</div>
@@ -1046,7 +1050,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc">
+              <div className="fc" style={{ '--motion-i': 1 } as CSSProperties}>
                 <div className="fc-ico">💳</div>
                 <div className="fc-title">Cartões e faturas</div>
                 <div className="fc-desc">Múltiplos cartões com controle de limite em tempo real e aviso antes do vencimento da fatura.</div>
@@ -1058,7 +1062,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc">
+              <div className="fc" style={{ '--motion-i': 2 } as CSSProperties}>
                 <div className="fc-ico">🔁</div>
                 <div className="fc-title">Assinaturas</div>
                 <div className="fc-desc">Netflix, Spotify, academia. Veja o total comprometido por mês e receba lembretes antes do vencimento.</div>
@@ -1070,7 +1074,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc">
+              <div className="fc" style={{ '--motion-i': 3 } as CSSProperties}>
                 <div className="fc-ico">🏦</div>
                 <div className="fc-title">Contas bancárias</div>
                 <div className="fc-desc">Múltiplas contas com saldo calculado em tempo real baseado nas suas transações reais. Sempre preciso.</div>
@@ -1082,7 +1086,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc">
+              <div className="fc" style={{ '--motion-i': 4 } as CSSProperties}>
                 <div className="fc-ico">📈</div>
                 <div className="fc-title">Investimentos</div>
                 <div className="fc-desc">CDB, LCI, LCA, Tesouro, ações B3, FIIs e cripto. CDI real via Banco Central. IR regressivo automático.</div>
@@ -1095,7 +1099,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc">
+              <div className="fc" style={{ '--motion-i': 5 } as CSSProperties}>
                 <div className="fc-ico">🎯</div>
                 <div className="fc-title">Metas financeiras</div>
                 <div className="fc-desc">Viagem, emergência, carro. Crie metas com prazo e valor alvo. Acompanhe o progresso mês a mês.</div>
@@ -1115,7 +1119,7 @@ export function LandingPage() {
       {/* ══════════ INVESTIMENTOS (LIGHT) ══════════ */}
       <div className="lsec" id="investimentos">
         <div className="lsec-inner">
-          <div className="split">
+          <div className="split" data-motion="split">
             <div>
               <div className="sec-pill lt">
                 <span></span>Módulo Pro

@@ -274,6 +274,18 @@
   text-align: center;
 }
 
+.landing-root .hero-flux-scene {
+  position: absolute;
+  z-index: 1;
+  inset: -8% -5% auto;
+  width: 110%;
+  height: 76%;
+  pointer-events: none;
+  opacity: 0.72;
+  filter: saturate(1.08);
+  mask-image: linear-gradient(to bottom, black 0%, black 62%, transparent 100%);
+}
+
 /* grid texture */
 .landing-root .hgrid {
   position: absolute;
@@ -516,6 +528,10 @@
   pointer-events: none;
 }
 .landing-root .mock-frame {
+  --mock-rx: 0deg;
+  --mock-ry: 0deg;
+  --mock-glare-x: 50%;
+  --mock-glare-y: 20%;
   background: var(--d1);
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 20px;
@@ -524,6 +540,23 @@
     0 60px 120px rgba(0, 0, 0, 0.85),
     0 20px 40px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+  transform: perspective(1400px) rotateX(var(--mock-rx)) rotateY(var(--mock-ry));
+  transform-style: preserve-3d;
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.landing-root .mock-frame::after {
+  content: '';
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle 240px at var(--mock-glare-x) var(--mock-glare-y),
+    rgba(255, 255, 255, 0.055),
+    transparent 70%
+  );
+  mix-blend-mode: screen;
 }
 .landing-root .chrome {
   background: rgba(255, 255, 255, 0.025);
@@ -1436,6 +1469,115 @@
 @media (max-width: 600px) {
   .landing-root .dsec-wrap {
     padding: 14px 10px;
+  }
+}
+
+/* ─── MOTION SYSTEM ────────────────────────────────────────────────────────
+   Inspirado em experiências WebGL e timelines editoriais, sem esconder
+   conteúdo quando JavaScript ou WebGL não estiver disponível. */
+@media (prefers-reduced-motion: no-preference) {
+  .landing-root.motion-enabled [data-motion] {
+    transition:
+      opacity 700ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 850ms cubic-bezier(0.16, 1, 0.3, 1),
+      filter 700ms ease;
+    will-change: opacity, transform;
+  }
+
+  .landing-root.motion-enabled [data-motion]:not(.is-visible) {
+    opacity: 0;
+    transform: translate3d(0, 34px, 0);
+    filter: blur(5px);
+  }
+
+  .landing-root.motion-enabled [data-motion='hero-pill']:not(.is-visible) {
+    transform: translate3d(0, 16px, 0) scale(0.96);
+  }
+
+  .landing-root.motion-enabled [data-motion='hero-title'] {
+    transition-delay: 70ms;
+  }
+
+  .landing-root.motion-enabled [data-motion='hero-copy'] {
+    transition-delay: 150ms;
+  }
+
+  .landing-root.motion-enabled [data-motion='hero-actions'] {
+    transition-delay: 220ms;
+  }
+
+  .landing-root.motion-enabled [data-motion='hero-notes'] {
+    transition-delay: 280ms;
+  }
+
+  .landing-root.motion-enabled [data-motion='hero-mock'] {
+    transition-delay: 170ms;
+  }
+
+  .landing-root.motion-enabled [data-motion='hero-mock']:not(.is-visible) {
+    transform: translate3d(0, 54px, 0) scale(0.96);
+  }
+
+  .landing-root.motion-enabled [data-motion='stagger'] .fc {
+    transition:
+      opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
+      background 200ms,
+      border-color 200ms;
+    transition-delay: calc(var(--motion-i, 0) * 70ms);
+  }
+
+  .landing-root.motion-enabled [data-motion='stagger']:not(.is-visible) .fc {
+    opacity: 0;
+    transform: translate3d(0, 30px, 0) scale(0.97);
+  }
+
+  .landing-root.motion-enabled [data-motion='split'] > * {
+    transition:
+      opacity 750ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 850ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .landing-root.motion-enabled [data-motion='split']:not(.is-visible) > :first-child {
+    opacity: 0;
+    transform: translate3d(-34px, 0, 0);
+  }
+
+  .landing-root.motion-enabled [data-motion='split']:not(.is-visible) > :last-child {
+    opacity: 0;
+    transform: translate3d(34px, 0, 0);
+  }
+}
+
+@media (max-width: 720px) {
+  .landing-root .hero-flux-scene {
+    inset: 1% -45% auto;
+    width: 190%;
+    height: 58%;
+    opacity: 0.48;
+  }
+
+  .landing-root .mock-frame {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-root *,
+  .landing-root *::before,
+  .landing-root *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .landing-root .ticker {
+    transform: none !important;
+  }
+
+  .landing-root .hero-flux-scene {
+    opacity: 0.3;
   }
 }
 .landing-root .dsec {
