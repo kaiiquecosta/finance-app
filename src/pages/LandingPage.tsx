@@ -3,6 +3,8 @@ import type { CSSProperties, MouseEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { TESTIMONIALS, avatarTone, initials } from './testimonials.data'
 import { HeroFluxScene } from './landing/HeroFluxScene'
+import { HeroDistortionPlane } from './landing/HeroDistortionPlane'
+import { FaqAccordion } from './landing/FaqAccordion'
 import { LandingCursor } from './landing/LandingCursor'
 import { ScrollIndicator } from './landing/ScrollIndicator'
 import { SplitChars } from './landing/SplitChars'
@@ -88,7 +90,6 @@ export function LandingPage() {
 
   const [tab, setTab] = useState<TabId>('ov')
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [navMode, setNavMode] = useState<'' | 'dk' | 'lt'>('')
   const [navLoginVisible, setNavLoginVisible] = useState(false)
   const [revealed, setRevealed] = useState(false)
@@ -218,13 +219,22 @@ export function LandingPage() {
       <nav className={`nav${navMode ? ' ' + navMode : ''}`}>
         <ul className={`nlinks${ltSuffix}`}>
           <li>
-            <a href="#funcionalidades">Funcionalidades</a>
+            <a href="#funcionalidades" className="nav-link" data-nav-magnetic>
+              <span className="nav-link-text">Funcionalidades</span>
+              <span className="nav-link-line" aria-hidden="true" />
+            </a>
           </li>
           <li>
-            <a href="#investimentos">Investimentos</a>
+            <a href="#investimentos" className="nav-link" data-nav-magnetic>
+              <span className="nav-link-text">Investimentos</span>
+              <span className="nav-link-line" aria-hidden="true" />
+            </a>
           </li>
           <li>
-            <a href="#precos">Preços</a>
+            <a href="#precos" className="nav-link" data-nav-magnetic>
+              <span className="nav-link-text">Preços</span>
+              <span className="nav-link-line" aria-hidden="true" />
+            </a>
           </li>
         </ul>
         <a href="#" className={`nlogo${ltSuffix}`}>
@@ -262,6 +272,7 @@ export function LandingPage() {
       <section className="hero">
         <div className="hero-scene-stack" aria-hidden>
           <div className="hero-orb-fallback" />
+          <HeroDistortionPlane />
           <HeroFluxScene />
           <div className="hero-scrim" />
           <div className="hero-vignette" />
@@ -1139,46 +1150,53 @@ export function LandingPage() {
         </div>
       </div>
 
-      {/* ══════════ INVESTIMENTOS (LIGHT) ══════════ */}
-      <div className="lsec" id="investimentos">
+      {/* ══════════ INVESTIMENTOS (LIGHT) — scroll story ══════════ */}
+      <div className="lsec inv-story" id="investimentos" data-inv-story>
         <div className="lsec-inner">
-          <div className="split" data-motion="split">
-            <div>
-              <div className="sec-pill lt">
-                <span></span>Módulo Pro
-              </div>
-              <h2 className="h2-lt">
-                Rendimento bruto
-                <br />
-                <em>e líquido, separados</em>
-              </h2>
-              <p className="sub-lt">
-                CDI atualizado diariamente pela API do Banco Central. Você vê exatamente quanto vai receber após o
-                IR regressivo — de 22,5% a 15% conforme o prazo.
-              </p>
-              <ul className="cklist">
-                <li className="ck-row lt">
-                  <div className="ck-ico"></div>CDB, LCI/LCA — percentual do CDI configurável
-                </li>
-                <li className="ck-row lt">
-                  <div className="ck-ico"></div>Tesouro Direto: Selic e IPCA+ com spread
-                </li>
-                <li className="ck-row lt">
-                  <div className="ck-ico"></div>Ações brasileiras (B3) e FIIs com dividend yield
-                </li>
-                <li className="ck-row lt">
-                  <div className="ck-ico"></div>Criptomoedas e poupança (isenta de IR)
-                </li>
-                <li className="ck-row lt">
-                  <div className="ck-ico"></div>Cotações: Ibovespa, S&amp;P500, Dólar, Bitcoin, Euro
-                </li>
-                <li className="ck-row lt">
-                  <div className="ck-ico"></div>Resgate parcial ou total com registro automático
-                </li>
-              </ul>
+          <div className="inv-story-pin">
+            <div className="inv-story-progress" aria-hidden="true">
+              <span className="inv-dot active" data-inv-dot />
+              <span className="inv-dot" data-inv-dot />
+              <span className="inv-dot" data-inv-dot />
+              <span className="inv-dot" data-inv-dot />
             </div>
-            <div>
-              <div className="ui-card">
+            <div className="inv-story-grid">
+              <div className="inv-story-copy">
+                <div className="sec-pill lt">
+                  <span></span>Módulo Pro
+                </div>
+                <h2 className="h2-lt" data-inv-headline>
+                  Rendimento bruto
+                  <br />
+                  <em>e líquido, separados</em>
+                </h2>
+                <p className="sub-lt" data-inv-sub>
+                  CDI atualizado diariamente pela API do Banco Central. Você vê exatamente quanto vai receber após o
+                  IR regressivo — de 22,5% a 15% conforme o prazo.
+                </p>
+                <ul className="cklist">
+                  <li className="ck-row lt" data-inv-check>
+                    <div className="ck-ico"></div>CDB, LCI/LCA — percentual do CDI configurável
+                  </li>
+                  <li className="ck-row lt" data-inv-check>
+                    <div className="ck-ico"></div>Tesouro Direto: Selic e IPCA+ com spread
+                  </li>
+                  <li className="ck-row lt" data-inv-check>
+                    <div className="ck-ico"></div>Ações brasileiras (B3) e FIIs com dividend yield
+                  </li>
+                  <li className="ck-row lt" data-inv-check>
+                    <div className="ck-ico"></div>Criptomoedas e poupança (isenta de IR)
+                  </li>
+                  <li className="ck-row lt" data-inv-check>
+                    <div className="ck-ico"></div>Cotações: Ibovespa, S&amp;P500, Dólar, Bitcoin, Euro
+                  </li>
+                  <li className="ck-row lt" data-inv-check>
+                    <div className="ck-ico"></div>Resgate parcial ou total com registro automático
+                  </li>
+                </ul>
+              </div>
+              <div className="inv-story-visual">
+                <div className="ui-card" data-inv-card data-tilt>
                 <div className="ui-card-h">
                   <div className="ui-card-ht">📈 Carteira · R$ 29.930</div>
                   <div className="ui-badge-g">CDI: 10,65% a.a.</div>
@@ -1188,7 +1206,7 @@ export function LandingPage() {
                   <div style={{ fontSize: 9, color: 'rgba(0,0,0,.3)', textAlign: 'right', textTransform: 'uppercase', letterSpacing: 0.4, fontWeight: 600 }}>Bruto</div>
                   <div style={{ fontSize: 9, color: '#1a8847', textAlign: 'right', textTransform: 'uppercase', letterSpacing: 0.4, fontWeight: 600 }}>Líquido ✓</div>
                 </div>
-                <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--sep2)', display: 'grid', gridTemplateColumns: '1fr 82px 82px' }}>
+                <div className="inv-row" data-inv-row style={{ padding: '10px 16px', borderBottom: '1px solid var(--sep2)', display: 'grid', gridTemplateColumns: '1fr 82px 82px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                     <span style={{ fontSize: 16 }}>🏦</span>
                     <div>
@@ -1205,7 +1223,7 @@ export function LandingPage() {
                     <div style={{ fontSize: 10, color: 'rgba(61,220,132,.6)' }}>IR 22,5%</div>
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 82px 82px', padding: '10px 16px', borderBottom: '1px solid var(--sep2)' }}>
+                <div className="inv-row" data-inv-row style={{ display: 'grid', gridTemplateColumns: '1fr 82px 82px', padding: '10px 16px', borderBottom: '1px solid var(--sep2)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                     <span style={{ fontSize: 16 }}>🌿</span>
                     <div>
@@ -1222,7 +1240,7 @@ export function LandingPage() {
                     <div style={{ fontSize: 10, color: 'rgba(61,220,132,.6)' }}>isento ✓</div>
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 82px 82px', padding: '10px 16px', borderBottom: '1px solid var(--sep2)' }}>
+                <div className="inv-row" data-inv-row style={{ display: 'grid', gridTemplateColumns: '1fr 82px 82px', padding: '10px 16px', borderBottom: '1px solid var(--sep2)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                     <span style={{ fontSize: 16 }}>🏛️</span>
                     <div>
@@ -1239,7 +1257,7 @@ export function LandingPage() {
                     <div style={{ fontSize: 10, color: 'rgba(61,220,132,.6)' }}>IR R$ 276</div>
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 82px 82px', padding: '10px 16px' }}>
+                <div className="inv-row" data-inv-row style={{ display: 'grid', gridTemplateColumns: '1fr 82px 82px', padding: '10px 16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                     <span style={{ fontSize: 16 }}>₿</span>
                     <div>
@@ -1255,6 +1273,7 @@ export function LandingPage() {
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#b45309' }}>R$ 5.527</div>
                     <div style={{ fontSize: 10, color: 'rgba(180,83,9,.5)' }}>IR R$ 93</div>
                   </div>
+                </div>
                 </div>
               </div>
             </div>
@@ -1501,21 +1520,7 @@ export function LandingPage() {
                 Perguntas <em>frequentes</em>
               </h2>
             </div>
-            <div className="flist">
-              {FAQ_ITEMS.map((item, i) => (
-                <div className={`faq${openFaq === i ? ' open' : ''}`} key={item.q}>
-                  <button
-                    className="fq"
-                    type="button"
-                    onClick={() => setOpenFaq((cur) => (cur === i ? null : i))}
-                  >
-                    {item.q}
-                    <div className="fqx">+</div>
-                  </button>
-                  <div className="fa">{item.a}</div>
-                </div>
-              ))}
-            </div>
+            <FaqAccordion items={FAQ_ITEMS} />
           </div>
         </div>
       </div>

@@ -94,6 +94,9 @@
   transition: color 0.15s;
   letter-spacing: -0.1px;
 }
+.landing-root .nlinks a.nav-link {
+  transition: none;
+}
 .landing-root .nlinks a:hover {
   color: var(--wh);
 }
@@ -1608,6 +1611,10 @@
   }
 
   .landing-root .hero-flux-scene {
+    display: none;
+  }
+
+  .landing-root .hero-distortion-plane {
     display: none;
   }
 

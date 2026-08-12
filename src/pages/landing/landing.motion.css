@@ -229,3 +229,152 @@ body.landing-cursor-active .landing-root button {
     cursor: auto;
   }
 }
+
+/* ─── Hero shader distortion plane ─── */
+.landing-root .hero-distortion-plane {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.92;
+  mix-blend-mode: screen;
+}
+
+.landing-root .hero-flux-scene {
+  z-index: 1;
+}
+
+/* ─── Nav magnetic links ─── */
+.landing-root .nav-link {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  will-change: transform;
+}
+
+.landing-root .nav-link-text {
+  display: inline-block;
+}
+
+.landing-root .nav-link-line {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: var(--g, #3ddc84);
+  transform: scaleX(0);
+  transform-origin: center;
+  border-radius: 1px;
+  box-shadow: 0 0 8px rgba(61, 220, 132, 0.45);
+}
+
+.landing-root .nav-link.is-active .nav-link-text,
+.landing-root .nlinks a.nav-link:hover .nav-link-text {
+  color: var(--wh);
+}
+
+.landing-root .nlinks.lt a.nav-link.is-active .nav-link-text,
+.landing-root .nlinks.lt a.nav-link:hover .nav-link-text {
+  color: var(--txt);
+}
+
+.landing-root .nav-link.is-active .nav-link-line {
+  transform: scaleX(1);
+}
+
+/* ─── Investimentos scroll story ─── */
+.landing-root .inv-story-pin {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.landing-root .inv-story-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 72px;
+  align-items: center;
+}
+
+.landing-root .inv-story-progress {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 4px;
+}
+
+.landing-root .inv-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.12);
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.landing-root .inv-dot.active {
+  background: var(--g, #3ddc84);
+  transform: scale(1.35);
+  box-shadow: 0 0 10px rgba(61, 220, 132, 0.55);
+}
+
+.landing-root .inv-row {
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.landing-root [data-inv-card] {
+  transform-style: preserve-3d;
+  will-change: transform, box-shadow;
+}
+
+@media (max-width: 860px) {
+  .landing-root .inv-story-pin {
+    min-height: auto;
+    padding: 0;
+  }
+
+  .landing-root .inv-story-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .landing-root .inv-story-progress {
+    display: none;
+  }
+}
+
+/* ─── FAQ GSAP accordion ─── */
+.landing-root.cinematic-ready .fa {
+  max-height: none;
+  overflow: hidden;
+  height: 0;
+  opacity: 0;
+  padding: 0 20px;
+  transition: none;
+}
+
+.landing-root.cinematic-ready .faq.open .fa {
+  padding: 0 20px;
+}
+
+.landing-root.cinematic-ready .fa-inner {
+  padding-bottom: 16px;
+  line-height: 1.75;
+}
+
+.landing-root.cinematic-ready .faq.open .fqx {
+  transform: none;
+}
+
+.landing-root.cinematic-ready .fqx {
+  transition: none;
+}

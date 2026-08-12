@@ -2,6 +2,7 @@ import { useEffect, type RefObject } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type Lenis from 'lenis'
+import { setupInvStory, setupNavLinks } from './landingMotionModules'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -396,6 +397,9 @@ export function useLandingCinematic(rootRef: RefObject<HTMLDivElement>) {
           },
         )
       }
+
+      setupInvStory(root)
+      cleanups.push(...setupNavLinks(root, finePointer))
     }, root)
 
     const bootLenis = async () => {
