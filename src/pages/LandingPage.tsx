@@ -252,7 +252,12 @@ export function LandingPage() {
 
       {/* ══════════ HERO (DARK) ══════════ */}
       <section className="hero">
-        <HeroFluxScene />
+        <div className="hero-scene-stack" aria-hidden>
+          <div className="hero-orb-fallback" />
+          <HeroFluxScene />
+          <div className="hero-scrim" />
+          <div className="hero-vignette" />
+        </div>
         <div className="hgrid"></div>
         <div className="hglow hg1"></div>
         <div className="hglow hg2"></div>

@@ -58,9 +58,27 @@ export function useLandingMotion(rootRef: RefObject<HTMLDivElement>) {
       mock.addEventListener('pointerleave', resetTilt)
     }
 
+    const hero = root.querySelector<HTMLElement>('.hero')
+    const heroContent = root.querySelector<HTMLElement>('.hero-c')
+
+    const onScrollParallax = () => {
+      if (!hero || !heroContent) return
+      const rect = hero.getBoundingClientRect()
+      const progress = Math.min(1, Math.max(0, -rect.top / Math.max(rect.height, 1)))
+      heroContent.style.transform = `translate3d(0, ${progress * 28}px, 0)`
+      heroContent.style.opacity = String(Math.max(0.35, 1 - progress * 0.55))
+    }
+    onScrollParallax()
+    window.addEventListener('scroll', onScrollParallax, { passive: true })
+
     return () => {
       observer.disconnect()
       root.classList.remove('motion-enabled')
+      window.removeEventListener('scroll', onScrollParallax)
+      if (heroContent) {
+        heroContent.style.transform = ''
+        heroContent.style.opacity = ''
+      }
       mock?.removeEventListener('pointermove', onPointerMove)
       mock?.removeEventListener('pointerleave', resetTilt)
     }
