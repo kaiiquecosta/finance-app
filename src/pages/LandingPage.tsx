@@ -1,17 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import type { CSSProperties, MouseEvent } from 'react'
+import type { MouseEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { TESTIMONIALS, avatarTone, initials } from './testimonials.data'
-import { HeroFluxScene } from './landing/HeroFluxScene'
-import { HeroDistortionPlane } from './landing/HeroDistortionPlane'
-import { FaqAccordion } from './landing/FaqAccordion'
-import { LandingCursor } from './landing/LandingCursor'
-import { ScrollIndicator } from './landing/ScrollIndicator'
-import { SplitChars } from './landing/SplitChars'
-import { SplitWords } from './landing/SplitWords'
-import { useLandingCinematic } from './landing/useLandingCinematic'
+import { useLandingStory } from './landing/useLandingStory'
 import './LandingPage.legacy.css'
-import './landing/landing.motion.css'
+import './landing/landing.story.css'
 
 /* ══════════════════════════════════════════════
    LANDING PAGE — porte fiel da landing legada
@@ -86,10 +79,11 @@ function ArrowRightIcon({ size = 15 }: { size?: number }) {
 export function LandingPage() {
   const navigate = useNavigate()
   const rootRef = useRef<HTMLDivElement>(null)
-  useLandingCinematic(rootRef)
+  useLandingStory(rootRef)
 
   const [tab, setTab] = useState<TabId>('ov')
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [navMode, setNavMode] = useState<'' | 'dk' | 'lt'>('')
   const [navLoginVisible, setNavLoginVisible] = useState(false)
   const [revealed, setRevealed] = useState(false)
@@ -185,8 +179,13 @@ export function LandingPage() {
 
   return (
     <div className="landing-root" ref={rootRef}>
-      <LandingCursor />
-      <div className="landing-grain" aria-hidden />
+      <div className="story-progress" aria-hidden="true">
+        <span className="story-progress-bar" />
+      </div>
+      <div className="story-chapter-label" aria-live="polite">
+        Capítulo
+        <span className="story-chapter-current">Introdução</span>
+      </div>
 
       {/* MOBILE MENU */}
       <div className={`mob${mobileOpen ? ' open' : ''}`}>
@@ -219,22 +218,13 @@ export function LandingPage() {
       <nav className={`nav${navMode ? ' ' + navMode : ''}`}>
         <ul className={`nlinks${ltSuffix}`}>
           <li>
-            <a href="#funcionalidades" className="nav-link" data-nav-magnetic>
-              <span className="nav-link-text">Funcionalidades</span>
-              <span className="nav-link-line" aria-hidden="true" />
-            </a>
+            <a href="#funcionalidades">Funcionalidades</a>
           </li>
           <li>
-            <a href="#investimentos" className="nav-link" data-nav-magnetic>
-              <span className="nav-link-text">Investimentos</span>
-              <span className="nav-link-line" aria-hidden="true" />
-            </a>
+            <a href="#investimentos">Investimentos</a>
           </li>
           <li>
-            <a href="#precos" className="nav-link" data-nav-magnetic>
-              <span className="nav-link-text">Preços</span>
-              <span className="nav-link-line" aria-hidden="true" />
-            </a>
+            <a href="#precos">Preços</a>
           </li>
         </ul>
         <a href="#" className={`nlogo${ltSuffix}`}>
@@ -252,7 +242,7 @@ export function LandingPage() {
           <a href="#faq" className={`nb${ltSuffix}`}>
             FAQ
           </a>
-          <a href="/criar-conta" onClick={goRegister} className={`nb sol${ltSuffix}`} data-magnetic data-magnetic-strength="0.22">
+          <a href="/criar-conta" onClick={goRegister} className={`nb sol${ltSuffix}`}>
             Começar grátis
           </a>
           <button
@@ -269,11 +259,9 @@ export function LandingPage() {
       </nav>
 
       {/* ══════════ HERO (DARK) ══════════ */}
-      <section className="hero">
+      <section className="hero" data-story-chapter="Introdução">
         <div className="hero-scene-stack" aria-hidden>
           <div className="hero-orb-fallback" />
-          <HeroDistortionPlane />
-          <HeroFluxScene />
           <div className="hero-scrim" />
           <div className="hero-vignette" />
         </div>
@@ -283,49 +271,41 @@ export function LandingPage() {
         <div className="hglow hg3"></div>
 
         <div className="hero-c">
-          <div className="pill" data-motion="hero-pill">
+          <div className="pill">
             <div className="pill-dot"></div>30 dias grátis — sem cartão de crédito
           </div>
-          <h1 data-motion="hero-title" aria-label="Suas finanças, finalmente claras.">
-            <span className="hero-title-line">
-              <SplitChars text="Suas finanças," />
-            </span>
+          <h1>
+            Suas finanças,
             <br />
-            <span className="hero-title-line thin">
-              <SplitChars text="finalmente" />
-            </span>
+            <span className="thin">finalmente</span>
             <br />
-            <span className="hero-title-line accent">
-              <SplitChars text="claras." />
-            </span>
+            <span className="accent">claras.</span>
           </h1>
-          <p className="hero-sub" data-motion="hero-copy">
+          <p className="hero-sub">
             Do gasto diário ao investimento de longo prazo.
             <br />
             <b>Tudo em um lugar, para qualquer dispositivo.</b>
           </p>
-          <div className="hero-ctas" data-motion="hero-actions">
-            <a href="/criar-conta" onClick={goRegister} className="cta-wh" data-magnetic>
+          <div className="hero-ctas">
+            <a href="/criar-conta" onClick={goRegister} className="cta-wh">
               Abrir conta Flux
               <ArrowRightIcon />
             </a>
-            <a href="#funcionalidades" className="cta-ghost" data-magnetic data-magnetic-strength="0.2">
+            <a href="#funcionalidades" className="cta-ghost">
               Ver funcionalidades
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path d="m6 9 6 6 6-6" />
               </svg>
             </a>
           </div>
-          <div className="hero-notes" data-motion="hero-notes">
+          <div className="hero-notes">
             <span>Sem cartão</span>
             <span>Cancele quando quiser</span>
             <span>Só você acessa seus dados</span>
           </div>
 
-          <ScrollIndicator />
-
           {/* APP MOCKUP */}
-          <div className="mock" data-motion="hero-mock">
+          <div className="mock">
             <div className="mock-frame">
               <div className="chrome">
                 <div className="cdots">
@@ -1031,47 +1011,45 @@ export function LandingPage() {
       </div>
 
       {/* ══════════ STATS (LIGHT) ══════════ */}
-      <div className="stats-row" data-motion="stagger">
-        <div className="st-cell">
+      <div className="stats-row" data-story-chapter="Visão geral" data-story-stagger>
+        <div className="st-cell" data-story-item>
           <div className="st-v">8</div>
           <div className="st-l">módulos completos</div>
         </div>
-        <div className="st-cell">
+        <div className="st-cell" data-story-item>
           <div className="st-v">30 dias</div>
           <div className="st-l">grátis, sem cartão</div>
         </div>
-        <div className="st-cell">
+        <div className="st-cell" data-story-item>
           <div className="st-v">100%</div>
           <div className="st-l">dos dados isolados por conta</div>
         </div>
-        <div className="st-cell">
+        <div className="st-cell" data-story-item>
           <div className="st-v">R$ 14</div>
           <div className="st-l">por mês no Pro</div>
         </div>
       </div>
 
       {/* ══════════ FEATURES (DARK ROUNDED) ══════════ */}
-      <div className="dsec-wrap" id="funcionalidades">
+      <div className="dsec-wrap" id="funcionalidades" data-story-chapter="Funcionalidades">
         <div className="dsec">
           <div className="dsec-glow dg1"></div>
           <div className="dsec-glow dg2"></div>
           <div className="dsec-grid"></div>
           <div className="dsec-body">
-            <div style={{ textAlign: 'center', marginBottom: 0 }} data-motion="rise">
+            <div style={{ textAlign: 'center', marginBottom: 0 }} data-story-reveal>
               <div className="sec-pill dk">
                 <span></span>Funcionalidades
               </div>
-              <h2 className="h2-dk h2-c" data-split-words>
-                <SplitWords text="Tudo para organizar" />
+              <h2 className="h2-dk h2-c">
+                Tudo para organizar
                 <br />
-                <em>
-                  <SplitWords text="sua vida financeira" />
-                </em>
+                <em>sua vida financeira</em>
               </h2>
               <p className="sub-dk sub-c">Sem planilhas. Sem complicação. Um app que realmente funciona no dia a dia.</p>
             </div>
-            <div className="feat-grid" data-motion="stagger">
-              <div className="fc" data-tilt style={{ '--motion-i': 0 } as CSSProperties}>
+            <div className="feat-grid" data-story-stagger>
+              <div className="fc" data-story-item>
                 <div className="fc-ico">💸</div>
                 <div className="fc-title">Controle de gastos</div>
                 <div className="fc-desc">Lance transações em segundos, categorize automaticamente e veja para onde seu dinheiro vai todo mês.</div>
@@ -1084,7 +1062,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc" data-tilt style={{ '--motion-i': 1 } as CSSProperties}>
+              <div className="fc" data-story-item>
                 <div className="fc-ico">💳</div>
                 <div className="fc-title">Cartões e faturas</div>
                 <div className="fc-desc">Múltiplos cartões com controle de limite em tempo real e aviso antes do vencimento da fatura.</div>
@@ -1096,7 +1074,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc" data-tilt style={{ '--motion-i': 2 } as CSSProperties}>
+              <div className="fc" data-story-item>
                 <div className="fc-ico">🔁</div>
                 <div className="fc-title">Assinaturas</div>
                 <div className="fc-desc">Netflix, Spotify, academia. Veja o total comprometido por mês e receba lembretes antes do vencimento.</div>
@@ -1108,7 +1086,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc" data-tilt style={{ '--motion-i': 3 } as CSSProperties}>
+              <div className="fc" data-story-item>
                 <div className="fc-ico">🏦</div>
                 <div className="fc-title">Contas bancárias</div>
                 <div className="fc-desc">Múltiplas contas com saldo calculado em tempo real baseado nas suas transações reais. Sempre preciso.</div>
@@ -1120,7 +1098,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc" data-tilt style={{ '--motion-i': 4 } as CSSProperties}>
+              <div className="fc" data-story-item>
                 <div className="fc-ico">📈</div>
                 <div className="fc-title">Investimentos</div>
                 <div className="fc-desc">CDB, LCI, LCA, Tesouro, ações B3, FIIs e cripto. CDI real via Banco Central. IR regressivo automático.</div>
@@ -1133,7 +1111,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc" data-tilt style={{ '--motion-i': 5 } as CSSProperties}>
+              <div className="fc" data-story-item>
                 <div className="fc-ico">🎯</div>
                 <div className="fc-title">Metas financeiras</div>
                 <div className="fc-desc">Viagem, emergência, carro. Crie metas com prazo e valor alvo. Acompanhe o progresso mês a mês.</div>
@@ -1151,7 +1129,7 @@ export function LandingPage() {
       </div>
 
       {/* ══════════ INVESTIMENTOS (LIGHT) — scroll story ══════════ */}
-      <div className="lsec inv-story" id="investimentos" data-inv-story>
+      <div className="lsec inv-story" id="investimentos" data-inv-story data-story-chapter="Investimentos">
         <div className="lsec-inner">
           <div className="inv-story-pin">
             <div className="inv-story-progress" aria-hidden="true">
@@ -1162,6 +1140,7 @@ export function LandingPage() {
             </div>
             <div className="inv-story-grid">
               <div className="inv-story-copy">
+                <p className="inv-beat" data-inv-beat>01 · O contexto</p>
                 <div className="sec-pill lt">
                   <span></span>Módulo Pro
                 </div>
@@ -1174,6 +1153,7 @@ export function LandingPage() {
                   CDI atualizado diariamente pela API do Banco Central. Você vê exatamente quanto vai receber após o
                   IR regressivo — de 22,5% a 15% conforme o prazo.
                 </p>
+                <p className="inv-beat" data-inv-beat>02 · Tipos de investimento</p>
                 <ul className="cklist">
                   <li className="ck-row lt" data-inv-check>
                     <div className="ck-ico"></div>CDB, LCI/LCA — percentual do CDI configurável
@@ -1196,7 +1176,8 @@ export function LandingPage() {
                 </ul>
               </div>
               <div className="inv-story-visual">
-                <div className="ui-card" data-inv-card data-tilt>
+                <p className="inv-beat" data-inv-beat>03 · Sua carteira</p>
+                <div className="ui-card" data-inv-card>
                 <div className="ui-card-h">
                   <div className="ui-card-ht">📈 Carteira · R$ 29.930</div>
                   <div className="ui-badge-g">CDI: 10,65% a.a.</div>
@@ -1274,6 +1255,7 @@ export function LandingPage() {
                     <div style={{ fontSize: 10, color: 'rgba(180,83,9,.5)' }}>IR R$ 93</div>
                   </div>
                 </div>
+                <p className="inv-beat" data-inv-beat style={{ marginTop: 16 }}>04 · Bruto vs líquido, linha a linha</p>
                 </div>
               </div>
             </div>
@@ -1381,9 +1363,9 @@ export function LandingPage() {
       </div>
 
       {/* ══════════ PRICING (LIGHT) ══════════ */}
-      <div className="lsec alt" id="precos">
+      <div className="lsec alt" id="precos" data-story-chapter="Preços">
         <div className="lsec-inner">
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+          <div style={{ textAlign: 'center', marginBottom: 48 }} data-story-reveal>
             <div className="sec-pill lt">
               <span></span>Preços
             </div>
@@ -1392,8 +1374,8 @@ export function LandingPage() {
             </h2>
             <p className="sub-lt sub-c">Comece grátis. Upgrade quando fizer sentido para você.</p>
           </div>
-          <div className="pgrid" data-motion="stagger">
-            <div className="pcard" data-tilt>
+          <div className="pgrid" data-story-stagger>
+            <div className="pcard" data-story-item>
               <div className="pplan">Free</div>
               <div className="pprice">
                 R$<sub>/mês</sub>0
@@ -1422,11 +1404,11 @@ export function LandingPage() {
                   <div className="px">✕</div>Metas financeiras
                 </li>
               </ul>
-              <a href="/criar-conta" onClick={goRegister} className="pbtn" data-magnetic data-magnetic-strength="0.24">
+              <a href="/criar-conta" onClick={goRegister} className="pbtn">
                 Criar conta grátis
               </a>
             </div>
-            <div className="pcard pro" data-tilt>
+            <div className="pcard pro" data-story-item>
               <div className="pbadge">✦ POPULAR</div>
               <div className="pplan g">Pro</div>
               <div className="pprice">
@@ -1456,7 +1438,7 @@ export function LandingPage() {
                   <div className="pk">✓</div>Metas financeiras
                 </li>
               </ul>
-              <a href="/criar-conta" onClick={goRegister} className="pbtn s" data-magnetic data-magnetic-strength="0.24">
+              <a href="/criar-conta" onClick={goRegister} className="pbtn s">
                 Começar trial de 30 dias
               </a>
             </div>
@@ -1486,9 +1468,9 @@ export function LandingPage() {
                 Relatos de pessoas que organizaram as próprias finanças com o app.
               </p>
             </div>
-            <div className="tgrid" data-motion="stagger">
+            <div className="tgrid" data-story-stagger>
               {TESTIMONIALS.map((t) => (
-                <figure className="tcard" data-tilt key={t.source}>
+                <figure className="tcard" data-story-item key={t.source}>
                   <div className="thead">
                     <div className={`tav tone${avatarTone(t.name)}`} aria-hidden="true">
                       {initials(t.name)}
@@ -1507,7 +1489,7 @@ export function LandingPage() {
       )}
 
       {/* ══════════ FAQ (DARK ROUNDED) ══════════ */}
-      <div className="dsec-wrap" id="faq">
+      <div className="dsec-wrap" id="faq" data-story-chapter="Dúvidas">
         <div className="dsec">
           <div className="dsec-glow dg1"></div>
           <div className="dsec-grid"></div>
@@ -1520,13 +1502,27 @@ export function LandingPage() {
                 Perguntas <em>frequentes</em>
               </h2>
             </div>
-            <FaqAccordion items={FAQ_ITEMS} />
+            <div className="flist">
+              {FAQ_ITEMS.map((item, i) => (
+                <div className={`faq${openFaq === i ? ' open' : ''}`} key={item.q}>
+                  <button
+                    className="fq"
+                    type="button"
+                    onClick={() => setOpenFaq((cur) => (cur === i ? null : i))}
+                  >
+                    {item.q}
+                    <div className="fqx">+</div>
+                  </button>
+                  <div className="fa">{item.a}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
       {/* ══════════ FINAL CTA ══════════ */}
-      <div className="fcta-wrap">
+      <div className="fcta-wrap" data-story-chapter="Comece">
         <div className="fcta-box">
           <div className="fcta-g1"></div>
           <div className="fcta-grid"></div>
@@ -1541,7 +1537,7 @@ export function LandingPage() {
             veja a diferença <em>amanhã</em>
           </h2>
           <p>30 dias grátis. Sem cartão. Sem complicação.</p>
-          <a href="/criar-conta" onClick={goRegister} className="cta-wh" data-magnetic style={{ fontSize: 16, padding: '16px 36px' }}>
+          <a href="/criar-conta" onClick={goRegister} className="cta-wh" style={{ fontSize: 16, padding: '16px 36px' }}>
             Abrir conta Flux
             <ArrowRightIcon size={16} />
           </a>

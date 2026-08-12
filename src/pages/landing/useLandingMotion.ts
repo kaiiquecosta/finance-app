@@ -1,2 +1,2 @@
-/** @deprecated Use useLandingCinematic — mantido só por compatibilidade. */
-export { useLandingCinematic as useLandingMotion } from './useLandingCinematic'
+export { useLandingStory as useLandingMotion } from './useLandingStory'
+export { useLandingStory } from './useLandingStory'
