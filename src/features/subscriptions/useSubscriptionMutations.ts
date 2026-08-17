@@ -42,6 +42,7 @@ export function useSubscriptionMutations(userId: string | undefined) {
           date: anchorDateForDay(sub.day, new Date()),
           pastPaid: false,
           recurring: true,
+          externalId: null,
         }
         await upsertRows('card_bills', [toCardBillRow(bill, userId)])
       } else {

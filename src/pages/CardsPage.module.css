@@ -3,6 +3,12 @@
   font-size: 13px;
   line-height: 1.6;
 }
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 .monthNav {
   display: flex;
   align-items: center;

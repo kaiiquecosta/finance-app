@@ -5,7 +5,7 @@ import { TextField } from '@/components/ui/TextField'
 import { MoneyField } from '@/components/ui/MoneyField'
 import { ZERO, allocate, formatBRL, type Cents } from '@/domain/money'
 import { parseISODate, toISODate } from '@/domain/dates'
-import { newId } from '@/data/useEntityMutations'
+import { newId } from '@/data/ids'
 import type { Card as CardEntity, CardBill } from '@/domain/entities'
 import styles from './PurchaseModal.module.css'
 
@@ -22,7 +22,7 @@ const QUICK_PARCELS = [1, 2, 3, 6, 10, 12]
 /** Gera as faturas (1 para à vista, N para parcelado) a partir da compra. */
 function buildBills(cardId: number, desc: string, total: Cents, date: string, parcels: number): CardBill[] {
   if (parcels <= 1) {
-    return [{ id: newId(), cardId, description: desc, amt: total, date, pastPaid: false, recurring: false }]
+    return [{ id: newId(), cardId, description: desc, amt: total, date, pastPaid: false, recurring: false, externalId: null }]
   }
   const parts = allocate(total, parcels)
   const base = parseISODate(date)
@@ -34,6 +34,7 @@ function buildBills(cardId: number, desc: string, total: Cents, date: string, pa
     date: toISODate(new Date(base.getFullYear(), base.getMonth() + i, base.getDate())),
     pastPaid: false,
     recurring: false,
+    externalId: null,
   }))
 }
 

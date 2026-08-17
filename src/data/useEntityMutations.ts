@@ -5,11 +5,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { deleteRow, upsertRows } from './api'
 import { queryKeys } from './queryKeys'
+import { newId } from './ids'
 
-/** Id numérico único (compatível com o `bigint` gerado no cliente do legado). */
-export function newId(): number {
-  return Date.now() * 1000 + Math.floor(Math.random() * 1000)
-}
+export { newId } from './ids'
 
 export function useEntityMutations<TEntity extends { id: number }>(
   table: string,
