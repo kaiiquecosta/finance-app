@@ -5,11 +5,19 @@
 ```
 supabase/
 ├─ migrations/
-│  ├─ 0001_schema.sql          # schema base (idempotente): tabelas, RLS, plans, trigger
-│  └─ 0002_plans_backfill.sql  # dá 30 dias de trial a usuários que já existiam
-│                               # antes da tabela `plans`/trigger existirem
-└─ functions/                   # Edge Functions (Stripe, exclusão de conta)
+│  ├─ 0001_schema.sql                    # schema base (idempotente): tabelas, RLS, plans, trigger
+│  ├─ 0002_plans_backfill.sql            # trial 30 dias para usuários pré-existentes
+│  ├─ 0004_community.sql                # roadmap da Comunidade (sugestões, likes, comentários)
+│  ├─ 0005_open_finance_pluggy.sql      # Open Finance / Pluggy (branch `main`)
+│  ├─ 0006_community_realtime.sql       # realtime na Comunidade (branch `main`)
+│  └─ 0007_card_bills_external_id.sql   # FITID do OFX — dedup importação (após merge da feature)
+└─ functions/                            # Edge Functions (Stripe, exclusão de conta)
 ```
+
+> **Conflito entre branches:** `feat/identidade-visual-legado` tinha
+> `0005_card_bills_external_id.sql`, mas `main` já usa `0005` para Pluggy. Após o merge,
+> renomeie a migration OFX para **`0007_card_bills_external_id.sql`** antes do `db push`.
+> Ver [`docs/DEPLOY.md`](../docs/DEPLOY.md#0-pré-requisito-unificar-branches).
 
 ## Aplicar o schema
 
@@ -25,7 +33,10 @@ atual que já tem as tabelas com dados.
    já existentes ganhem os 30 dias de trial, e não fiquem bloqueadas de recursos
    Pro por falta de registro em `plans`)
 4. Para a aba **Comunidade**: `migrations/0004_community.sql` → **Run**
-5. Admin do roadmap (mover colunas): `scripts/comunidade-tornar-admin.sql` → **Run**
+5. Open Finance (se usar): `0005_open_finance_pluggy.sql` → **Run**
+6. Realtime Comunidade: `0006_community_realtime.sql` → **Run**
+7. Importação OFX (cartões): `0007_card_bills_external_id.sql` → **Run**
+8. Admin do roadmap (mover colunas): `scripts/comunidade-tornar-admin.sql` → **Run**
    (ou use só o `update` com join em `auth.users` — **não** use `select name from auth.users`, essa coluna não existe)
 
 ### Opção B — Supabase CLI
