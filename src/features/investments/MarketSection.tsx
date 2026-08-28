@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Card } from '@/components/ui/Card'
 import { useRates } from '@/data/useMarket'
 import { useCryptoUsd, useExtendedQuotes, useMarketIndices } from '@/data/useMarketExtended'
 import { useStockQuotes } from '@/data/useStockQuotes'
+import { buildMarketCryptoGroups, buildMarketStockGroups } from '@/data/marketStockGroups'
 import type { Quote } from '@/data/market'
 import type { IndexQuote } from '@/data/marketExtended'
 import type { StockQuote } from '@/data/marketSpark'
@@ -123,6 +124,9 @@ export function MarketSection() {
   const stocks = useStockQuotes()
   const session = sessionBadge()
 
+  const stockGroups = useMemo(() => buildMarketStockGroups(stocks.data ?? []), [stocks.data])
+  const cryptoGroups = useMemo(() => buildMarketCryptoGroups(stocks.data ?? []), [stocks.data])
+
   const list = quotes.data ?? []
   const currencies = list.filter((q) => q.kind === 'currency')
   const cryptoBrl = list.filter((q) => q.kind === 'crypto')
@@ -236,17 +240,51 @@ export function MarketSection() {
             {cryptoBrl.map((q) => (
               <QuoteRow key={q.code} q={q} />
             ))}
+            {cryptoGroups.length > 0 && (
+              <>
+                <p className={styles.sectionHint}>Catálogo · variação do dia</p>
+                {cryptoGroups.map((sector) => (
+                  <div key={sector.label} className={styles.categoryBlock}>
+                    <div className={styles.sectorHead}>{sector.label}</div>
+                    {sector.quotes.map((q) => (
+                      <StockRow key={q.yahoo} q={q} />
+                    ))}
+                  </div>
+                ))}
+              </>
+            )}
             {quotes.isLoading && cryptoUsd.isLoading && <p className={styles.muted}>Carregando cripto…</p>}
           </div>
         )}
 
         {tab === 'stocks' && (
           <div className={styles.panel}>
-            <p className={styles.sectionHint}>EUA · Apple, NVIDIA, Tesla… + B3 · Petrobras, Vale…</p>
             {stocks.isLoading && <p className={styles.muted}>Carregando ações…</p>}
             {stocks.isError && <p className={styles.muted}>Não foi possível carregar ações. Use ↻ Atualizar.</p>}
-            {(stocks.data ?? []).map((q) => (
-              <StockRow key={q.yahoo} q={q} />
+            {!stocks.isLoading && !stocks.isError && stockGroups.length === 0 && (
+              <p className={styles.muted}>Nenhuma cotação disponível no momento.</p>
+            )}
+            {stockGroups.map((group) => (
+              <section key={group.id} className={styles.marketGroup}>
+                <h3 className={styles.marketGroupTitle}>{group.label}</h3>
+                {group.categories.map((cat) => (
+                  <div key={cat.id} className={styles.categoryBlock}>
+                    <div className={styles.categoryHead}>
+                      <span aria-hidden>{cat.icon}</span> {cat.label}
+                    </div>
+                    {cat.sectors.map((sector) => (
+                      <div key={`${cat.id}-${sector.label || 'all'}`} className={styles.sectorBlock}>
+                        {cat.hasSectors && sector.label && (
+                          <div className={styles.sectorHead}>{sector.label}</div>
+                        )}
+                        {sector.quotes.map((q) => (
+                          <StockRow key={q.yahoo} q={q} />
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </section>
             ))}
           </div>
         )}

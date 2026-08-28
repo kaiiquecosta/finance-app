@@ -203,3 +203,47 @@
   text-transform: uppercase;
   letter-spacing: 0.6px;
 }
+.marketGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.marketGroup:last-child {
+  margin-bottom: 0;
+}
+.marketGroupTitle {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.categoryBlock {
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--text) 3%, transparent);
+  overflow: hidden;
+}
+.categoryHead {
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border2);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
+}
+.sectorBlock {
+  border-bottom: 1px solid var(--border);
+}
+.sectorBlock:last-child {
+  border-bottom: none;
+}
+.sectorHead {
+  padding: 7px 12px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
