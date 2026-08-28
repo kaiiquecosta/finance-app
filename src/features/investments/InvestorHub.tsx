@@ -6,7 +6,8 @@ import type { StockQuote } from '@/data/marketSpark'
 import {
   categoryById,
   defMatchesCategory,
-  INVESTOR_CATEGORIES,
+  INVESTOR_CATEGORY_GROUPS,
+  type InvestorCategory,
   type InvestorCategoryId,
   type QuoteSortMode,
 } from '@/data/investorCategories'
@@ -84,6 +85,98 @@ function PopularRow({ row, onOpen }: { row: CatalogRow; onOpen: (s: string) => v
         </span>
       ) : (
         <span className={styles.na}>…</span>
+      )}
+    </button>
+  )
+}
+
+type AssetRowProps = {
+  row: CatalogRow
+  favorites: string[]
+  onOpen: (s: string) => void
+  onToggleFavorite: (s: string) => void
+}
+
+function AssetTableRow({ row, favorites, onOpen, onToggleFavorite }: AssetRowProps) {
+  const { def, quote: q } = row
+  const fav = favorites.includes(def.yahoo)
+  return (
+    <div className={styles.tableRow}>
+      <button
+        type="button"
+        className={[styles.starBtn, fav ? styles.starActive : ''].filter(Boolean).join(' ')}
+        onClick={() => onToggleFavorite(def.yahoo)}
+        title={fav ? 'Remover dos favoritos' : 'Favoritar'}
+      >
+        {fav ? '★' : '☆'}
+      </button>
+      <button type="button" className={styles.assetCell} onClick={() => onOpen(def.yahoo)}>
+        <span className={styles.assetIcon}>{def.icon}</span>
+        <span className={styles.assetText}>
+          <span className={styles.assetName}>{def.name}</span>
+          <span className={styles.assetSub}>
+            {def.symbol} · {def.exchange} · {KIND_LABEL[def.kind]}
+          </span>
+        </span>
+      </button>
+      <span className={styles.priceCell}>{q ? formatPriceQuote(q) : '—'}</span>
+      {q ? (
+        <span className={q.pctChange >= 0 ? styles.up : styles.down}>
+          {q.pctChange >= 0 ? '+' : ''}
+          {q.pctChange.toFixed(2)}%
+        </span>
+      ) : (
+        <span className={styles.na}>…</span>
+      )}
+      {q ? <MiniSpark values={q.sparkline} /> : <div className={styles.sparkEmpty} />}
+    </div>
+  )
+}
+
+function CategoryNavButton({
+  cat,
+  active,
+  favoritesCount,
+  onSelect,
+  variant,
+}: {
+  cat: InvestorCategory
+  active: boolean
+  favoritesCount: number
+  onSelect: (id: InvestorCategoryId) => void
+  variant: 'sidebar' | 'mobile'
+}) {
+  const badge = cat.id === 'favorites' && favoritesCount > 0 ? favoritesCount : null
+  if (variant === 'mobile') {
+    return (
+      <button
+        type="button"
+        data-testid={`investor-category-${cat.id}`}
+        className={[styles.mobileCategoryOption, active ? styles.mobileCategoryOptionActive : ''].filter(Boolean).join(' ')}
+        onClick={() => onSelect(cat.id)}
+      >
+        <span aria-hidden>{cat.icon}</span>
+        <span>{cat.label}</span>
+        {badge != null && <span className={styles.mobileOptionBadge}>{badge}</span>}
+      </button>
+    )
+  }
+  return (
+    <button
+      type="button"
+      data-testid={`investor-category-${cat.id}`}
+      data-category={cat.id}
+      className={[styles.catBtn, active ? styles.catBtnActive : ''].filter(Boolean).join(' ')}
+      onClick={() => onSelect(cat.id)}
+    >
+      <span className={styles.catIcon} aria-hidden>
+        {cat.icon}
+      </span>
+      <span className={styles.catLabel}>{cat.label}</span>
+      {badge != null && (
+        <span className={styles.catBadge} aria-label={`${badge} favoritos`}>
+          {badge}
+        </span>
       )}
     </button>
   )
@@ -177,6 +270,28 @@ export function InvestorHub({ onOpenMarket }: Props) {
     })
     return sortable.map((s) => s.row)
   }, [sectorFiltered, search, listSort])
+
+  const showGroupedIdeas = categoryId === 'ideas' && !search.trim()
+
+  const ideaSections = useMemo(() => {
+    if (!showGroupedIdeas) return null
+    return INVESTOR_CATEGORY_GROUPS.filter((g) => g.id !== 'overview' && g.id !== 'renda_fixa')
+      .map((group) => ({
+        group,
+        sections: group.categories
+          .map((catId) => {
+            const cat = categoryById(catId)
+            const rows = catalogRows
+              .filter(({ def }) => cat.match(def))
+              .filter(({ quote }) => quote)
+              .sort((a, b) => Math.abs(b.quote!.pctChange) - Math.abs(a.quote!.pctChange))
+              .slice(0, 6)
+            return { cat, rows }
+          })
+          .filter((section) => section.rows.length > 0),
+      }))
+      .filter((entry) => entry.sections.length > 0)
+  }, [showGroupedIdeas, catalogRows])
 
   const popular = useMemo(() => {
     const withQuotes = [...catalogRows].filter((r) => r.quote)
@@ -273,25 +388,23 @@ export function InvestorHub({ onOpenMarket }: Props) {
       <div className={styles.layout}>
         {!isMobileLayout && (
           <nav ref={sidebarRef} className={styles.sidebar} aria-label="Categorias de investimento">
-            {INVESTOR_CATEGORIES.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                data-testid={`investor-category-${c.id}`}
-                data-category={c.id}
-                className={[styles.catBtn, categoryId === c.id ? styles.catBtnActive : ''].filter(Boolean).join(' ')}
-                onClick={() => onCategoryChange(c.id)}
-              >
-                <span className={styles.catIcon} aria-hidden>
-                  {c.icon}
-                </span>
-                <span className={styles.catLabel}>{c.label}</span>
-                {c.id === 'favorites' && favorites.length > 0 && (
-                  <span className={styles.catBadge} aria-label={`${favorites.length} favoritos`}>
-                    {favorites.length}
-                  </span>
-                )}
-              </button>
+            {INVESTOR_CATEGORY_GROUPS.map((group) => (
+              <div key={group.id} className={styles.sidebarGroup}>
+                <div className={styles.sidebarGroupLabel}>{group.label}</div>
+                {group.categories.map((catId) => {
+                  const cat = categoryById(catId)
+                  return (
+                    <CategoryNavButton
+                      key={cat.id}
+                      cat={cat}
+                      active={categoryId === cat.id}
+                      favoritesCount={favorites.length}
+                      onSelect={onCategoryChange}
+                      variant="sidebar"
+                    />
+                  )
+                })}
+              </div>
             ))}
           </nav>
         )}
@@ -320,25 +433,25 @@ export function InvestorHub({ onOpenMarket }: Props) {
 
               {mobileCategoriesOpen && (
                 <div id="investor-mobile-categories" className={styles.mobileCategoryMenu}>
-                  {INVESTOR_CATEGORIES.map((c) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      data-testid={`investor-category-${c.id}`}
-                      className={[
-                        styles.mobileCategoryOption,
-                        categoryId === c.id ? styles.mobileCategoryOptionActive : '',
-                      ]
-                        .filter(Boolean)
-                        .join(' ')}
-                      onClick={() => onCategoryChange(c.id)}
-                    >
-                      <span aria-hidden>{c.icon}</span>
-                      <span>{c.label}</span>
-                      {c.id === 'favorites' && favorites.length > 0 && (
-                        <span className={styles.mobileOptionBadge}>{favorites.length}</span>
-                      )}
-                    </button>
+                  {INVESTOR_CATEGORY_GROUPS.map((group) => (
+                    <div key={group.id} className={styles.mobileCategoryGroup}>
+                      <div className={styles.mobileCategoryGroupLabel}>{group.label}</div>
+                      <div className={styles.mobileCategoryGroupItems}>
+                        {group.categories.map((catId) => {
+                          const cat = categoryById(catId)
+                          return (
+                            <CategoryNavButton
+                              key={cat.id}
+                              cat={cat}
+                              active={categoryId === cat.id}
+                              favoritesCount={favorites.length}
+                              onSelect={onCategoryChange}
+                              variant="mobile"
+                            />
+                          )
+                        })}
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
@@ -405,69 +518,90 @@ export function InvestorHub({ onOpenMarket }: Props) {
               <div ref={listAnchorRef} className={styles.listAnchor} aria-hidden />
 
               <div className={[styles.tableCard, styles.blockTable].join(' ')}>
-                <div className={styles.tableHead}>
-                  <span />
-                  <span>
-                    Ativo {filtered.length > 0 ? `(${filtered.length})` : ''}
-                  </span>
-                  <span>Preço</span>
-                  <span>Var. dia</span>
-                  <span className={styles.colSpark}>Intraday</span>
-                </div>
-
-                {stocks.isLoading && <p className={styles.muted}>Carregando cotações…</p>}
-                {stocks.isError && (
+                {stocks.isLoading && showGroupedIdeas && <p className={styles.muted}>Carregando cotações…</p>}
+                {stocks.isError && showGroupedIdeas && (
                   <p className={styles.muted}>Não foi possível carregar as cotações. Tente novamente em instantes.</p>
                 )}
-
-                {!stocks.isLoading && !stocks.isError && filtered.length === 0 && !showSearchOpen && (
-                  <p className={styles.muted}>
-                    {categoryId === 'favorites'
-                      ? 'Nenhum favorito — toque na estrela ☆ de um ativo.'
-                      : 'Nenhum ativo neste filtro.'}
-                  </p>
-                )}
-
-                {showSearchOpen && (
-                  <button type="button" className={styles.searchOpenBtn} onClick={() => setDetail(searchSymbol)}>
-                    🔎 Abrir cotação de <b>{search.trim().toUpperCase()}</b> no Yahoo Finance
-                  </button>
-                )}
-
-                {filtered.map(({ def, quote: q }) => {
-                  const fav = favorites.includes(def.yahoo)
-                  return (
-                    <div key={def.yahoo} className={styles.tableRow}>
-                      <button
-                        type="button"
-                        className={[styles.starBtn, fav ? styles.starActive : ''].filter(Boolean).join(' ')}
-                        onClick={() => toggleFavorite(def.yahoo)}
-                        title={fav ? 'Remover dos favoritos' : 'Favoritar'}
-                      >
-                        {fav ? '★' : '☆'}
-                      </button>
-                      <button type="button" className={styles.assetCell} onClick={() => setDetail(def.yahoo)}>
-                        <span className={styles.assetIcon}>{def.icon}</span>
-                        <span className={styles.assetText}>
-                          <span className={styles.assetName}>{def.name}</span>
-                          <span className={styles.assetSub}>
-                            {def.symbol} · {def.exchange} · {KIND_LABEL[def.kind]}
-                          </span>
-                        </span>
-                      </button>
-                      <span className={styles.priceCell}>{q ? formatPriceQuote(q) : '—'}</span>
-                      {q ? (
-                        <span className={q.pctChange >= 0 ? styles.up : styles.down}>
-                          {q.pctChange >= 0 ? '+' : ''}
-                          {q.pctChange.toFixed(2)}%
-                        </span>
-                      ) : (
-                        <span className={styles.na}>…</span>
-                      )}
-                      {q ? <MiniSpark values={q.sparkline} /> : <div className={styles.sparkEmpty} />}
+                {showGroupedIdeas && ideaSections && !stocks.isLoading && !stocks.isError ? (
+                  <div className={styles.ideasBoard}>
+                    {ideaSections.map(({ group, sections }) => (
+                      <section key={group.id} className={styles.ideasMarketGroup}>
+                        <h3 className={styles.ideasMarketTitle}>{group.label}</h3>
+                        {sections.map(({ cat, rows }) => (
+                          <div key={cat.id} className={styles.ideasSection}>
+                            <div className={styles.ideasSectionHead}>
+                              <h4 className={styles.ideasSectionTitle}>
+                                {cat.icon} {cat.label}
+                              </h4>
+                              <button type="button" className={styles.ideasSeeAll} onClick={() => onCategoryChange(cat.id)}>
+                                Ver todos →
+                              </button>
+                            </div>
+                            <div className={styles.ideasSectionTable}>
+                              <div className={styles.tableHead}>
+                                <span />
+                                <span>Ativo</span>
+                                <span>Preço</span>
+                                <span>Var. dia</span>
+                                <span className={styles.colSpark}>Intraday</span>
+                              </div>
+                              {rows.map((row) => (
+                                <AssetTableRow
+                                  key={row.def.yahoo}
+                                  row={row}
+                                  favorites={favorites}
+                                  onOpen={setDetail}
+                                  onToggleFavorite={toggleFavorite}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </section>
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    <div className={styles.tableHead}>
+                      <span />
+                      <span>
+                        Ativo {filtered.length > 0 ? `(${filtered.length})` : ''}
+                      </span>
+                      <span>Preço</span>
+                      <span>Var. dia</span>
+                      <span className={styles.colSpark}>Intraday</span>
                     </div>
-                  )
-                })}
+
+                    {stocks.isLoading && <p className={styles.muted}>Carregando cotações…</p>}
+                    {stocks.isError && (
+                      <p className={styles.muted}>Não foi possível carregar as cotações. Tente novamente em instantes.</p>
+                    )}
+
+                    {!stocks.isLoading && !stocks.isError && filtered.length === 0 && !showSearchOpen && (
+                      <p className={styles.muted}>
+                        {categoryId === 'favorites'
+                          ? 'Nenhum favorito — toque na estrela ☆ de um ativo.'
+                          : 'Nenhum ativo neste filtro.'}
+                      </p>
+                    )}
+
+                    {showSearchOpen && (
+                      <button type="button" className={styles.searchOpenBtn} onClick={() => setDetail(searchSymbol)}>
+                        🔎 Abrir cotação de <b>{search.trim().toUpperCase()}</b> no Yahoo Finance
+                      </button>
+                    )}
+
+                    {filtered.map((row) => (
+                      <AssetTableRow
+                        key={row.def.yahoo}
+                        row={row}
+                        favorites={favorites}
+                        onOpen={setDetail}
+                        onToggleFavorite={toggleFavorite}
+                      />
+                    ))}
+                  </>
+                )}
               </div>
 
               {isMobileLayout && (

@@ -8,7 +8,8 @@ export type InvestorCategoryId =
   | 'acoes_br'
   | 'fiis'
   | 'stocks_us'
-  | 'etfs'
+  | 'etfs_br'
+  | 'etfs_us'
   | 'bdrs'
   | 'crypto'
   | 'indices'
@@ -16,6 +17,12 @@ export type InvestorCategoryId =
   | 'renda_fixa'
   | 'tesouro'
   | 'favorites'
+
+export interface InvestorCategoryGroup {
+  id: string
+  label: string
+  categories: InvestorCategoryId[]
+}
 
 export interface InvestorSector {
   id: string
@@ -79,7 +86,7 @@ export const INVESTOR_CATEGORIES: InvestorCategory[] = [
   },
   {
     id: 'acoes_br',
-    label: 'Ações',
+    label: 'Ações brasileiras',
     icon: '🇧🇷',
     hint: 'Ações listadas na B3.',
     hasQuotes: true,
@@ -123,7 +130,7 @@ export const INVESTOR_CATEGORIES: InvestorCategory[] = [
   },
   {
     id: 'stocks_us',
-    label: 'Stocks',
+    label: 'Ações internacionais',
     icon: '🇺🇸',
     hint: 'Ações dos EUA (NASDAQ, NYSE…).',
     hasQuotes: true,
@@ -140,17 +147,30 @@ export const INVESTOR_CATEGORIES: InvestorCategory[] = [
     tools: [{ label: 'Buscar stock', action: 'focus_search' }],
   },
   {
-    id: 'etfs',
-    label: 'ETFs',
+    id: 'etfs_br',
+    label: 'ETFs Brasil',
     icon: '🧺',
-    hint: 'Fundos de índice BR e EUA.',
+    hint: 'Fundos de índice negociados na B3.',
     hasQuotes: true,
-    match: (d) => d.kind === 'etf',
+    match: (d) => d.kind === 'etf' && d.region === 'br',
     rankings: [
       { id: 'up', label: 'Maiores altas', sort: 'change_desc' },
       { id: 'down', label: 'Maiores baixas', sort: 'change_asc' },
     ],
-    tools: [],
+    tools: [{ label: 'Buscar ETF B3', action: 'focus_search' }],
+  },
+  {
+    id: 'etfs_us',
+    label: 'ETFs internacionais',
+    icon: '🦅',
+    hint: 'ETFs listados nos EUA (S&P 500, Nasdaq…).',
+    hasQuotes: true,
+    match: (d) => d.kind === 'etf' && d.region === 'us',
+    rankings: [
+      { id: 'up', label: 'Maiores altas', sort: 'change_desc' },
+      { id: 'down', label: 'Maiores baixas', sort: 'change_asc' },
+    ],
+    tools: [{ label: 'Buscar ETF EUA', action: 'focus_search' }],
   },
   {
     id: 'bdrs',
@@ -217,6 +237,35 @@ export const INVESTOR_CATEGORIES: InvestorCategory[] = [
     match: () => false,
     rankings: [],
     tools: [{ label: 'Ver Selic e IPCA', action: 'market' }],
+  },
+]
+
+/** Navegação lateral agrupada (estilo corretora). */
+export const INVESTOR_CATEGORY_GROUPS: InvestorCategoryGroup[] = [
+  {
+    id: 'overview',
+    label: 'Visão geral',
+    categories: ['ideas', 'favorites'],
+  },
+  {
+    id: 'brasil',
+    label: 'Brasil · B3',
+    categories: ['acoes_br', 'fiis', 'bdrs', 'etfs_br'],
+  },
+  {
+    id: 'internacional',
+    label: 'Internacional',
+    categories: ['stocks_us', 'etfs_us'],
+  },
+  {
+    id: 'mercados',
+    label: 'Mercados globais',
+    categories: ['crypto', 'indices', 'commodities'],
+  },
+  {
+    id: 'renda_fixa',
+    label: 'Renda fixa',
+    categories: ['renda_fixa', 'tesouro'],
   },
 ]
 

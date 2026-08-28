@@ -15,7 +15,7 @@ test.describe('Investidor — busca por categoria', () => {
     await search.fill('MXRF11')
     await expect(search).toHaveValue('MXRF11')
 
-    await page.getByTestId('investor-category-etfs').click()
+    await page.getByTestId('investor-category-etfs_us').click()
     await expect(search).toHaveValue('')
   })
 })

@@ -434,7 +434,7 @@
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   padding: 10px;
   border-radius: 14px;
   border: 1px solid var(--border2);
@@ -443,6 +443,27 @@
   top: 8px;
   max-height: calc(100vh - 120px);
   overflow-y: auto;
+}
+
+.sidebarGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebarGroup + .sidebarGroup {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+.sidebarGroupLabel {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  padding: 2px 10px 6px;
 }
 
 .catBtn {
@@ -847,9 +868,9 @@
 }
 
 .mobileCategoryMenu {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin-top: 8px;
   padding: 10px;
   border: 1px solid var(--border2);
@@ -857,6 +878,102 @@
   background: var(--card);
   box-shadow: var(--shadow-card-hover, var(--shadow-card));
   animation: categoryMenuIn 140ms ease-out;
+  max-height: min(70vh, 520px);
+  overflow-y: auto;
+}
+
+.mobileCategoryGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mobileCategoryGroup + .mobileCategoryGroup {
+  padding-top: 8px;
+  border-top: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+.mobileCategoryGroupLabel {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+  padding: 0 4px;
+}
+
+.mobileCategoryGroupItems {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.ideasBoard {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ideasMarketGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ideasMarketTitle {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.ideasSection {
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--text) 3%, transparent);
+  overflow: hidden;
+}
+
+.ideasSectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border2);
+  background: var(--card2);
+}
+
+.ideasSectionTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.ideasSeeAll {
+  border: none;
+  background: none;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font);
+  white-space: nowrap;
+}
+
+.ideasSeeAll:hover {
+  text-decoration: underline;
+}
+
+.ideasSectionTable {
+  padding: 4px 8px 8px;
+}
+
+.ideasSectionTable .tableHead {
+  border-bottom-color: color-mix(in srgb, var(--text) 6%, transparent);
 }
 
 @keyframes categoryMenuIn {
