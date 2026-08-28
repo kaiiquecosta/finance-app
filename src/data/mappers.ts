@@ -131,6 +131,7 @@ export function rowToCardBill(r: CardBillRow): CardBill {
     date: r.date,
     pastPaid: Boolean(r.is_past_paid),
     recurring: Boolean(r.recurring),
+    externalId: r.external_id,
   }
 }
 
@@ -144,6 +145,7 @@ export function toCardBillRow(b: CardBill, userId: string): Omit<CardBillRow, 'c
     date: b.date,
     is_past_paid: b.pastPaid,
     recurring: b.recurring,
+    external_id: b.externalId ?? null,
   }
 }
 

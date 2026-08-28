@@ -4,6 +4,7 @@ import { useFinanceData } from '@/data/hooks'
 import { useCardMutations } from '@/features/cards/useCardMutations'
 import { CardModal } from '@/features/cards/CardModal'
 import { PurchaseModal } from '@/features/cards/PurchaseModal'
+import { OfxImportModal } from '@/features/cards/OfxImportModal'
 import { PageHeader } from '@/components/PageHeader'
 import { HeaderActionButton } from '@/components/legacy/HeaderActionButton'
 import { InvoiceEvolutionChart } from '@/components/legacy/InvoiceEvolutionChart'
@@ -40,6 +41,7 @@ export function CardsPage() {
   const [editBill, setEditBill] = useState<CardBill | null>(null)
   const [editAmount, setEditAmount] = useState<Cents>(ZERO)
   const [editBillError, setEditBillError] = useState('')
+  const [ofxOpen, setOfxOpen] = useState(false)
 
   useEffect(() => {
     if (!editBill) return
@@ -92,7 +94,16 @@ export function CardsPage() {
       <PageHeader
         title="Cartões"
         subtitle="Faturas e limites"
-        action={<HeaderActionButton onClick={openNewCard}>＋ Cartão</HeaderActionButton>}
+        action={
+          <div className={styles.headerActions}>
+            {data.cards.some((c) => c.type === 'credito') && (
+              <Button variant="ghost" onClick={() => setOfxOpen(true)}>
+                Importar OFX
+              </Button>
+            )}
+            <HeaderActionButton onClick={openNewCard}>＋ Cartão</HeaderActionButton>
+          </div>
+        }
       />
 
       {data.cards.length === 0 ? (
@@ -334,6 +345,17 @@ export function CardsPage() {
         onDelete={async (id) => {
           await removeCard.mutateAsync(id)
           setCardModalOpen(false)
+        }}
+      />
+
+      <OfxImportModal
+        open={ofxOpen}
+        cards={data.cards}
+        saving={addBills.isPending}
+        onClose={() => setOfxOpen(false)}
+        onSave={async (bills) => {
+          await addBills.mutateAsync(bills)
+          setOfxOpen(false)
         }}
       />
 

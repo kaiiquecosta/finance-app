@@ -274,6 +274,67 @@
   text-align: center;
 }
 
+.landing-root .hero-scene-stack {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.landing-root .hero-orb-fallback {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  width: min(520px, 88vw);
+  height: min(520px, 88vw);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 32%, rgba(184, 255, 213, 0.22), transparent 42%),
+    radial-gradient(circle at 50% 50%, rgba(61, 220, 132, 0.16), transparent 58%),
+    radial-gradient(circle at 62% 68%, rgba(26, 136, 71, 0.12), transparent 70%);
+  filter: blur(2px);
+  animation: landing-orb-breathe 7s ease-in-out infinite;
+  opacity: 0.9;
+}
+
+@keyframes landing-orb-breathe {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(0.96);
+    opacity: 0.82;
+  }
+  50% {
+    transform: translate(-50%, -52%) scale(1.04);
+    opacity: 1;
+  }
+}
+
+.landing-root .hero-flux-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 1;
+  filter: saturate(1.12) contrast(1.05);
+}
+
+.landing-root .hero-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 38%, transparent 0%, rgba(9, 9, 9, 0.35) 55%, rgba(9, 9, 9, 0.82) 100%),
+    linear-gradient(to bottom, rgba(9, 9, 9, 0.15) 0%, rgba(9, 9, 9, 0.55) 72%, rgba(9, 9, 9, 0.95) 100%);
+}
+
+.landing-root .hero-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 85% 70% at 50% 42%, transparent 35%, rgba(0, 0, 0, 0.55) 100%);
+}
+
 /* grid texture */
 .landing-root .hgrid {
   position: absolute;
@@ -342,6 +403,8 @@
   z-index: 2;
   max-width: 780px;
   width: 100%;
+  will-change: transform, opacity;
+  transition: opacity 120ms linear;
 }
 
 /* pill label */
@@ -516,6 +579,10 @@
   pointer-events: none;
 }
 .landing-root .mock-frame {
+  --mock-rx: 0deg;
+  --mock-ry: 0deg;
+  --mock-glare-x: 50%;
+  --mock-glare-y: 20%;
   background: var(--d1);
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 20px;
@@ -524,6 +591,23 @@
     0 60px 120px rgba(0, 0, 0, 0.85),
     0 20px 40px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+  transform: perspective(1400px) rotateX(var(--mock-rx)) rotateY(var(--mock-ry));
+  transform-style: preserve-3d;
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.landing-root .mock-frame::after {
+  content: '';
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle 240px at var(--mock-glare-x) var(--mock-glare-y),
+    rgba(255, 255, 255, 0.055),
+    transparent 70%
+  );
+  mix-blend-mode: screen;
 }
 .landing-root .chrome {
   background: rgba(255, 255, 255, 0.025);
@@ -1436,6 +1520,118 @@
 @media (max-width: 600px) {
   .landing-root .dsec-wrap {
     padding: 14px 10px;
+  }
+}
+
+/* ─── MOTION SYSTEM ────────────────────────────────────────────────────────
+   Inspirado em experiências WebGL e timelines editoriais, sem esconder
+   conteúdo quando JavaScript ou WebGL não estiver disponível. */
+@media (prefers-reduced-motion: no-preference) {
+  .landing-root.motion-enabled [data-motion] {
+    transition:
+      opacity 700ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 850ms cubic-bezier(0.16, 1, 0.3, 1),
+      filter 700ms ease;
+    will-change: opacity, transform;
+  }
+
+  .landing-root.motion-enabled [data-motion]:not(.is-visible) {
+    opacity: 0;
+    transform: translate3d(0, 34px, 0);
+    filter: blur(5px);
+  }
+
+  .landing-root.motion-enabled [data-motion='hero-pill']:not(.is-visible) {
+    transform: translate3d(0, 16px, 0) scale(0.96);
+  }
+
+  .landing-root.motion-enabled [data-motion='hero-title'] {
+    transition-delay: 70ms;
+  }
+
+  .landing-root.motion-enabled [data-motion='hero-copy'] {
+    transition-delay: 150ms;
+  }
+
+  .landing-root.motion-enabled [data-motion='hero-actions'] {
+    transition-delay: 220ms;
+  }
+
+  .landing-root.motion-enabled [data-motion='hero-notes'] {
+    transition-delay: 280ms;
+  }
+
+  .landing-root.motion-enabled [data-motion='hero-mock'] {
+    transition-delay: 170ms;
+  }
+
+  .landing-root.motion-enabled [data-motion='hero-mock']:not(.is-visible) {
+    transform: translate3d(0, 54px, 0) scale(0.96);
+  }
+
+  .landing-root.motion-enabled [data-motion='stagger'] .fc {
+    transition:
+      opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
+      background 200ms,
+      border-color 200ms;
+    transition-delay: calc(var(--motion-i, 0) * 70ms);
+  }
+
+  .landing-root.motion-enabled [data-motion='stagger']:not(.is-visible) .fc {
+    opacity: 0;
+    transform: translate3d(0, 30px, 0) scale(0.97);
+  }
+
+  .landing-root.motion-enabled [data-motion='split'] > * {
+    transition:
+      opacity 750ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 850ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .landing-root.motion-enabled [data-motion='split']:not(.is-visible) > :first-child {
+    opacity: 0;
+    transform: translate3d(-34px, 0, 0);
+  }
+
+  .landing-root.motion-enabled [data-motion='split']:not(.is-visible) > :last-child {
+    opacity: 0;
+    transform: translate3d(34px, 0, 0);
+  }
+}
+
+@media (max-width: 720px) {
+  .landing-root .hero-orb-fallback {
+    top: 28%;
+    width: min(380px, 92vw);
+    height: min(380px, 92vw);
+  }
+
+  .landing-root .hero-flux-scene {
+    display: none;
+  }
+
+  .landing-root .mock-frame {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-root *,
+  .landing-root *::before,
+  .landing-root *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .landing-root .ticker {
+    transform: none !important;
+  }
+
+  .landing-root .hero-flux-scene {
+    opacity: 0.3;
   }
 }
 .landing-root .dsec {

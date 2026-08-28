@@ -224,6 +224,32 @@ export function InvestorHub({ onOpenMarket }: Props) {
     else searchRef.current?.focus()
   }
 
+  const assetSearch = category.hasQuotes ? (
+    <div className={[styles.controls, styles.topSearch].join(' ')}>
+      <div className={styles.searchBox}>
+        <span className={styles.searchIcon}>🔍</span>
+        <input
+          ref={searchRef}
+          data-testid="investor-search-input"
+          className={styles.searchInput}
+          placeholder={
+            isMobileLayout ? 'Ticker ou nome (PETR4, AAPL…)' : 'Buscar ativo (ex.: AAPL, PETR4, MXRF11…)'
+          }
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && showSearchOpen && searchSymbol) setDetail(searchSymbol)
+          }}
+        />
+        {search && (
+          <button type="button" className={styles.searchClear} onClick={() => setSearch('')} aria-label="Limpar">
+            ✕
+          </button>
+        )}
+      </div>
+    </div>
+  ) : null
+
   return (
     <div className={[styles.wrap, isMobileLayout ? styles.wrapMobile : ''].filter(Boolean).join(' ')}>
       <div className={styles.heroBar}>
@@ -248,6 +274,8 @@ export function InvestorHub({ onOpenMarket }: Props) {
           </span>
         </div>
       </div>
+
+      {assetSearch}
 
       <div className={styles.layout}>
         {!isMobileLayout && (
@@ -340,30 +368,6 @@ export function InvestorHub({ onOpenMarket }: Props) {
             />
           ) : (
             <div className={styles.quoteFlow}>
-              <div className={[styles.controls, styles.blockSearch].join(' ')}>
-                <div className={styles.searchBox}>
-                  <span className={styles.searchIcon}>🔍</span>
-                  <input
-                    ref={searchRef}
-                    data-testid="investor-search-input"
-                    className={styles.searchInput}
-                    placeholder={
-                      isMobileLayout ? 'Ticker ou nome (PETR4, AAPL…)' : 'Buscar ativo (ex.: AAPL, PETR4, MXRF11…)'
-                    }
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && showSearchOpen && searchSymbol) setDetail(searchSymbol)
-                    }}
-                  />
-                  {search && (
-                    <button type="button" className={styles.searchClear} onClick={() => setSearch('')} aria-label="Limpar">
-                      ✕
-                    </button>
-                  )}
-                </div>
-              </div>
-
               {category.rankings.length > 0 && (
                 <div className={[styles.filterScroll, styles.blockFilters].join(' ')} role="group" aria-label="Ordenar lista">
                   {category.rankings.map((r) => (

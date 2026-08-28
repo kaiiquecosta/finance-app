@@ -93,11 +93,17 @@ O fluxo é diferente do navegador:
 Nenhuma configuração adicional é necessária no Supabase além da já feita na Fase 2 — o mesmo
 provedor Google funciona para web e nativo.
 
-## Publicação nas lojas (quando chegar a hora)
+## Publicação nas lojas
+
+Guia completo de deploy web + Google Play: [`docs/DEPLOY.md`](./DEPLOY.md).
+
+Checklist interativo: [`docs/LAUNCH_CHECKLIST.md`](./LAUNCH_CHECKLIST.md).
+
+Resumo Android:
 
 - **Google Play**: gerar um Android App Bundle assinado (`.aab`) pelo Android Studio
   (*Build → Generate Signed Bundle*) e subir no [Play Console](https://play.google.com/console).
 - **App Store**: arquivar (*Product → Archive*) no Xcode e enviar via
   [App Store Connect](https://appstoreconnect.apple.com).
 - Ambos exigem conta de desenvolvedor paga (Google: US$25 único; Apple: US$99/ano) e ícones/
-  screenshots para a ficha da loja — isso fica para perto do lançamento (Fase 7).
+  screenshots para a ficha da loja.

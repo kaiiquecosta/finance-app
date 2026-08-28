@@ -1,0 +1,128 @@
+/* ─── SCROLL STORYTELLING ─────────────────────────────────────────────────── */
+
+.landing-root.story-enabled [data-story-reveal]:not(.is-revealed),
+.landing-root.story-enabled [data-story-item]:not(.is-revealed) {
+  opacity: 0;
+}
+
+/* Barra de progresso da narrativa */
+.landing-root .story-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 900;
+  background: rgba(255, 255, 255, 0.06);
+  pointer-events: none;
+}
+
+.landing-root .story-progress-bar {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--g, #3ddc84), #86efac);
+  box-shadow: 0 0 12px rgba(61, 220, 132, 0.5);
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+/* Capítulo atual */
+.landing-root .story-chapter-label {
+  position: fixed;
+  left: 24px;
+  bottom: 28px;
+  z-index: 750;
+  pointer-events: none;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+  mix-blend-mode: difference;
+}
+
+.landing-root .story-chapter-current {
+  display: block;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 4px;
+  letter-spacing: 0.12em;
+}
+
+/* Investimentos — capítulo pinado */
+.landing-root .inv-story-pin {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.landing-root .inv-story-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 72px;
+  align-items: center;
+}
+
+.landing-root .inv-story-progress {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.landing-root .inv-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.landing-root .inv-dot.active {
+  background: var(--g, #3ddc84);
+  transform: scale(1.4);
+}
+
+.landing-root .inv-beat {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--g, #3ddc84);
+  margin-bottom: 12px;
+  opacity: 0;
+}
+
+.landing-root .inv-row {
+  border-radius: 6px;
+}
+
+@media (max-width: 860px) {
+  .landing-root .inv-story-pin {
+    min-height: auto;
+    padding: 0;
+  }
+
+  .landing-root .inv-story-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .landing-root .inv-story-progress,
+  .landing-root .story-chapter-label {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-root .story-progress {
+    display: none;
+  }
+}

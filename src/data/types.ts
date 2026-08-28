@@ -51,6 +51,7 @@ export interface CardBillRow {
   date: string
   is_past_paid: boolean | null
   recurring: boolean | null
+  external_id: string | null
   created_at?: string
 }
 

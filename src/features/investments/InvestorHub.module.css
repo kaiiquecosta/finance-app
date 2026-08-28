@@ -189,6 +189,12 @@
   margin-bottom: 10px;
   flex-wrap: wrap;
 }
+.topSearch {
+  margin-bottom: 14px;
+}
+.topSearch .searchBox {
+  width: 100%;
+}
 .searchBox {
   flex: 1;
   min-width: 220px;
@@ -901,11 +907,8 @@
   .blockTicker {
     order: 2;
   }
-  .blockSearch {
-    order: 3;
-  }
   .blockTable {
-    order: 4;
+    order: 3;
   }
 }
 
@@ -961,33 +964,28 @@
   .blockSectors {
     display: flex;
   }
-  .blockSearch {
-    order: 1;
-    margin: 0;
-    padding: 0;
-  }
-  .searchInput {
+  .topSearch .searchInput {
     font-size: 16px;
     height: 44px;
   }
   .blockFilters {
-    order: 2;
+    order: 1;
   }
   .blockSectors {
-    order: 3;
+    order: 2;
   }
   .blockTable {
-    order: 4;
+    order: 3;
   }
   .blockInsightsToggle {
-    order: 5;
+    order: 4;
     display: flex;
   }
   .blockMega {
-    order: 6;
+    order: 5;
   }
   .blockTicker {
-    order: 7;
+    order: 6;
   }
   .categoryHead {
     display: none;

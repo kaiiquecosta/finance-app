@@ -56,6 +56,8 @@ export interface CardBill {
   pastPaid: boolean
   /** Lançamento recorrente (assinatura na fatura). */
   recurring: boolean
+  /** FITID do OFX — evita duplicar na reimportação. */
+  externalId?: string | null
 }
 
 export interface Card {

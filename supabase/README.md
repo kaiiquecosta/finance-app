@@ -5,12 +5,15 @@
 ```
 supabase/
 ├─ migrations/
-│  ├─ 0001_schema.sql          # schema base (idempotente): tabelas, RLS, plans, trigger
-│  └─ 0002_plans_backfill.sql  # dá 30 dias de trial a usuários que já existiam
-│                               # antes da tabela `plans`/trigger existirem
-└─ functions/                   # Edge Functions (Stripe, exclusão de conta)
-config.toml                     # template Magic Link (OTP) — ver docs/AUTH.md
-email-templates/magic-link.html # corpo do e-mail com {{ .Token }}
+│  ├─ 0001_schema.sql                    # schema base (idempotente): tabelas, RLS, plans, trigger
+│  ├─ 0002_plans_backfill.sql            # trial 30 dias para usuários pré-existentes
+│  ├─ 0004_community.sql                # roadmap da Comunidade (sugestões, likes, comentários)
+│  ├─ 0005_open_finance_pluggy.sql       # Open Finance / Pluggy
+│  ├─ 0006_community_realtime.sql        # notificações realtime na Comunidade
+│  └─ 0007_card_bills_external_id.sql    # FITID do OFX — dedup na importação de fatura
+├─ functions/                            # Edge Functions (Stripe, exclusão de conta)
+config.toml                              # template Magic Link (OTP) — ver docs/AUTH.md
+email-templates/magic-link.html          # corpo do e-mail com {{ .Token }}
 ```
 
 ## E-mail de login (código de 6 dígitos)
@@ -34,9 +37,13 @@ atual que já tem as tabelas com dados.
    já existentes ganhem os 30 dias de trial, e não fiquem bloqueadas de recursos
    Pro por falta de registro em `plans`)
 4. Para a aba **Comunidade**: `migrations/0004_community.sql` → **Run**
-5. Notificações de status (realtime): `migrations/0006_community_realtime.sql` → **Run**
-6. Admin do roadmap (mover colunas): `scripts/comunidade-tornar-admin.sql` → **Run**
+5. Open Finance (se usar): `0005_open_finance_pluggy.sql` → **Run**
+6. Realtime Comunidade: `0006_community_realtime.sql` → **Run**
+7. Importação OFX (cartões): `0007_card_bills_external_id.sql` → **Run**
+8. Admin do roadmap (mover colunas): `scripts/comunidade-tornar-admin.sql` → **Run**
    (ou use só o `update` com join em `auth.users` — **não** use `select name from auth.users`, essa coluna não existe)
+
+Guia completo de deploy: [`docs/DEPLOY.md`](../docs/DEPLOY.md).
 
 ### Opção B — Supabase CLI
 

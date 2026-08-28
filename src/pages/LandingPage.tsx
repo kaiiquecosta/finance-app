@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import type { MouseEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { TESTIMONIALS, avatarTone, initials } from './testimonials.data'
+import { useLandingStory } from './landing/useLandingStory'
 import './LandingPage.legacy.css'
+import './landing/landing.story.css'
 
 /* ══════════════════════════════════════════════
    LANDING PAGE — porte fiel da landing legada
@@ -77,6 +79,7 @@ function ArrowRightIcon({ size = 15 }: { size?: number }) {
 export function LandingPage() {
   const navigate = useNavigate()
   const rootRef = useRef<HTMLDivElement>(null)
+  useLandingStory(rootRef)
 
   const [tab, setTab] = useState<TabId>('ov')
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -176,6 +179,14 @@ export function LandingPage() {
 
   return (
     <div className="landing-root" ref={rootRef}>
+      <div className="story-progress" aria-hidden="true">
+        <span className="story-progress-bar" />
+      </div>
+      <div className="story-chapter-label" aria-live="polite">
+        Capítulo
+        <span className="story-chapter-current">Introdução</span>
+      </div>
+
       {/* MOBILE MENU */}
       <div className={`mob${mobileOpen ? ' open' : ''}`}>
         <button className="mob-x" type="button" onClick={() => setMobileOpen(false)}>
@@ -248,7 +259,12 @@ export function LandingPage() {
       </nav>
 
       {/* ══════════ HERO (DARK) ══════════ */}
-      <section className="hero">
+      <section className="hero" data-story-chapter="Introdução">
+        <div className="hero-scene-stack" aria-hidden>
+          <div className="hero-orb-fallback" />
+          <div className="hero-scrim" />
+          <div className="hero-vignette" />
+        </div>
         <div className="hgrid"></div>
         <div className="hglow hg1"></div>
         <div className="hglow hg2"></div>
@@ -995,33 +1011,33 @@ export function LandingPage() {
       </div>
 
       {/* ══════════ STATS (LIGHT) ══════════ */}
-      <div className="stats-row">
-        <div className="st-cell">
+      <div className="stats-row" data-story-chapter="Visão geral" data-story-stagger>
+        <div className="st-cell" data-story-item>
           <div className="st-v">8</div>
           <div className="st-l">módulos completos</div>
         </div>
-        <div className="st-cell">
+        <div className="st-cell" data-story-item>
           <div className="st-v">30 dias</div>
           <div className="st-l">grátis, sem cartão</div>
         </div>
-        <div className="st-cell">
+        <div className="st-cell" data-story-item>
           <div className="st-v">100%</div>
           <div className="st-l">dos dados isolados por conta</div>
         </div>
-        <div className="st-cell">
+        <div className="st-cell" data-story-item>
           <div className="st-v">R$ 14</div>
           <div className="st-l">por mês no Pro</div>
         </div>
       </div>
 
       {/* ══════════ FEATURES (DARK ROUNDED) ══════════ */}
-      <div className="dsec-wrap" id="funcionalidades">
+      <div className="dsec-wrap" id="funcionalidades" data-story-chapter="Funcionalidades">
         <div className="dsec">
           <div className="dsec-glow dg1"></div>
           <div className="dsec-glow dg2"></div>
           <div className="dsec-grid"></div>
           <div className="dsec-body">
-            <div style={{ textAlign: 'center', marginBottom: 0 }}>
+            <div style={{ textAlign: 'center', marginBottom: 0 }} data-story-reveal>
               <div className="sec-pill dk">
                 <span></span>Funcionalidades
               </div>
@@ -1032,8 +1048,8 @@ export function LandingPage() {
               </h2>
               <p className="sub-dk sub-c">Sem planilhas. Sem complicação. Um app que realmente funciona no dia a dia.</p>
             </div>
-            <div className="feat-grid">
-              <div className="fc">
+            <div className="feat-grid" data-story-stagger>
+              <div className="fc" data-story-item>
                 <div className="fc-ico">💸</div>
                 <div className="fc-title">Controle de gastos</div>
                 <div className="fc-desc">Lance transações em segundos, categorize automaticamente e veja para onde seu dinheiro vai todo mês.</div>
@@ -1046,7 +1062,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc">
+              <div className="fc" data-story-item>
                 <div className="fc-ico">💳</div>
                 <div className="fc-title">Cartões e faturas</div>
                 <div className="fc-desc">Múltiplos cartões com controle de limite em tempo real e aviso antes do vencimento da fatura.</div>
@@ -1058,7 +1074,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc">
+              <div className="fc" data-story-item>
                 <div className="fc-ico">🔁</div>
                 <div className="fc-title">Assinaturas</div>
                 <div className="fc-desc">Netflix, Spotify, academia. Veja o total comprometido por mês e receba lembretes antes do vencimento.</div>
@@ -1070,7 +1086,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc">
+              <div className="fc" data-story-item>
                 <div className="fc-ico">🏦</div>
                 <div className="fc-title">Contas bancárias</div>
                 <div className="fc-desc">Múltiplas contas com saldo calculado em tempo real baseado nas suas transações reais. Sempre preciso.</div>
@@ -1082,7 +1098,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc">
+              <div className="fc" data-story-item>
                 <div className="fc-ico">📈</div>
                 <div className="fc-title">Investimentos</div>
                 <div className="fc-desc">CDB, LCI, LCA, Tesouro, ações B3, FIIs e cripto. CDI real via Banco Central. IR regressivo automático.</div>
@@ -1095,7 +1111,7 @@ export function LandingPage() {
                   Saiba mais <div className="learn-more-icon">→</div>
                 </a>
               </div>
-              <div className="fc">
+              <div className="fc" data-story-item>
                 <div className="fc-ico">🎯</div>
                 <div className="fc-title">Metas financeiras</div>
                 <div className="fc-desc">Viagem, emergência, carro. Crie metas com prazo e valor alvo. Acompanhe o progresso mês a mês.</div>
@@ -1112,46 +1128,56 @@ export function LandingPage() {
         </div>
       </div>
 
-      {/* ══════════ INVESTIMENTOS (LIGHT) ══════════ */}
-      <div className="lsec" id="investimentos">
+      {/* ══════════ INVESTIMENTOS (LIGHT) — scroll story ══════════ */}
+      <div className="lsec inv-story" id="investimentos" data-inv-story data-story-chapter="Investimentos">
         <div className="lsec-inner">
-          <div className="split">
-            <div>
-              <div className="sec-pill lt">
-                <span></span>Módulo Pro
-              </div>
-              <h2 className="h2-lt">
-                Rendimento bruto
-                <br />
-                <em>e líquido, separados</em>
-              </h2>
-              <p className="sub-lt">
-                CDI atualizado diariamente pela API do Banco Central. Você vê exatamente quanto vai receber após o
-                IR regressivo — de 22,5% a 15% conforme o prazo.
-              </p>
-              <ul className="cklist">
-                <li className="ck-row lt">
-                  <div className="ck-ico"></div>CDB, LCI/LCA — percentual do CDI configurável
-                </li>
-                <li className="ck-row lt">
-                  <div className="ck-ico"></div>Tesouro Direto: Selic e IPCA+ com spread
-                </li>
-                <li className="ck-row lt">
-                  <div className="ck-ico"></div>Ações brasileiras (B3) e FIIs com dividend yield
-                </li>
-                <li className="ck-row lt">
-                  <div className="ck-ico"></div>Criptomoedas e poupança (isenta de IR)
-                </li>
-                <li className="ck-row lt">
-                  <div className="ck-ico"></div>Cotações: Ibovespa, S&amp;P500, Dólar, Bitcoin, Euro
-                </li>
-                <li className="ck-row lt">
-                  <div className="ck-ico"></div>Resgate parcial ou total com registro automático
-                </li>
-              </ul>
+          <div className="inv-story-pin">
+            <div className="inv-story-progress" aria-hidden="true">
+              <span className="inv-dot active" data-inv-dot />
+              <span className="inv-dot" data-inv-dot />
+              <span className="inv-dot" data-inv-dot />
+              <span className="inv-dot" data-inv-dot />
             </div>
-            <div>
-              <div className="ui-card">
+            <div className="inv-story-grid">
+              <div className="inv-story-copy">
+                <p className="inv-beat" data-inv-beat>01 · O contexto</p>
+                <div className="sec-pill lt">
+                  <span></span>Módulo Pro
+                </div>
+                <h2 className="h2-lt" data-inv-headline>
+                  Rendimento bruto
+                  <br />
+                  <em>e líquido, separados</em>
+                </h2>
+                <p className="sub-lt" data-inv-sub>
+                  CDI atualizado diariamente pela API do Banco Central. Você vê exatamente quanto vai receber após o
+                  IR regressivo — de 22,5% a 15% conforme o prazo.
+                </p>
+                <p className="inv-beat" data-inv-beat>02 · Tipos de investimento</p>
+                <ul className="cklist">
+                  <li className="ck-row lt" data-inv-check>
+                    <div className="ck-ico"></div>CDB, LCI/LCA — percentual do CDI configurável
+                  </li>
+                  <li className="ck-row lt" data-inv-check>
+                    <div className="ck-ico"></div>Tesouro Direto: Selic e IPCA+ com spread
+                  </li>
+                  <li className="ck-row lt" data-inv-check>
+                    <div className="ck-ico"></div>Ações brasileiras (B3) e FIIs com dividend yield
+                  </li>
+                  <li className="ck-row lt" data-inv-check>
+                    <div className="ck-ico"></div>Criptomoedas e poupança (isenta de IR)
+                  </li>
+                  <li className="ck-row lt" data-inv-check>
+                    <div className="ck-ico"></div>Cotações: Ibovespa, S&amp;P500, Dólar, Bitcoin, Euro
+                  </li>
+                  <li className="ck-row lt" data-inv-check>
+                    <div className="ck-ico"></div>Resgate parcial ou total com registro automático
+                  </li>
+                </ul>
+              </div>
+              <div className="inv-story-visual">
+                <p className="inv-beat" data-inv-beat>03 · Sua carteira</p>
+                <div className="ui-card" data-inv-card>
                 <div className="ui-card-h">
                   <div className="ui-card-ht">📈 Carteira · R$ 29.930</div>
                   <div className="ui-badge-g">CDI: 10,65% a.a.</div>
@@ -1161,7 +1187,7 @@ export function LandingPage() {
                   <div style={{ fontSize: 9, color: 'rgba(0,0,0,.3)', textAlign: 'right', textTransform: 'uppercase', letterSpacing: 0.4, fontWeight: 600 }}>Bruto</div>
                   <div style={{ fontSize: 9, color: '#1a8847', textAlign: 'right', textTransform: 'uppercase', letterSpacing: 0.4, fontWeight: 600 }}>Líquido ✓</div>
                 </div>
-                <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--sep2)', display: 'grid', gridTemplateColumns: '1fr 82px 82px' }}>
+                <div className="inv-row" data-inv-row style={{ padding: '10px 16px', borderBottom: '1px solid var(--sep2)', display: 'grid', gridTemplateColumns: '1fr 82px 82px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                     <span style={{ fontSize: 16 }}>🏦</span>
                     <div>
@@ -1178,7 +1204,7 @@ export function LandingPage() {
                     <div style={{ fontSize: 10, color: 'rgba(61,220,132,.6)' }}>IR 22,5%</div>
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 82px 82px', padding: '10px 16px', borderBottom: '1px solid var(--sep2)' }}>
+                <div className="inv-row" data-inv-row style={{ display: 'grid', gridTemplateColumns: '1fr 82px 82px', padding: '10px 16px', borderBottom: '1px solid var(--sep2)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                     <span style={{ fontSize: 16 }}>🌿</span>
                     <div>
@@ -1195,7 +1221,7 @@ export function LandingPage() {
                     <div style={{ fontSize: 10, color: 'rgba(61,220,132,.6)' }}>isento ✓</div>
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 82px 82px', padding: '10px 16px', borderBottom: '1px solid var(--sep2)' }}>
+                <div className="inv-row" data-inv-row style={{ display: 'grid', gridTemplateColumns: '1fr 82px 82px', padding: '10px 16px', borderBottom: '1px solid var(--sep2)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                     <span style={{ fontSize: 16 }}>🏛️</span>
                     <div>
@@ -1212,7 +1238,7 @@ export function LandingPage() {
                     <div style={{ fontSize: 10, color: 'rgba(61,220,132,.6)' }}>IR R$ 276</div>
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 82px 82px', padding: '10px 16px' }}>
+                <div className="inv-row" data-inv-row style={{ display: 'grid', gridTemplateColumns: '1fr 82px 82px', padding: '10px 16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                     <span style={{ fontSize: 16 }}>₿</span>
                     <div>
@@ -1228,6 +1254,8 @@ export function LandingPage() {
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#b45309' }}>R$ 5.527</div>
                     <div style={{ fontSize: 10, color: 'rgba(180,83,9,.5)' }}>IR R$ 93</div>
                   </div>
+                </div>
+                <p className="inv-beat" data-inv-beat style={{ marginTop: 16 }}>04 · Bruto vs líquido, linha a linha</p>
                 </div>
               </div>
             </div>
@@ -1335,9 +1363,9 @@ export function LandingPage() {
       </div>
 
       {/* ══════════ PRICING (LIGHT) ══════════ */}
-      <div className="lsec alt" id="precos">
+      <div className="lsec alt" id="precos" data-story-chapter="Preços">
         <div className="lsec-inner">
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+          <div style={{ textAlign: 'center', marginBottom: 48 }} data-story-reveal>
             <div className="sec-pill lt">
               <span></span>Preços
             </div>
@@ -1346,8 +1374,8 @@ export function LandingPage() {
             </h2>
             <p className="sub-lt sub-c">Comece grátis. Upgrade quando fizer sentido para você.</p>
           </div>
-          <div className="pgrid">
-            <div className="pcard">
+          <div className="pgrid" data-story-stagger>
+            <div className="pcard" data-story-item>
               <div className="pplan">Free</div>
               <div className="pprice">
                 R$<sub>/mês</sub>0
@@ -1380,7 +1408,7 @@ export function LandingPage() {
                 Criar conta grátis
               </a>
             </div>
-            <div className="pcard pro">
+            <div className="pcard pro" data-story-item>
               <div className="pbadge">✦ POPULAR</div>
               <div className="pplan g">Pro</div>
               <div className="pprice">
@@ -1440,9 +1468,9 @@ export function LandingPage() {
                 Relatos de pessoas que organizaram as próprias finanças com o app.
               </p>
             </div>
-            <div className="tgrid">
+            <div className="tgrid" data-story-stagger>
               {TESTIMONIALS.map((t) => (
-                <figure className="tcard" key={t.source}>
+                <figure className="tcard" data-story-item key={t.source}>
                   <div className="thead">
                     <div className={`tav tone${avatarTone(t.name)}`} aria-hidden="true">
                       {initials(t.name)}
@@ -1461,7 +1489,7 @@ export function LandingPage() {
       )}
 
       {/* ══════════ FAQ (DARK ROUNDED) ══════════ */}
-      <div className="dsec-wrap" id="faq">
+      <div className="dsec-wrap" id="faq" data-story-chapter="Dúvidas">
         <div className="dsec">
           <div className="dsec-glow dg1"></div>
           <div className="dsec-grid"></div>
@@ -1494,7 +1522,7 @@ export function LandingPage() {
       </div>
 
       {/* ══════════ FINAL CTA ══════════ */}
-      <div className="fcta-wrap">
+      <div className="fcta-wrap" data-story-chapter="Comece">
         <div className="fcta-box">
           <div className="fcta-g1"></div>
           <div className="fcta-grid"></div>
