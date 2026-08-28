@@ -22,8 +22,10 @@ import {
 } from '@/data/stocksCatalog'
 import { loadFavorites, saveFavorites } from '@/lib/favorites'
 import { marketSessionLabel } from '@/lib/marketSession'
+import { AssetMark } from '@/components/assets/AssetMark'
 import { AssetDetail } from './AssetDetail'
 import { InvestorFixedIncomePanel } from './InvestorFixedIncomePanel'
+import { MarketMovers } from './MarketMovers'
 import styles from './InvestorHub.module.css'
 
 const KIND_LABEL: Record<AssetKind, string> = {
@@ -76,7 +78,8 @@ function PopularRow({ row, onOpen }: { row: CatalogRow; onOpen: (s: string) => v
   return (
     <button type="button" className={styles.popRow} onClick={() => onOpen(row.def.yahoo)}>
       <span className={styles.popSym}>
-        {row.def.icon} {row.def.symbol}
+        <AssetMark def={row.def} size="sm" />
+        {row.def.symbol}
       </span>
       <span className={styles.popPx}>{q ? formatPriceQuote(q) : '—'}</span>
       {q ? (
@@ -112,7 +115,7 @@ function AssetTableRow({ row, favorites, onOpen, onToggleFavorite }: AssetRowPro
         {fav ? '★' : '☆'}
       </button>
       <button type="button" className={styles.assetCell} onClick={() => onOpen(def.yahoo)}>
-        <span className={styles.assetIcon}>{def.icon}</span>
+        <AssetMark def={def} size="md" className={styles.assetIcon} />
         <span className={styles.assetText}>
           <span className={styles.assetName}>{def.name}</span>
           <span className={styles.assetSub}>
@@ -497,6 +500,13 @@ export function InvestorHub({ onOpenMarket }: Props) {
 
               <div ref={listAnchorRef} className={styles.listAnchor} aria-hidden />
 
+              {category.hasQuotes && filtered.some((r) => r.quote) && (
+                <MarketMovers
+                  quotes={filtered.filter((r): r is CatalogRow & { quote: StockQuote } => !!r.quote).map((r) => r.quote)}
+                  onOpen={setDetail}
+                />
+              )}
+
               <div className={[styles.tableCard, styles.blockTable].join(' ')}>
                 {stocks.isLoading && showGroupedIdeas && <p className={styles.muted}>Carregando cotações…</p>}
                 {stocks.isError && showGroupedIdeas && (
@@ -684,7 +694,8 @@ export function InvestorHub({ onOpenMarket }: Props) {
                           onClick={() => setDetail(row.def.yahoo)}
                         >
                           <span className={styles.tickerSym}>
-                            {row.def.icon} {row.def.symbol}
+                            <AssetMark def={row.def} size="sm" />
+                            {row.def.symbol}
                           </span>
                           <span className={styles.tickerPx}>{formatPriceQuote(q)}</span>
                           <span className={q.pctChange >= 0 ? styles.up : styles.down}>

@@ -97,6 +97,12 @@
 .rowInfo {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+}
+.rowLead {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 .code {
   font-size: 13px;

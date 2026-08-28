@@ -5,6 +5,7 @@ import { useLiveStockQuote } from '@/data/useLiveStockQuote'
 import { RANGE_OPTIONS, assetStats, periodReturns, type ChartRange } from '@/data/marketChart'
 import { useAssetFundamentals } from '@/data/useMarketFundamentals'
 import { stockByYahoo } from '@/data/stocksCatalog'
+import { AssetMark } from '@/components/assets/AssetMark'
 import { brMarketOpen } from '@/lib/marketSession'
 import styles from './AssetDetail.module.css'
 
@@ -269,7 +270,7 @@ export function AssetDetail({ symbol, onClose, isFavorite, onToggleFavorite }: P
         </button>
 
         <div className={styles.head}>
-          <span className={styles.icon}>{def?.icon ?? '📈'}</span>
+          <AssetMark def={def} yahoo={symbol} size="lg" className={styles.icon} />
           <div className={styles.headInfo}>
             <div className={styles.name}>{displayName}</div>
             <div className={styles.meta}>

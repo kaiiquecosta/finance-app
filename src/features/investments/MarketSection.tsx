@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Card } from '@/components/ui/Card'
+import { AssetMark } from '@/components/assets/AssetMark'
 import { useRates } from '@/data/useMarket'
 import { useCryptoUsd, useExtendedQuotes, useMarketIndices } from '@/data/useMarketExtended'
 import { useStockQuotes } from '@/data/useStockQuotes'
@@ -7,6 +8,8 @@ import { buildMarketCryptoGroups, buildMarketStockGroups } from '@/data/marketSt
 import type { Quote } from '@/data/market'
 import type { IndexQuote } from '@/data/marketExtended'
 import type { StockQuote } from '@/data/marketSpark'
+import { stockByYahoo } from '@/data/stocksCatalog'
+import { MarketMovers } from './MarketMovers'
 import styles from './MarketSection.module.css'
 
 type MktTab = 'indices' | 'crypto' | 'stocks'
@@ -74,6 +77,7 @@ function IndexRow({ q }: { q: IndexQuote }) {
 
 function StockRow({ q }: { q: StockQuote }) {
   const up = q.pctChange >= 0
+  const def = stockByYahoo(q.yahoo)
   const price =
     q.currency === 'BRL'
       ? q.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -81,8 +85,9 @@ function StockRow({ q }: { q: StockQuote }) {
   return (
     <div className={styles.row}>
       <div className={styles.rowInfo}>
-        <span className={styles.code}>
-          {q.icon} {q.symbol}
+        <span className={styles.rowLead}>
+          <AssetMark def={def ?? { symbol: q.symbol, kind: 'stock', region: q.region, icon: q.icon, yahoo: q.yahoo }} size="sm" />
+          <span className={styles.code}>{q.symbol}</span>
         </span>
         <span className={styles.label}>
           {q.name} · {q.exchange}
@@ -126,6 +131,13 @@ export function MarketSection() {
 
   const stockGroups = useMemo(() => buildMarketStockGroups(stocks.data ?? []), [stocks.data])
   const cryptoGroups = useMemo(() => buildMarketCryptoGroups(stocks.data ?? []), [stocks.data])
+  const stockQuotesFlat = useMemo(() => {
+    const quotes = stocks.data ?? []
+    return quotes.filter((q) => {
+      const def = stockByYahoo(q.yahoo)
+      return def && def.kind !== 'crypto' && def.kind !== 'index' && def.kind !== 'commodity'
+    })
+  }, [stocks.data])
 
   const list = quotes.data ?? []
   const currencies = list.filter((q) => q.kind === 'currency')
@@ -264,6 +276,7 @@ export function MarketSection() {
             {!stocks.isLoading && !stocks.isError && stockGroups.length === 0 && (
               <p className={styles.muted}>Nenhuma cotação disponível no momento.</p>
             )}
+            {stockQuotesFlat.length > 0 && <MarketMovers quotes={stockQuotesFlat} />}
             {stockGroups.map((group) => (
               <section key={group.id} className={styles.marketGroup}>
                 <h3 className={styles.marketGroupTitle}>{group.label}</h3>

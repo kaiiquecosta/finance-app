@@ -1,0 +1,39 @@
+.mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--blue) 6%, var(--card2));
+  border: 1px solid color-mix(in srgb, var(--border2) 80%, transparent);
+  overflow: hidden;
+}
+.sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+}
+.md {
+  width: 36px;
+  height: 36px;
+}
+.lg {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+}
+.img {
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
+}
+.emoji {
+  font-size: 16px;
+  line-height: 1;
+}
+.sm .emoji {
+  font-size: 14px;
+}
+.lg .emoji {
+  font-size: 20px;
+}

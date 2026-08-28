@@ -55,7 +55,7 @@
   padding-right: 40px;
 }
 .icon {
-  font-size: 30px;
+  flex-shrink: 0;
 }
 .headInfo {
   flex: 1;

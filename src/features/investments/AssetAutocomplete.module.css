@@ -31,7 +31,7 @@
   background: color-mix(in srgb, var(--primary) 10%, transparent);
 }
 .selectedIcon {
-  font-size: 20px;
+  flex-shrink: 0;
 }
 .selectedText {
   flex: 1;
@@ -96,7 +96,7 @@
   background: var(--card2);
 }
 .itemIcon {
-  font-size: 18px;
+  flex-shrink: 0;
 }
 .itemBody {
   min-width: 0;

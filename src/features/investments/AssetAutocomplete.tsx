@@ -2,6 +2,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { searchInvestmentCatalog } from '@/data/investmentCatalog'
 import type { StockDef } from '@/data/stocksCatalog'
 import type { InvestmentType } from '@/domain/entities'
+import { AssetMark } from '@/components/assets/AssetMark'
 import styles from './AssetAutocomplete.module.css'
 
 interface Props {
@@ -63,9 +64,7 @@ export function AssetAutocomplete({
       </label>
       {value ? (
         <div className={styles.selected}>
-          <span className={styles.selectedIcon} aria-hidden>
-            {value.icon}
-          </span>
+          <AssetMark def={value} size="sm" className={styles.selectedIcon} />
           <span className={styles.selectedText}>
             <strong>{value.symbol}</strong>
             <span className={styles.selectedName}>{value.name}</span>
@@ -120,9 +119,7 @@ export function AssetAutocomplete({
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => pick(def)}
                   >
-                    <span className={styles.itemIcon} aria-hidden>
-                      {def.icon}
-                    </span>
+                    <AssetMark def={def} size="sm" className={styles.itemIcon} />
                     <span className={styles.itemBody}>
                       <span className={styles.itemSymbol}>{def.symbol}</span>
                       <span className={styles.itemName}>{def.name}</span>

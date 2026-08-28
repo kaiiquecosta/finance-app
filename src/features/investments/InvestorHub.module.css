@@ -120,6 +120,9 @@
   padding: 0;
 }
 .tickerSym {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-weight: 700;
   color: var(--text);
 }
@@ -334,7 +337,6 @@
   color: var(--primary);
 }
 .assetIcon {
-  font-size: 18px;
   flex-shrink: 0;
 }
 .assetText {
@@ -577,6 +579,9 @@
   background: color-mix(in srgb, var(--text) 5%, transparent);
 }
 .popSym {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 700;
   color: var(--text);
   overflow: hidden;
