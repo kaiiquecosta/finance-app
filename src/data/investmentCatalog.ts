@@ -13,11 +13,15 @@ import type { InvestmentType } from '@/domain/entities'
 export function catalogForInvestmentType(type: InvestmentType): StockDef[] {
   switch (type) {
     case 'acoes':
-      return ALL_STOCKS.filter((d) => d.kind === 'stock' && d.region === 'br')
+      return ALL_STOCKS.filter(
+        (d) => d.region === 'br' && (d.kind === 'stock' || d.kind === 'bdr' || d.kind === 'etf'),
+      )
     case 'fii':
       return BR_FIIS
     case 'acoeseua':
-      return ALL_STOCKS.filter((d) => d.kind === 'stock' && d.region === 'us')
+      return ALL_STOCKS.filter(
+        (d) => d.region === 'us' && (d.kind === 'stock' || d.kind === 'etf'),
+      )
     case 'cripto':
       return CRYPTO_ASSETS
     default:

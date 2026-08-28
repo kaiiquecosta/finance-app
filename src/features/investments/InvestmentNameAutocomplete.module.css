@@ -29,28 +29,13 @@
   border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
   background: color-mix(in srgb, var(--primary) 10%, transparent);
-  flex-wrap: wrap;
-}
-.selectedIcon {
-  flex-shrink: 0;
 }
 .selectedText {
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
 }
 .selectedText strong {
-  font-family: var(--num);
   font-size: 14px;
-}
-.selectedName {
-  font-size: 12px;
-  color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .clearBtn {
   border: none;
@@ -96,24 +81,17 @@
 .itemActive {
   background: var(--card2);
 }
-.itemIcon {
-  flex-shrink: 0;
-}
 .itemBody {
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
-.itemSymbol {
-  font-family: var(--num);
-  font-size: 13px;
-  font-weight: 700;
-}
 .itemName {
+  font-size: 13px;
+  font-weight: 600;
+}
+.itemMeta {
   font-size: 11px;
   color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }

@@ -1,0 +1,44 @@
+.wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  border: 1px solid var(--border2);
+  background: var(--card);
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.btn:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+  color: var(--primary);
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.input {
+  width: 72px;
+  height: 32px;
+  border-radius: 9px;
+  border: 1px solid var(--border2);
+  background: var(--card);
+  color: var(--text);
+  font-family: var(--num);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  padding: 0 4px;
+}
+.input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+}
