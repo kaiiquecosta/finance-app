@@ -45,7 +45,7 @@ export function InvestmentsPage() {
   const [confirmDelete, setConfirmDelete] = useState<Investment | null>(null)
   const [rescuing, setRescuing] = useState<Investment | null>(null)
   const [view, setView] = useState<InvView>('favorites')
-  const { favorites, toggleFavorite } = useFavorites()
+  const { favorites, toggleFavorite } = useFavorites(user?.id)
 
   const now = useMemo(() => new Date(), [])
   const marketRates = rates.data ? { cdi: rates.data.cdi, ipca: rates.data.ipca } : DEFAULT_RATES

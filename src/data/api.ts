@@ -117,6 +117,30 @@ export async function fetchPlan(userId: string): Promise<Plan | null> {
   return data ? map.rowToPlan(data as PlanRow) : null
 }
 
+function parseTickerList(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return []
+  return raw.filter((s): s is string => typeof s === 'string' && s.length > 0 && s.length <= 32)
+}
+
+/** Favoritos do Investidor (símbolos Yahoo) salvos na conta. */
+export async function fetchInvestorFavorites(userId: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('investor_favorites')
+    .select('tickers')
+    .eq('user_id', userId)
+    .maybeSingle()
+  if (error) throw error
+  return parseTickerList(data?.tickers)
+}
+
+export async function saveInvestorFavorites(userId: string, tickers: string[]): Promise<void> {
+  const { error } = await supabase.from('investor_favorites').upsert(
+    { user_id: userId, tickers, updated_at: new Date().toISOString() },
+    { onConflict: 'user_id' },
+  )
+  if (error) throw error
+}
+
 // ── Escrita (upsert idempotente / delete) ────────────────────────────────────
 export async function upsertRows(table: string, rows: object[]): Promise<void> {
   if (!rows.length) return

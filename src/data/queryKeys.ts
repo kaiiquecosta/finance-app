@@ -5,4 +5,5 @@ export const queryKeys = {
   profile: (userId: string) => ['profile', userId] as const,
   community: () => ['community', 'board'] as const,
   communityComments: (itemId: number) => ['community', 'comments', itemId] as const,
+  investorFavorites: (userId: string) => ['investor', 'favorites', userId] as const,
 }

@@ -159,3 +159,9 @@ export interface PlanRow {
   stripe_sub_id: string | null
   updated_at?: string
 }
+
+export interface InvestorFavoritesRow {
+  user_id: string
+  tickers: unknown
+  updated_at?: string
+}
