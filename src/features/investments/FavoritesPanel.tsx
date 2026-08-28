@@ -1,7 +1,19 @@
 import { useMemo, useState } from 'react'
 import { useStockQuotes } from '@/data/useStockQuotes'
 import type { StockQuote } from '@/data/marketSpark'
-import { stockByYahoo, type AssetKind, type StockDef } from '@/data/stocksCatalog'
+import {
+  ALL_STOCKS,
+  stockByYahoo,
+  type AssetKind,
+  type StockDef,
+} from '@/data/stocksCatalog'
+import {
+  defMatchesCategory,
+  sortCatalogRows,
+  type InvestorCategoryId,
+  type QuoteSortMode,
+} from '@/data/investorCategories'
+import { marketSessionLabel } from '@/lib/marketSession'
 import { AssetMark } from '@/components/assets/AssetMark'
 import { AssetDetail } from './AssetDetail'
 import styles from './InvestorHub.module.css'
@@ -14,6 +26,35 @@ const KIND_LABEL: Record<AssetKind, string> = {
   bdr: 'BDR',
   index: 'Índice',
   commodity: 'Commodity',
+}
+
+type DiscoverFilter =
+  | 'br_up'
+  | 'br_down'
+  | 'fii_up'
+  | 'us_up'
+  | 'bdr_up'
+  | 'mine'
+
+const FILTERS: { id: DiscoverFilter; label: string; icon: string }[] = [
+  { id: 'br_up', label: 'Ações BR em alta', icon: '🇧🇷' },
+  { id: 'br_down', label: 'Ações BR em baixa', icon: '🇧🇷' },
+  { id: 'fii_up', label: 'FIIs em alta', icon: '🏢' },
+  { id: 'us_up', label: 'Ações EUA em alta', icon: '🇺🇸' },
+  { id: 'bdr_up', label: 'BDRs em alta', icon: '🌎' },
+  { id: 'mine', label: 'Meus favoritos', icon: '★' },
+]
+
+const FILTER_META: Record<
+  DiscoverFilter,
+  { category: InvestorCategoryId | 'mine'; sort: QuoteSortMode; gainOnly?: boolean; lossOnly?: boolean }
+> = {
+  br_up: { category: 'acoes_br', sort: 'change_desc', gainOnly: true },
+  br_down: { category: 'acoes_br', sort: 'change_asc', lossOnly: true },
+  fii_up: { category: 'fiis', sort: 'change_desc', gainOnly: true },
+  us_up: { category: 'stocks_us', sort: 'change_desc', gainOnly: true },
+  bdr_up: { category: 'bdrs', sort: 'change_desc', gainOnly: true },
+  mine: { category: 'mine', sort: 'change_desc' },
 }
 
 type Props = {
@@ -51,7 +92,7 @@ function MiniSpark({ values }: { values: number[] }) {
   )
 }
 
-function FavoriteRow({
+function AssetRow({
   row,
   isFavorite,
   onOpen,
@@ -97,19 +138,23 @@ function FavoriteRow({
 }
 
 export function FavoritesPanel({ favorites, onToggleFavorite }: Props) {
+  const [filter, setFilter] = useState<DiscoverFilter>('br_up')
   const [detail, setDetail] = useState<string | null>(null)
+  const session = marketSessionLabel()
 
-  const rows = useMemo((): Row[] => {
-    return favorites
-      .map((y) => {
-        const def = stockByYahoo(y)
-        return def ? { def, yahoo: y } : null
-      })
-      .filter((r): r is { def: StockDef; yahoo: string } => r != null)
-      .map(({ def }) => ({ def }))
-  }, [favorites])
+  const meta = FILTER_META[filter]
+  const activeFilter = FILTERS.find((f) => f.id === filter) ?? FILTERS[0]
 
-  const symbols = useMemo(() => rows.map((r) => r.def.yahoo), [rows])
+  const catalogDefs = useMemo((): StockDef[] => {
+    if (filter === 'mine') {
+      return favorites
+        .map((y) => stockByYahoo(y))
+        .filter((d): d is StockDef => !!d)
+    }
+    return ALL_STOCKS.filter((d) => defMatchesCategory(d, meta.category as InvestorCategoryId))
+  }, [filter, favorites, meta.category])
+
+  const symbols = useMemo(() => catalogDefs.map((d) => d.yahoo), [catalogDefs])
   const stocks = useStockQuotes(symbols.length ? symbols : undefined, symbols.length > 0)
 
   const quoteByYahoo = useMemo(() => {
@@ -118,9 +163,29 @@ export function FavoritesPanel({ favorites, onToggleFavorite }: Props) {
     return map
   }, [stocks.data])
 
-  const list = useMemo(
-    (): Row[] => rows.map((row) => ({ ...row, quote: quoteByYahoo.get(row.def.yahoo) })),
-    [rows, quoteByYahoo],
+  const list = useMemo((): Row[] => {
+    let rows: Row[] = catalogDefs.map((def) => ({ def, quote: quoteByYahoo.get(def.yahoo) }))
+    rows = sortCatalogRows(rows, meta.sort)
+    if (meta.gainOnly) rows = rows.filter((r) => (r.quote?.pctChange ?? 0) > 0)
+    if (meta.lossOnly) rows = rows.filter((r) => (r.quote?.pctChange ?? 0) < 0)
+    return rows
+  }, [catalogDefs, quoteByYahoo, meta.sort, meta.gainOnly, meta.lossOnly])
+
+  const favoriteRows = useMemo((): Row[] => {
+    if (filter === 'mine' || favorites.length === 0) return []
+    const out: Row[] = []
+    for (const y of favorites) {
+      const def = stockByYahoo(y)
+      if (def) out.push({ def, quote: quoteByYahoo.get(y) })
+    }
+    return out
+  }, [filter, favorites, quoteByYahoo])
+
+  const pinned = filter !== 'mine' ? favoriteRows : []
+  const pinnedSet = useMemo(() => new Set(pinned.map((r) => r.def.yahoo)), [pinned])
+  const mainList = useMemo(
+    () => (pinned.length > 0 ? list.filter((r) => !pinnedSet.has(r.def.yahoo)) : list),
+    [list, pinned.length, pinnedSet],
   )
 
   return (
@@ -132,43 +197,84 @@ export function FavoritesPanel({ favorites, onToggleFavorite }: Props) {
             <div>
               <div className={styles.brandTitle}>Favoritos</div>
               <div className={styles.brandSub}>
-                {list.length === 0
-                  ? 'Marque estrelas no Investidor para acompanhar aqui'
-                  : `${list.length} ativo${list.length === 1 ? '' : 's'} · cotações ao vivo`}
+                {filter === 'mine'
+                  ? favorites.length === 0
+                    ? 'Toque ☆ em qualquer ativo abaixo para começar'
+                    : `${favorites.length} ativo${favorites.length === 1 ? '' : 's'} salvos`
+                  : `${activeFilter.icon} ${activeFilter.label} · toque ☆ para salvar`}
               </div>
             </div>
           </div>
           <div className={styles.heroRight}>
+            <span className={[styles.session, session.open ? styles.sessionOpen : ''].filter(Boolean).join(' ')}>
+              {session.label}
+            </span>
             <span className={styles.live}>
               <span className={stocks.isFetching ? styles.dotPulse : styles.dot} />
-              {stocks.isFetching ? 'atualizando…' : 'tempo real · ~10s'}
+              {stocks.isFetching ? 'atualizando…' : session.open ? 'tempo real · ~10s' : 'atualização · ~1 min'}
             </span>
           </div>
         </div>
 
         <div className={styles.main}>
-          <div className={styles.listAnchor} aria-hidden />
+          <div className={styles.sectorChips} role="tablist" aria-label="Filtrar lista">
+            {FILTERS.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                role="tab"
+                aria-selected={filter === f.id}
+                className={[styles.sectorChip, filter === f.id ? styles.sectorChipActive : ''].filter(Boolean).join(' ')}
+                onClick={() => setFilter(f.id)}
+              >
+                {f.icon} {f.label}
+                {f.id === 'mine' && favorites.length > 0 ? ` (${favorites.length})` : ''}
+              </button>
+            ))}
+          </div>
+
+          {pinned.length > 0 && (
+            <div className={[styles.tableCard, styles.blockTable].join(' ')} style={{ marginBottom: 12 }}>
+              <div className={styles.subPanelTitle} style={{ padding: '12px 14px 0' }}>
+                Seus favoritos
+              </div>
+              {pinned.map((row) => (
+                <AssetRow
+                  key={row.def.yahoo}
+                  row={row}
+                  isFavorite
+                  onOpen={setDetail}
+                  onToggleFavorite={onToggleFavorite}
+                />
+              ))}
+            </div>
+          )}
+
           <div className={[styles.tableCard, styles.blockTable].join(' ')}>
             <div className={styles.tableHead}>
               <span />
-              <span>Ativo {list.length > 0 ? `(${list.length})` : ''}</span>
+              <span>
+                {filter === 'mine' ? 'Meus favoritos' : activeFilter.label}
+                {mainList.length > 0 ? ` (${mainList.length})` : ''}
+              </span>
               <span>Preço</span>
               <span>Var. dia</span>
               <span className={styles.colSpark}>Intraday</span>
             </div>
 
-            {stocks.isLoading && list.length > 0 && <p className={styles.muted}>Carregando cotações…</p>}
+            {stocks.isLoading && symbols.length > 0 && <p className={styles.muted}>Carregando cotações…</p>}
             {stocks.isError && <p className={styles.muted}>Não foi possível carregar as cotações.</p>}
 
-            {list.length === 0 && (
+            {!stocks.isLoading && !stocks.isError && mainList.length === 0 && pinned.length === 0 && (
               <p className={styles.muted}>
-                Nenhum favorito ainda. Abra o <b>Investidor</b> e toque na estrela ☆ de um ativo — ele aparece aqui na
-                hora.
+                {filter === 'mine'
+                  ? 'Nenhum favorito ainda — explore as listas acima e toque na estrela ☆.'
+                  : 'Nenhum movimento neste filtro hoje. Tente outra categoria.'}
               </p>
             )}
 
-            {list.map((row) => (
-              <FavoriteRow
+            {mainList.map((row) => (
+              <AssetRow
                 key={row.def.yahoo}
                 row={row}
                 isFavorite={favorites.includes(row.def.yahoo)}
@@ -179,7 +285,7 @@ export function FavoritesPanel({ favorites, onToggleFavorite }: Props) {
           </div>
 
           <p className={styles.disclaimer}>
-            Cotações atualizadas a cada ~10s com mercado aberto. Toque em um ativo para gráfico e indicadores.
+            Toque ☆ para favoritar na hora. Cotações via Yahoo Finance — conteúdo informativo.
           </p>
         </div>
       </div>

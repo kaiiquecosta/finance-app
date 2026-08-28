@@ -44,7 +44,7 @@ export function InvestmentsPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<Investment | null>(null)
   const [rescuing, setRescuing] = useState<Investment | null>(null)
-  const [view, setView] = useState<InvView>('investor')
+  const [view, setView] = useState<InvView>('favorites')
   const { favorites, toggleFavorite } = useFavorites()
 
   const now = useMemo(() => new Date(), [])
@@ -107,8 +107,8 @@ export function InvestmentsPage() {
         {(
           [
             ['wallet', '💼 Minha carteira'],
-            ['investor', '📈 Investidor'],
             ['favorites', '★ Favoritos'],
+            ['investor', '📈 Investidor'],
             ['market', '🌐 Mercado ao vivo'],
           ] as const
         ).map(([id, label]) => (
