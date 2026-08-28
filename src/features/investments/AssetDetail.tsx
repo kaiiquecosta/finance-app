@@ -3,6 +3,7 @@ import { applyLiveQuoteToStats, mergeLiveQuoteIntoChart } from '@/data/liveQuote
 import { useChartSeries, useYearSeries } from '@/data/useMarketChart'
 import { useLiveStockQuote } from '@/data/useLiveStockQuote'
 import { RANGE_OPTIONS, assetStats, periodReturns, type ChartRange } from '@/data/marketChart'
+import { useAssetFundamentals } from '@/data/useMarketFundamentals'
 import { stockByYahoo } from '@/data/stocksCatalog'
 import { brMarketOpen } from '@/lib/marketSession'
 import styles from './AssetDetail.module.css'
@@ -217,8 +218,10 @@ export function AssetDetail({ symbol, onClose, isFavorite, onToggleFavorite }: P
   }, [symbol])
 
   const def = stockByYahoo(symbol)
+  const assetKind = def?.kind ?? 'stock'
   const meta = chart.data?.meta ?? year.data?.meta
-  const currency = live.data?.currency ?? meta?.currency ?? def?.currency ?? 'BRL'
+  const currency: 'BRL' | 'USD' = live.data?.currency ?? def?.currency ?? (meta?.currency === 'USD' ? 'USD' : 'BRL')
+  const fundamentals = useAssetFundamentals(symbol, assetKind, currency)
   const displayName = def?.name ?? meta?.longName ?? meta?.shortName ?? symbol
   const exchange = def?.exchange ?? meta?.fullExchangeName ?? meta?.exchangeName ?? ''
 
@@ -362,7 +365,7 @@ export function AssetDetail({ symbol, onClose, isFavorite, onToggleFavorite }: P
           )}
         </div>
 
-        <div className={styles.section}>Indicadores</div>
+        <div className={styles.section}>Mercado do dia</div>
         <div className={styles.statsGrid}>
           <div className={styles.stat}>
             <span className={styles.statLabel}>Fech. anterior</span>
@@ -400,9 +403,28 @@ export function AssetDetail({ symbol, onClose, isFavorite, onToggleFavorite }: P
           </div>
         </div>
 
+        {(fundamentals.isLoading || (fundamentals.data && fundamentals.data.length > 0)) && (
+          <>
+            <div className={styles.section}>Fundamentos</div>
+            {fundamentals.isLoading && (
+              <p className={styles.fundamentalsHint}>Carregando dividend yield, P/VP, P/L…</p>
+            )}
+            {fundamentals.data && fundamentals.data.length > 0 && (
+              <div className={styles.statsGrid}>
+                {fundamentals.data.map((m) => (
+                  <div key={m.id} className={styles.stat} title={m.hint}>
+                    <span className={styles.statLabel}>{m.label}</span>
+                    <span className={styles.statVal}>{m.value}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
         <p className={styles.disclaimer}>
-          Cotações via Yahoo Finance (delay intraday). Atualização automática a cada ~10s com mercado aberto.
-          Indicadores calculados sobre o histórico de 12 meses. Conteúdo informativo — não é recomendação de investimento.
+          Cotações e fundamentos via Yahoo Finance (podem ter atraso ou lacunas, sobretudo em FIIs).
+          Atualização de preço a cada ~10s com mercado aberto. Conteúdo informativo — não é recomendação de investimento.
         </p>
       </div>
     </div>

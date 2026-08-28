@@ -1,6 +1,7 @@
 import type { Plugin } from 'vite'
 import { fetchYahooSparkRaw } from './src/data/marketSpark'
 import { fetchYahooChartRaw } from './src/data/marketChart'
+import { fetchYahooFundamentalsRaw } from './src/data/marketFundamentals'
 
 /** Proxies locais `/api/market/*` → Yahoo (dev); produção usa as functions em `api/` na Vercel. */
 export function marketSparkDevPlugin(): Plugin {
@@ -52,6 +53,30 @@ export function marketSparkDevPlugin(): Plugin {
             return
           }
           const data = await fetchYahooChartRaw(symbol, range, interval)
+          res.setHeader('Content-Type', 'application/json')
+          res.setHeader('Cache-Control', 'no-store')
+          res.end(JSON.stringify(data))
+        } catch {
+          res.statusCode = 502
+          res.end(JSON.stringify({ error: 'fetch_failed' }))
+        }
+      })
+
+      server.middlewares.use('/api/market/fundamentals', async (req, res) => {
+        if (req.method !== 'GET') {
+          res.statusCode = 405
+          res.end('Method not allowed')
+          return
+        }
+        try {
+          const url = new URL(req.url ?? '', 'http://localhost')
+          const symbol = (url.searchParams.get('symbol') ?? '').trim().toUpperCase()
+          if (!symbol) {
+            res.statusCode = 400
+            res.end(JSON.stringify({ error: 'symbol required' }))
+            return
+          }
+          const data = await fetchYahooFundamentalsRaw(symbol)
           res.setHeader('Content-Type', 'application/json')
           res.setHeader('Cache-Control', 'no-store')
           res.end(JSON.stringify(data))
