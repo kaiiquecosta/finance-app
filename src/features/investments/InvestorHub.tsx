@@ -192,7 +192,7 @@ export function InvestorHub({ onOpenMarket }: Props) {
   const listAnchorRef = useRef<HTMLDivElement>(null)
   const isMobileLayout = useMatchMedia('(max-width: 768px)')
 
-  const [categoryId, setCategoryId] = useState<InvestorCategoryId>('ideas')
+  const [categoryId, setCategoryId] = useState<InvestorCategoryId>('acoes_br')
   const [sectorTag, setSectorTag] = useState<string | null>(null)
   const [listSort, setListSort] = useState<QuoteSortMode>('change_desc')
   const [search, setSearch] = useState('')

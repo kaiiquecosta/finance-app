@@ -42,7 +42,7 @@ export function InvestmentsPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<Investment | null>(null)
   const [rescuing, setRescuing] = useState<Investment | null>(null)
-  const [view, setView] = useState<InvView>('wallet')
+  const [view, setView] = useState<InvView>('investor')
 
   const now = useMemo(() => new Date(), [])
   const marketRates = rates.data ? { cdi: rates.data.cdi, ipca: rates.data.ipca } : DEFAULT_RATES
