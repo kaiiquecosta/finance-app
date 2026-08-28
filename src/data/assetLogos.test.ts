@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { assetLogoUrl } from './assetLogos'
+import { assetLogoFallbacks, assetLogoUrl } from './assetLogos'
 
 describe('assetLogoUrl', () => {
   it('usa brapi para ações B3', () => {
@@ -12,8 +12,13 @@ describe('assetLogoUrl', () => {
     expect(assetLogoUrl({ symbol: 'MXRF11', kind: 'fii', region: 'br' })).toContain('icones-b3')
   })
 
-  it('usa FMP para ações EUA', () => {
-    expect(assetLogoUrl({ symbol: 'NVDA', kind: 'stock', region: 'us' })).toContain('NVDA.png')
+  it('prioriza brapi SVG para ações EUA', () => {
+    expect(assetLogoUrl({ symbol: 'NFLX', kind: 'stock', region: 'us' })).toContain('NFLX.svg')
+  })
+
+  it('usa FMP como fallback para EUA sem brapi', () => {
+    const fallbacks = assetLogoFallbacks({ symbol: 'AMZN', kind: 'stock', region: 'us' })
+    expect(fallbacks.some((u) => u.includes('financialmodelingprep'))).toBe(true)
   })
 
   it('usa ícones de cripto', () => {

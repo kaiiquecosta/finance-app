@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { assetLogoFallbacks, assetLogoUrl } from '@/data/assetLogos'
+import { LIGHT_MODE_MONO_LOGOS } from '@/data/assetLogoMono'
 import { stockByYahoo, type StockDef } from '@/data/stocksCatalog'
 import styles from './AssetMark.module.css'
 
@@ -35,10 +36,11 @@ export function AssetMark({ def, yahoo, symbol, fallbackIcon = '📈', size = 'm
   }
 
   const showImg = src && srcIndex < urls.length
+  const monoLight = LIGHT_MODE_MONO_LOGOS.has(sym.toUpperCase())
 
   return (
     <span
-      className={[styles.mark, styles[size], className].filter(Boolean).join(' ')}
+      className={[styles.mark, styles[size], monoLight ? styles.monoLight : '', className].filter(Boolean).join(' ')}
       aria-hidden={!alt}
       title={alt ?? sym}
     >

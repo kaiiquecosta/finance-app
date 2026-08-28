@@ -4,9 +4,11 @@
   justify-content: center;
   flex-shrink: 0;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--blue) 6%, var(--card2));
-  border: 1px solid color-mix(in srgb, var(--border2) 80%, transparent);
+  background: var(--asset-mark-bg);
+  border: 1px solid var(--asset-mark-border);
   overflow: hidden;
+  isolation: isolate;
+  box-shadow: 0 1px 2px color-mix(in srgb, #000 4%, transparent);
 }
 .sm {
   width: 28px;
@@ -23,9 +25,23 @@
   border-radius: 12px;
 }
 .img {
-  width: 72%;
-  height: 72%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  padding: 3px;
+  box-sizing: border-box;
+}
+/* Modo claro: fundo branco uniforme; multiply remove caixas brancas dos PNGs */
+:root .img {
+  mix-blend-mode: multiply;
+}
+[data-theme='dark'] .img {
+  mix-blend-mode: normal;
+}
+.monoLight .img {
+  mix-blend-mode: normal;
+  filter: brightness(0);
+  opacity: 0.82;
 }
 .emoji {
   font-size: 16px;

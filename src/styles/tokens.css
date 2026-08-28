@@ -68,6 +68,10 @@
     0 20px 44px color-mix(in srgb, #000 7%, transparent);
   --radius-card: 18px;
   --radius-card-sm: 14px;
+
+  /* Logo de ativo — fundo uniforme (estilo Investidor10) */
+  --asset-mark-bg: #ffffff;
+  --asset-mark-border: rgba(22, 18, 32, 0.1);
 }
 
 [data-theme='dark'] {
@@ -102,4 +106,7 @@
 
   --prog-track: var(--border2);
   --prog-fill: var(--primary);
+
+  --asset-mark-bg: #ffffff;
+  --asset-mark-border: rgba(255, 255, 255, 0.14);
 }

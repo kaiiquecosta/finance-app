@@ -34,7 +34,8 @@ export function assetLogoUrl(input: AssetLogoInput): string | null {
   }
 
   if (input.region === 'us' && (input.kind === 'stock' || input.kind === 'etf')) {
-    return `${US_STOCK_BASE}/${sym}.png`
+    // brapi primeiro quando existir (SVG transparente, sem caixa branca)
+    return `${BRAPI_BASE}/${sym}.svg`
   }
 
   return null
@@ -49,8 +50,8 @@ export function assetLogoFallbacks(input: AssetLogoInput): string[] {
   if (input.region === 'br' && (input.kind === 'stock' || input.kind === 'bdr')) {
     fallbacks.push(`${FINTZ_BASE}/${sym}.png`)
   }
-  if (input.region === 'us' && (input.kind === 'stock' || input.kind === 'etf') && primary) {
-    fallbacks.push(`${BRAPI_BASE}/${sym}.svg`)
+  if (input.region === 'us' && (input.kind === 'stock' || input.kind === 'etf')) {
+    fallbacks.push(`${US_STOCK_BASE}/${sym}.png`)
   }
 
   return fallbacks.filter((url) => url !== primary)
