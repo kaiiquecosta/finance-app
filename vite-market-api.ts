@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite'
 import { fetchYahooSparkRaw } from './src/data/marketSpark'
 import { fetchYahooChartRaw } from './src/data/marketChart'
-import { parseFundamentalsQuery, resolveAssetFundamentals } from './src/data/fundamentalsResolve'
+import { parseFundamentalsQuery, resolveAssetFundamentals } from './api/_lib/fundamentalsServer'
 
 /** Proxies locais `/api/market/*` → Yahoo (dev); produção usa as functions em `api/` na Vercel. */
 export function marketSparkDevPlugin(): Plugin {
