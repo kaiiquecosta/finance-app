@@ -19,6 +19,7 @@ import {
   type StockDef,
 } from '@/data/stocksCatalog'
 import { loadFavorites, saveFavorites } from '@/lib/favorites'
+import { marketSessionLabel } from '@/lib/marketSession'
 import { AssetDetail } from './AssetDetail'
 import { InvestorFixedIncomePanel } from './InvestorFixedIncomePanel'
 import styles from './InvestorHub.module.css'
@@ -66,14 +67,6 @@ function MiniSpark({ values }: { values: number[] }) {
       <polyline points={pts} fill="none" stroke={up ? 'var(--green)' : 'var(--red)'} strokeWidth="1.5" />
     </svg>
   )
-}
-
-function marketSessionLabel(): { label: string; open: boolean } {
-  const now = new Date()
-  const h = now.getHours()
-  const wd = now.getDay()
-  const brOpen = h >= 10 && h < 18 && wd >= 1 && wd <= 5
-  return { label: brOpen ? 'B3 aberta' : 'B3 fechada', open: brOpen }
 }
 
 function PopularRow({ row, onOpen }: { row: CatalogRow; onOpen: (s: string) => void }) {
@@ -270,7 +263,7 @@ export function InvestorHub({ onOpenMarket }: Props) {
           </span>
           <span className={styles.live}>
             <span className={stocks.isFetching ? styles.dotPulse : styles.dot} />
-            {stocks.isFetching ? 'atualizando…' : 'tempo real · ~30s'}
+            {stocks.isFetching ? 'atualizando…' : session.open ? 'tempo real · ~10s' : 'atualização · ~1 min'}
           </span>
         </div>
       </div>

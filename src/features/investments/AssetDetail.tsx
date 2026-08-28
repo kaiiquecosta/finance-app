@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { applyLiveQuoteToStats, mergeLiveQuoteIntoChart } from '@/data/liveQuote'
 import { useChartSeries, useYearSeries } from '@/data/useMarketChart'
+import { useLiveStockQuote } from '@/data/useLiveStockQuote'
 import { RANGE_OPTIONS, assetStats, periodReturns, type ChartRange } from '@/data/marketChart'
 import { stockByYahoo } from '@/data/stocksCatalog'
+import { brMarketOpen } from '@/lib/marketSession'
 import styles from './AssetDetail.module.css'
 
 type Props = {
@@ -180,7 +183,11 @@ function BigChart({
 export function AssetDetail({ symbol, onClose, isFavorite, onToggleFavorite }: Props) {
   const [range, setRange] = useState<ChartRange>('1d')
   const [hoverPoint, setHoverPoint] = useState<{ price: number; ts: number; index: number } | null>(null)
-  const chart = useChartSeries(symbol, range)
+  const [tickDir, setTickDir] = useState<'up' | 'down' | null>(null)
+  const prevLivePrice = useRef<number | null>(null)
+
+  const live = useLiveStockQuote(symbol)
+  const chart = useChartSeries(symbol, range, true)
   const year = useYearSeries(symbol)
 
   const onChartHover = useCallback((point: { price: number; ts: number; index: number } | null) => {
@@ -191,23 +198,54 @@ export function AssetDetail({ symbol, onClose, isFavorite, onToggleFavorite }: P
     setHoverPoint(null)
   }, [range, symbol])
 
+  useEffect(() => {
+    const price = live.data?.price
+    if (price == null) return
+    const prev = prevLivePrice.current
+    if (prev != null && price !== prev) {
+      setTickDir(price > prev ? 'up' : 'down')
+      const timer = window.setTimeout(() => setTickDir(null), 800)
+      prevLivePrice.current = price
+      return () => window.clearTimeout(timer)
+    }
+    prevLivePrice.current = price
+  }, [live.data?.price])
+
+  useEffect(() => {
+    prevLivePrice.current = null
+    setTickDir(null)
+  }, [symbol])
+
   const def = stockByYahoo(symbol)
   const meta = chart.data?.meta ?? year.data?.meta
-  const currency = meta?.currency ?? def?.currency ?? 'BRL'
+  const currency = live.data?.currency ?? meta?.currency ?? def?.currency ?? 'BRL'
   const displayName = def?.name ?? meta?.longName ?? meta?.shortName ?? symbol
   const exchange = def?.exchange ?? meta?.fullExchangeName ?? meta?.exchangeName ?? ''
 
-  const stats = useMemo(() => (year.data ? assetStats(year.data) : null), [year.data])
+  const baseStats = useMemo(() => (year.data ? assetStats(year.data) : null), [year.data])
+  const stats = useMemo(() => {
+    if (!baseStats) return null
+    if (live.data?.price == null) return baseStats
+    return applyLiveQuoteToStats(baseStats, live.data.price)
+  }, [baseStats, live.data?.price])
+
   const returns = useMemo(
     () => (year.data ? periodReturns(year.data.timestamps, year.data.closes) : []),
     [year.data],
   )
 
-  const price = stats?.price ?? meta?.regularMarketPrice ?? null
-  const dayPct = stats?.dayChangePct ?? null
-  const up = (dayPct ?? 0) >= 0
+  const chartDisplay = useMemo(() => {
+    if (!chart.data || live.data?.price == null) return chart.data
+    if (range !== '1d' && range !== '5d') return chart.data
+    return mergeLiveQuoteIntoChart(chart.data, live.data.price, live.data.updatedAt)
+  }, [chart.data, live.data?.price, live.data?.updatedAt, range])
 
-  const chartCloses = chart.data?.closes
+  const price = stats?.price ?? live.data?.price ?? meta?.regularMarketPrice ?? null
+  const dayPct = stats?.dayChangePct ?? live.data?.pctChange ?? null
+  const up = (dayPct ?? 0) >= 0
+  const sessionOpen = brMarketOpen()
+
+  const chartCloses = chartDisplay?.closes
   const hoverPeriodPct = useMemo(() => {
     if (!hoverPoint || !chartCloses?.length || chartCloses[0] === 0) return null
     return ((hoverPoint.price - chartCloses[0]) / chartCloses[0]) * 100
@@ -215,6 +253,10 @@ export function AssetDetail({ symbol, onClose, isFavorite, onToggleFavorite }: P
 
   const displayPrice = hoverPoint?.price ?? price
   const hoverUp = (hoverPeriodPct ?? 0) >= 0
+
+  const updatedLabel = live.data?.updatedAt
+    ? new Date(live.data.updatedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    : null
 
   return (
     <div className={styles.overlay} role="dialog" aria-modal="true" aria-label={`Detalhes de ${displayName}`}>
@@ -243,7 +285,26 @@ export function AssetDetail({ symbol, onClose, isFavorite, onToggleFavorite }: P
         </div>
 
         <div className={styles.priceRow}>
-          <span className={styles.price}>{fmtMoney(displayPrice, currency)}</span>
+          <div className={styles.priceBlock}>
+            <span
+              className={[
+                styles.price,
+                tickDir === 'up' ? styles.priceTickUp : '',
+                tickDir === 'down' ? styles.priceTickDown : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+            >
+              {fmtMoney(displayPrice, currency)}
+            </span>
+            {!hoverPoint && (
+              <span className={styles.liveMeta}>
+                <span className={[styles.liveDot, live.isFetching ? styles.livePulse : ''].filter(Boolean).join(' ')} />
+                {sessionOpen ? 'tempo real · ~10s' : 'mercado fechado'}
+                {updatedLabel ? ` · ${updatedLabel}` : ''}
+              </span>
+            )}
+          </div>
           {hoverPoint ? (
             <span className={hoverUp ? styles.up : styles.down}>
               {fmtHoverTime(hoverPoint.ts, range)}
@@ -273,10 +334,10 @@ export function AssetDetail({ symbol, onClose, isFavorite, onToggleFavorite }: P
 
         {chart.isLoading && <div className={styles.chartEmpty}>Carregando gráfico…</div>}
         {chart.isError && <div className={styles.chartEmpty}>Não foi possível carregar o gráfico deste ativo.</div>}
-        {chart.data && (
+        {chartDisplay && (
           <BigChart
-            timestamps={chart.data.timestamps}
-            closes={chart.data.closes}
+            timestamps={chartDisplay.timestamps}
+            closes={chartDisplay.closes}
             range={range}
             onHover={onChartHover}
           />
@@ -340,8 +401,8 @@ export function AssetDetail({ symbol, onClose, isFavorite, onToggleFavorite }: P
         </div>
 
         <p className={styles.disclaimer}>
-          Dados via Yahoo Finance (podem ter atraso). Indicadores calculados sobre o histórico de 12 meses.
-          Conteúdo informativo — não é recomendação de investimento.
+          Cotações via Yahoo Finance (delay intraday). Atualização automática a cada ~10s com mercado aberto.
+          Indicadores calculados sobre o histórico de 12 meses. Conteúdo informativo — não é recomendação de investimento.
         </p>
       </div>
     </div>

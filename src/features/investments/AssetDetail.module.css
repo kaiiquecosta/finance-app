@@ -89,16 +89,52 @@
 
 .priceRow {
   display: flex;
-  align-items: baseline;
+  align-items: flex-end;
   gap: 12px;
   margin-bottom: 14px;
   flex-wrap: wrap;
+}
+.priceBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 .price {
   font-family: var(--num);
   font-size: 30px;
   font-weight: 800;
   letter-spacing: -0.5px;
+  transition: color 0.25s ease, text-shadow 0.25s ease;
+}
+.priceTickUp {
+  color: var(--green);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--green) 35%, transparent);
+}
+.priceTickDown {
+  color: var(--red);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--red) 35%, transparent);
+}
+.liveMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.liveDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+}
+.livePulse {
+  animation: livePulse 1s ease-in-out infinite;
+}
+@keyframes livePulse {
+  50% {
+    opacity: 0.35;
+  }
 }
 .up {
   color: var(--green);
