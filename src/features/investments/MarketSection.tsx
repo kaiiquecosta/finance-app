@@ -4,7 +4,14 @@ import { AssetMark } from '@/components/assets/AssetMark'
 import { useRates } from '@/data/useMarket'
 import { useCryptoUsd, useExtendedQuotes, useMarketIndices } from '@/data/useMarketExtended'
 import { useStockQuotes } from '@/data/useStockQuotes'
-import { buildMarketCryptoGroups, buildMarketStockGroups } from '@/data/marketStockGroups'
+import {
+  buildMarketCryptoGroups,
+  buildMarketStockCategory,
+  filterCategorySectors,
+  MARKET_STOCK_FILTERS,
+  marketStockFilterSymbols,
+} from '@/data/marketStockGroups'
+import { categoryById, type InvestorCategoryId } from '@/data/investorCategories'
 import type { Quote } from '@/data/market'
 import type { IndexQuote } from '@/data/marketExtended'
 import type { StockQuote } from '@/data/marketSpark'
@@ -122,22 +129,31 @@ function sessionBadge(): { text: string; open: boolean } {
 
 export function MarketSection() {
   const [tab, setTab] = useState<MktTab>('indices')
+  const [stockFilter, setStockFilter] = useState<InvestorCategoryId>('acoes_br')
+  const [sectorTag, setSectorTag] = useState<string | null>(null)
   const quotes = useExtendedQuotes()
   const rates = useRates()
   const indices = useMarketIndices()
   const cryptoUsd = useCryptoUsd()
-  const stocks = useStockQuotes()
-  const session = sessionBadge()
 
-  const stockGroups = useMemo(() => buildMarketStockGroups(stocks.data ?? []), [stocks.data])
-  const cryptoGroups = useMemo(() => buildMarketCryptoGroups(stocks.data ?? []), [stocks.data])
-  const stockQuotesFlat = useMemo(() => {
-    const quotes = stocks.data ?? []
-    return quotes.filter((q) => {
-      const def = stockByYahoo(q.yahoo)
-      return def && def.kind !== 'crypto' && def.kind !== 'index' && def.kind !== 'commodity'
-    })
-  }, [stocks.data])
+  const stockSymbols = useMemo(() => marketStockFilterSymbols(stockFilter), [stockFilter])
+  const cryptoSymbols = useMemo(() => marketStockFilterSymbols('crypto'), [])
+
+  const stocksTab = useStockQuotes(stockSymbols, tab === 'stocks')
+  const stocksCrypto = useStockQuotes(cryptoSymbols, tab === 'crypto')
+
+  const session = sessionBadge()
+  const activeCategory = categoryById(stockFilter)
+
+  const stockCategoryView = useMemo(() => {
+    const base = buildMarketStockCategory(stocksTab.data ?? [], stockFilter)
+    if (!base) return null
+    return filterCategorySectors(base, sectorTag)
+  }, [stocksTab.data, stockFilter, sectorTag])
+
+  const stockQuotesFiltered = useMemo(() => stocksTab.data ?? [], [stocksTab.data])
+
+  const cryptoGroups = useMemo(() => buildMarketCryptoGroups(stocksCrypto.data ?? []), [stocksCrypto.data])
 
   const list = quotes.data ?? []
   const currencies = list.filter((q) => q.kind === 'currency')
@@ -147,11 +163,18 @@ export function MarketSection() {
     void quotes.refetch()
     void indices.refetch()
     void cryptoUsd.refetch()
-    void stocks.refetch()
+    void stocksTab.refetch()
+    void stocksCrypto.refetch()
     void rates.refetch()
   }
 
-  const busy = quotes.isFetching || stocks.isFetching || indices.isFetching
+  const busy =
+    quotes.isFetching || stocksTab.isFetching || stocksCrypto.isFetching || indices.isFetching
+
+  const selectStockFilter = (id: InvestorCategoryId) => {
+    setStockFilter(id)
+    setSectorTag(null)
+  }
 
   return (
     <>
@@ -271,34 +294,76 @@ export function MarketSection() {
 
         {tab === 'stocks' && (
           <div className={styles.panel}>
-            {stocks.isLoading && <p className={styles.muted}>Carregando ações…</p>}
-            {stocks.isError && <p className={styles.muted}>Não foi possível carregar ações. Use ↻ Atualizar.</p>}
-            {!stocks.isLoading && !stocks.isError && stockGroups.length === 0 && (
-              <p className={styles.muted}>Nenhuma cotação disponível no momento.</p>
+            <div className={styles.filterScroll} role="group" aria-label="Tipo de ativo">
+              {MARKET_STOCK_FILTERS.map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  className={[styles.filterPill, stockFilter === f.id ? styles.filterPillActive : '']
+                    .filter(Boolean)
+                    .join(' ')}
+                  onClick={() => selectStockFilter(f.id)}
+                >
+                  <span aria-hidden>{f.icon}</span> {f.label}
+                </button>
+              ))}
+            </div>
+
+            {activeCategory.sectors && activeCategory.sectors.length > 0 && (
+              <div className={styles.filterScroll} role="group" aria-label="Setor">
+                <button
+                  type="button"
+                  className={[styles.filterPill, styles.filterPillSub, !sectorTag ? styles.filterPillActive : '']
+                    .filter(Boolean)
+                    .join(' ')}
+                  onClick={() => setSectorTag(null)}
+                >
+                  Todos os setores
+                </button>
+                {activeCategory.sectors.map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    className={[styles.filterPill, styles.filterPillSub, sectorTag === s.tag ? styles.filterPillActive : '']
+                      .filter(Boolean)
+                      .join(' ')}
+                    onClick={() => setSectorTag(s.tag)}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
             )}
-            {stockQuotesFlat.length > 0 && <MarketMovers quotes={stockQuotesFlat} />}
-            {stockGroups.map((group) => (
-              <section key={group.id} className={styles.marketGroup}>
-                <h3 className={styles.marketGroupTitle}>{group.label}</h3>
-                {group.categories.map((cat) => (
-                  <div key={cat.id} className={styles.categoryBlock}>
-                    <div className={styles.categoryHead}>
-                      <span aria-hidden>{cat.icon}</span> {cat.label}
-                    </div>
-                    {cat.sectors.map((sector) => (
-                      <div key={`${cat.id}-${sector.label || 'all'}`} className={styles.sectorBlock}>
-                        {cat.hasSectors && sector.label && (
-                          <div className={styles.sectorHead}>{sector.label}</div>
-                        )}
-                        {sector.quotes.map((q) => (
-                          <StockRow key={q.yahoo} q={q} />
-                        ))}
-                      </div>
+
+            <p className={styles.filterHint}>
+              {activeCategory.icon} {activeCategory.label}
+              {sectorTag ? ` · ${activeCategory.sectors?.find((s) => s.tag === sectorTag)?.label}` : ''}
+              {' · '}
+              {stocksTab.isFetching ? 'atualizando…' : 'cotações ao vivo'}
+            </p>
+
+            {stocksTab.isLoading && <p className={styles.muted}>Carregando {activeCategory.label.toLowerCase()}…</p>}
+            {stocksTab.isError && <p className={styles.muted}>Não foi possível carregar. Use ↻ Atualizar.</p>}
+            {!stocksTab.isLoading && !stocksTab.isError && !stockCategoryView && (
+              <p className={styles.muted}>Nenhuma cotação disponível neste filtro.</p>
+            )}
+
+            {stockQuotesFiltered.length > 0 && <MarketMovers quotes={stockQuotesFiltered} />}
+
+            {stockCategoryView && (
+              <div className={styles.categoryBlock}>
+                {stockCategoryView.sectors.map((sector) => (
+                  <div key={`${stockCategoryView.id}-${sector.label || 'all'}`} className={styles.sectorBlock}>
+                    {stockCategoryView.hasSectors && sector.label && (
+                      <div className={styles.sectorHead}>{sector.label}</div>
+                    )}
+                    {sector.quotes.map((q) => (
+                      <StockRow key={q.yahoo} q={q} />
                     ))}
                   </div>
                 ))}
-              </section>
-            ))}
+              </div>
+            )}
           </div>
         )}
       </Card>

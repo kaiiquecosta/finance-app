@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildMarketCryptoGroups, buildMarketStockGroups } from './marketStockGroups'
+import { buildMarketCryptoGroups, buildMarketStockCategory, buildMarketStockGroups, marketStockFilterSymbols } from './marketStockGroups'
 import type { StockQuote } from './marketSpark'
 
 function quote(yahoo: string, symbol: string, kind: 'stock' | 'fii' | 'crypto' = 'stock'): StockQuote {
@@ -42,6 +42,23 @@ describe('buildMarketStockGroups', () => {
     const acoes = groups.flatMap((g) => g.categories).find((c) => c.id === 'acoes_br')
     expect(acoes?.hasSectors).toBe(true)
     expect(acoes?.sectors.some((s) => s.label === 'Financeiro')).toBe(true)
+  })
+})
+
+describe('buildMarketStockCategory', () => {
+  it('monta uma categoria filtrada', () => {
+    const cat = buildMarketStockCategory([quote('ITUB4.SA', 'ITUB4')], 'acoes_br')
+    expect(cat?.id).toBe('acoes_br')
+    expect(cat?.sectors.some((s) => s.label === 'Financeiro')).toBe(true)
+  })
+})
+
+describe('marketStockFilterSymbols', () => {
+  it('retorna só símbolos da categoria', () => {
+    const syms = marketStockFilterSymbols('fiis')
+    expect(syms.every((s) => s.endsWith('.SA'))).toBe(true)
+    expect(syms.some((s) => s.includes('MXRF'))).toBe(true)
+    expect(syms.some((s) => s.includes('AAPL'))).toBe(false)
   })
 })
 

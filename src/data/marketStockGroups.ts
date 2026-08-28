@@ -8,9 +8,25 @@ import {
   type InvestorCategoryId,
 } from './investorCategories'
 import type { StockQuote } from './marketSpark'
-import { stockByYahoo } from './stocksCatalog'
+import { ALL_STOCKS, stockByYahoo } from './stocksCatalog'
 
 const MARKET_GROUP_IDS = new Set(['brasil', 'internacional'])
+
+/** Filtros da aba Ações · Mercado ao vivo. */
+export const MARKET_STOCK_FILTERS: { id: InvestorCategoryId; label: string; icon: string }[] = [
+  { id: 'acoes_br', label: 'Ações brasileiras', icon: '🇧🇷' },
+  { id: 'fiis', label: 'FIIs', icon: '🏢' },
+  { id: 'bdrs', label: 'BDRs', icon: '🌎' },
+  { id: 'etfs_br', label: 'ETFs Brasil', icon: '🧺' },
+  { id: 'stocks_us', label: 'Ações EUA', icon: '🇺🇸' },
+  { id: 'etfs_us', label: 'ETFs EUA', icon: '🦅' },
+]
+
+/** Símbolos Yahoo da categoria para polling em tempo real. */
+export function marketStockFilterSymbols(categoryId: InvestorCategoryId): string[] {
+  const cat = categoryById(categoryId)
+  return ALL_STOCKS.filter((d) => cat.match(d)).map((d) => d.yahoo)
+}
 
 export interface MarketQuoteSector {
   label: string
@@ -102,6 +118,43 @@ export function buildMarketStockGroups(quotes: StockQuote[]): MarketQuoteGroup[]
   }
 
   return groups
+}
+
+/** Uma categoria filtrada (ex.: só FIIs) com setores. */
+export function buildMarketStockCategory(
+  quotes: StockQuote[],
+  categoryId: InvestorCategoryId,
+): MarketQuoteCategory | null {
+  const cat = categoryById(categoryId)
+  const catQuotes = quotesForCategory(quotes, cat)
+  if (!catQuotes.length) return null
+  const sectors = sectorsForCategory(catQuotes, cat)
+  if (!sectors.length) return null
+  return {
+    id: categoryId,
+    label: cat.label,
+    icon: cat.icon,
+    hasSectors: Boolean(cat.sectors?.length),
+    sectors,
+  }
+}
+
+/** Filtra setores de uma categoria por tag (null = todos). */
+export function filterCategorySectors(
+  category: MarketQuoteCategory,
+  sectorTag: string | null,
+): MarketQuoteCategory {
+  if (!sectorTag || !category.hasSectors) return category
+  const cat = categoryById(category.id)
+  const tag = cat.sectors?.find((s) => s.tag === sectorTag)?.tag
+  if (!tag) return category
+  const sectors = category.sectors
+    .map((sector) => ({
+      ...sector,
+      quotes: sector.quotes.filter((q) => stockByYahoo(q.yahoo)?.tags?.includes(tag)),
+    }))
+    .filter((s) => s.quotes.length > 0)
+  return { ...category, sectors }
 }
 
 /** Cripto agrupada: principais (BTC, ETH) vs demais altcoins. */
