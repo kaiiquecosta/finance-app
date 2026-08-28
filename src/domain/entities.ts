@@ -157,10 +157,21 @@ export interface Investment {
   pct?: number | null
   /** Spread sobre o IPCA (Tesouro IPCA+), em pontos percentuais. */
   spread?: number | null
-  /** Rentabilidade estimada anual (%) para ativos de renda variável. */
+  /** Rentabilidade estimada anual (%) para ativos de renda variável sem ticker. */
   yield?: number | null
+  /** Símbolo Yahoo (ex.: ITUB4.SA, MXRF11.SA). */
   ticker?: string | null
+  /** Preço por cota/ação na data da compra (moeda do ativo). */
+  buyPrice?: number | null
   accountId?: number | null
+}
+
+/** Tipos de carteira negociados em bolsa (cadastro simplificado + cotação). */
+export const MARKET_INVESTMENT_TYPES = ['acoes', 'acoeseua', 'fii', 'cripto'] as const
+export type MarketInvestmentType = (typeof MARKET_INVESTMENT_TYPES)[number]
+
+export function isMarketInvestmentType(type: InvestmentType): type is MarketInvestmentType {
+  return (MARKET_INVESTMENT_TYPES as readonly string[]).includes(type)
 }
 
 export interface Profile {

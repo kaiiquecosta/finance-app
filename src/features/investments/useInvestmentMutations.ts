@@ -22,6 +22,7 @@ export interface RescueInput {
   amount: Cents
   accountId: number | null
   rates?: MarketRates
+  currentPrice?: number | null
 }
 
 export function useInvestmentMutations(userId: string | undefined) {
@@ -65,7 +66,7 @@ export function useInvestmentMutations(userId: string | undefined) {
    * lança uma transação de crédito na conta de destino.
    */
   const rescue = useMutation({
-    mutationFn: async ({ investment, amount, accountId, rates }: RescueInput) => {
+    mutationFn: async ({ investment, amount, accountId, rates, currentPrice }: RescueInput) => {
       if (!userId) throw new Error('Sessão expirada. Entre novamente.')
       const result = calcInvestment(
         {
@@ -75,6 +76,8 @@ export function useInvestmentMutations(userId: string | undefined) {
           pct: investment.pct,
           spread: investment.spread,
           yield: investment.yield,
+          buyPrice: investment.buyPrice,
+          currentPrice: currentPrice ?? null,
         },
         new Date(),
         rates ?? DEFAULT_RATES,

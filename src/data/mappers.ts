@@ -328,6 +328,7 @@ export function rowToInvestment(r: InvestmentRow): Investment {
     spread: r.spread,
     yield: r.yield_pct,
     ticker: r.ticker,
+    buyPrice: r.buy_price,
     accountId: r.account_id,
   }
 }
@@ -345,6 +346,7 @@ export function toInvestmentRow(i: Investment, userId: string): Omit<InvestmentR
     spread: i.spread ?? 0,
     yield_pct: i.yield ?? 0,
     ticker: i.ticker ?? null,
+    buy_price: i.buyPrice ?? null,
     account_id: i.accountId ?? null,
   }
 }

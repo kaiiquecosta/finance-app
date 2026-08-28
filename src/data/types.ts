@@ -144,6 +144,7 @@ export interface InvestmentRow {
   spread: number | null
   yield_pct: number | null
   ticker: string | null
+  buy_price: number | null
   account_id: number | null
   created_at?: string
 }

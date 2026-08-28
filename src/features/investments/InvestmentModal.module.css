@@ -59,3 +59,36 @@
   padding: 8px 12px;
   border-radius: 10px;
 }
+.priceBox {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border2);
+  background: var(--card2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.priceRow strong {
+  color: var(--text);
+  font-family: var(--num);
+  font-size: 14px;
+}
+.priceHint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.errorInline {
+  margin: 0;
+  font-size: 12px;
+  color: var(--red);
+}

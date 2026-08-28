@@ -45,14 +45,21 @@ export function marketSparkDevPlugin(): Plugin {
         try {
           const url = new URL(req.url ?? '', 'http://localhost')
           const symbol = (url.searchParams.get('symbol') ?? '').trim().toUpperCase()
-          const range = url.searchParams.get('range') ?? '1mo'
+          const range = url.searchParams.get('range')
           const interval = url.searchParams.get('interval') ?? '1d'
+          const period1 = url.searchParams.get('period1')
+          const period2 = url.searchParams.get('period2')
           if (!symbol) {
             res.statusCode = 400
             res.end(JSON.stringify({ error: 'symbol required' }))
             return
           }
-          const data = await fetchYahooChartRaw(symbol, range, interval)
+          const data = await fetchYahooChartRaw(
+            symbol,
+            period1 && period2
+              ? { interval, period1: Number(period1), period2: Number(period2) }
+              : { range: range ?? '1mo', interval },
+          )
           res.setHeader('Content-Type', 'application/json')
           res.setHeader('Cache-Control', 'no-store')
           res.end(JSON.stringify(data))

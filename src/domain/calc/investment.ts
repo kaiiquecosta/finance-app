@@ -10,7 +10,7 @@
  */
 import { add, rate as applyRate, min as minCents, sub, type Cents, ZERO } from '@/domain/money'
 import { daysBetween } from '@/domain/dates'
-import type { InvestmentType, ISODate } from '@/domain/entities'
+import { isMarketInvestmentType, type InvestmentType, type ISODate } from '@/domain/entities'
 
 export interface MarketRates {
   /** CDI anual como fração (ex.: 0.1365 = 13,65% a.a.). */
@@ -30,8 +30,12 @@ export interface InvestmentCalcInput {
   pct?: number | null
   /** Spread sobre o IPCA em pontos percentuais (Tesouro IPCA+). */
   spread?: number | null
-  /** Rentabilidade anual estimada (%) para renda variável. */
+  /** Rentabilidade anual estimada (%) para renda variável sem cotação. */
   yield?: number | null
+  /** Preço unitário na compra (moeda do ativo). */
+  buyPrice?: number | null
+  /** Cotação atual (mesma moeda do ativo) para rentabilidade real. */
+  currentPrice?: number | null
 }
 
 export interface InvestmentResult {
@@ -63,12 +67,34 @@ export function fixedIncomeIR(days: number): number {
   return 0.15
 }
 
+/** Valor de mercado atual a partir do principal e preços de compra/cotação. */
+export function marketValueFromPrices(amount: Cents, buyPrice: number, currentPrice: number): Cents {
+  if (buyPrice <= 0 || currentPrice <= 0 || amount <= 0) return amount
+  const qty = amount / 100 / buyPrice
+  return Math.round(qty * currentPrice * 100) as Cents
+}
+
+/** Usa cotação real quando buyPrice + currentPrice estão disponíveis. */
+export function usesMarketQuotes(input: Pick<InvestmentCalcInput, 'type' | 'buyPrice' | 'currentPrice'>): boolean {
+  return (
+    isMarketInvestmentType(input.type) &&
+    input.buyPrice != null &&
+    input.buyPrice > 0 &&
+    input.currentPrice != null &&
+    input.currentPrice > 0
+  )
+}
+
 /** Rentabilidade bruta acumulada (juros compostos) no período. */
 export function grossRateFor(
-  input: Pick<InvestmentCalcInput, 'type' | 'pct' | 'spread' | 'yield'>,
+  input: Pick<InvestmentCalcInput, 'type' | 'pct' | 'spread' | 'yield' | 'amount' | 'buyPrice' | 'currentPrice'>,
   years: number,
   rates: MarketRates,
 ): number {
+  if (usesMarketQuotes(input) && input.amount > 0) {
+    const current = marketValueFromPrices(input.amount, input.buyPrice!, input.currentPrice!)
+    return (current - input.amount) / input.amount
+  }
   const { cdi, ipca } = rates
   switch (input.type) {
     case 'cdb':
@@ -110,7 +136,7 @@ export function calcInvestment(
 ): InvestmentResult {
   const days = daysHeld(input.date, asOf)
   const years = days / 365
-  const grossRate = grossRateFor(input, years, rates)
+  const grossRate = grossRateFor({ ...input, amount: input.amount }, years, rates)
   const grossYield = applyRate(input.amount, grossRate)
   const ir = irFor(input.type, days, grossYield)
   const netYield = applyRate(grossYield, 1 - ir)

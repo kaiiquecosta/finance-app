@@ -182,8 +182,24 @@ export function assetStats(series: ChartSeries): AssetStats {
 
 const YAHOO_CHART = 'https://query1.finance.yahoo.com/v8/finance/chart/'
 
-export async function fetchYahooChartRaw(symbol: string, range: string, interval: string): Promise<unknown> {
-  const q = new URLSearchParams({ range, interval })
+export async function fetchYahooChartRaw(
+  symbol: string,
+  rangeOrOpts: string | { range?: string; interval?: string; period1?: number; period2?: number },
+  intervalArg?: string,
+): Promise<unknown> {
+  const q = new URLSearchParams()
+  if (typeof rangeOrOpts === 'string') {
+    q.set('range', rangeOrOpts)
+    q.set('interval', intervalArg ?? '1d')
+  } else {
+    if (rangeOrOpts.period1 != null && rangeOrOpts.period2 != null) {
+      q.set('period1', String(rangeOrOpts.period1))
+      q.set('period2', String(rangeOrOpts.period2))
+    } else {
+      q.set('range', rangeOrOpts.range ?? '1mo')
+    }
+    q.set('interval', rangeOrOpts.interval ?? '1d')
+  }
   const res = await fetch(`${YAHOO_CHART}${encodeURIComponent(symbol)}?${q.toString()}`, {
     headers: { 'User-Agent': 'Mozilla/5.0 (compatible; FluxFinance/2.0)' },
   })

@@ -1,6 +1,9 @@
+import { useMemo } from 'react'
 import { formatBRL, type Cents } from '@/domain/money'
 import { calcInvestment, type MarketRates } from '@/domain/calc/investment'
 import type { Investment } from '@/domain/entities'
+import { useStockQuotes } from '@/data/useStockQuotes'
+import { portfolioTickers, toInvestmentCalcInput } from '@/features/investments/investmentCalc'
 import { Card } from '@/components/ui/Card'
 
 export function OverviewInvestmentsSnapshot({
@@ -18,19 +21,20 @@ export function OverviewInvestmentsSnapshot({
   const asOf = new Date()
   const list = investments.slice(0, 4)
 
+  const tickers = useMemo(() => portfolioTickers(investments), [investments])
+  const stockQuotes = useStockQuotes(tickers.length ? tickers : undefined)
+  const quoteByYahoo = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const q of stockQuotes.data ?? []) map.set(q.yahoo, q.price)
+    return map
+  }, [stockQuotes.data])
+
   let totalApplied = 0
   let totalNet = 0
   for (const inv of investments) {
     totalApplied += Number(inv.amount)
     const r = calcInvestment(
-      {
-        amount: inv.amount,
-        type: inv.type,
-        date: inv.date,
-        pct: inv.pct,
-        spread: inv.spread,
-        yield: inv.yield,
-      },
+      toInvestmentCalcInput(inv, inv.ticker ? quoteByYahoo.get(inv.ticker) : null),
       asOf,
       rates,
     )
@@ -67,14 +71,7 @@ export function OverviewInvestmentsSnapshot({
           </div>
           {list.map((inv) => {
             const r = calcInvestment(
-              {
-                amount: inv.amount,
-                type: inv.type,
-                date: inv.date,
-                pct: inv.pct,
-                spread: inv.spread,
-                yield: inv.yield,
-              },
+              toInvestmentCalcInput(inv, inv.ticker ? quoteByYahoo.get(inv.ticker) : null),
               asOf,
               rates,
             )

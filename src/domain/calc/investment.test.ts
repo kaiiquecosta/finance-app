@@ -6,7 +6,9 @@ import {
   fixedIncomeIR,
   grossRateFor,
   irFor,
+  marketValueFromPrices,
   planRescue,
+  usesMarketQuotes,
   type MarketRates,
 } from './investment'
 
@@ -55,6 +57,18 @@ describe('grossRateFor', () => {
     expect(grossRateFor({ type: 'acoes', yield: 20 }, 1, RATES)).toBeCloseTo(0.2, 10)
     expect(grossRateFor({ type: 'cripto' }, 1, RATES)).toBeCloseTo(0.1, 10)
   })
+
+  it('renda variável com cotação usa preço de mercado', () => {
+    const input = {
+      type: 'acoes' as const,
+      amount: reais(1000),
+      buyPrice: 25,
+      currentPrice: 30,
+    }
+    expect(usesMarketQuotes(input)).toBe(true)
+    expect(grossRateFor(input, 0.5, RATES)).toBeCloseTo(0.2, 10)
+    expect(marketValueFromPrices(reais(1000), 25, 30)).toBe(120000)
+  })
 })
 
 describe('irFor', () => {
@@ -97,6 +111,22 @@ describe('calcInvestment — cenários de 1 ano', () => {
     expect(r.grossYield).toBe(10000)
     expect(r.ir).toBe(0.15)
     expect(r.netYield).toBe(8500)
+  })
+
+  it('ações com ticker usam cotação vs preço de compra', () => {
+    const r = calcInvestment(
+      {
+        amount: reais(1000),
+        type: 'acoes',
+        date: START,
+        buyPrice: 20,
+        currentPrice: 24,
+      },
+      ONE_YEAR_LATER,
+      RATES,
+    )
+    expect(r.grossYield).toBe(20000)
+    expect(r.netYield).toBe(17000)
   })
 
   it('investimento com data futura não rende', () => {

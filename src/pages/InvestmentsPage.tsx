@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useAuth } from '@/app/SessionProvider'
 import { useFinanceData } from '@/data/hooks'
 import { useRates } from '@/data/useMarket'
+import { useStockQuotes } from '@/data/useStockQuotes'
 import { PageHeader } from '@/components/PageHeader'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
@@ -14,6 +15,7 @@ import { useInvestmentMutations } from '@/features/investments/useInvestmentMuta
 import { formatBRL, sub, sum, ZERO, add as addMoney, type Cents } from '@/domain/money'
 import { DEFAULT_RATES, calcInvestment } from '@/domain/calc/investment'
 import type { Investment, InvestmentType } from '@/domain/entities'
+import { portfolioTickers, toInvestmentCalcInput } from '@/features/investments/investmentCalc'
 import styles from './InvestmentsPage.module.css'
 
 type InvView = 'wallet' | 'investor' | 'market'
@@ -45,24 +47,25 @@ export function InvestmentsPage() {
   const now = useMemo(() => new Date(), [])
   const marketRates = rates.data ? { cdi: rates.data.cdi, ipca: rates.data.ipca } : DEFAULT_RATES
 
+  const tickers = useMemo(() => portfolioTickers(data?.investments ?? []), [data?.investments])
+  const stockQuotes = useStockQuotes(tickers.length ? tickers : undefined)
+  const quoteByYahoo = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const q of stockQuotes.data ?? []) map.set(q.yahoo, q.price)
+    return map
+  }, [stockQuotes.data])
+
   const rows = useMemo(() => {
     if (!data) return []
     return data.investments.map((inv) => ({
       inv,
       r: calcInvestment(
-        {
-          amount: inv.amount,
-          type: inv.type,
-          date: inv.date,
-          pct: inv.pct,
-          spread: inv.spread,
-          yield: inv.yield,
-        },
+        toInvestmentCalcInput(inv, inv.ticker ? quoteByYahoo.get(inv.ticker) : null),
         now,
         marketRates,
       ),
     }))
-  }, [data, marketRates, now])
+  }, [data, marketRates, now, quoteByYahoo])
 
   const distribution = useMemo(() => {
     const map = new Map<InvestmentType, Cents>()
@@ -198,7 +201,8 @@ export function InvestmentsPage() {
                   </div>
                   <div className="tx-meta">
                     {TYPE_LABELS[inv.type]}
-                    {inv.bank ? ` · ${inv.bank}` : ''} · {r.days}d
+                    {inv.bank ? ` · ${inv.bank}` : ''}
+                    {inv.ticker ? ` · ${inv.ticker.replace('.SA', '')}` : ''} · {r.days}d
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
@@ -224,8 +228,8 @@ export function InvestmentsPage() {
             </div>
           ))}
           <p style={{ color: 'var(--muted)', fontSize: 12, lineHeight: 1.6 }}>
-            Rendimento estimado (juros compostos) com IR simplificado. Valores de renda variável usam a rentabilidade
-            estimada informada.
+            Renda fixa: juros compostos com IR simplificado. Ações, FIIs e cripto com ticker usam cotação de mercado vs.
+            preço de compra na data informada.
           </p>
         </div>
       )}
@@ -250,11 +254,18 @@ export function InvestmentsPage() {
         accounts={data.bankAccounts}
         userId={user?.id}
         rates={marketRates}
+        currentPrice={rescuing?.ticker ? quoteByYahoo.get(rescuing.ticker) : null}
         saving={rescue.isPending}
         onClose={() => setRescuing(null)}
         onConfirm={async ({ amount, accountId }) => {
           if (!rescuing) return
-          await rescue.mutateAsync({ investment: rescuing, amount, accountId, rates: marketRates })
+          await rescue.mutateAsync({
+            investment: rescuing,
+            amount,
+            accountId,
+            rates: marketRates,
+            currentPrice: rescuing.ticker ? quoteByYahoo.get(rescuing.ticker) : null,
+          })
           setRescuing(null)
         }}
       />

@@ -17,20 +17,35 @@ export default async function handler(
   }
 
   const symbol = String(req.query?.symbol ?? '').trim().toUpperCase()
-  const range = String(req.query?.range ?? '1mo')
+  const range = String(req.query?.range ?? '')
   const interval = String(req.query?.interval ?? '1d')
+  const period1Raw = req.query?.period1
+  const period2Raw = req.query?.period2
+  const period1 = period1Raw != null ? Number(period1Raw) : NaN
+  const period2 = period2Raw != null ? Number(period2Raw) : NaN
+  const usePeriod = Number.isFinite(period1) && Number.isFinite(period2) && period1 >= 0 && period2 > period1
 
   if (!symbol || symbol.length > 16 || !/^[A-Z0-9.\-=^]+$/.test(symbol)) {
     res.status(400).json({ error: 'invalid symbol' })
     return
   }
-  if (!RANGES.has(range) || !INTERVALS.has(interval)) {
+  if (!INTERVALS.has(interval)) {
+    res.status(400).json({ error: 'invalid interval' })
+    return
+  }
+  if (!usePeriod && (!range || !RANGES.has(range))) {
     res.status(400).json({ error: 'invalid range/interval' })
     return
   }
 
   try {
-    const q = new URLSearchParams({ range, interval })
+    const q = new URLSearchParams({ interval })
+    if (usePeriod) {
+      q.set('period1', String(Math.floor(period1)))
+      q.set('period2', String(Math.floor(period2)))
+    } else {
+      q.set('range', range || '1mo')
+    }
     const upstream = await fetch(`${YAHOO}${encodeURIComponent(symbol)}?${q.toString()}`, {
       headers: { 'User-Agent': UA },
     })

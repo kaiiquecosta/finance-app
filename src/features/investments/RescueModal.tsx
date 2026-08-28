@@ -5,6 +5,7 @@ import { MoneyField } from '@/components/ui/MoneyField'
 import { formatBRL, ZERO, type Cents } from '@/domain/money'
 import { calcInvestment, DEFAULT_RATES, type MarketRates } from '@/domain/calc/investment'
 import type { BankAccount, Investment } from '@/domain/entities'
+import { toInvestmentCalcInput } from '@/features/investments/investmentCalc'
 import { AccountPicker } from '@/components/accounts/AccountPicker'
 import styles from './RescueModal.module.css'
 
@@ -14,12 +15,13 @@ interface Props {
   accounts: BankAccount[]
   userId: string | undefined
   rates?: MarketRates
+  currentPrice?: number | null
   saving?: boolean
   onClose: () => void
   onConfirm: (input: { amount: Cents; accountId: number | null }) => Promise<void>
 }
 
-export function RescueModal({ open, investment, accounts, userId, rates, saving, onClose, onConfirm }: Props) {
+export function RescueModal({ open, investment, accounts, userId, rates, currentPrice, saving, onClose, onConfirm }: Props) {
   const [amount, setAmount] = useState<Cents>(ZERO)
   const [accountId, setAccountId] = useState<number | null>(null)
   const [error, setError] = useState('')
@@ -43,14 +45,7 @@ export function RescueModal({ open, investment, accounts, userId, rates, saving,
   if (!investment) return null
 
   const result = calcInvestment(
-    {
-      amount: investment.amount,
-      type: investment.type,
-      date: investment.date,
-      pct: investment.pct,
-      spread: investment.spread,
-      yield: investment.yield,
-    },
+    toInvestmentCalcInput(investment, currentPrice),
     new Date(),
     rates ?? DEFAULT_RATES,
   )
