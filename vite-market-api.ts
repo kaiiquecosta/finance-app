@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite'
 import { fetchYahooSparkRaw } from './src/data/marketSpark'
 import { fetchYahooChartRaw } from './src/data/marketChart'
-import { fetchYahooFundamentalsRaw } from './src/data/marketFundamentals'
+import { parseFundamentalsQuery, resolveAssetFundamentals } from './src/data/fundamentalsResolve'
 
 /** Proxies locais `/api/market/*` → Yahoo (dev); produção usa as functions em `api/` na Vercel. */
 export function marketSparkDevPlugin(): Plugin {
@@ -77,13 +77,22 @@ export function marketSparkDevPlugin(): Plugin {
         }
         try {
           const url = new URL(req.url ?? '', 'http://localhost')
-          const symbol = (url.searchParams.get('symbol') ?? '').trim().toUpperCase()
-          if (!symbol) {
+          const query: Record<string, string> = {}
+          url.searchParams.forEach((v, k) => {
+            query[k] = v
+          })
+          const parsed = parseFundamentalsQuery(query)
+          if (!parsed) {
             res.statusCode = 400
-            res.end(JSON.stringify({ error: 'symbol required' }))
+            res.end(JSON.stringify({ error: 'invalid query' }))
             return
           }
-          const data = await fetchYahooFundamentalsRaw(symbol)
+          const data = await resolveAssetFundamentals(
+            parsed.symbol,
+            parsed.kind,
+            parsed.region,
+            parsed.currency,
+          )
           res.setHeader('Content-Type', 'application/json')
           res.setHeader('Cache-Control', 'no-store')
           res.end(JSON.stringify(data))

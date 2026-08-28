@@ -1,7 +1,7 @@
 /**
- * Fundamentos do ativo (DY, P/VP, P/L…) via Yahoo quoteSummary.
+ * Fundamentos do ativo (DY, P/VP, P/L…) via Investidor10 ou Yahoo quoteSummary.
  */
-import type { AssetKind } from './stocksCatalog'
+import type { AssetKind, StockRegion } from './catalog/types'
 
 type YahooNum = { raw?: number; fmt?: string } | undefined
 
@@ -10,6 +10,13 @@ export interface FundamentalMetric {
   label: string
   value: string
   hint?: string
+}
+
+export type FundamentalsSource = 'investidor10' | 'yahoo'
+
+export interface FundamentalsResponse {
+  metrics: FundamentalMetric[]
+  source: FundamentalsSource
 }
 
 export type FundamentalRaw = {
@@ -191,10 +198,17 @@ export async function fetchYahooFundamentalsRaw(symbol: string): Promise<unknown
 export async function fetchAssetFundamentals(
   symbol: string,
   kind: AssetKind,
+  region: StockRegion,
   currency: 'BRL' | 'USD',
 ): Promise<FundamentalMetric[]> {
-  const res = await fetch(`/api/market/fundamentals?symbol=${encodeURIComponent(symbol)}`)
+  const q = new URLSearchParams({
+    symbol,
+    kind,
+    region,
+    currency,
+  })
+  const res = await fetch(`/api/market/fundamentals?${q.toString()}`)
   if (!res.ok) throw new Error('Falha ao buscar fundamentos')
-  const raw = extractFundamentalRaw(await res.json())
-  return buildFundamentalMetrics(raw, kind, currency)
+  const body = (await res.json()) as FundamentalsResponse
+  return body.metrics ?? []
 }

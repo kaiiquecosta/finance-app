@@ -4,6 +4,7 @@ import { useChartSeries, useYearSeries } from '@/data/useMarketChart'
 import { useLiveStockQuote } from '@/data/useLiveStockQuote'
 import { RANGE_OPTIONS, assetStats, periodReturns, type ChartRange } from '@/data/marketChart'
 import { useAssetFundamentals } from '@/data/useMarketFundamentals'
+import { pickKeyFundamentals } from '@/data/investidor10Fundamentals'
 import { stockByYahoo } from '@/data/stocksCatalog'
 import { AssetMark } from '@/components/assets/AssetMark'
 import { brMarketOpen } from '@/lib/marketSession'
@@ -220,9 +221,16 @@ export function AssetDetail({ symbol, onClose, isFavorite, onToggleFavorite }: P
 
   const def = stockByYahoo(symbol)
   const assetKind = def?.kind ?? 'stock'
+  const assetRegion = def?.region ?? (symbol.endsWith('.SA') ? 'br' : 'us')
   const meta = chart.data?.meta ?? year.data?.meta
   const currency: 'BRL' | 'USD' = live.data?.currency ?? def?.currency ?? (meta?.currency === 'USD' ? 'USD' : 'BRL')
-  const fundamentals = useAssetFundamentals(symbol, assetKind, currency)
+  const fundamentals = useAssetFundamentals(symbol, assetKind, assetRegion, currency)
+  const keyFundamentals = useMemo(
+    () => pickKeyFundamentals(fundamentals.data ?? []),
+    [fundamentals.data],
+  )
+  const showKeyFundamentals =
+    assetKind === 'stock' || assetKind === 'fii' || assetKind === 'bdr' || assetKind === 'etf'
   const displayName = def?.name ?? meta?.longName ?? meta?.shortName ?? symbol
   const exchange = def?.exchange ?? meta?.fullExchangeName ?? meta?.exchangeName ?? ''
 
@@ -323,6 +331,42 @@ export function AssetDetail({ symbol, onClose, isFavorite, onToggleFavorite }: P
           )}
         </div>
 
+        {showKeyFundamentals && (
+          <div className={styles.fundHero} aria-label="Indicadores fundamentais">
+            {fundamentals.isLoading ? (
+              <>
+                <div className={[styles.fundCard, styles.fundCardLoading].join(' ')}>
+                  <span className={styles.fundLabel}>P/L</span>
+                  <span className={styles.fundVal}>…</span>
+                </div>
+                <div className={[styles.fundCard, styles.fundCardLoading].join(' ')}>
+                  <span className={styles.fundLabel}>P/VP</span>
+                  <span className={styles.fundVal}>…</span>
+                </div>
+                <div className={[styles.fundCard, styles.fundCardLoading].join(' ')}>
+                  <span className={styles.fundLabel}>DY</span>
+                  <span className={styles.fundVal}>…</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={styles.fundCard} title="Preço / lucro (12m)">
+                  <span className={styles.fundLabel}>P/L</span>
+                  <span className={styles.fundVal}>{keyFundamentals.pl}</span>
+                </div>
+                <div className={styles.fundCard} title="Preço / valor patrimonial">
+                  <span className={styles.fundLabel}>P/VP</span>
+                  <span className={styles.fundVal}>{keyFundamentals.pvp}</span>
+                </div>
+                <div className={styles.fundCard} title="Dividend yield (12m)">
+                  <span className={styles.fundLabel}>DY</span>
+                  <span className={styles.fundVal}>{keyFundamentals.dy}</span>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
         <div className={styles.ranges}>
           {RANGE_OPTIONS.map((r) => (
             <button
@@ -404,27 +448,29 @@ export function AssetDetail({ symbol, onClose, isFavorite, onToggleFavorite }: P
           </div>
         </div>
 
-        {(fundamentals.isLoading || (fundamentals.data && fundamentals.data.length > 0)) && (
+        {(fundamentals.isLoading || (fundamentals.data && fundamentals.data.length > 3)) && (
           <>
             <div className={styles.section}>Fundamentos</div>
             {fundamentals.isLoading && (
-              <p className={styles.fundamentalsHint}>Carregando dividend yield, P/VP, P/L…</p>
+              <p className={styles.fundamentalsHint}>Carregando indicadores adicionais…</p>
             )}
-            {fundamentals.data && fundamentals.data.length > 0 && (
+            {fundamentals.data && fundamentals.data.length > 3 && (
               <div className={styles.statsGrid}>
-                {fundamentals.data.map((m) => (
-                  <div key={m.id} className={styles.stat} title={m.hint}>
-                    <span className={styles.statLabel}>{m.label}</span>
-                    <span className={styles.statVal}>{m.value}</span>
-                  </div>
-                ))}
+                {fundamentals.data
+                  .filter((m) => !['pl', 'pvp', 'dy'].includes(m.id))
+                  .map((m) => (
+                    <div key={m.id} className={styles.stat} title={m.hint}>
+                      <span className={styles.statLabel}>{m.label}</span>
+                      <span className={styles.statVal}>{m.value}</span>
+                    </div>
+                  ))}
               </div>
             )}
           </>
         )}
 
         <p className={styles.disclaimer}>
-          Cotações e fundamentos via Yahoo Finance (podem ter atraso ou lacunas, sobretudo em FIIs).
+          Cotações via Yahoo Finance; fundamentos (P/L, P/VP, DY) via Investidor10 quando disponível.
           Atualização de preço a cada ~10s com mercado aberto. Conteúdo informativo — não é recomendação de investimento.
         </p>
       </div>

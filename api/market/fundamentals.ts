@@ -1,6 +1,7 @@
-const YAHOO = 'https://query1.finance.yahoo.com/v10/finance/quoteSummary/'
-const UA = 'Mozilla/5.0 (compatible; FluxFinance/2.0)'
-const MODULES = 'summaryDetail,defaultKeyStatistics,financialData,price'
+import {
+  parseFundamentalsQuery,
+  resolveAssetFundamentals,
+} from '../../src/data/fundamentalsResolve.js'
 
 export default async function handler(
   req: { method?: string; query?: Record<string, string | string[] | undefined> },
@@ -14,22 +15,14 @@ export default async function handler(
     return
   }
 
-  const symbol = String(req.query?.symbol ?? '').trim().toUpperCase()
-  if (!symbol || symbol.length > 16 || !/^[A-Z0-9.\-=^]+$/.test(symbol)) {
-    res.status(400).json({ error: 'invalid symbol' })
+  const parsed = parseFundamentalsQuery(req.query ?? {})
+  if (!parsed) {
+    res.status(400).json({ error: 'invalid query' })
     return
   }
 
   try {
-    const q = new URLSearchParams({ modules: MODULES })
-    const upstream = await fetch(`${YAHOO}${encodeURIComponent(symbol)}?${q.toString()}`, {
-      headers: { 'User-Agent': UA },
-    })
-    if (!upstream.ok) {
-      res.status(upstream.status).json({ error: 'upstream_failed' })
-      return
-    }
-    const body = await upstream.json()
+    const body = await resolveAssetFundamentals(parsed.symbol, parsed.kind, parsed.region, parsed.currency)
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=3600')
     res.status(200).json(body)
   } catch {
