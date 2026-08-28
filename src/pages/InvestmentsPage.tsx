@@ -9,7 +9,9 @@ import { Modal } from '@/components/ui/Modal'
 import { HeaderActionButton } from '@/components/legacy/HeaderActionButton'
 import { MarketSection } from '@/features/investments/MarketSection'
 import { InvestorHub } from '@/features/investments/InvestorHub'
+import { FavoritesPanel } from '@/features/investments/FavoritesPanel'
 import { InvestmentModal } from '@/features/investments/InvestmentModal'
+import { useFavorites } from '@/lib/useFavorites'
 import { RescueModal } from '@/features/investments/RescueModal'
 import { useInvestmentMutations } from '@/features/investments/useInvestmentMutations'
 import { formatBRL, sub, sum, ZERO, add as addMoney, type Cents } from '@/domain/money'
@@ -18,7 +20,7 @@ import type { Investment, InvestmentType } from '@/domain/entities'
 import { portfolioTickers, toInvestmentCalcInput } from '@/features/investments/investmentCalc'
 import styles from './InvestmentsPage.module.css'
 
-type InvView = 'wallet' | 'investor' | 'market'
+type InvView = 'wallet' | 'investor' | 'favorites' | 'market'
 
 const TYPE_LABELS: Record<InvestmentType, string> = {
   cdb: 'CDB',
@@ -43,6 +45,7 @@ export function InvestmentsPage() {
   const [confirmDelete, setConfirmDelete] = useState<Investment | null>(null)
   const [rescuing, setRescuing] = useState<Investment | null>(null)
   const [view, setView] = useState<InvView>('investor')
+  const { favorites, toggleFavorite } = useFavorites()
 
   const now = useMemo(() => new Date(), [])
   const marketRates = rates.data ? { cdi: rates.data.cdi, ipca: rates.data.ipca } : DEFAULT_RATES
@@ -105,6 +108,7 @@ export function InvestmentsPage() {
           [
             ['wallet', '💼 Minha carteira'],
             ['investor', '📈 Investidor'],
+            ['favorites', '★ Favoritos'],
             ['market', '🌐 Mercado ao vivo'],
           ] as const
         ).map(([id, label]) => (
@@ -117,11 +121,23 @@ export function InvestmentsPage() {
             onClick={() => setView(id)}
           >
             {label}
+            {id === 'favorites' && favorites.length > 0 ? (
+              <span className={styles.viewTabBadge}>{favorites.length}</span>
+            ) : null}
           </button>
         ))}
       </div>
 
-      {view === 'investor' && <InvestorHub onOpenMarket={() => setView('market')} />}
+      {view === 'investor' && (
+        <InvestorHub
+          favorites={favorites}
+          onToggleFavorite={toggleFavorite}
+          onOpenMarket={() => setView('market')}
+          onOpenFavorites={() => setView('favorites')}
+        />
+      )}
+
+      {view === 'favorites' && <FavoritesPanel favorites={favorites} onToggleFavorite={toggleFavorite} />}
 
       {view === 'market' && <MarketSection />}
 

@@ -20,7 +20,6 @@ import {
   type AssetKind,
   type StockDef,
 } from '@/data/stocksCatalog'
-import { loadFavorites, saveFavorites } from '@/lib/favorites'
 import { marketSessionLabel } from '@/lib/marketSession'
 import { AssetMark } from '@/components/assets/AssetMark'
 import { AssetDetail } from './AssetDetail'
@@ -40,6 +39,9 @@ const KIND_LABEL: Record<AssetKind, string> = {
 
 type Props = {
   onOpenMarket?: () => void
+  onOpenFavorites?: () => void
+  favorites: string[]
+  onToggleFavorite: (yahoo: string) => void
 }
 
 type CatalogRow = { def: StockDef; quote?: StockQuote }
@@ -186,7 +188,7 @@ function CategoryNavButton({
   )
 }
 
-export function InvestorHub({ onOpenMarket }: Props) {
+export function InvestorHub({ onOpenMarket, onOpenFavorites, favorites, onToggleFavorite }: Props) {
   const searchRef = useRef<HTMLInputElement>(null)
   const sidebarRef = useRef<HTMLElement>(null)
   const listAnchorRef = useRef<HTMLDivElement>(null)
@@ -197,7 +199,6 @@ export function InvestorHub({ onOpenMarket }: Props) {
   const [listSort, setListSort] = useState<QuoteSortMode>('change_desc')
   const [search, setSearch] = useState('')
   const [detail, setDetail] = useState<string | null>(null)
-  const [favorites, setFavorites] = useState<string[]>(() => loadFavorites())
   const [insightsOpen, setInsightsOpen] = useState(false)
   const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false)
   const session = marketSessionLabel()
@@ -217,14 +218,6 @@ export function InvestorHub({ onOpenMarket }: Props) {
 
   const stocks = useStockQuotes(category.hasQuotes && categorySymbols.length ? categorySymbols : undefined)
   const rates = useRates()
-
-  const toggleFavorite = (yahoo: string) => {
-    setFavorites((prev) => {
-      const next = prev.includes(yahoo) ? prev.filter((s) => s !== yahoo) : [...prev, yahoo]
-      saveFavorites(next)
-      return next
-    })
-  }
 
   const quoteByYahoo = useMemo(() => {
     const map = new Map<string, StockQuote>()
@@ -310,7 +303,10 @@ export function InvestorHub({ onOpenMarket }: Props) {
   }, [categoryId])
 
   const runTool = (action: 'favorites' | 'market' | 'focus_search') => {
-    if (action === 'favorites') onCategoryChange('favorites')
+    if (action === 'favorites') {
+      if (onOpenFavorites) onOpenFavorites()
+      else onCategoryChange('favorites')
+    }
     else if (action === 'market') onOpenMarket?.()
     else searchRef.current?.focus()
   }
@@ -541,7 +537,7 @@ export function InvestorHub({ onOpenMarket }: Props) {
                                   row={row}
                                   favorites={favorites}
                                   onOpen={setDetail}
-                                  onToggleFavorite={toggleFavorite}
+                                  onToggleFavorite={onToggleFavorite}
                                 />
                               ))}
                             </div>
@@ -587,7 +583,7 @@ export function InvestorHub({ onOpenMarket }: Props) {
                         row={row}
                         favorites={favorites}
                         onOpen={setDetail}
-                        onToggleFavorite={toggleFavorite}
+                        onToggleFavorite={onToggleFavorite}
                       />
                     ))}
                   </>
@@ -723,7 +719,7 @@ export function InvestorHub({ onOpenMarket }: Props) {
           symbol={detail}
           onClose={() => setDetail(null)}
           isFavorite={favorites.includes(detail)}
-          onToggleFavorite={() => toggleFavorite(detail)}
+          onToggleFavorite={() => onToggleFavorite(detail)}
         />
       )}
     </div>

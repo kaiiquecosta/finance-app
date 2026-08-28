@@ -38,6 +38,26 @@
   cursor: pointer;
   font-family: var(--font);
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.viewTabBadge {
+  font-family: var(--num);
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 18%, transparent);
+  color: var(--primary);
+  display: inline-grid;
+  place-items: center;
+}
+.viewTabActive .viewTabBadge {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
 }
 .viewTabActive {
   background: var(--primary);
