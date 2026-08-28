@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { assetLogoFallbacks, assetLogoUrl } from '@/data/assetLogos'
+import { useEffect, useMemo, useState } from 'react'
+import { assetLogoCandidates, assetLogoDarkTile } from '@/data/assetLogos'
 import { LIGHT_MODE_MONO_LOGOS } from '@/data/assetLogoMono'
 import { stockByYahoo, type StockDef } from '@/data/stocksCatalog'
 import styles from './AssetMark.module.css'
@@ -24,28 +24,53 @@ export function AssetMark({ def, yahoo, symbol, fallbackIcon = '📈', size = 'm
     ? { symbol: resolved.symbol, kind: resolved.kind, region: resolved.region }
     : null
 
-  const [srcIndex, setSrcIndex] = useState(0)
-  const urls = logoInput
-    ? [assetLogoUrl(logoInput), ...assetLogoFallbacks(logoInput)].filter(Boolean) as string[]
-    : []
-  const src = urls[srcIndex]
+  const urls = useMemo(
+    () => (logoInput ? assetLogoCandidates(logoInput) : []),
+    [logoInput?.symbol, logoInput?.kind, logoInput?.region],
+  )
+  const urlsKey = urls.join('|')
 
-  const onError = () => {
-    if (srcIndex < urls.length - 1) setSrcIndex((i) => i + 1)
-    else setSrcIndex(urls.length)
+  const [srcIndex, setSrcIndex] = useState(0)
+
+  useEffect(() => {
+    setSrcIndex(0)
+  }, [sym, urlsKey])
+
+  const advance = () => {
+    setSrcIndex((i) => (i < urls.length - 1 ? i + 1 : urls.length))
   }
 
-  const showImg = src && srcIndex < urls.length
+  const src = urls[srcIndex]
+  const showImg = src != null && srcIndex < urls.length
   const monoLight = LIGHT_MODE_MONO_LOGOS.has(sym.toUpperCase())
+  const darkTile = assetLogoDarkTile(sym)
 
   return (
     <span
-      className={[styles.mark, styles[size], monoLight ? styles.monoLight : '', className].filter(Boolean).join(' ')}
+      className={[
+        styles.mark,
+        styles[size],
+        monoLight ? styles.monoLight : '',
+        darkTile ? styles.darkTile : '',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
       aria-hidden={!alt}
       title={alt ?? sym}
     >
       {showImg ? (
-        <img src={src} alt={alt ?? sym} className={styles.img} loading="lazy" onError={onError} />
+        <img
+          src={src}
+          alt={alt ?? sym}
+          className={styles.img}
+          loading="lazy"
+          onError={advance}
+          onLoad={(e) => {
+            const img = e.currentTarget
+            if (img.naturalWidth < 2 || img.naturalHeight < 2) advance()
+          }}
+        />
       ) : (
         <span className={styles.emoji}>{icon}</span>
       )}

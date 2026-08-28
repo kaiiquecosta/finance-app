@@ -43,6 +43,13 @@
   filter: brightness(0);
   opacity: 0.82;
 }
+.darkTile {
+  background: #101014;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+:root .darkTile .img {
+  mix-blend-mode: normal;
+}
 .emoji {
   font-size: 16px;
   line-height: 1;
