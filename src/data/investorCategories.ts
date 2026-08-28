@@ -34,7 +34,7 @@ export interface InvestorRanking {
   id: string
   label: string
   /** Ordenação aplicada na lista completa da categoria. */
-  sort: 'change_desc' | 'change_asc' | 'name' | 'price_desc'
+  sort: 'change_desc' | 'change_asc' | 'volatility_desc' | 'name' | 'price_desc'
 }
 
 export interface InvestorTool {
@@ -67,7 +67,7 @@ export const INVESTOR_CATEGORIES: InvestorCategory[] = [
     rankings: [
       { id: 'up', label: 'Maiores altas', sort: 'change_desc' },
       { id: 'down', label: 'Maiores baixas', sort: 'change_asc' },
-      { id: 'vol', label: 'Mais voláteis', sort: 'change_desc' },
+      { id: 'vol', label: 'Mais voláteis', sort: 'volatility_desc' },
     ],
     tools: [
       { label: 'Mercado ao vivo', description: 'Índices, câmbio e taxas', action: 'market' },
@@ -281,6 +281,35 @@ export function defMatchesCategory(def: StockDef, categoryId: InvestorCategoryId
 
 export type QuoteSortMode = InvestorRanking['sort']
 
+export function sortCatalogRows<
+  T extends { def: { name: string }; quote?: { pctChange: number; price: number } | undefined },
+>(rows: T[], mode: QuoteSortMode): T[] {
+  const sortable = rows.map((row) => ({
+    row,
+    pct: row.quote?.pctChange ?? -Infinity,
+    absPct: Math.abs(row.quote?.pctChange ?? -Infinity),
+    price: row.quote?.price ?? 0,
+    name: row.def.name,
+  }))
+  sortable.sort((a, b) => {
+    switch (mode) {
+      case 'change_desc':
+        return b.pct - a.pct
+      case 'change_asc':
+        return a.pct - b.pct
+      case 'volatility_desc':
+        return b.absPct - a.absPct
+      case 'name':
+        return a.name.localeCompare(b.name, 'pt-BR')
+      case 'price_desc':
+        return b.price - a.price
+      default:
+        return 0
+    }
+  })
+  return sortable.map((s) => s.row)
+}
+
 export function sortQuotes<T extends { pctChange: number; name: string; price: number }>(
   list: T[],
   mode: QuoteSortMode,
@@ -291,6 +320,8 @@ export function sortQuotes<T extends { pctChange: number; name: string; price: n
       return sorted.sort((a, b) => b.pctChange - a.pctChange)
     case 'change_asc':
       return sorted.sort((a, b) => a.pctChange - b.pctChange)
+    case 'volatility_desc':
+      return sorted.sort((a, b) => Math.abs(b.pctChange) - Math.abs(a.pctChange))
     case 'name':
       return sorted.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
     case 'price_desc':

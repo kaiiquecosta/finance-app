@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { INVESTOR_CATEGORIES, INVESTOR_CATEGORY_GROUPS } from './investorCategories'
+import { INVESTOR_CATEGORIES, INVESTOR_CATEGORY_GROUPS, sortCatalogRows } from './investorCategories'
 
 describe('INVESTOR_CATEGORY_GROUPS', () => {
   it('cobre todas as categorias sem duplicar', () => {
@@ -19,5 +19,19 @@ describe('INVESTOR_CATEGORY_GROUPS', () => {
     expect(brasil?.categories).toContain('fiis')
     expect(intl?.categories).toContain('stocks_us')
     expect(intl?.categories).toContain('etfs_us')
+  })
+})
+
+describe('sortCatalogRows', () => {
+  it('ordena por volatilidade (|var%|)', () => {
+    const rows = sortCatalogRows(
+      [
+        { def: { name: 'A' }, quote: { pctChange: 2, price: 10 } },
+        { def: { name: 'B' }, quote: { pctChange: -5, price: 10 } },
+        { def: { name: 'C' }, quote: { pctChange: 1, price: 10 } },
+      ],
+      'volatility_desc',
+    )
+    expect(rows.map((r) => r.def.name)).toEqual(['B', 'A', 'C'])
   })
 })

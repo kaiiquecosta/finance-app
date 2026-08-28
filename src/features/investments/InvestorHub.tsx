@@ -10,6 +10,7 @@ import {
   type InvestorCategory,
   type InvestorCategoryId,
   type QuoteSortMode,
+  sortCatalogRows,
 } from '@/data/investorCategories'
 import {
   ALL_STOCKS,
@@ -248,27 +249,7 @@ export function InvestorHub({ onOpenMarket }: Props) {
           def.yahoo.toLowerCase().includes(term),
       )
     }
-    const sortable = list.map((row) => ({
-      row,
-      pct: row.quote?.pctChange ?? -Infinity,
-      price: row.quote?.price ?? 0,
-      name: row.def.name,
-    }))
-    sortable.sort((a, b) => {
-      switch (listSort) {
-        case 'change_desc':
-          return b.pct - a.pct
-        case 'change_asc':
-          return a.pct - b.pct
-        case 'name':
-          return a.name.localeCompare(b.name, 'pt-BR')
-        case 'price_desc':
-          return b.price - a.price
-        default:
-          return 0
-      }
-    })
-    return sortable.map((s) => s.row)
+    return sortCatalogRows(list, listSort)
   }, [sectorFiltered, search, listSort])
 
   const showGroupedIdeas = categoryId === 'ideas' && !search.trim()
@@ -281,17 +262,16 @@ export function InvestorHub({ onOpenMarket }: Props) {
         sections: group.categories
           .map((catId) => {
             const cat = categoryById(catId)
-            const rows = catalogRows
-              .filter(({ def }) => cat.match(def))
-              .filter(({ quote }) => quote)
-              .sort((a, b) => Math.abs(b.quote!.pctChange) - Math.abs(a.quote!.pctChange))
-              .slice(0, 6)
+            const rows = sortCatalogRows(
+              catalogRows.filter(({ def }) => cat.match(def)).filter(({ quote }) => quote),
+              listSort,
+            ).slice(0, 6)
             return { cat, rows }
           })
           .filter((section) => section.rows.length > 0),
       }))
       .filter((entry) => entry.sections.length > 0)
-  }, [showGroupedIdeas, catalogRows])
+  }, [showGroupedIdeas, catalogRows, listSort])
 
   const popular = useMemo(() => {
     const withQuotes = [...catalogRows].filter((r) => r.quote)
