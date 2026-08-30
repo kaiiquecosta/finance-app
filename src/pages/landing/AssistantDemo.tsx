@@ -13,6 +13,7 @@ const USER_TEXT = 'Gastei 45 reais no mercado'
 const ASSISTANT_REPLY = 'Pronto! Registrado em Mercado.'
 const BALANCE_BEFORE = 4120
 const AMOUNT = 45
+const WAVE = [18, 34, 52, 28, 66, 45, 24, 58, 38, 20]
 
 export function AssistantDemo() {
   const rootRef = useRef<HTMLElement>(null)
@@ -20,6 +21,7 @@ export function AssistantDemo() {
   const [phase, setPhase] = useState<Phase>('idle')
   const [typed, setTyped] = useState('')
   const [balance, setBalance] = useState(BALANCE_BEFORE)
+  const [speaking, setSpeaking] = useState(false)
   const loopRef = useRef(0)
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export function AssistantDemo() {
       ([entry]) => {
         if (entry?.isIntersecting) setActive(true)
       },
-      { threshold: 0.35 },
+      { threshold: 0.25 },
     )
     obs.observe(el)
     return () => obs.disconnect()
@@ -51,31 +53,34 @@ export function AssistantDemo() {
         setPhase('idle')
         setTyped('')
         setBalance(BALANCE_BEFORE)
-        await wait(900)
+        setSpeaking(false)
+        await wait(800)
 
+        setSpeaking(true)
         setPhase('typing')
         for (let i = 1; i <= USER_TEXT.length; i++) {
           if (cancelled) return
           setTyped(USER_TEXT.slice(0, i))
           await wait(42)
         }
-        await wait(350)
+        await wait(300)
+        setSpeaking(false)
 
         setPhase('sent')
-        await wait(700)
+        await wait(650)
 
         setPhase('thinking')
-        await wait(900)
+        await wait(850)
 
         setPhase('done')
-        await wait(1100)
+        await wait(900)
 
         setPhase('balance')
         setBalance(BALANCE_BEFORE - AMOUNT)
-        await wait(2600)
+        await wait(2800)
 
         loopRef.current += 1
-        if (loopRef.current % 2 === 0) await wait(600)
+        if (loopRef.current % 2 === 0) await wait(500)
       }
     }
 
@@ -91,14 +96,19 @@ export function AssistantDemo() {
   const showBalance = phase === 'balance'
 
   return (
-    <section className="lp-assistant" ref={rootRef} aria-label="Demonstração do Assistente Flux">
+    <section className="lp-assistant lp-assistant-below-hero" ref={rootRef} id="assistente" aria-label="Demonstração do Assistente Flux">
       <div className="lp-assistant-layout">
         <div className="lp-assistant-copy">
+          <div className={`lp-assist-wave ${speaking ? 'active' : ''}`} aria-hidden>
+            {WAVE.map((h, i) => (
+              <i key={i} style={{ height: h }} />
+            ))}
+          </div>
           <span className="lp-kicker">Assistente Flux</span>
           <h2>Fale como você vive.<br /><em>O Flux registra.</em></h2>
           <p>
             Digite ou fale em português — gastos e receitas entram sozinhos, sem formulário.
-            Veja a demonstração ao lado.
+            A demonstração roda automaticamente ao lado.
           </p>
         </div>
 
@@ -137,10 +147,21 @@ export function AssistantDemo() {
                   <strong>− R$ 45,00</strong>
                 </div>
               )}
+
+              {showBalance && (
+                <div className="lp-assist-balance-inline lp-assist-pop">
+                  <span className="lp-assist-balance-icon">🏦</span>
+                  <div className="lp-assist-balance-copy">
+                    <small>Nubank · saldo após o gasto</small>
+                    <b>R$ {balance.toLocaleString('pt-BR')},00</b>
+                  </div>
+                  <em className="lp-assist-delta">− R$ 45,00</em>
+                </div>
+              )}
             </div>
 
             <div className="lp-assist-compose">
-              <button type="button" className="lp-assist-mic" aria-hidden>🎤</button>
+              <button type="button" className={`lp-assist-mic ${speaking ? 'active' : ''}`} aria-hidden>🎤</button>
               <div className="lp-assist-input">
                 {phase === 'typing' ? (
                   <>
@@ -153,17 +174,6 @@ export function AssistantDemo() {
               </div>
               <button type="button" className="lp-assist-send" aria-hidden>↑</button>
             </div>
-          </div>
-
-          <div className={`lp-assist-balance ${showBalance ? 'visible' : ''}`}>
-            <span>🏦 Nubank</span>
-            <div>
-              <small>Saldo após o gasto</small>
-              <b>R$ {balance.toLocaleString('pt-BR')},00</b>
-            </div>
-            {showBalance && (
-              <em className="lp-assist-delta">− R$ 45,00</em>
-            )}
           </div>
 
           <div className="lp-assist-fab" aria-hidden>💬</div>

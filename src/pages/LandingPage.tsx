@@ -63,6 +63,7 @@ export function LandingPage() {
         <a className="lp-brand" href="#" aria-label="Flux"><i>F</i><b>Flux</b></a>
         <div className={`lp-links ${menu ? 'open' : ''}`}>
           <a href="#produto" onClick={() => setMenu(false)}>Produto</a>
+          <a href="#assistente" onClick={() => setMenu(false)}>Assistente</a>
           <a href="#investimentos" onClick={() => setMenu(false)}>Investimentos</a>
           <a href="#comunidade" onClick={() => setMenu(false)}>Comunidade</a>
           <a href="#precos" onClick={() => setMenu(false)}>Preços</a>
@@ -95,6 +96,8 @@ export function LandingPage() {
         <div className="lp-trust"><span>30 dias grátis</span><span>Sem cartão</span><span>Dados protegidos</span></div>
         <ProductPreview />
       </section>
+
+      <AssistantDemo />
 
       <section className="lp-intro" id="produto">
         <span className="lp-kicker">Tudo conectado</span>
@@ -150,8 +153,6 @@ export function LandingPage() {
           <a href="/criar-conta" onClick={go('/criar-conta')}>Entrar na comunidade <Arrow /></a>
         </div>
       </section>
-
-      <AssistantDemo />
 
       <section className="lp-pricing" id="precos">
         <span className="lp-kicker">Simples e transparente</span>

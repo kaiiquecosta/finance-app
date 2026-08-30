@@ -725,18 +725,28 @@
 .lp-mock-cc-item small{font-size:8px;color:var(--mock-muted)}
 
 /* —— Investimentos (Investidor real) —— */
-.lp-mock-inv-page .lp-mock-inv-layout{grid-template-columns:88px 1fr}
-.lp-mock-inv-main{min-width:0}
-.lp-mock-cat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:10px}
-.lp-mock-cat-grid label{display:block;margin-bottom:4px;font-size:7px;font-weight:700;text-transform:uppercase;color:var(--mock-muted)}
-.lp-mock-cat-grid button{display:block;width:100%;padding:5px 6px;margin-bottom:3px;border:0;border-radius:8px;background:transparent;color:var(--mock-muted);font-size:8px;text-align:left;cursor:default;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lp-mock-cat-grid button.active{background:color-mix(in srgb,var(--mock-primary) 12%,transparent);color:var(--mock-primary);font-weight:700}
-.lp-mock-inv-hero.compact{margin-bottom:8px;padding:10px 12px}
+.lp-mock-inv-page .lp-mock-hscroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.lp-mock-inv-page .lp-mock-hscroll::-webkit-scrollbar{display:none}
+.lp-mock-inv-tabs{margin-bottom:8px}
+.lp-mock-inv-tabs button{flex:0 0 auto;padding:7px 11px;border-radius:999px;border:1px solid var(--mock-border);background:var(--mock-card2);color:var(--mock-muted);font-size:9px;cursor:default;white-space:nowrap}
+.lp-mock-inv-tabs button.active{background:var(--mock-primary);border-color:var(--mock-primary);color:#fff;font-weight:700}
+.lp-mock-inv-toolbar{display:grid;grid-template-columns:72px 1fr;gap:8px;align-items:start}
+.lp-mock-inv-side{display:flex;flex-direction:column;gap:4px;padding:8px;background:var(--mock-card);border:1px solid var(--mock-border);border-radius:12px}
+.lp-mock-inv-side button{padding:6px 8px;border:0;border-radius:8px;background:transparent;color:var(--mock-muted);font-size:8px;text-align:left;cursor:default}
+.lp-mock-inv-body{min-width:0}
+.lp-mock-cat-rail{gap:10px;padding-bottom:4px}
+.lp-mock-cat-group{display:flex;flex-direction:column;gap:4px;flex:0 0 auto;min-width:108px;padding:8px;background:var(--mock-card);border:1px solid var(--mock-border);border-radius:12px}
+.lp-mock-cat-group>span{font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mock-muted)}
+.lp-mock-cat-group button{padding:5px 7px;border:0;border-radius:8px;background:transparent;color:var(--mock-muted);font-size:8px;text-align:left;cursor:default;white-space:nowrap}
+.lp-mock-cat-group button.active{background:color-mix(in srgb,var(--mock-primary) 12%,transparent);color:var(--mock-primary);font-weight:700}
+.lp-mock-scroll-hint.inner{display:flex;align-items:center;gap:8px;margin:4px 0 8px}
+.lp-mock-scroll-hint.inner small{font-size:8px;color:var(--mock-muted);white-space:nowrap}
+.lp-mock-inv-hero.compact{margin-bottom:8px;padding:10px 12px;background:var(--mock-card);border:1px solid var(--mock-border);border-radius:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .lp-mock-inv-hero.compact b{display:block;font-size:11px}
 .lp-mock-inv-hero.compact small{display:block;font-size:8px;color:var(--mock-muted)}
-.lp-mock-pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
-.lp-mock-pills button{padding:5px 9px;border-radius:999px;border:1px solid var(--mock-border);background:var(--mock-card2);color:var(--mock-muted);font-size:8px;cursor:default}
-.lp-mock-pills button.active{background:var(--mock-primary);border-color:var(--mock-primary);color:#fff}
+.lp-mock-inv-page .lp-mock-pills{margin-bottom:6px}
+.lp-mock-inv-page .lp-mock-pills button{flex:0 0 auto;padding:5px 9px;border-radius:999px;border:1px solid var(--mock-border);background:var(--mock-card2);color:var(--mock-muted);font-size:8px;cursor:default;white-space:nowrap}
+.lp-mock-inv-page .lp-mock-pills button.active{background:var(--mock-primary);border-color:var(--mock-primary);color:#fff}
 .lp-mock-movers{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .lp-mock-card-title.green{color:var(--mock-green)}
 .lp-mock-card-title.red{color:var(--mock-red)}
@@ -746,7 +756,22 @@
 .lp-mock-mover-row span{font-weight:700;font-size:8px}
 .lp-mock-mover-row strong{font-size:9px;font-variant-numeric:tabular-nums}
 
-/* —— Comunidade (Kanban real) —— */
+/* —— Scroll hint (tabs do mockup) —— */
+.lp-preview-tabs-wrap{flex:1;min-width:0;display:flex;flex-direction:column;gap:0;margin-left:8px}
+.lp-preview-scroll-hint{display:flex;align-items:center;gap:8px;padding:4px 2px 2px;border-top:1px solid rgba(0,0,0,.04)}
+.lp-preview-scroll-track{flex:1;height:3px;border-radius:999px;background:rgba(0,0,0,.06);overflow:hidden;max-width:120px}
+.lp-preview-scroll-track i{display:block;height:100%;width:42%;border-radius:999px;background:linear-gradient(90deg,#820ad1,#16a34a);animation:lp-scroll-nudge 2.4s ease-in-out infinite}
+.lp-preview-scroll-hint small{font-size:7px;color:#999;white-space:nowrap}
+@keyframes lp-scroll-nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(140%)}}
+.lp[data-theme='dark'] .lp-preview-scroll-hint{border-top-color:rgba(228,220,245,.06)}
+.lp[data-theme='dark'] .lp-preview-scroll-hint small{color:#8a8398}
+.lp[data-theme='dark'] .lp-preview-scroll-track{background:rgba(228,220,245,.08)}
+
+@media (max-width: 900px) {
+  .lp-mock-inv-toolbar{grid-template-columns:1fr}
+  .lp-mock-inv-side{flex-direction:row;flex-wrap:wrap}
+  .lp-mock-movers{grid-template-columns:1fr}
+}
 .lp-mock-notif{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--mock-primary) 8%,var(--mock-card));border:1px solid color-mix(in srgb,var(--mock-primary) 18%,var(--mock-border))}
 .lp-mock-notif p{flex:1;margin:0;font-size:9px;line-height:1.4;color:var(--mock-muted)}
 .lp-mock-notif button{padding:6px 10px;border-radius:8px;border:1px solid var(--mock-border);background:var(--mock-card2);font-size:8px;cursor:default}

@@ -82,17 +82,25 @@ export function ProductPreview() {
             <i>F</i>
             <span>Flux</span>
           </div>
-          <div className="lp-preview-tabs">
-            {PREVIEW_TABS.map((tab) => (
-              <button
-                key={tab.id}
-                className={preview === tab.id ? 'active' : ''}
-                onClick={() => setPreview(tab.id)}
-              >
-                <span className="lp-tab-icon">{tab.icon}</span>
-                {tab.label}
-              </button>
-            ))}
+          <div className="lp-preview-tabs-wrap">
+            <div className="lp-preview-tabs">
+              {PREVIEW_TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  className={preview === tab.id ? 'active' : ''}
+                  onClick={() => setPreview(tab.id)}
+                >
+                  <span className="lp-tab-icon">{tab.icon}</span>
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+            <div className="lp-preview-scroll-hint" aria-hidden>
+              <span className="lp-preview-scroll-track">
+                <i />
+              </span>
+              <small>← Arraste para ver todas as telas do Flux →</small>
+            </div>
           </div>
           <span className="lp-avatar">KC</span>
         </div>
@@ -500,41 +508,49 @@ export function ProductPreview() {
               </div>
               <button type="button" className="lp-mock-head-actions primary">＋ Adicionar</button>
             </div>
-            <div className="lp-mock-inv-tabs">
+
+            <div className="lp-mock-hscroll lp-mock-inv-tabs">
               <button type="button">💼 Minha carteira</button>
               <button type="button">★ Favoritos</button>
               <button type="button" className="active">📈 Investidor</button>
               <button type="button">🌐 Mercado ao vivo</button>
             </div>
-            <div className="lp-mock-inv-layout">
-              <nav className="lp-mock-sidebar">
+
+            <div className="lp-mock-inv-toolbar">
+              <nav className="lp-mock-inv-side">
                 <button type="button">💡 Ideias</button>
                 <button type="button">⭐ Favoritos</button>
               </nav>
-              <div className="lp-mock-inv-main">
-                <div className="lp-mock-cat-grid">
-                  <div>
-                    <label>Brasil · B3</label>
-                    <button type="button" className="active">🇧🇷 Ações brasileiras</button>
-                    <button type="button">🏢 Fundos imobiliários</button>
+              <div className="lp-mock-inv-body">
+                <div className="lp-mock-hscroll lp-mock-cat-rail">
+                  <div className="lp-mock-cat-group">
+                    <span>Brasil · B3</span>
+                    <button type="button" className="active">🇧🇷 Ações BR</button>
+                    <button type="button">🏢 FIIs</button>
                     <button type="button">🌎 BDRs</button>
+                    <button type="button">🧺 ETFs BR</button>
                   </div>
-                  <div>
-                    <label>Internacional</label>
-                    <button type="button">🇺🇸 Ações internacionais</button>
-                    <button type="button">🦅 ETFs internacionais</button>
+                  <div className="lp-mock-cat-group">
+                    <span>Internacional</span>
+                    <button type="button">🇺🇸 Ações US</button>
+                    <button type="button">🦅 ETFs US</button>
                   </div>
-                  <div>
-                    <label>Mercados globais</label>
-                    <button type="button">₿ Criptomoedas</button>
+                  <div className="lp-mock-cat-group">
+                    <span>Global</span>
+                    <button type="button">₿ Cripto</button>
                     <button type="button">📊 Índices</button>
                   </div>
-                  <div>
-                    <label>Renda fixa</label>
+                  <div className="lp-mock-cat-group">
+                    <span>Renda fixa</span>
                     <button type="button">📈 Renda fixa</button>
-                    <button type="button">🏛 Tesouro Direto</button>
+                    <button type="button">🏛 Tesouro</button>
                   </div>
                 </div>
+                <div className="lp-mock-scroll-hint inner">
+                  <span className="lp-preview-scroll-track"><i /></span>
+                  <small>Deslize para ver mais categorias</small>
+                </div>
+
                 <div className="lp-mock-inv-hero compact">
                   <div>
                     <b>🇧🇷 Ações brasileiras</b>
@@ -542,27 +558,31 @@ export function ProductPreview() {
                   </div>
                   <span className="lp-mock-live"><i />tempo real · ~10s</span>
                 </div>
-                <div className="lp-mock-pills">
-                  <button className="active">Maiores altas</button>
-                  <button>Maiores baixas</button>
-                  <button>Maior preço</button>
+
+                <div className="lp-mock-hscroll lp-mock-pills">
+                  <button type="button" className="active">Maiores altas</button>
+                  <button type="button">Maiores baixas</button>
+                  <button type="button">Maior preço</button>
+                  <button type="button">Mais voláteis</button>
                 </div>
-                <div className="lp-mock-pills">
-                  <button className="active">Todos</button>
-                  <button>Financeiro</button>
-                  <button>Energia</button>
-                  <button>Materiais</button>
+                <div className="lp-mock-hscroll lp-mock-pills">
+                  <button type="button" className="active">Todos</button>
+                  <button type="button">Financeiro</button>
+                  <button type="button">Energia</button>
+                  <button type="button">Materiais</button>
+                  <button type="button">Saúde</button>
                 </div>
+
                 <div className="lp-mock-movers">
                   <div className="lp-mock-card">
                     <div className="lp-mock-card-title green">Maiores altas ▲</div>
-                    {[['PETR4','+1,99%','R$ 43,55'],['PETR3','+1,98%','R$ 40,82'],['B3SA3','+1,96%','R$ 16,05'],['VALE3','+1,12%','R$ 58,90'],['ITUB4','+0,88%','R$ 38,21'],['BBDC4','+0,72%','R$ 15,44']].map(([t,p,v]) => (
+                    {[['PETR4', '+1,99%', 'R$ 43,55'], ['B3SA3', '+1,96%', 'R$ 16,05'], ['VALE3', '+1,12%', 'R$ 58,90'], ['ITUB4', '+0,88%', 'R$ 38,21']].map(([t, p, v]) => (
                       <div key={t} className="lp-mock-mover-row"><b>{t}</b><span className="green">{p}</span><strong>{v}</strong></div>
                     ))}
                   </div>
                   <div className="lp-mock-card">
                     <div className="lp-mock-card-title red">Maiores baixas ▼</div>
-                    {[['MGLU3','−4,55%','R$ 4,62'],['CYRE3','−2,10%','R$ 18,30'],['GGBR4','−1,85%','R$ 19,88'],['WEGE3','−1,42%','R$ 42,10'],['RENT3','−1,20%','R$ 55,70'],['ABEV3','−0,95%','R$ 12,48']].map(([t,p,v]) => (
+                    {[['MGLU3', '−4,55%', 'R$ 4,62'], ['CYRE3', '−2,10%', 'R$ 18,30'], ['GGBR4', '−1,85%', 'R$ 19,88'], ['WEGE3', '−1,42%', 'R$ 42,10']].map(([t, p, v]) => (
                       <div key={t} className="lp-mock-mover-row"><b>{t}</b><span className="red">{p}</span><strong>{v}</strong></div>
                     ))}
                   </div>
