@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { NAV_ITEMS } from '@/app/navItems'
 import { HorizontalScrollBar, useHorizontalDragScroll } from './HorizontalScrollBar'
+import { InvestmentMockPanel } from './InvestmentMockPanel'
 import './productPreview.css'
 
 type PreviewId =
@@ -66,9 +67,7 @@ function MockRow({
 export function ProductPreview() {
   const [preview, setPreview] = useState<PreviewId>('overview')
   const tabsScrollRef = useRef<HTMLDivElement>(null)
-  const categoriesScrollRef = useRef<HTMLDivElement>(null)
   useHorizontalDragScroll(tabsScrollRef)
-  useHorizontalDragScroll(categoriesScrollRef, preview)
 
   return (
     <div className="lp-product">
@@ -459,9 +458,9 @@ export function ProductPreview() {
             <div className="lp-mock-goal-card" style={{ ['--goal-accent' as string]: '#2563eb', ['--pct' as string]: 64 }}>
               <div className="lp-mock-goal-top">
                 <span className="lp-mock-goal-icon">✈️</span>
-                <div>
+                <div className="lp-mock-goal-copy">
                   <b>Viagem para Europa</b>
-                  <small>142 dias · até 20/Dez/2026</small>
+                  <small className="lp-mock-goal-deadline">142 dias · até 20/Dez/2026</small>
                 </div>
                 <div className="lp-mock-ring" style={{ ['--pct' as string]: 64, ['--goal-accent' as string]: '#2563eb' }}>
                   <span>64%</span>
@@ -481,9 +480,9 @@ export function ProductPreview() {
             <div className="lp-mock-goal-card" style={{ ['--goal-accent' as string]: '#16a34a', ['--pct' as string]: 91 }}>
               <div className="lp-mock-goal-top">
                 <span className="lp-mock-goal-icon">🛡️</span>
-                <div>
+                <div className="lp-mock-goal-copy">
                   <b>Reserva de emergência</b>
-                  <small>Meta: R$ 20.000</small>
+                  <small className="lp-mock-goal-deadline">Meta: R$ 20.000</small>
                 </div>
                 <div className="lp-mock-ring" style={{ ['--pct' as string]: 91, ['--goal-accent' as string]: '#16a34a' }}>
                   <span>91%</span>
@@ -512,89 +511,7 @@ export function ProductPreview() {
               </div>
               <button type="button" className="lp-mock-head-actions primary">＋ Adicionar</button>
             </div>
-
-            <div className="lp-mock-hscroll lp-mock-inv-tabs">
-              <button type="button">💼 Minha carteira</button>
-              <button type="button">★ Favoritos</button>
-              <button type="button" className="active">📈 Investidor</button>
-              <button type="button">🌐 Mercado ao vivo</button>
-            </div>
-
-            <div className="lp-mock-inv-toolbar">
-              <nav className="lp-mock-inv-side">
-                <button type="button">💡 Ideias</button>
-                <button type="button">⭐ Favoritos</button>
-              </nav>
-              <div className="lp-mock-inv-body">
-                <div className="lp-mock-hscroll lp-mock-cat-rail" ref={categoriesScrollRef}>
-                  <div className="lp-mock-cat-group">
-                    <span>Brasil · B3</span>
-                    <button type="button" className="active">🇧🇷 Ações BR</button>
-                    <button type="button">🏢 FIIs</button>
-                    <button type="button">🌎 BDRs</button>
-                    <button type="button">🧺 ETFs BR</button>
-                  </div>
-                  <div className="lp-mock-cat-group">
-                    <span>Internacional</span>
-                    <button type="button">🇺🇸 Ações US</button>
-                    <button type="button">🦅 ETFs US</button>
-                  </div>
-                  <div className="lp-mock-cat-group">
-                    <span>Global</span>
-                    <button type="button">₿ Cripto</button>
-                    <button type="button">📊 Índices</button>
-                  </div>
-                  <div className="lp-mock-cat-group">
-                    <span>Renda fixa</span>
-                    <button type="button">📈 Renda fixa</button>
-                    <button type="button">🏛 Tesouro</button>
-                  </div>
-                </div>
-                <HorizontalScrollBar
-                  targetRef={categoriesScrollRef}
-                  label="Deslize para ver mais categorias"
-                  variant="inner"
-                  watchKey={preview}
-                />
-
-                <div className="lp-mock-inv-hero compact">
-                  <div>
-                    <b>🇧🇷 Ações brasileiras</b>
-                    <small>Ações listadas na B3</small>
-                  </div>
-                  <span className="lp-mock-live"><i />tempo real · ~10s</span>
-                </div>
-
-                <div className="lp-mock-hscroll lp-mock-pills">
-                  <button type="button" className="active">Maiores altas</button>
-                  <button type="button">Maiores baixas</button>
-                  <button type="button">Maior preço</button>
-                  <button type="button">Mais voláteis</button>
-                </div>
-                <div className="lp-mock-hscroll lp-mock-pills">
-                  <button type="button" className="active">Todos</button>
-                  <button type="button">Financeiro</button>
-                  <button type="button">Energia</button>
-                  <button type="button">Materiais</button>
-                  <button type="button">Saúde</button>
-                </div>
-
-                <div className="lp-mock-movers">
-                  <div className="lp-mock-card">
-                    <div className="lp-mock-card-title green">Maiores altas ▲</div>
-                    {[['PETR4', '+1,99%', 'R$ 43,55'], ['B3SA3', '+1,96%', 'R$ 16,05'], ['VALE3', '+1,12%', 'R$ 58,90'], ['ITUB4', '+0,88%', 'R$ 38,21']].map(([t, p, v]) => (
-                      <div key={t} className="lp-mock-mover-row"><b>{t}</b><span className="green">{p}</span><strong>{v}</strong></div>
-                    ))}
-                  </div>
-                  <div className="lp-mock-card">
-                    <div className="lp-mock-card-title red">Maiores baixas ▼</div>
-                    {[['MGLU3', '−4,55%', 'R$ 4,62'], ['CYRE3', '−2,10%', 'R$ 18,30'], ['GGBR4', '−1,85%', 'R$ 19,88'], ['WEGE3', '−1,42%', 'R$ 42,10']].map(([t, p, v]) => (
-                      <div key={t} className="lp-mock-mover-row"><b>{t}</b><span className="red">{p}</span><strong>{v}</strong></div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <InvestmentMockPanel variant="preview" />
           </div>
         )}
 
@@ -606,11 +523,6 @@ export function ProductPreview() {
                 <small>Sugira melhorias, comente e curta — priorizamos pelo interesse de todos.</small>
               </div>
               <button type="button" className="lp-mock-head-actions primary">＋ Nova sugestão</button>
-            </div>
-            <div className="lp-mock-notif">
-              <p>Ative as notificações para saber quando sua sugestão mudar de coluna (Backlog → Faremos, etc.).</p>
-              <button type="button" className="primary">Sim, ativar</button>
-              <button type="button">Agora não</button>
             </div>
             <div className="lp-mock-kanban">
               <div className="lp-mock-col">

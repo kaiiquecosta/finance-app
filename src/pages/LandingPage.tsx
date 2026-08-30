@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ProductPreview } from './landing/ProductPreview'
 import { AssistantDemo } from './landing/AssistantDemo'
 import { CommunityDemo } from './landing/CommunityDemo'
+import { InvestmentMockPanel } from './landing/InvestmentMockPanel'
 import './LandingPage.modern.css'
 
 type LandingTheme = 'light' | 'dark'
@@ -123,17 +124,7 @@ export function LandingPage() {
           <a href="/criar-conta" onClick={go('/criar-conta')}>Explorar o Investidor <Arrow /></a>
         </div>
         <div className="lp-showcase-mock lp-showcase-inv">
-          <div className="lp-sm-inv-tabs">
-            <span>💼 Carteira</span><span>★ Favoritos</span><span className="on">📈 Investidor</span><span>🌐 Mercado</span>
-          </div>
-          <div className="lp-sm-inv-head">
-            <b>🇧🇷 Ações brasileiras</b>
-            <small className="live">● tempo real · ~10s</small>
-          </div>
-          <div className="lp-sm-movers">
-            <div><h4>Maiores altas ▲</h4>{['PETR4 +1,99%','B3SA3 +1,96%','VALE3 +1,12%'].map((r)=><div key={r}>{r}</div>)}</div>
-            <div><h4>Maiores baixas ▼</h4>{['MGLU3 −4,55%','CYRE3 −2,10%','GGBR4 −1,85%'].map((r)=><div key={r}>{r}</div>)}</div>
-          </div>
+          <InvestmentMockPanel variant="showcase" />
         </div>
       </section>
 

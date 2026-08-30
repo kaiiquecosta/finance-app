@@ -278,8 +278,8 @@
 .lp-mock-goals-hero {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .lp-mock-goal-widget {
@@ -312,7 +312,7 @@
 }
 
 .lp-mock-goal-card {
-  padding: 14px;
+  padding: 18px 16px;
   border-radius: 16px;
   background: var(--mock-card);
   border: 1px solid var(--mock-border);
@@ -329,14 +329,29 @@
 }
 
 .lp-mock-goal-card + .lp-mock-goal-card {
-  margin-top: 8px;
+  margin-top: 14px;
 }
 
 .lp-mock-goal-top {
   display: grid;
-  grid-template-columns: 40px 1fr 44px;
-  gap: 8px;
+  grid-template-columns: 44px 1fr 48px;
+  gap: 12px;
   align-items: start;
+}
+
+.lp-mock-goal-copy b {
+  display: block;
+  font-size: 13px;
+  line-height: 1.25;
+  margin-bottom: 6px;
+}
+
+.lp-mock-goal-deadline {
+  display: block;
+  margin-top: 0;
+  font-size: 9px;
+  line-height: 1.45;
+  color: var(--mock-muted);
 }
 
 .lp-mock-goal-icon {
@@ -375,7 +390,7 @@
 }
 
 .lp-mock-goal-amt {
-  margin: 10px 0 8px;
+  margin: 14px 0 10px;
   font-size: 12px;
 }
 
@@ -387,6 +402,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
+  margin-top: 14px;
   font-size: 9px;
   color: var(--mock-muted);
 }
@@ -725,7 +742,13 @@
 .lp-mock-cc-item small{font-size:8px;color:var(--mock-muted)}
 
 /* —— Investimentos (Investidor real) —— */
-.lp-mock-inv-page .lp-mock-hscroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.lp-mock-inv-page {
+  padding-bottom: 22px;
+}
+
+.lp-mock-inv-page .lp-inv-panel--preview {
+  margin-top: 4px;
+}
 .lp-mock-inv-page .lp-mock-hscroll::-webkit-scrollbar{display:none}
 .lp-mock-inv-tabs{margin-bottom:8px}
 .lp-mock-inv-tabs button{flex:0 0 auto;padding:7px 11px;border-radius:999px;border:1px solid var(--mock-border);background:var(--mock-card2);color:var(--mock-muted);font-size:9px;cursor:default;white-space:nowrap}

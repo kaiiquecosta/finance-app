@@ -70,6 +70,19 @@ test.describe('Landing page', () => {
     await expect(preview.getByText('Queria uma parte de investimento em tudo')).toBeVisible()
   })
 
+  test('investimentos no mockup é interativo e sem banner de notificação na comunidade', async ({ page }) => {
+    await page.goto('/')
+    const preview = page.locator('.lp-product')
+    await preview.getByRole('button', { name: 'Investimentos' }).click()
+    await preview.getByRole('button', { name: '🏢 FIIs' }).click()
+    await expect(preview.getByText('MXRF11')).toBeVisible()
+    await preview.getByRole('button', { name: 'Maiores baixas' }).click()
+    await expect(preview.getByText('Maiores baixas ▼')).toBeVisible()
+    await preview.getByRole('button', { name: 'Comunidade' }).click()
+    await expect(preview.getByText('Adicionar sugestão +')).toBeVisible()
+    await expect(preview.getByText('Ative as notificações')).toHaveCount(0)
+  })
+
   test('demonstração da comunidade anima sugestão até pronto', async ({ page }) => {
     await page.goto('/')
     const section = page.locator('#comunidade')
