@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ProductPreview } from './landing/ProductPreview'
 import { AssistantDemo } from './landing/AssistantDemo'
 import { CommunityDemo } from './landing/CommunityDemo'
-import { InvestmentMockPanel } from './landing/InvestmentMockPanel'
+import { InvestmentShowcaseVisual } from './landing/InvestmentShowcaseVisual'
 import './LandingPage.modern.css'
 
 type LandingTheme = 'light' | 'dark'
@@ -124,7 +124,7 @@ export function LandingPage() {
           <a href="/criar-conta" onClick={go('/criar-conta')}>Explorar o Investidor <Arrow /></a>
         </div>
         <div className="lp-showcase-mock lp-showcase-inv">
-          <InvestmentMockPanel variant="showcase" />
+          <InvestmentShowcaseVisual />
         </div>
       </section>
 

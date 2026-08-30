@@ -1,0 +1,123 @@
+.lp-inv-showcase {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.lp-inv-show-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.lp-inv-show-tabs span.on {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(168, 85, 247, 0.35);
+  color: #fff;
+}
+
+.lp-inv-show-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.lp-inv-show-head b {
+  font-size: 13px;
+}
+
+.lp-inv-show-head .live {
+  font-size: 9px;
+  color: #22c55e;
+  font-weight: 700;
+}
+
+.lp-inv-show-movers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.lp-inv-show-movers > div {
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lp-inv-show-movers h4 {
+  margin: 0 0 8px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.lp-inv-show-row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.lp-inv-show-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.lp-inv-show-row b {
+  font-size: 9px;
+}
+
+.lp-inv-show-row span {
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.lp-inv-show-row span.up {
+  color: #22c55e;
+}
+
+.lp-inv-show-row span.down {
+  color: #ef4444;
+}
+
+.lp-inv-show-row strong {
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+
+.lp-inv-show-rates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.lp-inv-show-rates span {
+  padding: 5px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.lp-inv-show-note {
+  margin: 0;
+  font-size: 9px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+@media (max-width: 900px) {
+  .lp-inv-show-movers {
+    grid-template-columns: 1fr;
+  }
+}

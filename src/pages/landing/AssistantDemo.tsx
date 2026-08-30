@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useScrollVisible } from './useScrollVisible'
 import './assistantDemo.css'
 
 type Phase =
@@ -17,7 +18,7 @@ const WAVE = [18, 34, 52, 28, 66, 45, 24, 58, 38, 20]
 
 export function AssistantDemo() {
   const rootRef = useRef<HTMLElement>(null)
-  const [active, setActive] = useState(false)
+  const inView = useScrollVisible(rootRef, 0.4)
   const [phase, setPhase] = useState<Phase>('idle')
   const [typed, setTyped] = useState('')
   const [balance, setBalance] = useState(BALANCE_BEFORE)
@@ -25,20 +26,15 @@ export function AssistantDemo() {
   const loopRef = useRef(0)
 
   useEffect(() => {
-    const el = rootRef.current
-    if (!el) return
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) setActive(true)
-      },
-      { threshold: 0.25 },
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [])
+    if (inView) return
+    setPhase('idle')
+    setTyped('')
+    setBalance(BALANCE_BEFORE)
+    setSpeaking(false)
+  }, [inView])
 
   useEffect(() => {
-    if (!active) return
+    if (!inView) return
 
     let cancelled = false
     const wait = (ms: number) =>
@@ -88,12 +84,12 @@ export function AssistantDemo() {
     return () => {
       cancelled = true
     }
-  }, [active])
+  }, [inView])
 
-  const showUserBubble = phase === 'sent' || phase === 'thinking' || phase === 'done' || phase === 'balance'
-  const showAssistant = phase === 'done' || phase === 'balance'
-  const showTx = phase === 'balance'
-  const showBalance = phase === 'balance'
+  const showUserBubble = inView && (phase === 'sent' || phase === 'thinking' || phase === 'done' || phase === 'balance')
+  const showAssistant = inView && (phase === 'done' || phase === 'balance')
+  const showTx = inView && phase === 'balance'
+  const showBalance = inView && phase === 'balance'
 
   return (
     <section className="lp-assistant lp-assistant-below-hero" ref={rootRef} id="assistente" aria-label="Demonstração do Assistente Flux">
@@ -131,7 +127,7 @@ export function AssistantDemo() {
                 <div className="lp-assist-bubble user lp-assist-pop">{USER_TEXT}</div>
               )}
 
-              {phase === 'thinking' && (
+              {inView && phase === 'thinking' && (
                 <div className="lp-assist-bubble bot lp-assist-typing">
                   <span /><span /><span />
                 </div>
@@ -163,7 +159,7 @@ export function AssistantDemo() {
             <div className="lp-assist-compose">
               <button type="button" className={`lp-assist-mic ${speaking ? 'active' : ''}`} aria-hidden>🎤</button>
               <div className="lp-assist-input">
-                {phase === 'typing' ? (
+                {inView && phase === 'typing' ? (
                   <>
                     {typed}
                     <i className="lp-assist-caret" />

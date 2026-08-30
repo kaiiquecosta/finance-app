@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useScrollVisible } from './useScrollVisible'
 import './communityDemo.css'
 
 type Phase =
@@ -64,7 +65,7 @@ function KanbanCard({
 
 export function CommunityDemo() {
   const rootRef = useRef<HTMLDivElement>(null)
-  const [active, setActive] = useState(false)
+  const inView = useScrollVisible(rootRef, 0.45)
   const [phase, setPhase] = useState<Phase>('idle')
   const [typed, setTyped] = useState('')
   const [cardCol, setCardCol] = useState<CardCol | null>(null)
@@ -74,20 +75,18 @@ export function CommunityDemo() {
   const [cardMoving, setCardMoving] = useState(false)
 
   useEffect(() => {
-    const el = rootRef.current
-    if (!el) return
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) setActive(true)
-      },
-      { threshold: 0.3 },
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [])
+    if (inView) return
+    setPhase('idle')
+    setTyped('')
+    setCardCol(null)
+    setLikes(0)
+    setLikeBump(false)
+    setNotif(null)
+    setCardMoving(false)
+  }, [inView])
 
   useEffect(() => {
-    if (!active) return
+    if (!inView) return
 
     let cancelled = false
     const wait = (ms: number) =>
@@ -187,10 +186,10 @@ export function CommunityDemo() {
     return () => {
       cancelled = true
     }
-  }, [active])
+  }, [inView])
 
-  const showModal = phase === 'modal' || phase === 'typing' || phase === 'submit'
-  const highlightBtn = phase === 'highlight' || showModal
+  const showModal = inView && (phase === 'modal' || phase === 'typing' || phase === 'submit')
+  const highlightBtn = inView && (phase === 'highlight' || showModal)
   const isCooking = cardCol === 'cooking' && (phase === 'cooking' || phase === 'to-done')
 
   const renderAnimatedCard = () => {
@@ -203,7 +202,11 @@ export function CommunityDemo() {
   }
 
   return (
-    <div className="lp-showcase-mock lp-showcase-kanban lp-community-demo" ref={rootRef} aria-live="polite">
+    <div
+      className="lp-showcase-mock lp-showcase-kanban lp-community-demo"
+      ref={rootRef}
+      aria-live={inView ? 'polite' : 'off'}
+    >
       <div className="lp-sm-kanban-head">
         <b>Comunidade</b>
         <span className={highlightBtn ? 'pulse' : ''}>＋ Nova sugestão</span>
@@ -269,7 +272,7 @@ export function CommunityDemo() {
         </div>
       </div>
 
-      {notif ? (
+      {inView && notif ? (
         <div className={`lp-comm-notif lp-comm-pop kind-${notif}`} role="status">
           <span className="lp-comm-notif-icon">{NOTIF_COPY[notif].icon}</span>
           <div>
