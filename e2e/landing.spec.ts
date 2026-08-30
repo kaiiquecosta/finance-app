@@ -32,8 +32,28 @@ test.describe('Landing page', () => {
     await page.goto('/')
     const preview = page.locator('.lp-product')
     await expect(preview.getByText('← Arraste para ver todas as telas do Flux →')).toBeVisible()
+    await expect(preview.locator('.lp-hscroll-bar--tabs .lp-hscroll-bar__thumb')).toBeVisible()
     await preview.getByRole('button', { name: 'Investimentos' }).click()
     await expect(preview.getByText('Deslize para ver mais categorias')).toBeVisible()
+    await expect(preview.locator('.lp-hscroll-bar--inner .lp-hscroll-bar__thumb')).toBeVisible()
+  })
+
+  test('barra de scroll das tabs arrasta horizontalmente', async ({ page }) => {
+    await page.setViewportSize({ width: 900, height: 800 })
+    await page.goto('/')
+    const tabs = page.locator('.lp-preview-tabs')
+    const overflow = await tabs.evaluate((el) => el.scrollWidth - el.clientWidth)
+    test.skip(overflow <= 2, 'tabs não precisam de scroll neste viewport')
+    const before = await tabs.evaluate((el) => el.scrollLeft)
+    const thumb = page.locator('.lp-hscroll-bar--tabs .lp-hscroll-bar__thumb')
+    const box = await thumb.boundingBox()
+    if (!box) throw new Error('thumb not found')
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(box.x + box.width / 2 + 80, box.y + box.height / 2)
+    await page.mouse.up()
+    const after = await tabs.evaluate((el) => el.scrollLeft)
+    expect(after).toBeGreaterThan(before)
   })
 
   test('a troca de aba do mockup do app funciona', async ({ page }) => {

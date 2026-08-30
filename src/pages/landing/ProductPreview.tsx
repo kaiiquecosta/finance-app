@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { NAV_ITEMS } from '@/app/navItems'
+import { HorizontalScrollBar, useHorizontalDragScroll } from './HorizontalScrollBar'
 import './productPreview.css'
 
 type PreviewId =
@@ -24,17 +25,6 @@ const PREVIEW_TABS: Array<{ id: PreviewId; label: string; icon: string }> = [
   { id: 'investments', label: 'Investimentos', icon: NAV_ITEMS[7].icon },
   { id: 'community', label: 'Comunidade', icon: NAV_ITEMS[8].icon },
 ]
-
-function ScrollHintBar({ label, variant = 'tabs' }: { label: string; variant?: 'tabs' | 'inner' }) {
-  return (
-    <div className={`lp-scroll-hint lp-scroll-hint--${variant}`}>
-      <span className="lp-scroll-hint-track">
-        <i />
-      </span>
-      <small>{label}</small>
-    </div>
-  )
-}
 
 function MockRow({
   icon,
@@ -75,6 +65,10 @@ function MockRow({
 
 export function ProductPreview() {
   const [preview, setPreview] = useState<PreviewId>('overview')
+  const tabsScrollRef = useRef<HTMLDivElement>(null)
+  const categoriesScrollRef = useRef<HTMLDivElement>(null)
+  useHorizontalDragScroll(tabsScrollRef)
+  useHorizontalDragScroll(categoriesScrollRef, preview)
 
   return (
     <div className="lp-product">
@@ -94,7 +88,7 @@ export function ProductPreview() {
             <span>Flux</span>
           </div>
           <div className="lp-preview-tabs-wrap">
-            <div className="lp-preview-tabs">
+            <div className="lp-preview-tabs" ref={tabsScrollRef}>
               {PREVIEW_TABS.map((tab) => (
                 <button
                   key={tab.id}
@@ -106,10 +100,14 @@ export function ProductPreview() {
                 </button>
               ))}
             </div>
+            <HorizontalScrollBar
+              targetRef={tabsScrollRef}
+              label="← Arraste para ver todas as telas do Flux →"
+              variant="tabs"
+            />
           </div>
           <span className="lp-avatar">KC</span>
         </div>
-        <ScrollHintBar label="← Arraste para ver todas as telas do Flux →" />
 
         {preview === 'overview' && (
           <div className="lp-mock-screen">
@@ -528,7 +526,7 @@ export function ProductPreview() {
                 <button type="button">⭐ Favoritos</button>
               </nav>
               <div className="lp-mock-inv-body">
-                <div className="lp-mock-hscroll lp-mock-cat-rail">
+                <div className="lp-mock-hscroll lp-mock-cat-rail" ref={categoriesScrollRef}>
                   <div className="lp-mock-cat-group">
                     <span>Brasil · B3</span>
                     <button type="button" className="active">🇧🇷 Ações BR</button>
@@ -552,7 +550,12 @@ export function ProductPreview() {
                     <button type="button">🏛 Tesouro</button>
                   </div>
                 </div>
-                <ScrollHintBar label="Deslize para ver mais categorias" variant="inner" />
+                <HorizontalScrollBar
+                  targetRef={categoriesScrollRef}
+                  label="Deslize para ver mais categorias"
+                  variant="inner"
+                  watchKey={preview}
+                />
 
                 <div className="lp-mock-inv-hero compact">
                   <div>

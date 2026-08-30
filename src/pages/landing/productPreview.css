@@ -754,98 +754,102 @@
 .lp-mock-mover-row span{font-weight:700;font-size:8px}
 .lp-mock-mover-row strong{font-size:9px;font-variant-numeric:tabular-nums}
 
-/* —— Scroll hints (tabs + investimentos) —— */
+/* —— Scroll bar funcional (tabs + investimentos) —— */
 .lp-preview-tabs-wrap {
   flex: 1;
   min-width: 0;
   display: flex;
-  align-items: stretch;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
   margin-left: 8px;
+  padding: 6px 0 4px;
 }
 
 .lp-preview-tabs-wrap .lp-preview-tabs {
   flex: 0 0 auto;
   align-self: auto;
   margin-left: 0;
+  cursor: grab;
+  touch-action: pan-x;
 }
 
-.lp-scroll-hint {
+.lp-preview-tabs-wrap .lp-preview-tabs:active {
+  cursor: grabbing;
+}
+
+.lp-hscroll-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 18px;
-  background: linear-gradient(90deg, rgba(130, 10, 209, 0.07), rgba(22, 163, 74, 0.05));
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  gap: 10px;
+  min-width: 0;
 }
 
-.lp-scroll-hint--tabs {
-  border-bottom: 1px solid var(--line, rgba(0, 0, 0, 0.06));
+.lp-hscroll-bar--tabs {
+  padding-right: 4px;
 }
 
-.lp-scroll-hint--inner {
-  margin: 6px 0 10px;
-  padding: 9px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--mock-border);
-  background: color-mix(in srgb, var(--mock-primary) 6%, var(--mock-card));
+.lp-hscroll-bar--inner {
+  margin: 2px 0 8px;
 }
 
-.lp-scroll-hint-track {
-  flex: 0 0 80px;
-  height: 5px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-}
-
-.lp-scroll-hint--inner .lp-scroll-hint-track {
+.lp-hscroll-bar__track {
+  position: relative;
   flex: 1;
-  min-width: 48px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.1);
+  touch-action: none;
 }
 
-.lp-scroll-hint-track i {
-  display: block;
+.lp-hscroll-bar__thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
   height: 100%;
-  width: 40%;
+  min-width: 32px;
   border-radius: 999px;
   background: linear-gradient(90deg, #820ad1, #16a34a);
-  animation: lp-scroll-nudge 2.2s ease-in-out infinite;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
+  cursor: grab;
+  touch-action: none;
+  will-change: transform;
 }
 
-.lp-scroll-hint small {
-  flex: 1;
-  font-size: 10px;
+.lp-hscroll-bar__thumb.is-full {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.lp-hscroll-bar__thumb:active {
+  cursor: grabbing;
+}
+
+.lp-hscroll-bar small {
+  flex: 0 0 auto;
+  max-width: 42%;
+  font-size: 9px;
   font-weight: 650;
   letter-spacing: 0.01em;
   color: #6b6478;
   white-space: nowrap;
 }
 
-@keyframes lp-scroll-nudge {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(150%);
-  }
+.lp-mock-cat-rail {
+  cursor: grab;
+  touch-action: pan-x;
 }
 
-.lp[data-theme='dark'] .lp-scroll-hint {
-  background: linear-gradient(90deg, rgba(168, 85, 247, 0.12), rgba(34, 197, 94, 0.06));
-  border-bottom-color: rgba(228, 220, 245, 0.06);
+.lp-mock-cat-rail:active {
+  cursor: grabbing;
 }
 
-.lp[data-theme='dark'] .lp-scroll-hint--inner {
-  background: color-mix(in srgb, var(--mock-primary) 10%, var(--mock-card));
+.lp[data-theme='dark'] .lp-hscroll-bar__track {
+  background: rgba(228, 220, 245, 0.12);
 }
 
-.lp[data-theme='dark'] .lp-scroll-hint small {
+.lp[data-theme='dark'] .lp-hscroll-bar small {
   color: #b8b0c8;
-}
-
-.lp[data-theme='dark'] .lp-scroll-hint-track {
-  background: rgba(228, 220, 245, 0.1);
 }
 
 @media (max-width: 900px) {
