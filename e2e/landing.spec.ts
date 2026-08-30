@@ -31,14 +31,23 @@ test.describe('Landing page', () => {
   test('a troca de aba do mockup do app funciona', async ({ page }) => {
     await page.goto('/')
     const preview = page.locator('.lp-product')
+    await preview.getByRole('button', { name: 'Cartões' }).click()
+    await expect(preview.getByText('Fatura estimada')).toBeVisible()
+    await expect(preview.getByText('R$ 2.168,05')).toBeVisible()
     await preview.getByRole('button', { name: 'Investimentos' }).click()
-    await expect(preview.getByText('P/VP')).toBeVisible()
+    await expect(preview.getByText('Maiores altas ▲')).toBeVisible()
     await expect(preview.getByText('tempo real · ~10s')).toBeVisible()
-    await preview.getByRole('button', { name: 'Transações' }).click()
-    await expect(preview.getByText('Agosto de 2026')).toBeVisible()
     await preview.getByRole('button', { name: 'Comunidade' }).click()
     await expect(preview.getByText('Adicionar sugestão +')).toBeVisible()
-    await expect(preview.getByText('Estamos cozinhando')).toBeVisible()
+    await expect(preview.getByText('Queria uma parte de investimento em tudo')).toBeVisible()
+  })
+
+  test('demonstração do assistente roda ao rolar até a seção', async ({ page }) => {
+    await page.goto('/')
+    const section = page.locator('section.lp-assistant')
+    await section.scrollIntoViewIfNeeded()
+    await expect(section.getByText('Gastei 45 reais no mercado')).toBeVisible({ timeout: 8000 })
+    await expect(section.getByText('Pronto! Registrado em Mercado.')).toBeVisible({ timeout: 8000 })
   })
 
   test('alterna entre modo claro e escuro', async ({ page }) => {

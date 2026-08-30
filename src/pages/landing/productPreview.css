@@ -687,3 +687,74 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* —— Cartões (tela real) —— */
+.lp-mock-head-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.lp-mock-head-actions{display:flex;gap:6px;flex-shrink:0}
+.lp-mock-head-actions button{padding:6px 10px;border-radius:10px;border:1px solid var(--mock-border);background:var(--mock-card2);color:var(--mock-muted);font-size:9px;cursor:default}
+.lp-mock-head-actions button.primary{background:var(--mock-green);border-color:var(--mock-green);color:#fff;font-weight:700}
+.lp-mock-head-actions button.primary.purple{background:#820ad1;border-color:#820ad1}
+.lp-mock-month div{text-align:center}
+.lp-mock-month small{display:block;margin-top:2px;font-size:8px;color:var(--mock-muted);font-weight:400}
+.lp-mock-stat-lg b{font-size:18px}
+.lp-mock-chart-stat{text-align:left}
+.lp-mock-bar-chart{height:48px;display:flex;align-items:end;gap:4px;margin-top:8px}
+.lp-mock-bar-chart i{flex:1;min-height:6px;border-radius:3px 3px 0 0;background:var(--mock-border)}
+.lp-mock-bar-chart i.hot{background:var(--mock-green)}
+.lp-mock-bar-labels{display:flex;justify-content:space-between;margin-top:4px;font-size:7px;color:var(--mock-muted)}
+.lp-mock-cc-card{padding:14px;background:var(--mock-card);border:1px solid var(--mock-border);border-radius:16px;border-top:3px solid #820ad1}
+.lp-mock-cc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.lp-mock-cc-brand{display:flex;align-items:center;gap:8px}
+.lp-mock-cc-brand b,.lp-mock-cc-brand small{display:block}
+.lp-mock-cc-brand b{font-size:12px}
+.lp-mock-cc-brand small{font-size:9px;color:var(--mock-muted)}
+.lp-mock-cc-label{display:block;font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:var(--mock-muted)}
+.lp-mock-cc-invoice{display:block;margin:4px 0 10px;font-size:22px;letter-spacing:-.6px}
+.lp-mock-cc-dates{display:flex;gap:16px;margin-bottom:12px;font-size:9px;color:var(--mock-muted)}
+.lp-mock-cc-dates b{color:var(--mock-text)}
+.lp-mock-cc-limit-row{display:flex;justify-content:space-between;font-size:9px;color:var(--mock-muted);margin-bottom:6px}
+.lp-mock-cc-prog{margin-bottom:8px}
+.lp-mock-cc-usage{display:flex;justify-content:space-between;font-size:9px;font-weight:600}
+.lp-mock-cc-usage b{color:var(--mock-text);font-weight:700}
+.lp-mock-cc-list{margin-top:12px;padding-top:12px;border-top:1px solid var(--mock-border)}
+.lp-mock-cc-list-title{display:block;margin-bottom:8px;font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:var(--mock-muted)}
+.lp-mock-cc-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--mock-border)}
+.lp-mock-cc-item:last-child{border-bottom:0}
+.lp-mock-cc-item b,.lp-mock-cc-item small{display:block}
+.lp-mock-cc-item b{font-size:11px}
+.lp-mock-cc-item small{font-size:8px;color:var(--mock-muted)}
+
+/* —— Investimentos (Investidor real) —— */
+.lp-mock-inv-page .lp-mock-inv-layout{grid-template-columns:88px 1fr}
+.lp-mock-inv-main{min-width:0}
+.lp-mock-cat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:10px}
+.lp-mock-cat-grid label{display:block;margin-bottom:4px;font-size:7px;font-weight:700;text-transform:uppercase;color:var(--mock-muted)}
+.lp-mock-cat-grid button{display:block;width:100%;padding:5px 6px;margin-bottom:3px;border:0;border-radius:8px;background:transparent;color:var(--mock-muted);font-size:8px;text-align:left;cursor:default;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lp-mock-cat-grid button.active{background:color-mix(in srgb,var(--mock-primary) 12%,transparent);color:var(--mock-primary);font-weight:700}
+.lp-mock-inv-hero.compact{margin-bottom:8px;padding:10px 12px}
+.lp-mock-inv-hero.compact b{display:block;font-size:11px}
+.lp-mock-inv-hero.compact small{display:block;font-size:8px;color:var(--mock-muted)}
+.lp-mock-pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.lp-mock-pills button{padding:5px 9px;border-radius:999px;border:1px solid var(--mock-border);background:var(--mock-card2);color:var(--mock-muted);font-size:8px;cursor:default}
+.lp-mock-pills button.active{background:var(--mock-primary);border-color:var(--mock-primary);color:#fff}
+.lp-mock-movers{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lp-mock-card-title.green{color:var(--mock-green)}
+.lp-mock-card-title.red{color:var(--mock-red)}
+.lp-mock-mover-row{display:grid;grid-template-columns:1fr auto auto;gap:6px;padding:5px 0;border-bottom:1px solid var(--mock-border);font-size:9px}
+.lp-mock-mover-row:last-child{border-bottom:0}
+.lp-mock-mover-row b{font-size:9px}
+.lp-mock-mover-row span{font-weight:700;font-size:8px}
+.lp-mock-mover-row strong{font-size:9px;font-variant-numeric:tabular-nums}
+
+/* —— Comunidade (Kanban real) —— */
+.lp-mock-notif{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--mock-primary) 8%,var(--mock-card));border:1px solid color-mix(in srgb,var(--mock-primary) 18%,var(--mock-border))}
+.lp-mock-notif p{flex:1;margin:0;font-size:9px;line-height:1.4;color:var(--mock-muted)}
+.lp-mock-notif button{padding:6px 10px;border-radius:8px;border:1px solid var(--mock-border);background:var(--mock-card2);font-size:8px;cursor:default}
+.lp-mock-notif button.primary{background:var(--mock-primary);border-color:var(--mock-primary);color:#fff;font-weight:700}
+.lp-mock-empty{margin:0;font-size:9px;color:var(--mock-muted);font-style:italic}
+.lp-mock-kanban-card select{display:block;width:100%;margin-top:8px;padding:4px 6px;border-radius:6px;border:1px solid var(--mock-border);background:var(--mock-card);font-size:8px;color:var(--mock-muted)}
+
+@media (max-width: 900px) {
+  .lp-mock-cat-grid{grid-template-columns:repeat(2,1fr)}
+  .lp-mock-movers{grid-template-columns:1fr}
+}

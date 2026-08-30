@@ -1,6 +1,7 @@
 import { useEffect, useState, type MouseEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ProductPreview } from './landing/ProductPreview'
+import { AssistantDemo } from './landing/AssistantDemo'
 import './LandingPage.modern.css'
 
 type LandingTheme = 'light' | 'dark'
@@ -113,42 +114,44 @@ export function LandingPage() {
         <div className="lp-showcase-copy">
           <span className="lp-kicker dark">Investimentos</span>
           <h2>Do CDI à bolsa.<br/><em>Tudo no lugar.</em></h2>
-          <p>Acompanhe sua carteira e descubra oportunidades com cotações ao vivo, gráficos históricos e indicadores como P/L, P/VP e DY.</p>
-          <ul><li>Ações B3 e EUA, FIIs, ETFs e cripto</li><li>Favoritos sincronizados entre dispositivos</li><li>Renda fixa com CDI e IPCA atualizados</li><li>Preço de compra, quantidade e evolução da posição</li></ul>
+          <p>Cotações em tempo real (~10s no pregão), maiores altas e baixas, FIIs, ETFs, cripto e renda fixa — igual ao Investidor do app.</p>
+          <ul><li>Sidebar por categoria · B3, EUA, cripto</li><li>Maiores altas e baixas ao vivo</li><li>Favoritos e carteira sincronizados</li><li>CDI e IPCA atualizados</li></ul>
           <a href="/criar-conta" onClick={go('/criar-conta')}>Explorar o Investidor <Arrow /></a>
         </div>
-        <div className="lp-market-visual">
-          <div className="lp-market-top"><span>Favoritos</span><small>Mercado aberto · ao vivo</small></div>
-          {[['B³','B3SA3','B3 ON','R$ 16,05','+2,31%'],['◆','BBSE3','BB Seguridade','R$ 36,84','+1,18%'],['V','V','Visa','US$ 352,90','+0,84%'],['◉','BTC','Bitcoin','US$ 118.420','+2,71%']].map((row) => (
-            <div className="lp-market-row" key={row[1]}><i>{row[0]}</i><div><b>{row[1]}</b><span>{row[2]}</span></div><strong>{row[3]}</strong><small>{row[4]}</small></div>
-          ))}
+        <div className="lp-showcase-mock lp-showcase-inv">
+          <div className="lp-sm-inv-tabs">
+            <span>💼 Carteira</span><span>★ Favoritos</span><span className="on">📈 Investidor</span><span>🌐 Mercado</span>
+          </div>
+          <div className="lp-sm-inv-head">
+            <b>🇧🇷 Ações brasileiras</b>
+            <small className="live">● tempo real · ~10s</small>
+          </div>
+          <div className="lp-sm-movers">
+            <div><h4>Maiores altas ▲</h4>{['PETR4 +1,99%','B3SA3 +1,96%','VALE3 +1,12%'].map((r)=><div key={r}>{r}</div>)}</div>
+            <div><h4>Maiores baixas ▼</h4>{['MGLU3 −4,55%','CYRE3 −2,10%','GGBR4 −1,85%'].map((r)=><div key={r}>{r}</div>)}</div>
+          </div>
         </div>
       </section>
 
       <section className="lp-showcase lp-community-section" id="comunidade">
-        <div className="lp-community-visual">
-          <div className="lp-bubble one">“Finalmente entendi para onde meu dinheiro estava indo.”<b>— Amanda</b></div>
-          <div className="lp-bubble two">🎯 Meta concluída: reserva de emergência</div>
-          <div className="lp-bubble three">💡 Como vocês organizam os gastos fixos?</div>
-          <div className="lp-orbit">F</div>
+        <div className="lp-showcase-mock lp-showcase-kanban">
+          <div className="lp-sm-kanban-head"><b>Comunidade</b><span>＋ Nova sugestão</span></div>
+          <div className="lp-sm-kanban-cols">
+            <div><h4>Backlog</h4><i>Adicionar sugestão +</i></div>
+            <div><h4>Faremos</h4><p>Queria uma parte de investimento em tudo</p><small>♡ 1</small></div>
+            <div><h4>Cozinhando</h4><em>Vazio</em></div>
+            <div><h4>Pronto</h4><p>Ajustar responsividade da comunidade</p><small>♡ 1</small></div>
+          </div>
         </div>
         <div className="lp-showcase-copy light">
           <span className="lp-kicker">Comunidade</span>
-          <h2>Aprenda. Compartilhe.<br/><em>Evolua junto.</em></h2>
-          <p>Um roadmap aberto para sugerir melhorias, votar nas próximas novidades, comentar ideias e acompanhar o que está sendo construído.</p>
+          <h2>Peça. Vote.<br/><em>Veja sair do forno.</em></h2>
+          <p>Um roadmap aberto em colunas — sugira ideias, vote com ♡ e acompanhe do Backlog até chegar em Pronto no app.</p>
           <a href="/criar-conta" onClick={go('/criar-conta')}>Entrar na comunidade <Arrow /></a>
         </div>
       </section>
 
-      <section className="lp-assistant">
-        <div className="lp-assistant-card">
-          <div className="lp-wave">{[18,34,52,28,66,45,24,58,38,20].map((h,i)=><i key={i} style={{height:h}} />)}</div>
-          <span>Assistente Flux</span>
-          <h2>“Gastei 42 reais no mercado.”</h2>
-          <p>Pronto. Registrado em Mercado.</p>
-          <div className="lp-message">Mercado <b>− R$ 42,00</b></div>
-        </div>
-      </section>
+      <AssistantDemo />
 
       <section className="lp-pricing" id="precos">
         <span className="lp-kicker">Simples e transparente</span>

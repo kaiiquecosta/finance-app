@@ -186,44 +186,84 @@ export function ProductPreview() {
         )}
 
         {preview === 'cards' && (
-          <div className="lp-mock-screen">
-            <div className="lp-mock-head">
-              <b>Cartões</b>
-              <small>Limites, faturas e lançamentos</small>
-            </div>
-            <div
-              className="lp-mock-card"
-              style={{
-                background: 'linear-gradient(135deg,#820ad1,#5c0c8b)',
-                color: '#fff',
-                border: 'none',
-              }}
-            >
-              <div style={{ fontSize: 13, fontWeight: 700 }}>Nubank</div>
-              <div style={{ margin: '12px 0', letterSpacing: 2, fontSize: 14 }}>•••• •••• •••• 4821</div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, opacity: 0.85 }}>
-                <span>Kaique Costa</span>
-                <span>Vence 28 Set</span>
+          <div className="lp-mock-screen lp-mock-cards-page">
+            <div className="lp-mock-head lp-mock-head-row">
+              <div>
+                <b>Cartões</b>
+                <small>Faturas e limites</small>
+              </div>
+              <div className="lp-mock-head-actions">
+                <button type="button">Importar OFX</button>
+                <button type="button" className="primary">＋ Cartão</button>
               </div>
             </div>
-            <div className="lp-mock-grid3">
-              <div className="lp-mock-stat">
-                <span>Limite</span>
-                <b>R$ 10.000</b>
+            <div className="lp-mock-month">
+              <i>‹</i>
+              <div>
+                <span>Agosto de 2026</span>
+                <small>Soma das faturas</small>
               </div>
-              <div className="lp-mock-stat">
-                <span>Fatura</span>
-                <b className="red">R$ 3.200</b>
+              <i>›</i>
+            </div>
+            <div className="lp-mock-grid2">
+              <div className="lp-mock-stat lp-mock-stat-lg">
+                <span>💳 Total a pagar</span>
+                <b>R$ 4.104,16</b>
               </div>
-              <div className="lp-mock-stat">
-                <span>Disponível</span>
-                <b className="green">R$ 6.800</b>
+              <div className="lp-mock-stat lp-mock-chart-stat">
+                <span>Evolução das faturas</span>
+                <div className="lp-mock-bar-chart">
+                  {[32, 28, 35, 41, 38, 52, 48].map((h, i) => (
+                    <i key={i} style={{ height: `${h}%` }} className={i === 5 ? 'hot' : ''} />
+                  ))}
+                </div>
+                <div className="lp-mock-bar-labels">
+                  <span>Abr</span><span>Mai</span><span>Jun</span><span>Jul</span><span>Ago</span>
+                </div>
               </div>
             </div>
-            <div className="lp-mock-card">
-              <div className="lp-mock-card-title">Fatura atual</div>
-              <MockRow icon="🛒" name="Mercado Extra" meta="30/Ago · à vista" value="− R$ 187,40" />
-              <MockRow icon="✈️" name="GOL Passagem" meta="15/Ago · 6x" value="− R$ 183,00" />
+            <div className="lp-mock-cc-card">
+              <div className="lp-mock-cc-top">
+                <div className="lp-mock-cc-brand">
+                  <span className="lp-mock-ico" style={{ background: '#820ad122', borderColor: '#820ad144' }}>💳</span>
+                  <div>
+                    <b>Nubank · fecha dia 6</b>
+                    <small>Crédito</small>
+                  </div>
+                </div>
+                <div className="lp-mock-head-actions">
+                  <button type="button">✏️</button>
+                  <button type="button" className="primary purple">+ Lançar</button>
+                </div>
+              </div>
+              <span className="lp-mock-cc-label">Fatura estimada</span>
+              <strong className="lp-mock-cc-invoice">R$ 2.168,05</strong>
+              <div className="lp-mock-cc-dates">
+                <span>Fecha <b>dia 6</b></span>
+                <span>Vence <b>12 de Setembro</b></span>
+              </div>
+              <div className="lp-mock-cc-limit-row">
+                <span>Limite total</span>
+                <b>R$ 13.000,00</b>
+              </div>
+              <div className="lp-mock-prog lp-mock-cc-prog">
+                <i style={{ width: '1%', background: 'var(--mock-primary)' }} />
+              </div>
+              <div className="lp-mock-cc-usage">
+                <span className="blue">● Usado <b>R$ 84,70</b></span>
+                <span className="green">● Disponível <b>R$ 12.915,30</b></span>
+              </div>
+              <div className="lp-mock-cc-list">
+                <span className="lp-mock-cc-list-title">Lançamentos (9)</span>
+                <div className="lp-mock-cc-item">
+                  <div><b>ESPN</b><small>31/07/2026</small></div>
+                  <strong className="red">− R$ 10,00</strong>
+                </div>
+                <div className="lp-mock-cc-item">
+                  <div><b>Iphone Air (4/12)</b><small>26/07/2026</small></div>
+                  <strong className="red">− R$ 416,67</strong>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -452,163 +492,133 @@ export function ProductPreview() {
         )}
 
         {preview === 'investments' && (
-          <div className="lp-mock-screen">
-            <div className="lp-mock-head">
-              <b>Investimentos</b>
-              <small>Rendimentos em tempo real</small>
+          <div className="lp-mock-screen lp-mock-inv-page">
+            <div className="lp-mock-head lp-mock-head-row">
+              <div>
+                <b>Investimentos</b>
+                <small>Rendimentos em tempo real</small>
+              </div>
+              <button type="button" className="lp-mock-head-actions primary">＋ Adicionar</button>
             </div>
             <div className="lp-mock-inv-tabs">
               <button type="button">💼 Minha carteira</button>
               <button type="button">★ Favoritos</button>
-              <button type="button" className="active">
-                📈 Investidor
-              </button>
+              <button type="button" className="active">📈 Investidor</button>
               <button type="button">🌐 Mercado ao vivo</button>
             </div>
-            <div className="lp-mock-inv-hero">
-              <div className="lp-mock-inv-brand">
-                <b>📈 Investidor</b>
-                <small>Hub completo · ações, FIIs, ETFs, cripto e mais</small>
-              </div>
-              <span className="lp-mock-live">
-                <i />
-                tempo real · ~10s
-              </span>
-            </div>
             <div className="lp-mock-inv-layout">
-              <nav className="lp-mock-sidebar" aria-hidden>
-                <label>Brasil · B3</label>
-                <button type="button" className="active">
-                  🇧🇷 Ações BR
-                </button>
-                <button type="button">🏢 FIIs</button>
-                <button type="button">🧺 ETFs BR</button>
-                <label>Internacional</label>
-                <button type="button">🇺🇸 Ações US</button>
-                <button type="button">₿ Cripto</button>
+              <nav className="lp-mock-sidebar">
+                <button type="button">💡 Ideias</button>
+                <button type="button">⭐ Favoritos</button>
               </nav>
-              <div className="lp-mock-card lp-mock-quote-table">
-                <div className="lp-mock-card-title">🇧🇷 Ações BR · cotações ao vivo</div>
-                <div className="lp-mock-quote-head">
-                  <span>Ativo</span>
-                  <span>Preço</span>
-                  <span>Var.</span>
-                </div>
-                <div className="lp-mock-quote-row">
+              <div className="lp-mock-inv-main">
+                <div className="lp-mock-cat-grid">
                   <div>
-                    <b>B3SA3</b>
-                    <small>B3 ON · B3</small>
+                    <label>Brasil · B3</label>
+                    <button type="button" className="active">🇧🇷 Ações brasileiras</button>
+                    <button type="button">🏢 Fundos imobiliários</button>
+                    <button type="button">🌎 BDRs</button>
                   </div>
-                  <strong>R$ 16,05</strong>
-                  <strong className="green">+2,31%</strong>
-                </div>
-                <div className="lp-mock-quote-row">
                   <div>
-                    <b>PETR4</b>
-                    <small>Petrobras · B3</small>
+                    <label>Internacional</label>
+                    <button type="button">🇺🇸 Ações internacionais</button>
+                    <button type="button">🦅 ETFs internacionais</button>
                   </div>
-                  <strong>R$ 38,42</strong>
-                  <strong className="green">+1,04%</strong>
-                </div>
-                <div className="lp-mock-quote-row">
                   <div>
-                    <b>VALE3</b>
-                    <small>Vale · B3</small>
+                    <label>Mercados globais</label>
+                    <button type="button">₿ Criptomoedas</button>
+                    <button type="button">📊 Índices</button>
                   </div>
-                  <strong>R$ 58,90</strong>
-                  <strong className="red">−0,48%</strong>
-                </div>
-                <div className="lp-mock-quote-row">
                   <div>
-                    <b>BBSE3</b>
-                    <small>BB Seguridade · B3</small>
+                    <label>Renda fixa</label>
+                    <button type="button">📈 Renda fixa</button>
+                    <button type="button">🏛 Tesouro Direto</button>
                   </div>
-                  <strong>R$ 36,84</strong>
-                  <strong className="green">+1,18%</strong>
                 </div>
-              </div>
-            </div>
-            <div className="lp-mock-grid3" style={{ marginTop: 10 }}>
-              <div className="lp-mock-stat">
-                <span>P/L</span>
-                <b>15,12</b>
-              </div>
-              <div className="lp-mock-stat">
-                <span>P/VP</span>
-                <b>4,31</b>
-              </div>
-              <div className="lp-mock-stat">
-                <span>DY</span>
-                <b>4,80%</b>
+                <div className="lp-mock-inv-hero compact">
+                  <div>
+                    <b>🇧🇷 Ações brasileiras</b>
+                    <small>Ações listadas na B3</small>
+                  </div>
+                  <span className="lp-mock-live"><i />tempo real · ~10s</span>
+                </div>
+                <div className="lp-mock-pills">
+                  <button className="active">Maiores altas</button>
+                  <button>Maiores baixas</button>
+                  <button>Maior preço</button>
+                </div>
+                <div className="lp-mock-pills">
+                  <button className="active">Todos</button>
+                  <button>Financeiro</button>
+                  <button>Energia</button>
+                  <button>Materiais</button>
+                </div>
+                <div className="lp-mock-movers">
+                  <div className="lp-mock-card">
+                    <div className="lp-mock-card-title green">Maiores altas ▲</div>
+                    {[['PETR4','+1,99%','R$ 43,55'],['PETR3','+1,98%','R$ 40,82'],['B3SA3','+1,96%','R$ 16,05'],['VALE3','+1,12%','R$ 58,90'],['ITUB4','+0,88%','R$ 38,21'],['BBDC4','+0,72%','R$ 15,44']].map(([t,p,v]) => (
+                      <div key={t} className="lp-mock-mover-row"><b>{t}</b><span className="green">{p}</span><strong>{v}</strong></div>
+                    ))}
+                  </div>
+                  <div className="lp-mock-card">
+                    <div className="lp-mock-card-title red">Maiores baixas ▼</div>
+                    {[['MGLU3','−4,55%','R$ 4,62'],['CYRE3','−2,10%','R$ 18,30'],['GGBR4','−1,85%','R$ 19,88'],['WEGE3','−1,42%','R$ 42,10'],['RENT3','−1,20%','R$ 55,70'],['ABEV3','−0,95%','R$ 12,48']].map(([t,p,v]) => (
+                      <div key={t} className="lp-mock-mover-row"><b>{t}</b><span className="red">{p}</span><strong>{v}</strong></div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         )}
 
         {preview === 'community' && (
-          <div className="lp-mock-screen">
-            <div className="lp-mock-head">
-              <b>Comunidade</b>
-              <small>Sugira, vote e acompanhe o que entra no app</small>
+          <div className="lp-mock-screen lp-mock-community-page">
+            <div className="lp-mock-head lp-mock-head-row">
+              <div>
+                <b>Comunidade</b>
+                <small>Sugira melhorias, comente e curta — priorizamos pelo interesse de todos.</small>
+              </div>
+              <button type="button" className="lp-mock-head-actions primary">＋ Nova sugestão</button>
+            </div>
+            <div className="lp-mock-notif">
+              <p>Ative as notificações para saber quando sua sugestão mudar de coluna (Backlog → Faremos, etc.).</p>
+              <button type="button" className="primary">Sim, ativar</button>
+              <button type="button">Agora não</button>
             </div>
             <div className="lp-mock-kanban">
               <div className="lp-mock-col">
                 <h3>Backlog</h3>
                 <p>Ideias em consideração — curta as que mais importam.</p>
-                <button type="button" className="lp-mock-kanban-add">
-                  Adicionar sugestão +
-                </button>
-                <div className="lp-mock-kanban-card">
-                  <b>Comparar gastos mês a mês na Visão geral</b>
-                  <span>Ver evolução por categoria entre meses.</span>
-                  <footer>
-                    <span>💬 8</span>
-                    <span>♡ 42</span>
-                  </footer>
-                </div>
+                <button type="button" className="lp-mock-kanban-add">Adicionar sugestão +</button>
+                <p className="lp-mock-empty">Nenhuma ideia aqui ainda.</p>
               </div>
               <div className="lp-mock-col">
                 <h3>Faremos</h3>
                 <p>Priorizamos pelo interesse da comunidade.</p>
                 <div className="lp-mock-kanban-card">
-                  <b>Notificações de contas a vencer</b>
-                  <span>Aviso antes do vencimento de contas fixas.</span>
-                  <footer>
-                    <span>💬 14</span>
-                    <span>♡ 63</span>
-                  </footer>
+                  <b>Queria uma parte de investimento em tudo</b>
+                  <footer><span>💬 0</span><span>♡ 1</span></footer>
+                  <select defaultValue="planned" aria-hidden><option>Faremos</option></select>
                 </div>
               </div>
               <div className="lp-mock-col">
                 <h3>Estamos cozinhando</h3>
                 <p>Em desenvolvimento agora.</p>
-                <div className="lp-mock-kanban-card">
-                  <b>Importação OFX melhorada</b>
-                  <span>Reconciliar faturas com menos cliques.</span>
-                  <footer>
-                    <span>💬 6</span>
-                    <span>♡ 28</span>
-                  </footer>
-                </div>
+                <p className="lp-mock-empty">Nenhuma ideia aqui ainda.</p>
               </div>
               <div className="lp-mock-col">
                 <h3>Pronto</h3>
                 <p>Já disponível no app.</p>
                 <div className="lp-mock-kanban-card">
-                  <b>Gráfico de categorias com cores vivas</b>
-                  <span>Donut sem tons de cinza nas categorias.</span>
-                  <footer>
-                    <span>💬 11</span>
-                    <span>♡ 91</span>
-                  </footer>
+                  <b>Ajustar a responsividade e layout de comunidade</b>
+                  <span>A responsividade não está muito visível.</span>
+                  <footer><span>💬 0</span><span>♡ 1</span></footer>
                 </div>
                 <div className="lp-mock-kanban-card">
-                  <b>Investidor com cotações em tempo real</b>
-                  <span>Atualização a cada ~10s no pregão.</span>
-                  <footer>
-                    <span>💬 19</span>
-                    <span>♡ 74</span>
-                  </footer>
+                  <b>Exclusão que adicionei errado</b>
+                  <span>Preciso excluir cartões de crédito que adicionei a mais.</span>
+                  <footer><span>💬 0</span><span>♡ 1</span></footer>
                 </div>
               </div>
             </div>

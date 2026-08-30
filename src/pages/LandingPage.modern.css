@@ -71,3 +71,27 @@
 .lp[data-theme='dark'] .lp-links.open{background:rgba(19,16,26,.96)}
 .lp[data-theme='dark'] .lp-theme-toggle{background:var(--lp-surface2);border-color:var(--line);color:var(--ink)}
 @media(max-width:900px){.lp-nav-actions>a[href='/entrar']{display:none}}
+
+/* —— Showcases (investimentos + comunidade) —— */
+.lp-showcase-mock{border-radius:22px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);padding:18px;box-shadow:0 24px 60px rgba(0,0,0,.25);backdrop-filter:blur(16px)}
+.lp-showcase-inv .lp-sm-inv-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;font-size:10px;color:rgba(255,255,255,.45)}
+.lp-showcase-inv .lp-sm-inv-tabs span.on{padding:5px 10px;border-radius:999px;background:rgba(168,85,247,.35);color:#fff}
+.lp-sm-inv-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.lp-sm-inv-head b{font-size:13px}
+.lp-sm-inv-head .live{font-size:9px;color:#22c55e;font-weight:700}
+.lp-sm-movers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lp-sm-movers h4{margin:0 0 8px;font-size:10px;color:rgba(255,255,255,.55)}
+.lp-sm-movers div div{padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:10px;font-variant-numeric:tabular-nums}
+.lp-showcase-kanban{background:#fff;border:1px solid var(--line);box-shadow:0 20px 50px rgba(60,25,80,.08)}
+.lp-sm-kanban-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.lp-sm-kanban-head span{padding:7px 12px;border-radius:10px;background:#820ad1;color:#fff;font-size:10px;font-weight:700}
+.lp-sm-kanban-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.lp-sm-kanban-cols>div{padding:10px;border-radius:12px;background:#f8f7fa;border:1px solid rgba(0,0,0,.06);min-height:120px;font-size:9px}
+.lp-sm-kanban-cols h4{margin:0 0 6px;font-size:10px}
+.lp-sm-kanban-cols i{display:block;padding:8px;border:1px dashed rgba(0,0,0,.12);border-radius:8px;color:#888;font-style:normal;text-align:center}
+.lp-sm-kanban-cols p{margin:0;line-height:1.35;color:#444}
+.lp-sm-kanban-cols small{color:#820ad1;font-weight:700}
+.lp-sm-kanban-cols em{color:#999;font-style:italic}
+.lp[data-theme='dark'] .lp-showcase-kanban{background:var(--lp-surface);border-color:var(--line)}
+.lp[data-theme='dark'] .lp-sm-kanban-cols>div{background:var(--lp-surface2);border-color:var(--line)}
+@media(max-width:900px){.lp-sm-kanban-cols{grid-template-columns:repeat(2,1fr)}.lp-sm-movers{grid-template-columns:1fr}}
