@@ -108,7 +108,7 @@ export const CATEGORY_COLORS: Record<string, string> = {
   outros: '#64748b',
   cartão: '#94a3b8',
   banco: '#60a5fa',
-  'contas de casa': '#64748b',
+  'contas de casa': '#0891b2',
 }
 
 export const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'] as const
