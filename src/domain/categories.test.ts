@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   colorFor,
+  colorForChart,
   formatCategoryLabel,
   iconFor,
   inferCategory,
@@ -65,6 +66,11 @@ describe('iconFor / colorFor', () => {
   it('cai no fallback para categoria desconhecida', () => {
     expect(iconFor('inexistente')).toBe('💳')
     expect(colorFor('inexistente')).toBe('#64748b')
+  })
+  it('colorForChart evita cinza neutro nos gráficos', () => {
+    expect(colorFor('outros')).toBe('#d946ef')
+    expect(colorForChart('outros')).toBe('#d946ef')
+    expect(colorForChart('inexistente')).not.toBe('#64748b')
   })
 })
 

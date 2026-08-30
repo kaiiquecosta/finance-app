@@ -105,7 +105,7 @@ export const CATEGORY_COLORS: Record<string, string> = {
   receita: '#22c55e',
   salário: '#22c55e',
   freelance: '#4ade80',
-  outros: '#64748b',
+  outros: '#d946ef',
   cartão: '#94a3b8',
   banco: '#60a5fa',
   'contas de casa': '#0891b2',
@@ -136,12 +136,35 @@ export const PAY_METHODS: readonly PayMethodOption[] = [
 const FALLBACK_ICON = '💳'
 const FALLBACK_COLOR = '#64748b'
 
+/** Cores neutras demais para fatias/barras do gráfico da Visão geral. */
+const CHART_NEUTRAL = new Set(['#64748b', '#475569', '#94a3b8'])
+
+const CHART_FALLBACK = [
+  '#3b82f6',
+  '#f97316',
+  '#22c55e',
+  '#8b5cf6',
+  '#f59e0b',
+  '#ec4899',
+  '#d946ef',
+  '#0891b2',
+] as const
+
 export function iconFor(category: string): string {
   return CATEGORY_ICONS[category] ?? FALLBACK_ICON
 }
 
 export function colorFor(category: string): string {
   return CATEGORY_COLORS[category] ?? FALLBACK_COLOR
+}
+
+/** Cor para gráficos — evita cinzas que somem no donut e nas barras. */
+export function colorForChart(category: string, index = 0): string {
+  const c = colorFor(category)
+  if (CHART_NEUTRAL.has(c.toLowerCase())) {
+    return CHART_FALLBACK[index % CHART_FALLBACK.length]
+  }
+  return c
 }
 
 /** Rótulo usado no donut da Visão geral para moradia + utilidades (legado). */

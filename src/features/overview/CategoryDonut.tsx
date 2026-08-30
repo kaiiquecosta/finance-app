@@ -1,8 +1,6 @@
 import { formatBRL, type Cents } from '@/domain/money'
-import { colorFor, iconFor } from '@/domain/categories'
+import { colorForChart, iconFor } from '@/domain/categories'
 import styles from './overview.module.css'
-
-const FALLBACK = ['#3b82f6', '#f97316', '#22c55e', '#8b5cf6', '#f59e0b', '#ec4899']
 
 export function CategoryDonut({
   byCat,
@@ -31,7 +29,7 @@ export function CategoryDonut({
     const pct = Number(val) / total
     const dash = pct * circ
     const gap = circ - dash
-    const clr = colorFor(cat) || FALLBACK[i % FALLBACK.length]
+    const clr = colorForChart(cat, i)
     const el = (
       <circle
         key={cat}
@@ -80,8 +78,7 @@ export function CategoryDonut({
       <div className={styles.legend}>
         {show.map(([cat, val], i) => {
           const pct = (Number(val) / total) * 100
-          const clr =
-            cat === 'outros' ? '#64748b' : colorFor(cat) || FALLBACK[i % FALLBACK.length]
+          const clr = colorForChart(cat, i)
           return (
             <div key={cat} className={styles.legendRow}>
               <div

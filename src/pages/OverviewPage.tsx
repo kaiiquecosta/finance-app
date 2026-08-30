@@ -24,7 +24,7 @@ import { OverviewGoalsSnapshot } from '@/features/overview/OverviewGoalsSnapshot
 import { OverviewInvestmentsSnapshot } from '@/features/overview/OverviewInvestmentsSnapshot'
 import { formatBRL } from '@/domain/money'
 import { addMonths, parseISODate } from '@/domain/dates'
-import { colorFor, iconFor, formatCategoryLabel, MONTHS_FULL } from '@/domain/categories'
+import { colorFor, colorForChart, iconFor, formatCategoryLabel, MONTHS_FULL } from '@/domain/categories'
 import {
   consolidatedBalance,
   expenseByCategory,
@@ -189,7 +189,7 @@ export function OverviewPage() {
           {cats.length === 0 ? (
             <p className={styles.muted}>Sem gastos neste mês.</p>
           ) : (
-            cats.map(([cat, amount]) => (
+            cats.map(([cat, amount], i) => (
               <div key={cat} className="cat-row">
                 <div className="cat-name">
                   <span>{iconFor(cat)}</span>
@@ -199,7 +199,7 @@ export function OverviewPage() {
                   <div className="prog">
                     <div
                       className="prog-fill"
-                      style={{ width: `${(amount / maxCat) * 100}%`, background: colorFor(cat) }}
+                      style={{ width: `${(amount / maxCat) * 100}%`, background: colorForChart(cat, i) }}
                     />
                   </div>
                 </div>
