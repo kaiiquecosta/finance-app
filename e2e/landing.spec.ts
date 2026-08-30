@@ -28,6 +28,14 @@ test.describe('Landing page', () => {
     await expect(page.getByRole('heading', { name: 'Bem-vindo de volta' })).toBeVisible()
   })
 
+  test('barras de scroll hint aparecem no mockup', async ({ page }) => {
+    await page.goto('/')
+    const preview = page.locator('.lp-product')
+    await expect(preview.getByText('← Arraste para ver todas as telas do Flux →')).toBeVisible()
+    await preview.getByRole('button', { name: 'Investimentos' }).click()
+    await expect(preview.getByText('Deslize para ver mais categorias')).toBeVisible()
+  })
+
   test('a troca de aba do mockup do app funciona', async ({ page }) => {
     await page.goto('/')
     const preview = page.locator('.lp-product')

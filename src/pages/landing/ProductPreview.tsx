@@ -25,6 +25,17 @@ const PREVIEW_TABS: Array<{ id: PreviewId; label: string; icon: string }> = [
   { id: 'community', label: 'Comunidade', icon: NAV_ITEMS[8].icon },
 ]
 
+function ScrollHintBar({ label, variant = 'tabs' }: { label: string; variant?: 'tabs' | 'inner' }) {
+  return (
+    <div className={`lp-scroll-hint lp-scroll-hint--${variant}`}>
+      <span className="lp-scroll-hint-track">
+        <i />
+      </span>
+      <small>{label}</small>
+    </div>
+  )
+}
+
 function MockRow({
   icon,
   iconBg,
@@ -95,15 +106,10 @@ export function ProductPreview() {
                 </button>
               ))}
             </div>
-            <div className="lp-preview-scroll-hint" aria-hidden>
-              <span className="lp-preview-scroll-track">
-                <i />
-              </span>
-              <small>← Arraste para ver todas as telas do Flux →</small>
-            </div>
           </div>
           <span className="lp-avatar">KC</span>
         </div>
+        <ScrollHintBar label="← Arraste para ver todas as telas do Flux →" />
 
         {preview === 'overview' && (
           <div className="lp-mock-screen">
@@ -546,10 +552,7 @@ export function ProductPreview() {
                     <button type="button">🏛 Tesouro</button>
                   </div>
                 </div>
-                <div className="lp-mock-scroll-hint inner">
-                  <span className="lp-preview-scroll-track"><i /></span>
-                  <small>Deslize para ver mais categorias</small>
-                </div>
+                <ScrollHintBar label="Deslize para ver mais categorias" variant="inner" />
 
                 <div className="lp-mock-inv-hero compact">
                   <div>
