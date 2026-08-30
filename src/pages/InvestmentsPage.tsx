@@ -44,7 +44,7 @@ export function InvestmentsPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<Investment | null>(null)
   const [rescuing, setRescuing] = useState<Investment | null>(null)
-  const [view, setView] = useState<InvView>('favorites')
+  const [view, setView] = useState<InvView>('investor')
   const { favorites, toggleFavorite } = useFavorites(user?.id)
 
   const now = useMemo(() => new Date(), [])
