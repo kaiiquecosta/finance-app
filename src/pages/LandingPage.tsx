@@ -3,6 +3,17 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ProductPreview } from './landing/ProductPreview'
 import './LandingPage.modern.css'
 
+type LandingTheme = 'light' | 'dark'
+
+const THEME_KEY = 'flux-landing-theme'
+
+function readStoredTheme(): LandingTheme {
+  if (typeof window === 'undefined') return 'light'
+  const stored = localStorage.getItem(THEME_KEY)
+  if (stored === 'light' || stored === 'dark') return stored
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
+
 const features = [
   { icon: '◫', title: 'Visão completa', text: 'Saldos, rendas, gastos e compromissos reunidos em um painel que explica o seu mês.' },
   { icon: '↗', title: 'Investidor', text: 'Ações, FIIs, ETFs, renda fixa e cripto com cotações, gráficos e fundamentos.' },
@@ -27,6 +38,7 @@ export function LandingPage() {
   const navigate = useNavigate()
   const [menu, setMenu] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [theme, setTheme] = useState<LandingTheme>(() => readStoredTheme())
   const go = (path: string) => (event: MouseEvent) => {
     event.preventDefault()
     navigate(path)
@@ -38,8 +50,14 @@ export function LandingPage() {
     return () => { document.body.style.overflow = '' }
   }, [menu])
 
+  useEffect(() => {
+    localStorage.setItem(THEME_KEY, theme)
+  }, [theme])
+
+  const toggleTheme = () => setTheme((t) => (t === 'light' ? 'dark' : 'light'))
+
   return (
-    <main className="lp">
+    <main className="lp" data-theme={theme}>
       <nav className="lp-nav">
         <a className="lp-brand" href="#" aria-label="Flux"><i>F</i><b>Flux</b></a>
         <div className={`lp-links ${menu ? 'open' : ''}`}>
@@ -50,6 +68,14 @@ export function LandingPage() {
           <a className="lp-mobile-login" href="/entrar" onClick={go('/entrar')}>Entrar</a>
         </div>
         <div className="lp-nav-actions">
+          <button
+            type="button"
+            className="lp-theme-toggle"
+            aria-label={theme === 'light' ? 'Ativar modo escuro' : 'Ativar modo claro'}
+            onClick={toggleTheme}
+          >
+            {theme === 'light' ? '☾' : '☀'}
+          </button>
           <a href="/entrar" onClick={go('/entrar')}>Entrar</a>
           <a className="lp-primary small" href="/criar-conta" onClick={go('/criar-conta')}>Começar grátis</a>
           <button className="lp-menu" aria-label="Abrir menu" onClick={() => setMenu(!menu)}><i /><i /></button>

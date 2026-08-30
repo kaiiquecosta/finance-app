@@ -1,0 +1,689 @@
+/* Mock interno — espelha tokens do app (light/dark via .lp[data-theme]) */
+.lp-window {
+  --mock-bg: #f2f0f5;
+  --mock-card: #fff;
+  --mock-card2: #f8f7fa;
+  --mock-border: rgba(22, 18, 32, 0.07);
+  --mock-text: #161220;
+  --mock-muted: #6b6478;
+  --mock-green: #16a34a;
+  --mock-red: #dc2626;
+  --mock-amber: #d97706;
+  --mock-blue: #2563eb;
+  --mock-purple: #7c3aed;
+  --mock-primary: #820ad1;
+}
+
+.lp[data-theme='dark'] .lp-window {
+  --mock-bg: #09070e;
+  --mock-card: #13101a;
+  --mock-card2: #181422;
+  --mock-border: rgba(228, 220, 245, 0.08);
+  --mock-text: #f3f0f8;
+  --mock-muted: #8a8398;
+  --mock-green: #22c55e;
+  --mock-red: #ef4444;
+  --mock-amber: #f59e0b;
+  --mock-blue: #3b82f6;
+  --mock-purple: #a78bfa;
+  --mock-primary: #a855f7;
+}
+
+.lp-mock-screen {
+  min-height: 490px;
+  padding: 16px 18px 20px;
+  background: var(--mock-bg);
+  animation: lp-in 0.35s ease both;
+}
+
+.lp-mock-head {
+  margin-bottom: 12px;
+}
+
+.lp-mock-head b {
+  display: block;
+  font-size: 15px;
+  letter-spacing: -0.3px;
+}
+
+.lp-mock-head small {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--mock-muted);
+}
+
+.lp-mock-card {
+  padding: 14px;
+  background: var(--mock-card);
+  border: 1px solid var(--mock-border);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.lp-mock-card + .lp-mock-card {
+  margin-top: 10px;
+}
+
+.lp-mock-card-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.lp-mock-grid2,
+.lp-mock-grid3,
+.lp-mock-grid4 {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.lp-mock-grid2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.lp-mock-grid3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.lp-mock-grid4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.lp-mock-stat {
+  padding: 12px 8px;
+  text-align: center;
+  background: var(--mock-card);
+  border: 1px solid var(--mock-border);
+  border-radius: 12px;
+}
+
+.lp-mock-stat span {
+  display: block;
+  font-size: 9px;
+  color: var(--mock-muted);
+}
+
+.lp-mock-stat b {
+  display: block;
+  margin-top: 5px;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.lp-mock-stat small {
+  display: block;
+  margin-top: 2px;
+  font-size: 8px;
+  color: var(--mock-muted);
+}
+
+.lp-mock-month {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: var(--mock-card);
+  border: 1px solid var(--mock-border);
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.lp-mock-month i {
+  font-style: normal;
+  opacity: 0.5;
+  cursor: default;
+}
+
+.lp-mock-row {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--mock-border);
+}
+
+.lp-mock-row:last-child {
+  border-bottom: 0;
+}
+
+.lp-mock-ico {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  font-size: 14px;
+  border: 1px solid transparent;
+}
+
+.lp-mock-row div b,
+.lp-mock-row div small {
+  display: block;
+}
+
+.lp-mock-row div b {
+  font-size: 11px;
+}
+
+.lp-mock-row div small {
+  margin-top: 2px;
+  font-size: 9px;
+  color: var(--mock-muted);
+}
+
+.lp-mock-row > strong {
+  font-size: 11px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.lp-mock-date {
+  margin: 8px 0 4px;
+  font-size: 8px;
+  color: var(--mock-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.lp-mock-prog {
+  height: 5px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: var(--mock-border);
+  overflow: hidden;
+}
+
+.lp-mock-prog i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.lp-mock-inst {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--mock-border);
+}
+
+.lp-mock-inst:last-child {
+  border-bottom: 0;
+}
+
+.lp-mock-inst-right {
+  text-align: right;
+}
+
+.lp-mock-inst-right b {
+  display: block;
+  font-size: 12px;
+}
+
+.lp-mock-inst-right small {
+  display: block;
+  font-size: 9px;
+  color: var(--mock-muted);
+}
+
+.lp-mock-bill {
+  display: grid;
+  grid-template-columns: 24px 32px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--mock-border);
+}
+
+.lp-mock-bill:last-child {
+  border-bottom: 0;
+}
+
+.lp-mock-check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--mock-muted);
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+}
+
+.lp-mock-check.on {
+  border-color: var(--mock-green);
+  background: var(--mock-green);
+  color: #000;
+}
+
+.lp-mock-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 8px;
+  font-weight: 600;
+  background: var(--mock-card2);
+  color: var(--mock-muted);
+}
+
+.lp-mock-goals-hero {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.lp-mock-goal-widget {
+  padding: 12px 10px;
+  border-radius: 14px;
+  background: linear-gradient(165deg, color-mix(in srgb, var(--mock-card) 92%, var(--mock-primary) 8%), var(--mock-card));
+  border: 1px solid var(--mock-border);
+}
+
+.lp-mock-goal-widget span {
+  display: block;
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--mock-muted);
+}
+
+.lp-mock-goal-widget b {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.lp-mock-goal-widget small {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px;
+  color: var(--mock-muted);
+}
+
+.lp-mock-goal-card {
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--mock-card);
+  border: 1px solid var(--mock-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.lp-mock-goal-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, var(--goal-accent, var(--mock-primary)), transparent);
+}
+
+.lp-mock-goal-card + .lp-mock-goal-card {
+  margin-top: 8px;
+}
+
+.lp-mock-goal-top {
+  display: grid;
+  grid-template-columns: 40px 1fr 44px;
+  gap: 8px;
+  align-items: start;
+}
+
+.lp-mock-goal-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--mock-card2);
+  font-size: 18px;
+}
+
+.lp-mock-ring {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 9px;
+  font-weight: 700;
+  background: conic-gradient(var(--goal-accent, var(--mock-primary)) calc(var(--pct) * 1%), var(--mock-border) 0);
+  position: relative;
+}
+
+.lp-mock-ring::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  background: var(--mock-card);
+}
+
+.lp-mock-ring span {
+  position: relative;
+  z-index: 1;
+}
+
+.lp-mock-goal-amt {
+  margin: 10px 0 8px;
+  font-size: 12px;
+}
+
+.lp-mock-goal-amt b {
+  font-size: 16px;
+}
+
+.lp-mock-goal-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9px;
+  color: var(--mock-muted);
+}
+
+.lp-mock-goal-foot button {
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--mock-primary);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: default;
+}
+
+.lp-mock-inv-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.lp-mock-inv-tabs button {
+  padding: 7px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--mock-border);
+  background: var(--mock-card2);
+  color: var(--mock-muted);
+  font-size: 9px;
+  font-weight: 600;
+  cursor: default;
+}
+
+.lp-mock-inv-tabs button.active {
+  background: var(--mock-primary);
+  border-color: var(--mock-primary);
+  color: #fff;
+}
+
+.lp-mock-inv-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 12px 14px;
+  background: var(--mock-card);
+  border: 1px solid var(--mock-border);
+  border-radius: 14px;
+}
+
+.lp-mock-inv-brand b {
+  display: block;
+  font-size: 13px;
+}
+
+.lp-mock-inv-brand small {
+  display: block;
+  font-size: 9px;
+  color: var(--mock-muted);
+}
+
+.lp-mock-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mock-green) 12%, transparent);
+  color: var(--mock-green);
+  font-size: 8px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.lp-mock-live i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mock-green);
+  animation: lp-pulse 1.5s ease infinite;
+}
+
+@keyframes lp-pulse {
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.lp-mock-inv-layout {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 10px;
+}
+
+.lp-mock-sidebar {
+  padding: 10px;
+  background: var(--mock-card);
+  border: 1px solid var(--mock-border);
+  border-radius: 12px;
+}
+
+.lp-mock-sidebar label {
+  display: block;
+  margin: 8px 0 4px;
+  font-size: 7px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mock-muted);
+}
+
+.lp-mock-sidebar label:first-child {
+  margin-top: 0;
+}
+
+.lp-mock-sidebar button {
+  display: block;
+  width: 100%;
+  padding: 6px 8px;
+  margin-bottom: 3px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--mock-muted);
+  font-size: 9px;
+  text-align: left;
+  cursor: default;
+}
+
+.lp-mock-sidebar button.active {
+  background: color-mix(in srgb, var(--mock-primary) 12%, transparent);
+  color: var(--mock-primary);
+  font-weight: 700;
+}
+
+.lp-mock-quote-table {
+  overflow: hidden;
+}
+
+.lp-mock-quote-head,
+.lp-mock-quote-row {
+  display: grid;
+  grid-template-columns: 1fr 58px 52px;
+  gap: 6px;
+  align-items: center;
+  padding: 8px 10px;
+  font-size: 9px;
+}
+
+.lp-mock-quote-head {
+  color: var(--mock-muted);
+  font-weight: 600;
+  border-bottom: 1px solid var(--mock-border);
+}
+
+.lp-mock-quote-row {
+  border-bottom: 1px solid var(--mock-border);
+}
+
+.lp-mock-quote-row:last-child {
+  border-bottom: 0;
+}
+
+.lp-mock-quote-row div b,
+.lp-mock-quote-row div small {
+  display: block;
+}
+
+.lp-mock-quote-row div b {
+  font-size: 10px;
+}
+
+.lp-mock-quote-row div small {
+  font-size: 8px;
+  color: var(--mock-muted);
+}
+
+.lp-mock-kanban {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.lp-mock-col {
+  padding: 10px;
+  border-radius: 14px;
+  background: var(--mock-card);
+  border: 1px solid var(--mock-border);
+  min-height: 280px;
+}
+
+.lp-mock-col h3 {
+  margin: 0 0 4px;
+  font-size: 11px;
+}
+
+.lp-mock-col p {
+  margin: 0 0 10px;
+  font-size: 8px;
+  color: var(--mock-muted);
+  line-height: 1.4;
+}
+
+.lp-mock-kanban-card {
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: var(--mock-card2);
+  border: 1px solid var(--mock-border);
+}
+
+.lp-mock-kanban-card b {
+  display: block;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.lp-mock-kanban-card span {
+  display: block;
+  margin-top: 6px;
+  font-size: 8px;
+  color: var(--mock-muted);
+}
+
+.lp-mock-kanban-card footer {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 8px;
+  color: var(--mock-muted);
+}
+
+.lp-mock-kanban-add {
+  width: 100%;
+  padding: 8px;
+  border: 1px dashed var(--mock-border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--mock-muted);
+  font-size: 9px;
+  margin-bottom: 8px;
+  cursor: default;
+}
+
+.green {
+  color: var(--mock-green);
+}
+
+.red {
+  color: var(--mock-red);
+}
+
+.amber {
+  color: var(--mock-amber);
+}
+
+.blue {
+  color: var(--mock-blue);
+}
+
+.purple {
+  color: var(--mock-purple);
+}
+
+@media (max-width: 900px) {
+  .lp-mock-grid4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .lp-mock-inv-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .lp-mock-sidebar {
+    display: none;
+  }
+
+  .lp-mock-kanban {
+    grid-template-columns: repeat(4, minmax(120px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .lp-mock-screen {
+    min-height: 310px;
+    padding: 12px;
+  }
+
+  .lp-mock-grid3,
+  .lp-mock-goals-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .lp-mock-grid2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}

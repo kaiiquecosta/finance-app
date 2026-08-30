@@ -33,10 +33,22 @@ test.describe('Landing page', () => {
     const preview = page.locator('.lp-product')
     await preview.getByRole('button', { name: 'Investimentos' }).click()
     await expect(preview.getByText('P/VP')).toBeVisible()
+    await expect(preview.getByText('tempo real · ~10s')).toBeVisible()
     await preview.getByRole('button', { name: 'Transações' }).click()
-    await expect(preview.getByText('Receitas em Agosto')).toBeVisible()
+    await expect(preview.getByText('Agosto de 2026')).toBeVisible()
     await preview.getByRole('button', { name: 'Comunidade' }).click()
-    await expect(preview.getByText('Roadmap aberto')).toBeVisible()
+    await expect(preview.getByText('Adicionar sugestão +')).toBeVisible()
+    await expect(preview.getByText('Estamos cozinhando')).toBeVisible()
+  })
+
+  test('alterna entre modo claro e escuro', async ({ page }) => {
+    await page.goto('/')
+    const root = page.locator('main.lp')
+    await expect(root).toHaveAttribute('data-theme', /light|dark/)
+    const toggle = page.getByRole('button', { name: /modo (escuro|claro)/i })
+    const before = await root.getAttribute('data-theme')
+    await toggle.click()
+    await expect(root).not.toHaveAttribute('data-theme', before ?? '')
   })
 
   test('o FAQ abre e fecha (acordeão)', async ({ page }) => {
