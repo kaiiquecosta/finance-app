@@ -119,7 +119,7 @@ export function CommunityPage() {
       {notifBanner && (
         <div className={styles.notifHint} role="status">
           <p className={styles.notifHintText}>
-            Ative as notificações para saber quando sua sugestão mudar de coluna (Backlog → Faremos,
+            Ative as notificações para saber quando sua sugestão mudar de coluna (Sugestões → Planejado,
             etc.), mesmo fora desta página.
           </p>
           <div className={styles.notifActions}>

@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { NAV_ITEMS } from '@/app/navItems'
+import { COMMUNITY_COLUMNS } from '@/domain/community'
 import { HorizontalScrollBar, useHorizontalDragScroll } from './HorizontalScrollBar'
 import { InvestmentMockPanel } from './InvestmentMockPanel'
 import './productPreview.css'
@@ -549,8 +550,8 @@ export function ProductPreview() {
             </div>
             <div className="lp-mock-kanban">
               <div className="lp-mock-col">
-                <h3>Backlog</h3>
-                <p>Ideias em consideração — curta as que mais importam.</p>
+                <h3>{COMMUNITY_COLUMNS[0].title}</h3>
+                <p>{COMMUNITY_COLUMNS[0].hint}</p>
                 <button type="button" className="lp-mock-kanban-add">Adicionar sugestão +</button>
                 <MockKanbanCard
                   title="Integração Open Finance"
@@ -571,8 +572,8 @@ export function ProductPreview() {
                 />
               </div>
               <div className="lp-mock-col">
-                <h3>Faremos</h3>
-                <p>Priorizamos pelo interesse da comunidade.</p>
+                <h3>{COMMUNITY_COLUMNS[1].title}</h3>
+                <p>{COMMUNITY_COLUMNS[1].hint}</p>
                 <div className="lp-mock-kanban-card">
                   <b>Exportar mês em PDF</b>
                   <span>Extrato visual do mês para arquivar ou compartilhar.</span>
@@ -581,13 +582,13 @@ export function ProductPreview() {
                     <span>♡ 24</span>
                   </footer>
                   <select defaultValue="planned" aria-hidden tabIndex={-1}>
-                    <option>Faremos</option>
+                    <option>{COMMUNITY_COLUMNS[1].title}</option>
                   </select>
                 </div>
               </div>
               <div className="lp-mock-col">
-                <h3>Estamos cozinhando</h3>
-                <p>Em desenvolvimento agora.</p>
+                <h3>{COMMUNITY_COLUMNS[2].title}</h3>
+                <p>{COMMUNITY_COLUMNS[2].hint}</p>
                 <MockKanbanCard
                   title="Alertas de vencimento"
                   description="Aviso antes de faturas, contas fixas e metas."
@@ -596,8 +597,8 @@ export function ProductPreview() {
                 />
               </div>
               <div className="lp-mock-col">
-                <h3>Pronto</h3>
-                <p>Já disponível no app.</p>
+                <h3>{COMMUNITY_COLUMNS[3].title}</h3>
+                <p>{COMMUNITY_COLUMNS[3].hint}</p>
                 <MockKanbanCard
                   title="Assistente Flux"
                   description="Registre gastos falando ou digitando em português."

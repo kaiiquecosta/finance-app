@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { communityColumnTitle } from '@/domain/community'
 import { ensureLandingAudioReady, playKeyTap, playLikeSfx, playNotifySfx, playSendSfx } from './landingSounds'
 import { useScrollVisible } from './useScrollVisible'
 import './communityDemo.css'
@@ -28,12 +29,12 @@ const NOTIF_COPY: Record<NotifKind, { icon: string; title: string; body: string 
   planned: {
     icon: '📋',
     title: 'Flux vai desenvolver seu pedido',
-    body: `Sua sugestão entrou em Faremos. Priorizamos pelo interesse de quem usa o app.`,
+    body: `Sua sugestão entrou em ${communityColumnTitle('planned')}. Priorizamos pelo interesse de quem usa o app.`,
   },
   cooking: {
-    icon: '🍳',
-    title: 'Estamos cozinhando sua ideia',
-    body: `O Flux está desenvolvendo “${SUGGESTION}”. Assim que estiver pronto, avisamos.`,
+    icon: '🔧',
+    title: 'Estamos desenvolvendo sua ideia',
+    body: `O Flux está trabalhando em “${SUGGESTION}”. Assim que estiver pronto, avisamos.`,
   },
   done: {
     icon: '✅',
@@ -59,7 +60,7 @@ function KanbanCard({
       <footer>
         <span className={`lp-comm-like${bump ? ' bump' : ''}`}>♡ {likes}</span>
       </footer>
-      {cooking ? <em className="lp-comm-cooking-badge">🍳 cozinhando</em> : null}
+      {cooking ? <em className="lp-comm-cooking-badge">⚙️ em desenvolvimento</em> : null}
     </div>
   )
 }
@@ -254,13 +255,13 @@ export function CommunityDemo() {
 
       <div className="lp-sm-kanban-cols">
         <div className={`lp-comm-col${cardCol === 'backlog' ? ' active' : ''}`}>
-          <h4>Backlog</h4>
+          <h4>{communityColumnTitle('backlog')}</h4>
           {!cardCol ? <i>Adicionar sugestão +</i> : null}
           {cardCol === 'backlog' ? renderAnimatedCard() : null}
         </div>
 
         <div className={`lp-comm-col${cardCol === 'planned' ? ' active' : ''}`}>
-          <h4>Faremos</h4>
+          <h4>{communityColumnTitle('planned')}</h4>
           {cardCol === 'planned' ? renderAnimatedCard() : null}
           {cardCol === null || cardCol === 'backlog' ? (
             <em className="lp-comm-empty">Aguardando prioridade</em>
@@ -268,13 +269,13 @@ export function CommunityDemo() {
         </div>
 
         <div className={`lp-comm-col${cardCol === 'cooking' ? ' active' : ''}`}>
-          <h4>Cozinhando</h4>
+          <h4>{communityColumnTitle('in_progress', true)}</h4>
           {cardCol === 'cooking' ? renderAnimatedCard() : null}
           {cardCol !== 'cooking' ? <em className="lp-comm-empty">Vazio</em> : null}
         </div>
 
         <div className={`lp-comm-col${cardCol === 'done' ? ' active' : ''}`}>
-          <h4>Pronto</h4>
+          <h4>{communityColumnTitle('done')}</h4>
           <div className="lp-comm-card static">
             <b>{DONE_CARD}</b>
             <footer>

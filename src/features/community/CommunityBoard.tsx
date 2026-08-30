@@ -14,12 +14,9 @@ interface CommunityBoardProps {
   likePending?: boolean
 }
 
-const COLUMN_SHORT: Record<CommunityItemStatus, string> = {
-  backlog: 'Backlog',
-  planned: 'Faremos',
-  in_progress: 'Cozinhando',
-  done: 'Pronto',
-}
+const COLUMN_SHORT: Record<CommunityItemStatus, string> = Object.fromEntries(
+  COMMUNITY_COLUMNS.map((col) => [col.status, col.shortTitle]),
+) as Record<CommunityItemStatus, string>
 
 export function CommunityBoard({
   items,

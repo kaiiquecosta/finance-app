@@ -24,12 +24,38 @@ export interface CommunityComment {
   authorName?: string | null
 }
 
-export const COMMUNITY_COLUMNS: { status: CommunityItemStatus; title: string; hint: string }[] = [
-  { status: 'backlog', title: 'Backlog', hint: 'Ideias em consideração — curta as que mais importam.' },
-  { status: 'planned', title: 'Faremos', hint: 'Priorizamos pelo interesse da comunidade.' },
-  { status: 'in_progress', title: 'Estamos cozinhando', hint: 'Em desenvolvimento agora.' },
-  { status: 'done', title: 'Pronto', hint: 'Já disponível no app.' },
+export const COMMUNITY_COLUMNS: {
+  status: CommunityItemStatus
+  title: string
+  shortTitle: string
+  hint: string
+}[] = [
+  {
+    status: 'backlog',
+    title: 'Sugestões',
+    shortTitle: 'Sugestões',
+    hint: 'Ideias em consideração — curta as que mais importam.',
+  },
+  {
+    status: 'planned',
+    title: 'Planejado',
+    shortTitle: 'Planejado',
+    hint: 'Priorizamos pelo interesse da comunidade.',
+  },
+  {
+    status: 'in_progress',
+    title: 'Em desenvolvimento',
+    shortTitle: 'Desenvolv.',
+    hint: 'Estamos trabalhando nisso agora.',
+  },
+  { status: 'done', title: 'Pronto', shortTitle: 'Pronto', hint: 'Já disponível no app.' },
 ]
+
+export function communityColumnTitle(status: CommunityItemStatus, short = false): string {
+  const col = COMMUNITY_COLUMNS.find((c) => c.status === status)
+  if (!col) return status
+  return short ? col.shortTitle : col.title
+}
 
 /** Ordenação dentro da coluna: mais curtidas primeiro, depois mais recentes. */
 export function sortCommunityItems(items: CommunityItem[]): CommunityItem[] {

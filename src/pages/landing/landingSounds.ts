@@ -167,13 +167,45 @@ function noiseBurst(c: AudioContext, at: number, dur = 0.018, gain = 0.025) {
   src.stop(at + dur + 0.01)
 }
 
+function keyboardClick(c: AudioContext, at: number) {
+  const pitch = 1200 + Math.random() * 700
+  noiseBurst(c, at, 0.005, 0.058)
+  noiseBurst(c, at + 0.003, 0.009, 0.034)
+  tone(c, {
+    freq: pitch,
+    at,
+    dur: 0.007,
+    gain: 0.042,
+    type: 'square',
+    attack: 0.001,
+    release: 0.009,
+  })
+  tone(c, {
+    freq: pitch * 0.52,
+    at: at + 0.002,
+    dur: 0.011,
+    gain: 0.026,
+    type: 'triangle',
+    attack: 0.001,
+    release: 0.012,
+  })
+  tone(c, {
+    freq: 240 + Math.random() * 90,
+    at: at + 0.001,
+    dur: 0.016,
+    gain: 0.018,
+    type: 'sine',
+    attack: 0.002,
+    release: 0.014,
+  })
+}
+
 function playKind(c: AudioContext, kind: SfxKind) {
   const t = c.currentTime + 0.01
 
   switch (kind) {
     case 'key':
-      noiseBurst(c, t, 0.014, 0.022)
-      tone(c, { freq: 920 + Math.random() * 180, at: t, dur: 0.015, gain: 0.012, type: 'triangle' })
+      keyboardClick(c, t)
       break
     case 'send':
       tone(c, { freq: 520, at: t, dur: 0.07, gain: 0.05, type: 'sine' })

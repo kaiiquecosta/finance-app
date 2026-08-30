@@ -179,7 +179,7 @@ export function CreateCommunityItemModal({ open, onClose, onCreate, loading }: C
             disabled={!title.trim()}
             onClick={() => onCreate(title.trim(), body.trim())}
           >
-            Publicar no backlog
+            Publicar sugestão
           </Button>
         </div>
       }

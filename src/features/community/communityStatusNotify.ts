@@ -1,5 +1,5 @@
 import type { CommunityItem, CommunityItemStatus } from '@/domain/community'
-import { COMMUNITY_COLUMNS } from '@/domain/community'
+import { COMMUNITY_COLUMNS, communityColumnTitle } from '@/domain/community'
 
 const STORAGE_KEY = 'flux_community_status_seen_v1'
 
@@ -95,9 +95,9 @@ export function communityStatusPopupCopy(
       }
     case 'in_progress':
       return {
-        icon: '🍳',
-        heading: 'Estamos cozinhando sua ideia',
-        body: `O Flux está desenvolvendo “${title}”. Assim que estiver pronto, avisamos na coluna **Pronto**.`,
+        icon: '🔧',
+        heading: 'Estamos desenvolvendo sua ideia',
+        body: `O Flux está trabalhando em “${title}”. Assim que estiver pronto, avisamos na coluna **Pronto**.`,
       }
     case 'done':
       return {
@@ -119,11 +119,9 @@ export function communityStatusPopupCopy(
 export function communityStatusAdminToast(status: CommunityItemStatus): string {
   switch (status) {
     case 'planned':
-      return 'Movido para Faremos — o autor será avisado.'
     case 'in_progress':
-      return 'Estamos cozinhando — o autor será avisado.'
     case 'done':
-      return 'Marcado como Pronto — o autor será avisado.'
+      return `Movido para ${communityColumnTitle(status)} — o autor será avisado.`
     default:
       return 'Status atualizado.'
   }

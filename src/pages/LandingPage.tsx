@@ -173,8 +173,8 @@ export function LandingPage() {
         <CommunityDemo />
         <div className="lp-showcase-copy light">
           <span className="lp-kicker">Comunidade</span>
-          <h2>Peça. Vote.<br/><em>Veja sair do forno.</em></h2>
-          <p>Um roadmap aberto em colunas — sugira ideias, vote com ♡ e acompanhe do Backlog até chegar em Pronto no app.</p>
+          <h2>Peça. Vote.<br/><em>Veja virar realidade.</em></h2>
+          <p>Um roadmap aberto em colunas — sugira ideias, vote com ♡ e acompanhe de Sugestões até Pronto no app.</p>
           <a href="/criar-conta" onClick={go('/criar-conta')}>Entrar na comunidade <Arrow /></a>
         </div>
       </section>
