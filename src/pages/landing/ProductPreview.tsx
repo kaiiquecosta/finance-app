@@ -70,7 +70,7 @@ export function ProductPreview() {
   useHorizontalDragScroll(tabsScrollRef)
 
   return (
-    <div className="lp-product">
+    <div className="lp-product" id="demo-app">
       <div className="lp-window">
         <div className="lp-windowbar">
           <div className="lp-dots">

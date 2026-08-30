@@ -70,6 +70,17 @@ test.describe('Landing page', () => {
     await expect(preview.getByText('Queria uma parte de investimento em tudo')).toBeVisible()
   })
 
+  test('cards do bento levam às seções da landing', async ({ page }) => {
+    await page.goto('/')
+    await page.locator('#produto').scrollIntoViewIfNeeded()
+    await page.locator('.lp-bento-card', { hasText: 'Investidor' }).click()
+    await expect(page).toHaveURL(/#investimentos/)
+    await expect(page.locator('#investimentos')).toBeInViewport()
+    await page.locator('.lp-bento-card', { hasText: 'Assistente' }).click()
+    await expect(page).toHaveURL(/#assistente/)
+    await expect(page.locator('#assistente')).toBeInViewport()
+  })
+
   test('investimentos no mockup é interativo e sem banner de notificação na comunidade', async ({ page }) => {
     await page.goto('/')
     const preview = page.locator('.lp-product')

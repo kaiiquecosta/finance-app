@@ -95,3 +95,18 @@
 .lp[data-theme='dark'] .lp-showcase-kanban{background:var(--lp-surface);border-color:var(--line)}
 .lp[data-theme='dark'] .lp-sm-kanban-cols>div{background:var(--lp-surface2);border-color:var(--line)}
 @media(max-width:900px){.lp-sm-kanban-cols{grid-template-columns:repeat(2,1fr)}.lp-sm-movers{grid-template-columns:1fr}}
+
+/* —— Bento cards (Apple-style: card inteiro leva à seção, sem “Saiba mais”) —— */
+html{scroll-behavior:smooth}
+.lp-bento-card{display:block;min-height:280px;padding:28px;border:1px solid var(--line);border-radius:28px;background:linear-gradient(145deg,#fff,#fafafa);transition:transform .3s,box-shadow .3s,border-color .3s;box-shadow:0 10px 30px rgba(0,0,0,.025);text-decoration:none;color:inherit;cursor:pointer}
+.lp-bento-card:hover{transform:translateY(-5px);box-shadow:0 20px 50px rgba(63,25,80,.08);border-color:rgba(130,10,209,.14)}
+.lp-bento-card:focus-visible{outline:2px solid #820ad1;outline-offset:3px}
+.lp-bento-card.wide{grid-column:span 2;background:radial-gradient(circle at 90% 20%,rgba(168,70,255,.14),transparent 35%),#faf8fc}
+.lp-bento-card>i{display:grid;place-items:center;width:44px;height:44px;border-radius:13px;background:#f0e6f6;color:#7812b1;font-style:normal;font-size:20px}
+.lp-bento article>span{display:none}
+.lp[data-theme='dark'] .lp-bento-card{background:linear-gradient(145deg,var(--lp-surface),var(--lp-surface2));border-color:var(--line);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.lp[data-theme='dark'] .lp-bento-card:hover{border-color:rgba(168,85,247,.22);box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.lp[data-theme='dark'] .lp-bento-card.wide{background:radial-gradient(circle at 90% 20%,rgba(168,70,255,.12),transparent 35%),var(--lp-surface2)}
+.lp[data-theme='dark'] .lp-bento-card>i{background:rgba(168,85,247,.15);color:#c084fc}
+@media(max-width:900px){.lp-bento-card.wide{grid-column:span 1}}
+@media(max-width:600px){.lp-bento-card{min-height:230px;padding:23px}}

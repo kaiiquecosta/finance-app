@@ -18,12 +18,42 @@ function readStoredTheme(): LandingTheme {
 }
 
 const features = [
-  { icon: '◫', title: 'Visão completa', text: 'Saldos, rendas, gastos e compromissos reunidos em um painel que explica o seu mês.' },
-  { icon: '↗', title: 'Investidor', text: 'Ações, FIIs, ETFs, renda fixa e cripto com cotações, gráficos e fundamentos.' },
-  { icon: '◉', title: 'Cartões', text: 'Limites, faturas, parcelas e importação OFX sem perder nenhum lançamento.' },
-  { icon: '◎', title: 'Metas', text: 'Objetivos com prazo, progresso visual e clareza sobre quanto ainda falta.' },
-  { icon: '⌁', title: 'Assistente', text: 'Registre gastos e receitas com frases naturais, por texto ou voz.' },
-  { icon: '◇', title: 'Comunidade', text: 'Compartilhe ideias, vote em sugestões e acompanhe novidades com outros usuários.' },
+  {
+    icon: '◫',
+    title: 'Visão completa',
+    text: 'Saldos, rendas, gastos e compromissos reunidos em um painel que explica o seu mês.',
+    href: '#demo-app',
+  },
+  {
+    icon: '↗',
+    title: 'Investidor',
+    text: 'Ações, FIIs, ETFs, renda fixa e cripto com cotações, gráficos e fundamentos.',
+    href: '#investimentos',
+  },
+  {
+    icon: '◉',
+    title: 'Cartões',
+    text: 'Limites, faturas, parcelas e importação OFX sem perder nenhum lançamento.',
+    href: '#demo-app',
+  },
+  {
+    icon: '◎',
+    title: 'Metas',
+    text: 'Objetivos com prazo, progresso visual e clareza sobre quanto ainda falta.',
+    href: '#demo-app',
+  },
+  {
+    icon: '⌁',
+    title: 'Assistente',
+    text: 'Registre gastos e receitas com frases naturais, por texto ou voz.',
+    href: '#assistente',
+  },
+  {
+    icon: '◇',
+    title: 'Comunidade',
+    text: 'Compartilhe ideias, vote em sugestões e acompanhe novidades com outros usuários.',
+    href: '#comunidade',
+  },
 ]
 
 const faq = [
@@ -107,10 +137,16 @@ export function LandingPage() {
         <p>O Flux transforma contas, cartões, metas e investimentos em decisões simples — sem planilhas, sem ruído.</p>
         <div className="lp-bento">
           {features.map((feature, i) => (
-            <article key={feature.title} className={i === 0 || i === 5 ? 'wide' : ''}>
-              <i>{feature.icon}</i><h3>{feature.title}</h3><p>{feature.text}</p>
-              <span>Saiba mais <Arrow /></span>
-            </article>
+            <a
+              key={feature.title}
+              href={feature.href}
+              className={`lp-bento-card${i === 0 || i === 5 ? ' wide' : ''}`}
+              onClick={() => setMenu(false)}
+            >
+              <i>{feature.icon}</i>
+              <h3>{feature.title}</h3>
+              <p>{feature.text}</p>
+            </a>
           ))}
         </div>
       </section>
