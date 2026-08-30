@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { playKeyTap, playLikeSfx, playNotifySfx, playSendSfx } from './landingSounds'
+import { ensureLandingAudioReady, playKeyTap, playLikeSfx, playNotifySfx, playSendSfx } from './landingSounds'
 import { useScrollVisible } from './useScrollVisible'
 import './communityDemo.css'
 
@@ -76,6 +76,11 @@ export function CommunityDemo() {
   const [cardMoving, setCardMoving] = useState(false)
 
   useEffect(() => {
+    if (!inView) return
+    void ensureLandingAudioReady()
+  }, [inView])
+
+  useEffect(() => {
     if (inView) return
     setPhase('idle')
     setTyped('')
@@ -122,6 +127,7 @@ export function CommunityDemo() {
     }
 
     async function runLoop() {
+      await ensureLandingAudioReady()
       while (!cancelled) {
         setPhase('idle')
         setTyped('')

@@ -1,42 +1,114 @@
 type SfxKind = 'key' | 'send' | 'like' | 'notify' | 'money'
 
+/** WAV silencioso (~0,05s) — autoplay permitido quando muted. */
+const SILENT_WAV =
+  'data:audio/wav;base64,GkXfo56ChoEBQveBAULygQRC84EAQGBoaKGhpRnFOiYfExfnNQAEP31A8OB46sKTdNja2N9'
+
+const PRIME_AUDIO_ID = 'flux-silent-prime'
+
 let audioCtx: AudioContext | null = null
-let unlocked = false
+let inflightReady: Promise<boolean> | null = null
+let passiveBound = false
+let retryTimer: number | null = null
 
 function prefersReducedSound(): boolean {
   if (typeof window === 'undefined') return true
+  if (typeof window.matchMedia !== 'function') return false
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
-export function unlockLandingAudio() {
-  if (prefersReducedSound()) return
+function getPrimeElement(): HTMLAudioElement {
+  const existing = document.getElementById(PRIME_AUDIO_ID) as HTMLAudioElement | null
+  if (existing) return existing
+
+  const el = document.createElement('audio')
+  el.id = PRIME_AUDIO_ID
+  el.src = SILENT_WAV
+  el.muted = true
+  el.volume = 0
+  el.loop = true
+  el.autoplay = true
+  el.preload = 'auto'
+  el.setAttribute('playsinline', '')
+  el.style.display = 'none'
+  document.body.appendChild(el)
+  return el
+}
+
+async function primeMutedAutoplay(): Promise<void> {
+  if (typeof window === 'undefined') return
+  const el = getPrimeElement()
+  el.muted = true
+  el.volume = 0
+  await el.play()
+}
+
+async function attemptReady(): Promise<boolean> {
+  if (prefersReducedSound()) return false
+
   try {
+    await primeMutedAutoplay().catch(() => undefined)
     audioCtx ??= new AudioContext()
-    if (audioCtx.state === 'suspended') void audioCtx.resume()
-    unlocked = true
+    if (audioCtx.state === 'suspended') await audioCtx.resume()
+    return audioCtx.state === 'running'
   } catch {
-    /* ignore — autoplay blocked or unsupported */
+    return false
   }
 }
 
-export function bindLandingAudioUnlock() {
-  if (typeof window === 'undefined') return () => {}
-  const unlock = () => unlockLandingAudio()
-  window.addEventListener('pointerdown', unlock, { once: true, passive: true })
-  window.addEventListener('keydown', unlock, { once: true })
-  window.addEventListener('touchstart', unlock, { once: true, passive: true })
-  return () => {
-    window.removeEventListener('pointerdown', unlock)
-    window.removeEventListener('keydown', unlock)
-    window.removeEventListener('touchstart', unlock)
+/** Prepara áudio automaticamente — sem exigir clique prévio. */
+export async function ensureLandingAudioReady(): Promise<boolean> {
+  if (prefersReducedSound()) return false
+  if (audioCtx?.state === 'running') return true
+
+  if (!inflightReady) {
+    inflightReady = attemptReady().finally(() => {
+      inflightReady = null
+    })
   }
+
+  return inflightReady
 }
 
-function ctx(): AudioContext | null {
-  if (prefersReducedSound() || !unlocked) return null
-  if (!audioCtx) return null
-  if (audioCtx.state === 'suspended') void audioCtx.resume()
-  return audioCtx
+function scheduleReadyRetries() {
+  if (typeof window === 'undefined' || retryTimer != null) return
+  retryTimer = window.setInterval(() => {
+    if (audioCtx?.state === 'running') {
+      window.clearInterval(retryTimer!)
+      retryTimer = null
+      return
+    }
+    void ensureLandingAudioReady()
+  }, 1200)
+}
+
+function bindPassiveUnlock() {
+  if (passiveBound || typeof window === 'undefined') return
+  passiveBound = true
+
+  const tryUnlock = () => {
+    void ensureLandingAudioReady()
+  }
+
+  for (const event of ['scroll', 'wheel', 'touchstart', 'pointerdown', 'keydown', 'mousemove'] as const) {
+    window.addEventListener(event, tryUnlock, { passive: true, capture: true })
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') tryUnlock()
+  })
+}
+
+/** @deprecated Mantido só por compatibilidade — agora é automático. */
+export function unlockLandingAudio() {
+  void ensureLandingAudioReady()
+}
+
+/** Inicializa áudio assim que a landing monta. */
+export function initLandingAudio() {
+  bindPassiveUnlock()
+  void ensureLandingAudioReady()
+  scheduleReadyRetries()
 }
 
 function tone(
@@ -95,9 +167,7 @@ function noiseBurst(c: AudioContext, at: number, dur = 0.018, gain = 0.025) {
   src.stop(at + dur + 0.01)
 }
 
-export function playLandingSfx(kind: SfxKind) {
-  const c = ctx()
-  if (!c) return
+function playKind(c: AudioContext, kind: SfxKind) {
   const t = c.currentTime + 0.01
 
   switch (kind) {
@@ -129,7 +199,16 @@ export function playLandingSfx(kind: SfxKind) {
   }
 }
 
-/** Som de tecla — varia levemente a cada caractere. */
+async function playLandingSfxInternal(kind: SfxKind) {
+  const ready = await ensureLandingAudioReady()
+  if (!ready || !audioCtx || audioCtx.state !== 'running') return
+  playKind(audioCtx, kind)
+}
+
+export function playLandingSfx(kind: SfxKind) {
+  void playLandingSfxInternal(kind)
+}
+
 export function playKeyTap() {
   playLandingSfx('key')
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
-import { bindLandingAudioUnlock, playKeyTap, unlockLandingAudio } from './landingSounds'
+import { ensureLandingAudioReady, initLandingAudio, playKeyTap } from './landingSounds'
 
 describe('landingSounds', () => {
   beforeEach(() => {
@@ -18,13 +18,12 @@ describe('landingSounds', () => {
     vi.unstubAllGlobals()
   })
 
-  it('não toca som com prefers-reduced-motion', () => {
-    expect(() => playKeyTap()).not.toThrow()
-    unlockLandingAudio()
+  it('não toca som com prefers-reduced-motion', async () => {
+    await expect(ensureLandingAudioReady()).resolves.toBe(false)
     expect(() => playKeyTap()).not.toThrow()
   })
 
-  it('registra unlock sem lançar erro', () => {
-    expect(() => bindLandingAudioUnlock()()).not.toThrow()
+  it('initLandingAudio não lança erro', () => {
+    expect(() => initLandingAudio()).not.toThrow()
   })
 })

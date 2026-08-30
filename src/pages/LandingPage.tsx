@@ -4,7 +4,7 @@ import { ProductPreview } from './landing/ProductPreview'
 import { AssistantDemo } from './landing/AssistantDemo'
 import { CommunityDemo } from './landing/CommunityDemo'
 import { InvestmentShowcaseVisual } from './landing/InvestmentShowcaseVisual'
-import { bindLandingAudioUnlock } from './landing/landingSounds'
+import { initLandingAudio } from './landing/landingSounds'
 import './LandingPage.modern.css'
 
 type LandingTheme = 'light' | 'dark'
@@ -88,7 +88,9 @@ export function LandingPage() {
     localStorage.setItem(THEME_KEY, theme)
   }, [theme])
 
-  useEffect(() => bindLandingAudioUnlock(), [])
+  useEffect(() => {
+    initLandingAudio()
+  }, [])
 
   const toggleTheme = () => setTheme((t) => (t === 'light' ? 'dark' : 'light'))
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { playKeyTap, playMoneyOutSfx, playSendSfx } from './landingSounds'
+import { ensureLandingAudioReady, playKeyTap, playMoneyOutSfx, playSendSfx } from './landingSounds'
 import { useScrollVisible } from './useScrollVisible'
 import './assistantDemo.css'
 
@@ -27,6 +27,11 @@ export function AssistantDemo() {
   const loopRef = useRef(0)
 
   useEffect(() => {
+    if (!inView) return
+    void ensureLandingAudioReady()
+  }, [inView])
+
+  useEffect(() => {
     if (inView) return
     setPhase('idle')
     setTyped('')
@@ -46,6 +51,7 @@ export function AssistantDemo() {
       })
 
     async function runLoop() {
+      await ensureLandingAudioReady()
       while (!cancelled) {
         setPhase('idle')
         setTyped('')
