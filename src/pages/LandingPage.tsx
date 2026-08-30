@@ -2,6 +2,7 @@ import { useEffect, useState, type MouseEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ProductPreview } from './landing/ProductPreview'
 import { AssistantDemo } from './landing/AssistantDemo'
+import { CommunityDemo } from './landing/CommunityDemo'
 import './LandingPage.modern.css'
 
 type LandingTheme = 'light' | 'dark'
@@ -137,15 +138,7 @@ export function LandingPage() {
       </section>
 
       <section className="lp-showcase lp-community-section" id="comunidade">
-        <div className="lp-showcase-mock lp-showcase-kanban">
-          <div className="lp-sm-kanban-head"><b>Comunidade</b><span>＋ Nova sugestão</span></div>
-          <div className="lp-sm-kanban-cols">
-            <div><h4>Backlog</h4><i>Adicionar sugestão +</i></div>
-            <div><h4>Faremos</h4><p>Queria uma parte de investimento em tudo</p><small>♡ 1</small></div>
-            <div><h4>Cozinhando</h4><em>Vazio</em></div>
-            <div><h4>Pronto</h4><p>Ajustar responsividade da comunidade</p><small>♡ 1</small></div>
-          </div>
-        </div>
+        <CommunityDemo />
         <div className="lp-showcase-copy light">
           <span className="lp-kicker">Comunidade</span>
           <h2>Peça. Vote.<br/><em>Veja sair do forno.</em></h2>

@@ -70,6 +70,14 @@ test.describe('Landing page', () => {
     await expect(preview.getByText('Queria uma parte de investimento em tudo')).toBeVisible()
   })
 
+  test('demonstração da comunidade anima sugestão até pronto', async ({ page }) => {
+    await page.goto('/')
+    const section = page.locator('#comunidade')
+    await section.scrollIntoViewIfNeeded()
+    await expect(section.getByText('Queria uma parte de investimentos')).toBeVisible({ timeout: 12000 })
+    await expect(section.getByText('Seu pedido ficou pronto')).toBeVisible({ timeout: 22000 })
+  })
+
   test('demonstração do assistente roda ao rolar até a seção', async ({ page }) => {
     await page.goto('/')
     const section = page.locator('section.lp-assistant')
