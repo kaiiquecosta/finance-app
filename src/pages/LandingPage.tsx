@@ -1,5 +1,6 @@
 import { useEffect, useState, type MouseEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { ProductPreview } from './landing/ProductPreview'
 import './LandingPage.modern.css'
 
 const features = [
@@ -20,95 +21,6 @@ const faq = [
 
 function Arrow() {
   return <span aria-hidden>↗</span>
-}
-
-function ProductPreview() {
-  const [preview, setPreview] = useState<'overview' | 'investor' | 'community'>('overview')
-  return (
-    <div className="lp-product">
-      <div className="lp-window">
-        <div className="lp-windowbar">
-          <div className="lp-dots"><i /><i /><i /></div>
-          <span>finance-app-one-weld.vercel.app</span>
-          <b>•••</b>
-        </div>
-        <div className="lp-appbar">
-          <div className="lp-mini-brand"><i>F</i><span>Flux</span></div>
-          <div className="lp-preview-tabs">
-            <button className={preview === 'overview' ? 'active' : ''} onClick={() => setPreview('overview')}>Visão geral</button>
-            <button className={preview === 'investor' ? 'active' : ''} onClick={() => setPreview('investor')}>Investidor</button>
-            <button className={preview === 'community' ? 'active' : ''} onClick={() => setPreview('community')}>Comunidade</button>
-          </div>
-          <span className="lp-avatar">KC</span>
-        </div>
-
-        {preview === 'overview' && (
-          <div className="lp-screen lp-overview">
-            <div className="lp-balance">
-              <span>Patrimônio total</span>
-              <strong>R$ 48.420,80</strong>
-              <small>↗ 12,4% este mês</small>
-            </div>
-            <div className="lp-kpis">
-              <div><span>Receitas</span><b className="green">R$ 8.500</b></div>
-              <div><span>Gastos</span><b>R$ 4.212</b></div>
-              <div><span>Investido</span><b>R$ 1.800</b></div>
-            </div>
-            <div className="lp-panel lp-chart-panel">
-              <div className="lp-panel-title"><b>Fluxo do mês</b><span>Últimos 6 meses</span></div>
-              <div className="lp-chart">
-                {[42, 58, 49, 67, 61, 83, 72, 94, 79, 100, 86, 108].map((h, i) => (
-                  <i key={i} style={{ height: `${h / 1.25}%` }} className={i > 8 ? 'hot' : ''} />
-                ))}
-              </div>
-              <div className="lp-months"><span>Mar</span><span>Abr</span><span>Mai</span><span>Jun</span><span>Jul</span><span>Ago</span></div>
-            </div>
-            <div className="lp-side-panel lp-panel">
-              <div className="lp-panel-title"><b>Gastos por categoria</b><span>Agosto</span></div>
-              <div className="lp-donut"><div><b>R$ 4,2 mil</b><span>total</span></div></div>
-              <div className="lp-legend"><span><i className="cyan" />Casa</span><span><i className="orange" />Compras</span><span><i className="blue" />Transporte</span></div>
-            </div>
-          </div>
-        )}
-
-        {preview === 'investor' && (
-          <div className="lp-screen lp-investor">
-            <div className="lp-invest-head">
-              <div><span>Investidor</span><strong>O mercado, sem ruído.</strong></div>
-              <button>＋ Investir</button>
-            </div>
-            <div className="lp-market-strip">
-              <div><span>IBOV</span><b>137.912</b><small>+1,28%</small></div>
-              <div><span>DÓLAR</span><b>R$ 5,42</b><small className="red">−0,32%</small></div>
-              <div><span>BITCOIN</span><b>US$ 118 mil</b><small>+2,71%</small></div>
-            </div>
-            <div className="lp-stock-card lp-panel">
-              <div className="lp-stock-title"><i>B³</i><div><b>B3 ON</b><span>B3SA3 · B3</span></div><strong>R$ 16,05</strong></div>
-              <svg viewBox="0 0 500 100" preserveAspectRatio="none" aria-hidden>
-                <defs><linearGradient id="linefill" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#30d158" stopOpacity=".28"/><stop offset="1" stopColor="#30d158" stopOpacity="0"/></linearGradient></defs>
-                <path d="M0,82 C35,76 58,86 90,66 S145,58 178,62 S230,44 260,49 S315,20 350,35 S402,15 438,24 S470,9 500,12 L500,100 L0,100Z" fill="url(#linefill)"/>
-                <path d="M0,82 C35,76 58,86 90,66 S145,58 178,62 S230,44 260,49 S315,20 350,35 S402,15 438,24 S470,9 500,12" fill="none" stroke="#30d158" strokeWidth="3"/>
-              </svg>
-              <div className="lp-fundamentals"><div><span>P/L</span><b>15,12</b></div><div><span>P/VP</span><b>4,31</b></div><div><span>DY</span><b>4,80%</b></div></div>
-            </div>
-          </div>
-        )}
-
-        {preview === 'community' && (
-          <div className="lp-screen lp-community">
-            <div className="lp-community-head"><span>Comunidade Flux</span><strong>Finanças ficam mais leves quando ideias circulam.</strong></div>
-            <div className="lp-community-grid">
-              <div className="lp-feed">
-                <article><header><i>AM</i><div><b>Ana Martins</b><span>Nova sugestão · Backlog</span></div></header><p>Adicionar comparação mensal por categoria na Visão geral.</p><footer>♡ 24 votos &nbsp;&nbsp; ◯ 8 comentários</footer></article>
-                <article><header><i>RL</i><div><b>Rafael Lima</b><span>Em desenvolvimento</span></div></header><p>Notificações personalizadas para contas próximas do vencimento.</p><footer>♡ 63 votos &nbsp;&nbsp; ◯ 14 comentários</footer></article>
-              </div>
-              <aside><span>Roadmap aberto</span><b>Você ajuda a construir</b><p>Acompanhe ideias do Backlog até chegarem ao app.</p><button>Ver roadmap →</button></aside>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
 }
 
 export function LandingPage() {

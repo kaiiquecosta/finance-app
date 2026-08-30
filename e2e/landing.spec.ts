@@ -31,8 +31,10 @@ test.describe('Landing page', () => {
   test('a troca de aba do mockup do app funciona', async ({ page }) => {
     await page.goto('/')
     const preview = page.locator('.lp-product')
-    await preview.getByRole('button', { name: 'Investidor' }).click()
+    await preview.getByRole('button', { name: 'Investimentos' }).click()
     await expect(preview.getByText('P/VP')).toBeVisible()
+    await preview.getByRole('button', { name: 'Transações' }).click()
+    await expect(preview.getByText('Receitas em Agosto')).toBeVisible()
     await preview.getByRole('button', { name: 'Comunidade' }).click()
     await expect(preview.getByText('Roadmap aberto')).toBeVisible()
   })
