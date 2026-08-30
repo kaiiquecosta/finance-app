@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { playKeyTap, playMoneyOutSfx, playSendSfx } from './landingSounds'
 import { useScrollVisible } from './useScrollVisible'
 import './assistantDemo.css'
 
@@ -57,12 +58,14 @@ export function AssistantDemo() {
         for (let i = 1; i <= USER_TEXT.length; i++) {
           if (cancelled) return
           setTyped(USER_TEXT.slice(0, i))
+          playKeyTap()
           await wait(42)
         }
         await wait(300)
         setSpeaking(false)
 
         setPhase('sent')
+        playSendSfx()
         await wait(650)
 
         setPhase('thinking')
@@ -73,6 +76,7 @@ export function AssistantDemo() {
 
         setPhase('balance')
         setBalance(BALANCE_BEFORE - AMOUNT)
+        playMoneyOutSfx()
         await wait(2800)
 
         loopRef.current += 1

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { playKeyTap, playLikeSfx, playNotifySfx, playSendSfx } from './landingSounds'
 import { useScrollVisible } from './useScrollVisible'
 import './communityDemo.css'
 
@@ -99,6 +100,7 @@ export function CommunityDemo() {
     const bumpLike = async (next: number) => {
       setLikes(next)
       setLikeBump(true)
+      playLikeSfx()
       await wait(320)
       setLikeBump(false)
     }
@@ -140,11 +142,13 @@ export function CommunityDemo() {
         for (let i = 1; i <= SUGGESTION.length; i++) {
           if (cancelled) return
           setTyped(SUGGESTION.slice(0, i))
+          playKeyTap()
           await wait(36)
         }
         await wait(450)
 
         setPhase('submit')
+        playSendSfx()
         setCardCol('backlog')
         await wait(650)
 
@@ -155,6 +159,7 @@ export function CommunityDemo() {
         setPhase('to-planned')
         await moveCard('planned')
         setNotif('planned')
+        playNotifySfx()
         await wait(2200)
         setNotif(null)
 
@@ -165,6 +170,7 @@ export function CommunityDemo() {
         setPhase('to-cooking')
         await moveCard('cooking')
         setNotif('cooking')
+        playNotifySfx()
         setPhase('cooking')
         await wait(2400)
         setNotif(null)
@@ -175,6 +181,7 @@ export function CommunityDemo() {
 
         setPhase('notify')
         setNotif('done')
+        playNotifySfx()
         setPhase('hold')
         await wait(3600)
         setNotif(null)
