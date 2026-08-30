@@ -618,6 +618,14 @@
   border: 1px solid var(--mock-border);
 }
 
+.lp-mock-kanban-card + .lp-mock-kanban-card {
+  margin-top: 8px;
+}
+
+.lp-mock-kanban-add + .lp-mock-kanban-card {
+  margin-top: 8px;
+}
+
 .lp-mock-kanban-card b {
   display: block;
   font-size: 10px;

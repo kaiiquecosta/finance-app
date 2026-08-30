@@ -66,8 +66,9 @@ test.describe('Landing page', () => {
     await expect(preview.getByText('Maiores altas ▲')).toBeVisible()
     await expect(preview.getByText('tempo real · ~10s')).toBeVisible()
     await preview.getByRole('button', { name: 'Comunidade' }).click()
-    await expect(preview.getByText('Adicionar sugestão +')).toBeVisible()
-    await expect(preview.getByText('Queria uma parte de investimento em tudo')).toBeVisible()
+    await expect(preview.getByText('Assistente Flux')).toBeVisible()
+    await expect(preview.getByText('Integração Open Finance')).toBeVisible()
+    await expect(preview.getByText('Alertas de vencimento')).toBeVisible()
   })
 
   test('cards do bento levam às seções da landing', async ({ page }) => {
@@ -91,6 +92,7 @@ test.describe('Landing page', () => {
     await expect(preview.getByText('Maiores baixas ▼')).toBeVisible()
     await preview.getByRole('button', { name: 'Comunidade' }).click()
     await expect(preview.getByText('Adicionar sugestão +')).toBeVisible()
+    await expect(preview.getByText('Investidor completo')).toBeVisible()
     await expect(preview.getByText('Ative as notificações')).toHaveCount(0)
   })
 

@@ -27,6 +27,29 @@ const PREVIEW_TABS: Array<{ id: PreviewId; label: string; icon: string }> = [
   { id: 'community', label: 'Comunidade', icon: NAV_ITEMS[8].icon },
 ]
 
+function MockKanbanCard({
+  title,
+  description,
+  likes,
+  comments = 0,
+}: {
+  title: string
+  description?: string
+  likes: number
+  comments?: number
+}) {
+  return (
+    <div className="lp-mock-kanban-card">
+      <b>{title}</b>
+      {description ? <span>{description}</span> : null}
+      <footer>
+        <span>💬 {comments}</span>
+        <span>♡ {likes}</span>
+      </footer>
+    </div>
+  )
+}
+
 function MockRow({
   icon,
   iconBg,
@@ -529,35 +552,70 @@ export function ProductPreview() {
                 <h3>Backlog</h3>
                 <p>Ideias em consideração — curta as que mais importam.</p>
                 <button type="button" className="lp-mock-kanban-add">Adicionar sugestão +</button>
-                <p className="lp-mock-empty">Nenhuma ideia aqui ainda.</p>
+                <MockKanbanCard
+                  title="Integração Open Finance"
+                  description="Conectar banco e importar extrato automaticamente."
+                  likes={12}
+                  comments={2}
+                />
+                <MockKanbanCard
+                  title="Relatório anual para IR"
+                  description="Resumo de rendimentos e gastos dedutíveis do ano."
+                  likes={8}
+                />
+                <MockKanbanCard
+                  title="Modo casal"
+                  description="Duas pessoas acompanhando o mesmo orçamento."
+                  likes={5}
+                  comments={1}
+                />
               </div>
               <div className="lp-mock-col">
                 <h3>Faremos</h3>
                 <p>Priorizamos pelo interesse da comunidade.</p>
                 <div className="lp-mock-kanban-card">
-                  <b>Queria uma parte de investimento em tudo</b>
-                  <footer><span>💬 0</span><span>♡ 1</span></footer>
-                  <select defaultValue="planned" aria-hidden><option>Faremos</option></select>
+                  <b>Exportar mês em PDF</b>
+                  <span>Extrato visual do mês para arquivar ou compartilhar.</span>
+                  <footer>
+                    <span>💬 3</span>
+                    <span>♡ 24</span>
+                  </footer>
+                  <select defaultValue="planned" aria-hidden tabIndex={-1}>
+                    <option>Faremos</option>
+                  </select>
                 </div>
               </div>
               <div className="lp-mock-col">
                 <h3>Estamos cozinhando</h3>
                 <p>Em desenvolvimento agora.</p>
-                <p className="lp-mock-empty">Nenhuma ideia aqui ainda.</p>
+                <MockKanbanCard
+                  title="Alertas de vencimento"
+                  description="Aviso antes de faturas, contas fixas e metas."
+                  likes={18}
+                  comments={4}
+                />
               </div>
               <div className="lp-mock-col">
                 <h3>Pronto</h3>
                 <p>Já disponível no app.</p>
-                <div className="lp-mock-kanban-card">
-                  <b>Ajustar a responsividade e layout de comunidade</b>
-                  <span>A responsividade não está muito visível.</span>
-                  <footer><span>💬 0</span><span>♡ 1</span></footer>
-                </div>
-                <div className="lp-mock-kanban-card">
-                  <b>Exclusão que adicionei errado</b>
-                  <span>Preciso excluir cartões de crédito que adicionei a mais.</span>
-                  <footer><span>💬 0</span><span>♡ 1</span></footer>
-                </div>
+                <MockKanbanCard
+                  title="Assistente Flux"
+                  description="Registre gastos falando ou digitando em português."
+                  likes={41}
+                  comments={6}
+                />
+                <MockKanbanCard
+                  title="Investidor completo"
+                  description="Ações B3, FIIs, ETFs, cripto e renda fixa ao vivo."
+                  likes={37}
+                  comments={5}
+                />
+                <MockKanbanCard
+                  title="Metas com progresso"
+                  description="Objetivos com prazo, barra visual e depósitos."
+                  likes={29}
+                  comments={3}
+                />
               </div>
             </div>
           </div>
