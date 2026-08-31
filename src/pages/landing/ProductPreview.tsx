@@ -371,8 +371,14 @@ export function ProductPreview({
                 <i style={{ width: '1%', background: 'var(--mock-primary)' }} />
               </div>
               <div className="lp-mock-cc-usage">
-                <span className="blue">Usado <b>R$ 84,70</b></span>
-                <span className="green">Disponível <b>R$ 12.915,30</b></span>
+                <span className="lp-mock-cc-usage-item lp-mock-cc-usage-used">
+                  <i aria-hidden />
+                  Usado <strong>R$ 84,70</strong>
+                </span>
+                <span className="lp-mock-cc-usage-item lp-mock-cc-usage-avail">
+                  <i aria-hidden />
+                  Disponível <strong>R$ 12.915,30</strong>
+                </span>
               </div>
               <div className="lp-mock-cc-list">
                 <span className="lp-mock-cc-list-title">Lançamentos (9)</span>
