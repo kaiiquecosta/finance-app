@@ -3,6 +3,7 @@ import { communityColumnTitle } from '@/domain/community'
 import { ensureLandingAudioReady, playKeyTap, playLikeSfx, playNotifySfx, playSendSfx } from './landingSounds'
 import { useScrollVisible } from './useScrollVisible'
 import './communityDemo.css'
+import './landingHints.css'
 
 type Phase =
   | 'idle'
@@ -215,12 +216,24 @@ export function CommunityDemo() {
     )
   }
 
+  const showWatchHint = inView && (phase === 'idle' || phase === 'highlight')
+
   return (
     <div
       className="lp-showcase-mock lp-showcase-kanban lp-community-demo"
       ref={rootRef}
       aria-live={inView ? 'polite' : 'off'}
     >
+      {showWatchHint ? (
+        <div className="lp-interact-hint lp-interact-hint--community" role="status">
+          <span className="lp-interact-hint__icon" aria-hidden>
+            ▶
+          </span>
+          <p>
+            <strong>Como funciona a comunidade?</strong> Assista — a demonstração roda sozinha abaixo.
+          </p>
+        </div>
+      ) : null}
       <div className="lp-sm-kanban-head">
         <b>Comunidade</b>
         <span className={highlightBtn ? 'pulse' : ''}>＋ Nova sugestão</span>

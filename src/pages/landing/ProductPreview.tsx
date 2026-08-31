@@ -1,8 +1,9 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NAV_ITEMS } from '@/app/navItems'
 import { COMMUNITY_COLUMNS } from '@/domain/community'
 import { HorizontalScrollBar, useHorizontalDragScroll } from './HorizontalScrollBar'
 import { InvestmentMockPanel } from './InvestmentMockPanel'
+import './landingHints.css'
 import './productPreview.css'
 
 type PreviewId =
@@ -88,13 +89,64 @@ function MockRow({
   )
 }
 
+const DEMO_HINT_KEY = 'flux-landing-hint-demo'
+
+function readDemoHintVisible(): boolean {
+  if (typeof sessionStorage === 'undefined') return true
+  return sessionStorage.getItem(DEMO_HINT_KEY) !== '1'
+}
+
 export function ProductPreview() {
   const [preview, setPreview] = useState<PreviewId>('overview')
+  const [showExploreHint, setShowExploreHint] = useState(readDemoHintVisible)
   const tabsScrollRef = useRef<HTMLDivElement>(null)
   useHorizontalDragScroll(tabsScrollRef)
 
+  const dismissExploreHint = () => {
+    setShowExploreHint(false)
+    if (typeof sessionStorage !== 'undefined') sessionStorage.setItem(DEMO_HINT_KEY, '1')
+  }
+
+  useEffect(() => {
+    const el = tabsScrollRef.current
+    if (!el || !showExploreHint) return
+    const onScroll = () => {
+      if (el.scrollLeft > 6) dismissExploreHint()
+    }
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => el.removeEventListener('scroll', onScroll)
+  }, [showExploreHint])
+
   return (
-    <div className="lp-product" id="demo-app">
+    <div
+      className="lp-product"
+      id="demo-app"
+      onPointerDown={(event) => {
+        const target = event.target as HTMLElement
+        if (target.closest('button') || target.closest('.lp-hscroll-bar__thumb')) {
+          dismissExploreHint()
+        }
+      }}
+    >
+      {showExploreHint ? (
+        <div className="lp-interact-hint lp-interact-hint--demo" role="status">
+          <span className="lp-interact-hint__icon" aria-hidden>
+            👆
+          </span>
+          <p>
+            <strong>Mexa aqui</strong> — arraste as abas ou toque nas telas para conhecer algumas das
+            funcionalidades do aplicativo.
+          </p>
+          <button
+            type="button"
+            className="lp-interact-hint__close"
+            aria-label="Fechar dica"
+            onClick={dismissExploreHint}
+          >
+            ✕
+          </button>
+        </div>
+      ) : null}
       <div className="lp-window">
         <div className="lp-windowbar">
           <div className="lp-dots">
@@ -116,7 +168,10 @@ export function ProductPreview() {
                 <button
                   key={tab.id}
                   className={preview === tab.id ? 'active' : ''}
-                  onClick={() => setPreview(tab.id)}
+                  onClick={() => {
+                    dismissExploreHint()
+                    setPreview(tab.id)
+                  }}
                 >
                   <span className="lp-tab-icon">{tab.icon}</span>
                   {tab.label}
