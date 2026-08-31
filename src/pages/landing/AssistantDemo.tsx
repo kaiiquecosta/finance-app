@@ -51,7 +51,7 @@ export function AssistantDemo() {
       })
 
     async function runLoop() {
-      await ensureLandingAudioReady()
+      void ensureLandingAudioReady()
       while (!cancelled) {
         setPhase('idle')
         setTyped('')

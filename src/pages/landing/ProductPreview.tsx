@@ -3,19 +3,15 @@ import { NAV_ITEMS } from '@/app/navItems'
 import { COMMUNITY_COLUMNS } from '@/domain/community'
 import { HorizontalScrollBar, useHorizontalDragScroll } from './HorizontalScrollBar'
 import { InvestmentMockPanel } from './InvestmentMockPanel'
+import { PreviewTabTour } from './PreviewTabTour'
+import {
+  dismissPreviewTour,
+  PREVIEW_TOUR_STEPS,
+  readPreviewTourStep,
+  type PreviewId,
+} from './previewTourSteps'
 import './landingHints.css'
 import './productPreview.css'
-
-type PreviewId =
-  | 'overview'
-  | 'transactions'
-  | 'cards'
-  | 'installments'
-  | 'subscriptions'
-  | 'bills'
-  | 'goals'
-  | 'investments'
-  | 'community'
 
 const PREVIEW_TABS: Array<{ id: PreviewId; label: string; icon: string }> = [
   { id: 'overview', label: 'Visão geral', icon: NAV_ITEMS[0].icon },
@@ -89,65 +85,63 @@ function MockRow({
   )
 }
 
-const DEMO_HINT_KEY = 'flux-landing-hint-demo'
-
-function readDemoHintVisible(): boolean {
-  if (typeof sessionStorage === 'undefined') return true
-  return sessionStorage.getItem(DEMO_HINT_KEY) !== '1'
-}
-
 export function ProductPreview() {
   const [preview, setPreview] = useState<PreviewId>('overview')
-  const [showExploreHint, setShowExploreHint] = useState(readDemoHintVisible)
+  const [tourStep, setTourStep] = useState<number | null>(readPreviewTourStep)
   const tabsScrollRef = useRef<HTMLDivElement>(null)
+  const tabsWrapRef = useRef<HTMLDivElement>(null)
+  const tabRefs = useRef<Partial<Record<PreviewId, HTMLButtonElement>>>({})
   useHorizontalDragScroll(tabsScrollRef)
 
-  const dismissExploreHint = () => {
-    setShowExploreHint(false)
-    if (typeof sessionStorage !== 'undefined') sessionStorage.setItem(DEMO_HINT_KEY, '1')
+  const tourActive = tourStep !== null
+  const currentTour = tourStep != null ? PREVIEW_TOUR_STEPS[tourStep] : null
+
+  const endTour = () => {
+    setTourStep(null)
+    dismissPreviewTour()
+  }
+
+  const advanceTour = () => {
+    if (tourStep == null) return
+    if (tourStep >= PREVIEW_TOUR_STEPS.length - 1) {
+      endTour()
+      return
+    }
+    setTourStep(tourStep + 1)
   }
 
   useEffect(() => {
-    const el = tabsScrollRef.current
-    if (!el || !showExploreHint) return
-    const onScroll = () => {
-      if (el.scrollLeft > 6) dismissExploreHint()
-    }
-    el.addEventListener('scroll', onScroll, { passive: true })
-    return () => el.removeEventListener('scroll', onScroll)
-  }, [showExploreHint])
+    if (tourStep == null) return
+    const step = PREVIEW_TOUR_STEPS[tourStep]
+    setPreview(step.id)
+    tabRefs.current[step.id]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+  }, [tourStep])
+
+  useEffect(() => {
+    if (tourStep == null) return
+    const timer = window.setTimeout(() => {
+      setTourStep((current) => {
+        if (current == null) return null
+        if (current >= PREVIEW_TOUR_STEPS.length - 1) {
+          dismissPreviewTour()
+          return null
+        }
+        return current + 1
+      })
+    }, 6500)
+    return () => window.clearTimeout(timer)
+  }, [tourStep])
+
+  const handleTabClick = (tabId: PreviewId) => {
+    setPreview(tabId)
+    if (tourStep == null) return
+    const step = PREVIEW_TOUR_STEPS[tourStep]
+    if (step.id === tabId) advanceTour()
+  }
 
   return (
-    <div
-      className="lp-product"
-      id="demo-app"
-      onPointerDown={(event) => {
-        const target = event.target as HTMLElement
-        if (target.closest('button') || target.closest('.lp-hscroll-bar__thumb')) {
-          dismissExploreHint()
-        }
-      }}
-    >
-      {showExploreHint ? (
-        <div className="lp-interact-hint lp-interact-hint--demo" role="status">
-          <span className="lp-interact-hint__icon" aria-hidden>
-            👆
-          </span>
-          <p>
-            <strong>Mexa aqui</strong> — arraste as abas ou toque nas telas para conhecer algumas das
-            funcionalidades do aplicativo.
-          </p>
-          <button
-            type="button"
-            className="lp-interact-hint__close"
-            aria-label="Fechar dica"
-            onClick={dismissExploreHint}
-          >
-            ✕
-          </button>
-        </div>
-      ) : null}
-      <div className="lp-window">
+    <div className={`lp-product${tourActive ? ' is-tour-active' : ''}`} id="demo-app">
+      <div className={`lp-window${tourActive ? ' is-tour-active' : ''}`}>
         <div className="lp-windowbar">
           <div className="lp-dots">
             <i />
@@ -162,30 +156,58 @@ export function ProductPreview() {
             <i>F</i>
             <span>Flux</span>
           </div>
-          <div className="lp-preview-tabs-wrap">
+          <div
+            className={`lp-preview-tabs-wrap${tourActive ? ' is-tour-active' : ''}`}
+            ref={tabsWrapRef}
+          >
             <div className="lp-preview-tabs" ref={tabsScrollRef}>
-              {PREVIEW_TABS.map((tab) => (
-                <button
-                  key={tab.id}
-                  className={preview === tab.id ? 'active' : ''}
-                  onClick={() => {
-                    dismissExploreHint()
-                    setPreview(tab.id)
-                  }}
-                >
-                  <span className="lp-tab-icon">{tab.icon}</span>
-                  {tab.label}
-                </button>
-              ))}
+              {PREVIEW_TABS.map((tab) => {
+                const isTourFocus = tourActive && currentTour?.id === tab.id
+                return (
+                  <button
+                    key={tab.id}
+                    ref={(node) => {
+                      if (node) tabRefs.current[tab.id] = node
+                      else delete tabRefs.current[tab.id]
+                    }}
+                    className={[
+                      preview === tab.id ? 'active' : '',
+                      isTourFocus ? 'lp-tour-focus' : '',
+                      tourActive && !isTourFocus ? 'lp-tour-dim' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                    onClick={() => handleTabClick(tab.id)}
+                  >
+                    <span className="lp-tab-icon">{tab.icon}</span>
+                    {tab.label}
+                  </button>
+                )
+              })}
             </div>
             <HorizontalScrollBar
               targetRef={tabsScrollRef}
               label="← Arraste para ver todas as telas do Flux →"
               variant="tabs"
             />
+            {currentTour && tourStep != null ? (
+              <PreviewTabTour
+                active={tourActive}
+                stepIndex={tourStep}
+                tabId={currentTour.id}
+                message={currentTour.message}
+                stepLabel={`${tourStep + 1} de ${PREVIEW_TOUR_STEPS.length}`}
+                tabRefs={tabRefs}
+                wrapRef={tabsWrapRef}
+                onNext={advanceTour}
+                onDismiss={endTour}
+              />
+            ) : null}
           </div>
           <span className="lp-avatar">KC</span>
         </div>
+
+        {tourActive ? <div className="lp-tour-scrim" aria-hidden /> : null}
 
         {preview === 'overview' && (
           <div className="lp-mock-screen">

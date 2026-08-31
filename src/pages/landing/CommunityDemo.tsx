@@ -68,7 +68,8 @@ function KanbanCard({
 
 export function CommunityDemo() {
   const rootRef = useRef<HTMLDivElement>(null)
-  const inView = useScrollVisible(rootRef, 0.45)
+  const inView = useScrollVisible(rootRef, 0.28, '0px')
+  const [activated, setActivated] = useState(false)
   const [phase, setPhase] = useState<Phase>('idle')
   const [typed, setTyped] = useState('')
   const [cardCol, setCardCol] = useState<CardCol | null>(null)
@@ -78,11 +79,16 @@ export function CommunityDemo() {
   const [cardMoving, setCardMoving] = useState(false)
 
   useEffect(() => {
+    if (inView) setActivated(true)
+  }, [inView])
+
+  useEffect(() => {
     if (!inView) return
     void ensureLandingAudioReady()
   }, [inView])
 
   useEffect(() => {
+    if (activated) return
     if (inView) return
     setPhase('idle')
     setTyped('')
@@ -91,10 +97,10 @@ export function CommunityDemo() {
     setLikeBump(false)
     setNotif(null)
     setCardMoving(false)
-  }, [inView])
+  }, [inView, activated])
 
   useEffect(() => {
-    if (!inView) return
+    if (!activated) return
 
     let cancelled = false
     const wait = (ms: number) =>
@@ -129,7 +135,7 @@ export function CommunityDemo() {
     }
 
     async function runLoop() {
-      await ensureLandingAudioReady()
+      void ensureLandingAudioReady()
       while (!cancelled) {
         setPhase('idle')
         setTyped('')
@@ -201,10 +207,10 @@ export function CommunityDemo() {
     return () => {
       cancelled = true
     }
-  }, [inView])
+  }, [activated])
 
-  const showModal = inView && (phase === 'modal' || phase === 'typing' || phase === 'submit')
-  const highlightBtn = inView && (phase === 'highlight' || showModal)
+  const showModal = activated && (phase === 'modal' || phase === 'typing' || phase === 'submit')
+  const highlightBtn = activated && (phase === 'highlight' || showModal)
   const isCooking = cardCol === 'cooking' && (phase === 'cooking' || phase === 'to-done')
 
   const renderAnimatedCard = () => {
@@ -216,13 +222,13 @@ export function CommunityDemo() {
     )
   }
 
-  const showWatchHint = inView && (phase === 'idle' || phase === 'highlight')
+  const showWatchHint = inView && (phase === 'idle' || phase === 'highlight') && !cardCol && !notif
 
   return (
     <div
       className="lp-showcase-mock lp-showcase-kanban lp-community-demo"
       ref={rootRef}
-      aria-live={inView ? 'polite' : 'off'}
+      aria-live={activated ? 'polite' : 'off'}
     >
       {showWatchHint ? (
         <div className="lp-interact-hint lp-interact-hint--community" role="status">
@@ -299,7 +305,7 @@ export function CommunityDemo() {
         </div>
       </div>
 
-      {inView && notif ? (
+      {activated && notif ? (
         <div className={`lp-comm-notif lp-comm-pop kind-${notif}`} role="status">
           <span className="lp-comm-notif-icon">{NOTIF_COPY[notif].icon}</span>
           <div>

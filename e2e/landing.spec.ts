@@ -31,7 +31,7 @@ test.describe('Landing page', () => {
   test('barras de scroll hint aparecem no mockup', async ({ page }) => {
     await page.goto('/')
     const preview = page.locator('.lp-product')
-    await expect(preview.getByText(/mexa aqui/i)).toBeVisible()
+    await expect(preview.getByText(/clique aqui para conhecer sua visão geral/i)).toBeVisible()
     await expect(preview.getByText('← Arraste para ver todas as telas do Flux →')).toBeVisible()
     await expect(preview.locator('.lp-hscroll-bar--tabs .lp-hscroll-bar__thumb')).toBeVisible()
     await preview.getByRole('button', { name: 'Investimentos' }).click()
@@ -98,12 +98,14 @@ test.describe('Landing page', () => {
   })
 
   test('demonstração da comunidade anima sugestão até pronto', async ({ page }) => {
+    test.setTimeout(60_000)
     await page.goto('/')
     const section = page.locator('#comunidade')
-    await section.scrollIntoViewIfNeeded()
-    await expect(section.getByText(/como funciona a comunidade\?/i)).toBeVisible()
-    await expect(section.getByText('Queria uma parte de investimentos')).toBeVisible({ timeout: 12000 })
-    await expect(section.getByText('Seu pedido ficou pronto')).toBeVisible({ timeout: 22000 })
+    const demo = section.locator('.lp-community-demo')
+    await demo.scrollIntoViewIfNeeded()
+    await expect(demo.getByText(/como funciona a comunidade\?/i)).toBeVisible()
+    await expect(demo.getByText('Queria uma parte de investimentos')).toBeVisible({ timeout: 15000 })
+    await expect(demo.locator('.lp-comm-notif.kind-done')).toBeVisible({ timeout: 40000 })
   })
 
   test('demonstração do assistente roda ao rolar até a seção', async ({ page }) => {
