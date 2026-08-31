@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ensureLandingAudioReady, playKeyTap, playMoneyOutSfx, playSendSfx } from './landingSounds'
+import { ensureLandingAudioReady, playKeyTap, playMoneyOutSfx, playSendSfx, stopLandingDemoSfx } from './landingSounds'
 import { useScrollVisible } from './useScrollVisible'
 import './assistantDemo.css'
 
@@ -20,6 +20,8 @@ const WAVE = [18, 34, 52, 28, 66, 45, 24, 58, 38, 20]
 export function AssistantDemo() {
   const rootRef = useRef<HTMLElement>(null)
   const inView = useScrollVisible(rootRef, 0.4)
+  const inViewRef = useRef(inView)
+  inViewRef.current = inView
   const [phase, setPhase] = useState<Phase>('idle')
   const [typed, setTyped] = useState('')
   const [balance, setBalance] = useState(BALANCE_BEFORE)
@@ -37,53 +39,63 @@ export function AssistantDemo() {
     setTyped('')
     setBalance(BALANCE_BEFORE)
     setSpeaking(false)
+    loopRef.current = 0
+    stopLandingDemoSfx()
   }, [inView])
 
   useEffect(() => {
     if (!inView) return
 
     let cancelled = false
+    const alive = () => !cancelled && inViewRef.current
+
     const wait = (ms: number) =>
       new Promise<void>((resolve) => {
         window.setTimeout(() => {
-          if (!cancelled) resolve()
+          if (alive()) resolve()
         }, ms)
       })
 
     async function runLoop() {
       void ensureLandingAudioReady()
-      while (!cancelled) {
+      while (alive()) {
         setPhase('idle')
         setTyped('')
         setBalance(BALANCE_BEFORE)
         setSpeaking(false)
         await wait(800)
+        if (!alive()) return
 
         setSpeaking(true)
         setPhase('typing')
         for (let i = 1; i <= USER_TEXT.length; i++) {
-          if (cancelled) return
+          if (!alive()) return
           setTyped(USER_TEXT.slice(0, i))
           playKeyTap()
           await wait(42)
         }
         await wait(300)
+        if (!alive()) return
         setSpeaking(false)
 
         setPhase('sent')
         playSendSfx()
         await wait(650)
+        if (!alive()) return
 
         setPhase('thinking')
         await wait(850)
+        if (!alive()) return
 
         setPhase('done')
         await wait(900)
+        if (!alive()) return
 
         setPhase('balance')
         setBalance(BALANCE_BEFORE - AMOUNT)
         playMoneyOutSfx()
         await wait(2800)
+        if (!alive()) return
 
         loopRef.current += 1
         if (loopRef.current % 2 === 0) await wait(500)
@@ -93,6 +105,7 @@ export function AssistantDemo() {
     void runLoop()
     return () => {
       cancelled = true
+      stopLandingDemoSfx()
     }
   }, [inView])
 

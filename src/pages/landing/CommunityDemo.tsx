@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { communityColumnTitle } from '@/domain/community'
-import { ensureLandingAudioReady, playKeyTap, playLikeSfx, playNotifySfx, playSendSfx } from './landingSounds'
+import {
+  ensureLandingAudioReady,
+  playKeyTap,
+  playLikeSfx,
+  playNotifySfx,
+  playSendSfx,
+  stopLandingDemoSfx,
+} from './landingSounds'
 import { useScrollVisible } from './useScrollVisible'
 import './communityDemo.css'
 import './landingHints.css'
@@ -66,10 +73,30 @@ function KanbanCard({
   )
 }
 
+function resetCommunityDemoState(setters: {
+  setPhase: (p: Phase) => void
+  setTyped: (v: string) => void
+  setCardCol: (v: CardCol | null) => void
+  setLikes: (v: number) => void
+  setLikeBump: (v: boolean) => void
+  setNotif: (v: NotifKind | null) => void
+  setCardMoving: (v: boolean) => void
+}) {
+  setters.setPhase('idle')
+  setters.setTyped('')
+  setters.setCardCol(null)
+  setters.setLikes(0)
+  setters.setLikeBump(false)
+  setters.setNotif(null)
+  setters.setCardMoving(false)
+}
+
 export function CommunityDemo() {
   const rootRef = useRef<HTMLDivElement>(null)
   const inView = useScrollVisible(rootRef, 0.28, '0px')
-  const [activated, setActivated] = useState(false)
+  const inViewRef = useRef(inView)
+  inViewRef.current = inView
+
   const [phase, setPhase] = useState<Phase>('idle')
   const [typed, setTyped] = useState('')
   const [cardCol, setCardCol] = useState<CardCol | null>(null)
@@ -79,125 +106,138 @@ export function CommunityDemo() {
   const [cardMoving, setCardMoving] = useState(false)
 
   useEffect(() => {
-    if (inView) setActivated(true)
+    if (inView) return
+    resetCommunityDemoState({
+      setPhase,
+      setTyped,
+      setCardCol,
+      setLikes,
+      setLikeBump,
+      setNotif,
+      setCardMoving,
+    })
+    stopLandingDemoSfx()
   }, [inView])
 
   useEffect(() => {
     if (!inView) return
-    void ensureLandingAudioReady()
-  }, [inView])
-
-  useEffect(() => {
-    if (activated) return
-    if (inView) return
-    setPhase('idle')
-    setTyped('')
-    setCardCol(null)
-    setLikes(0)
-    setLikeBump(false)
-    setNotif(null)
-    setCardMoving(false)
-  }, [inView, activated])
-
-  useEffect(() => {
-    if (!activated) return
 
     let cancelled = false
+    const alive = () => !cancelled && inViewRef.current
+
     const wait = (ms: number) =>
       new Promise<void>((resolve) => {
         window.setTimeout(() => {
-          if (!cancelled) resolve()
+          if (alive()) resolve()
         }, ms)
       })
 
     const bumpLike = async (next: number) => {
+      if (!alive()) return
       setLikes(next)
       setLikeBump(true)
-      playLikeSfx()
+      if (alive()) playLikeSfx()
       await wait(320)
-      setLikeBump(false)
+      if (alive()) setLikeBump(false)
     }
 
     const animateLikes = async (from: number, to: number, stepMs = 420) => {
       for (let n = from + 1; n <= to; n++) {
-        if (cancelled) return
+        if (!alive()) return
         await bumpLike(n)
         if (n < to) await wait(stepMs)
       }
     }
 
     const moveCard = async (col: CardCol) => {
+      if (!alive()) return
       setCardMoving(true)
       await wait(180)
+      if (!alive()) return
       setCardCol(col)
       await wait(420)
-      setCardMoving(false)
+      if (alive()) setCardMoving(false)
     }
 
     async function runLoop() {
       void ensureLandingAudioReady()
-      while (!cancelled) {
-        setPhase('idle')
-        setTyped('')
-        setCardCol(null)
-        setLikes(0)
-        setLikeBump(false)
-        setNotif(null)
-        setCardMoving(false)
+      while (alive()) {
+        resetCommunityDemoState({
+          setPhase,
+          setTyped,
+          setCardCol,
+          setLikes,
+          setLikeBump,
+          setNotif,
+          setCardMoving,
+        })
         await wait(2600)
+        if (!alive()) return
 
         setPhase('highlight')
         await wait(1500)
+        if (!alive()) return
 
         setPhase('modal')
         await wait(500)
+        if (!alive()) return
 
         setPhase('typing')
         for (let i = 1; i <= SUGGESTION.length; i++) {
-          if (cancelled) return
+          if (!alive()) return
           setTyped(SUGGESTION.slice(0, i))
           playKeyTap()
           await wait(36)
         }
         await wait(450)
+        if (!alive()) return
 
         setPhase('submit')
         playSendSfx()
         setCardCol('backlog')
         await wait(650)
+        if (!alive()) return
 
         setPhase('backlog-likes')
         await animateLikes(0, 2, 380)
         await wait(500)
+        if (!alive()) return
 
         setPhase('to-planned')
         await moveCard('planned')
+        if (!alive()) return
         setNotif('planned')
         playNotifySfx()
         await wait(2200)
+        if (!alive()) return
         setNotif(null)
 
         setPhase('planned-likes')
         await animateLikes(2, 6, 360)
         await wait(600)
+        if (!alive()) return
 
         setPhase('to-cooking')
         await moveCard('cooking')
+        if (!alive()) return
         setNotif('cooking')
         playNotifySfx()
         setPhase('cooking')
         await wait(2400)
+        if (!alive()) return
         setNotif(null)
 
         setPhase('to-done')
         await moveCard('done')
         await wait(700)
+        if (!alive()) return
 
         setPhase('notify')
         setNotif('done')
         playNotifySfx()
         setPhase('hold')
         await wait(3600)
+        if (!alive()) return
         setNotif(null)
         await wait(800)
       }
@@ -206,11 +246,12 @@ export function CommunityDemo() {
     void runLoop()
     return () => {
       cancelled = true
+      stopLandingDemoSfx()
     }
-  }, [activated])
+  }, [inView])
 
-  const showModal = activated && (phase === 'modal' || phase === 'typing' || phase === 'submit')
-  const highlightBtn = activated && (phase === 'highlight' || showModal)
+  const showModal = inView && (phase === 'modal' || phase === 'typing' || phase === 'submit')
+  const highlightBtn = inView && (phase === 'highlight' || showModal)
   const isCooking = cardCol === 'cooking' && (phase === 'cooking' || phase === 'to-done')
 
   const renderAnimatedCard = () => {
@@ -228,7 +269,7 @@ export function CommunityDemo() {
     <div
       className="lp-showcase-mock lp-showcase-kanban lp-community-demo"
       ref={rootRef}
-      aria-live={activated ? 'polite' : 'off'}
+      aria-live={inView ? 'polite' : 'off'}
     >
       {showWatchHint ? (
         <div className="lp-community-watch-banner" role="status">
@@ -304,7 +345,7 @@ export function CommunityDemo() {
         </div>
       </div>
 
-      {activated && notif ? (
+      {inView && notif ? (
         <div className={`lp-comm-notif lp-comm-pop kind-${notif}`} role="status">
           <span className="lp-comm-notif-icon">{NOTIF_COPY[notif].icon}</span>
           <div>

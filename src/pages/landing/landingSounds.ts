@@ -330,3 +330,15 @@ export function playNotifySfx() {
 export function playMoneyOutSfx() {
   playLandingSfx('money')
 }
+
+/** Corta sons em andamento quando a demo sai da tela. */
+export function stopLandingDemoSfx() {
+  if (!audioCtx || !masterGain) return
+  const t = audioCtx.currentTime
+  masterGain.gain.cancelScheduledValues(t)
+  masterGain.gain.setValueAtTime(0, t)
+  window.setTimeout(() => {
+    if (!audioCtx || !masterGain || audioCtx.state !== 'running') return
+    masterGain.gain.setValueAtTime(1.08, audioCtx.currentTime)
+  }, 80)
+}
