@@ -60,26 +60,51 @@
   position: relative;
   border-radius: 22px;
   overflow: hidden;
-  background: #0f0c14;
+  background: #0a0a0c;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow:
-    0 30px 80px rgba(30, 15, 50, 0.14),
-    0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+  box-shadow: 0 30px 80px rgba(30, 15, 50, 0.14);
   aspect-ratio: 16 / 10;
 }
 
-.lp-wt-poster-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
-  display: block;
+.lp-wt-poster-slide-preview {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 10px;
+  text-align: center;
+  background: radial-gradient(ellipse at 50% 30%, #24132e, #0a0a0c 60%);
+  color: #fff;
+  padding: 24px;
+}
+
+.lp-wt-poster-slide-preview span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(192, 132, 252, 0.85);
+}
+
+.lp-wt-poster-slide-preview b {
+  font-size: clamp(28px, 4vw, 40px);
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.lp-wt-poster-slide-preview em {
+  font-style: normal;
+  background: linear-gradient(90deg, #c084fc, #60a5fa 55%, #9ee870);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .lp-wt-poster-dim {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.28);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .lp-wt-play {
@@ -140,7 +165,7 @@
 .lp-wt-modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.68);
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(16px) saturate(140%);
 }
 
@@ -151,7 +176,7 @@
   flex-direction: column;
   border-radius: 18px;
   overflow: hidden;
-  background: #111113;
+  background: #0c0c0e;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
 }
@@ -162,7 +187,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 12px 16px;
-  background: rgba(28, 28, 30, 0.96);
+  background: rgba(22, 22, 24, 0.98);
   color: #f5f5f7;
   font-size: 13px;
   font-weight: 600;
@@ -201,69 +226,144 @@
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  background: #000;
+  background: #050508;
   overflow: hidden;
 }
 
-.lp-wt-cinema--live {
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
-
 .lp-wt-video {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  display: block;
   object-fit: contain;
   background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
 }
 
-/* Borda luminosa sutil (Apple-like) */
+.lp-wt-video.is-visible {
+  opacity: 1;
+}
+
 .lp-wt-frame-glow {
   pointer-events: none;
   position: absolute;
   inset: 0;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
-    inset 0 0 60px rgba(130, 10, 209, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
-.lp-wt-impact-wrap {
+/* —— Title slides (Pora-like) —— */
+.lp-wt-title-slide {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 18%;
+  inset: 0;
   display: grid;
-  place-items: center;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.lp-wt-impact {
-  margin: 0;
-  padding: 10px 18px;
-  max-width: 90%;
+  place-content: center;
+  gap: 14px;
+  padding: 40px 48px;
   text-align: center;
-  font-size: clamp(22px, 3.4vw, 34px);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
-  color: #f5f5f7;
-  background: rgba(28, 28, 30, 0.42);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 14px;
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-  box-shadow:
-    0 16px 40px rgba(0, 0, 0, 0.28),
-    0 0 0 1px rgba(130, 10, 209, 0.12);
-  animation: lp-wt-impact-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  background: radial-gradient(ellipse 90% 70% at 50% 35%, #1a1028 0%, #0a0a0c 55%, #050508 100%);
+  animation: lp-wt-slide-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-@keyframes lp-wt-impact-in {
+.lp-wt-title-slide-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(130, 10, 209, 0.18), transparent 40%),
+    radial-gradient(circle at 70% 70%, rgba(96, 165, 250, 0.1), transparent 42%);
+  pointer-events: none;
+}
+
+.lp-wt-slide-eyebrow {
+  position: relative;
+  z-index: 1;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(192, 132, 252, 0.9);
+}
+
+.lp-wt-slide-title {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  max-width: 820px;
+  font-size: clamp(34px, 5.2vw, 56px);
+  font-weight: 720;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+  color: #f5f5f7;
+}
+
+.lp-wt-slide-title-grad {
+  background: linear-gradient(100deg, #e9d5ff 0%, #c084fc 28%, #60a5fa 62%, #9ee870 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.lp-wt-slide-sub {
+  position: relative;
+  z-index: 1;
+  margin: 0 auto;
+  max-width: 460px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(245, 245, 247, 0.55);
+  font-weight: 450;
+}
+
+@keyframes lp-wt-slide-in {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.98);
+    transform: scale(1.02);
+  }
+}
+
+/* Cursor de clique */
+.lp-wt-cursor {
+  position: absolute;
+  z-index: 5;
+  width: 22px;
+  height: 22px;
+  margin: -4px 0 0 -4px;
+  pointer-events: none;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-15deg) scale(0.92);
+  background: #fff;
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(0, 0, 0, 0.08);
+  transition: left 0.35s cubic-bezier(0.22, 1, 0.36, 1), top 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lp-wt-cursor::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  opacity: 0;
+}
+
+.lp-wt-cursor.is-pulse::after {
+  animation: lp-wt-cursor-ring 0.5s ease-out;
+}
+
+@keyframes lp-wt-cursor-ring {
+  from {
+    opacity: 0.9;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.25);
   }
 }
 
@@ -274,7 +374,7 @@
   bottom: 0;
   padding: 28px 22px 16px;
   text-align: left;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), transparent);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
   pointer-events: none;
 }
 
@@ -297,13 +397,12 @@
   font-weight: 500;
 }
 
-/* —— Controles —— */
 .lp-wt-controls {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px 16px 14px;
-  background: rgba(28, 28, 30, 0.98);
+  background: rgba(22, 22, 24, 0.98);
   color: #a1a1a6;
   font-size: 11px;
   font-variant-numeric: tabular-nums;
@@ -384,10 +483,7 @@
 }
 
 .lp-wt-progress.is-scrubbing::before,
-.lp-wt-progress:hover::before {
-  height: 4px;
-}
-
+.lp-wt-progress:hover::before,
 .lp-wt-progress.is-scrubbing i,
 .lp-wt-progress:hover i {
   height: 4px;
@@ -407,10 +503,15 @@
   .lp-wt-section-copy ul {
     text-align: left;
   }
+
+  .lp-wt-title-slide {
+    padding: 28px 22px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lp-wt-impact {
+  .lp-wt-title-slide,
+  .lp-wt-cursor.is-pulse::after {
     animation: none !important;
   }
 }
