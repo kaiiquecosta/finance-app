@@ -12,6 +12,8 @@ import type { PreviewId } from './landing/previewTourSteps'
 import { AssistantDemo } from './landing/AssistantDemo'
 import { CommunityDemo } from './landing/CommunityDemo'
 import { InvestmentShowcaseVisual } from './landing/InvestmentShowcaseVisual'
+import { FluxWalkthroughVideo } from './landing/FluxWalkthroughVideo'
+import { TestimonialsSection } from './landing/TestimonialsSection'
 import { initLandingAudio } from './landing/landingSounds'
 import './LandingPage.modern.css'
 
@@ -155,6 +157,8 @@ export function LandingPage() {
           <a href="#produto" onClick={() => setMenu(false)}>Produto</a>
           <a href="#assistente" onClick={() => setMenu(false)}>Assistente</a>
           <a href="#investimentos" onClick={() => setMenu(false)}>Investimentos</a>
+          <a href="#como-funciona" onClick={() => setMenu(false)}>Como funciona</a>
+          <a href="#depoimentos" onClick={() => setMenu(false)}>Depoimentos</a>
           <a href="#comunidade" onClick={() => setMenu(false)}>Comunidade</a>
           <a href="#precos" onClick={() => setMenu(false)}>Preços</a>
           <a className="lp-mobile-login" href="/entrar" onClick={go('/entrar')}>Entrar</a>
@@ -208,6 +212,10 @@ export function LandingPage() {
           ))}
         </div>
       </section>
+
+      <FluxWalkthroughVideo />
+
+      <TestimonialsSection />
 
       <section className="lp-showcase lp-showcase-dark" id="investimentos">
         <div className="lp-showcase-copy">

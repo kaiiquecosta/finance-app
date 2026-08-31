@@ -1,0 +1,481 @@
+.lp-wt-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 100px max(24px, 5vw);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+
+.lp-wt-section-copy h2 {
+  margin: 16px 0 14px;
+  font-size: clamp(36px, 4.5vw, 52px);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.lp-wt-section-copy > p {
+  margin: 0 0 20px;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.lp-wt-section-copy ul {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  font-size: 14px;
+  color: #404044;
+}
+
+.lp-wt-section-copy li::before {
+  content: '✓';
+  margin-right: 8px;
+  color: var(--lime-dark);
+  font-weight: 700;
+}
+
+.lp-wt-section-copy .lp-primary span {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.lp-wt-poster {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: center;
+  font: inherit;
+  color: inherit;
+}
+
+.lp-wt-poster-frame {
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #0f0c14;
+  border: 1px solid var(--line);
+  box-shadow: 0 32px 80px rgba(58, 22, 76, 0.14);
+  aspect-ratio: 16 / 10;
+  display: grid;
+  place-items: center;
+}
+
+.lp-wt-poster-frame .lp-wt-mock {
+  width: 88%;
+  transform: scale(0.92);
+  opacity: 0.55;
+  filter: blur(0.5px);
+}
+
+.lp-wt-poster-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.lp-wt-play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.lp-wt-play i {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  color: #111;
+  font-size: 22px;
+  font-style: normal;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s ease;
+}
+
+.lp-wt-poster:hover .lp-wt-play i {
+  transform: scale(1.06);
+}
+
+.lp-wt-poster-tag {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.lp-wt-poster-caption {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* —— Modal player —— */
+.lp-wt-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.lp-wt-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(12px);
+}
+
+.lp-wt-modal-panel {
+  position: relative;
+  width: min(920px, 100%);
+  max-height: min(90vh, 640px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #111;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.45);
+}
+
+.lp-wt-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: #1a1a1f;
+  color: #f5f5f7;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lp-wt-close {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #aaa;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.lp-wt-close:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.lp-wt-player {
+  flex: 1;
+  min-height: 0;
+  padding: 28px 32px 24px;
+  background: radial-gradient(ellipse at 50% 0%, #24132e, #0a0a0c 55%);
+  color: #fff;
+  overflow: auto;
+}
+
+.lp-wt-player-stage {
+  animation: lp-wt-fade 0.45s ease both;
+}
+
+@keyframes lp-wt-fade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.lp-wt-scene-kicker {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #c084fc;
+}
+
+.lp-wt-player-stage h3 {
+  margin: 0 0 8px;
+  font-size: clamp(28px, 4vw, 40px);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.lp-wt-scene-caption {
+  margin: 0 0 24px;
+  max-width: 520px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.lp-wt-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #1a1a1f;
+  color: #aaa;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.lp-wt-ctrl-play {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.lp-wt-progress {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.lp-wt-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #820ad1, #9ee870);
+  transition: width 0.15s linear;
+}
+
+/* —— Scene mocks —— */
+.lp-wt-mock {
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #161220;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+.lp-wt-mock-bar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.lp-wt-mock-bar small {
+  color: #888;
+  font-weight: 500;
+}
+
+.lp-wt-mock-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.lp-wt-mock-stats div {
+  padding: 10px;
+  border-radius: 12px;
+  background: #f8f7fa;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.lp-wt-mock-stats span {
+  display: block;
+  font-size: 8px;
+  color: #888;
+}
+
+.lp-wt-mock-stats b {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.lp-wt-mock-stats .green {
+  color: #16a34a;
+}
+
+.lp-wt-mock-stats .red {
+  color: #dc2626;
+}
+
+.lp-wt-mock-chart {
+  display: flex;
+  align-items: end;
+  gap: 6px;
+  height: 64px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.lp-wt-mock-chart i {
+  flex: 1;
+  border-radius: 4px 4px 0 0;
+  background: #d9cce3;
+}
+
+.lp-wt-mock-chart i.hot {
+  background: linear-gradient(#aa42ef, #7d0fc2);
+}
+
+.lp-wt-cc span {
+  display: block;
+  font-size: 10px;
+  color: #666;
+}
+
+.lp-wt-cc strong {
+  display: block;
+  margin: 6px 0 4px;
+  font-size: 26px;
+  letter-spacing: -0.04em;
+}
+
+.lp-wt-cc small {
+  font-size: 9px;
+  color: #888;
+}
+
+.lp-wt-prog {
+  height: 5px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: #ececf0;
+  overflow: hidden;
+}
+
+.lp-wt-prog i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #820ad1;
+}
+
+.lp-wt-prog.green i {
+  background: #16a34a;
+}
+
+.lp-wt-mover {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 11px;
+}
+
+.lp-wt-mover:last-of-type {
+  border-bottom: 0;
+}
+
+.lp-wt-mover .green {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.lp-wt-mover .red {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.lp-wt-live {
+  display: block;
+  margin-top: 10px;
+  font-size: 9px;
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.lp-wt-bubble {
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  line-height: 1.45;
+  margin-bottom: 8px;
+}
+
+.lp-wt-bubble.user {
+  background: #820ad1;
+  color: #fff;
+  margin-left: 20%;
+}
+
+.lp-wt-bubble.bot {
+  background: #f3f0f8;
+  margin-right: 12%;
+}
+
+.lp-wt-goal {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.lp-wt-goal:last-child {
+  border-bottom: 0;
+}
+
+.lp-wt-goal b {
+  display: block;
+  font-size: 12px;
+}
+
+.lp-wt-goal > span {
+  display: block;
+  margin: 4px 0 8px;
+  font-size: 9px;
+  color: #666;
+}
+
+.lp[data-theme='dark'] .lp-wt-section-copy ul {
+  color: #a1a1a6;
+}
+
+.lp[data-theme='dark'] .lp-wt-mock {
+  background: #13101a;
+  color: #f3f0f8;
+}
+
+.lp[data-theme='dark'] .lp-wt-mock-stats div {
+  background: #181422;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+@media (max-width: 900px) {
+  .lp-wt-section {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    text-align: center;
+  }
+
+  .lp-wt-section-copy ul {
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-wt-player-stage {
+    animation: none;
+  }
+}
