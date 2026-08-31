@@ -172,7 +172,7 @@ export function ProductPreview({
           <span>finance-app-one-weld.vercel.app</span>
           <b>•••</b>
         </div>
-        <div className="lp-appbar">
+        <div className="lp-appbar" id="demo-tabs">
           <div className="lp-mini-brand">
             <i>F</i>
             <span>Flux</span>

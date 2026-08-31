@@ -1,4 +1,4 @@
-import { useEffect, useState, type MouseEvent } from 'react'
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   annualSavingsPercent,
@@ -37,28 +37,28 @@ const features: Array<{
     icon: '◫',
     title: 'Visão completa',
     text: 'Saldos, rendas, gastos e compromissos reunidos em um painel que explica o seu mês.',
-    href: '#demo-app',
+    href: '#demo-tabs',
     previewTab: 'overview',
   },
   {
     icon: '↗',
     title: 'Investidor',
     text: 'Ações, FIIs, ETFs, renda fixa e cripto com cotações, gráficos e fundamentos.',
-    href: '#demo-app',
+    href: '#demo-tabs',
     previewTab: 'investments',
   },
   {
     icon: '◉',
     title: 'Cartões',
     text: 'Limites, faturas, parcelas e importação OFX sem perder nenhum lançamento.',
-    href: '#demo-app',
+    href: '#demo-tabs',
     previewTab: 'cards',
   },
   {
     icon: '◎',
     title: 'Metas',
     text: 'Objetivos com prazo, progresso visual e clareza sobre quanto ainda falta.',
-    href: '#demo-app',
+    href: '#demo-tabs',
     previewTab: 'goals',
   },
   {
@@ -71,7 +71,7 @@ const features: Array<{
     icon: '◇',
     title: 'Comunidade',
     text: 'Compartilhe ideias, vote em sugestões e acompanhe novidades com outros usuários.',
-    href: '#demo-app',
+    href: '#demo-tabs',
     previewTab: 'community',
   },
 ]
@@ -84,6 +84,15 @@ const faq = [
   ['Quais investimentos posso acompanhar?', 'Ações brasileiras e americanas, FIIs, ETFs, criptomoedas, CDB, LCI/LCA, Tesouro, poupança e outros ativos.'],
 ]
 
+function scrollToDemoTabs() {
+  const anchor = document.getElementById('demo-tabs')
+  const nav = document.querySelector('.lp-nav')
+  if (!anchor) return
+  const offset = (nav?.getBoundingClientRect().bottom ?? 88) + 8
+  const top = anchor.getBoundingClientRect().top + window.scrollY - offset
+  window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' })
+}
+
 function Arrow() {
   return <span aria-hidden>↗</span>
 }
@@ -93,6 +102,7 @@ export function LandingPage() {
   const [menu, setMenu] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [previewTab, setPreviewTab] = useState<PreviewId>('overview')
+  const shouldScrollToPreview = useRef(false)
   const [theme, setTheme] = useState<LandingTheme>(() => readStoredTheme())
   const go = (path: string) => (event: MouseEvent) => {
     event.preventDefault()
@@ -103,12 +113,23 @@ export function LandingPage() {
     setMenu(false)
     if (feature.previewTab) {
       event.preventDefault()
-      setPreviewTab(feature.previewTab)
-      window.requestAnimationFrame(() => {
-        document.getElementById('demo-app')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      })
+      shouldScrollToPreview.current = true
+      if (previewTab === feature.previewTab) {
+        window.requestAnimationFrame(() => scrollToDemoTabs())
+        shouldScrollToPreview.current = false
+      } else {
+        setPreviewTab(feature.previewTab)
+      }
     }
   }
+
+  useEffect(() => {
+    if (!shouldScrollToPreview.current) return
+    shouldScrollToPreview.current = false
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(scrollToDemoTabs)
+    })
+  }, [previewTab])
 
   useEffect(() => {
     if (!menu) return

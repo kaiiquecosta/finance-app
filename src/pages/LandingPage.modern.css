@@ -111,6 +111,10 @@ html{scroll-behavior:smooth}
 @media(max-width:900px){.lp-bento-card.wide{grid-column:span 1}}
 @media(max-width:600px){.lp-bento-card{min-height:230px;padding:23px}}
 
+/* —— Scroll anchor do demo (compensa nav fixa) —— */
+#demo-tabs{scroll-margin-top:88px}
+@media(max-width:600px){#demo-tabs{scroll-margin-top:70px}}
+
 /* —— Preços (Apple: tipografia contida, sem destaque exagerado) —— */
 .lp-price-card .lp-price-brand {
   display: block;
