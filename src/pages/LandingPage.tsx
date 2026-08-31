@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import {
   annualSavingsPercent,
   formatPriceBRL,
+  PRO_ANNUAL_MONTHLY_BRL,
   PRO_ANNUAL_TOTAL_BRL,
   PRO_MONTHLY_BRL,
 } from '@/domain/pricing'
@@ -193,21 +194,14 @@ export function LandingPage() {
         <div className="lp-price-card">
           <div className="lp-price-copy">
             <span className="lp-price-brand">Flux Pro</span>
-            <span className="lp-price-label">Anual</span>
-            <p className="lp-price-amount">
-              <sup>R$</sup>
-              {formatPriceBRL(PRO_ANNUAL_TOTAL_BRL / 12)}
-              <small>/mês</small>
+            <p className="lp-price-main">
+              R$&nbsp;{formatPriceBRL(PRO_ANNUAL_MONTHLY_BRL)}
+              <span className="lp-price-suffix">/mês no anual</span>
             </p>
-            <p className="lp-price-sub">
-              Economize {annualSavingsPercent()}% em relação ao mensal
+            <p className="lp-price-secondary">
+              Mensal R$&nbsp;{formatPriceBRL(PRO_MONTHLY_BRL)}
             </p>
-            <p className="lp-price-alt">
-              Mensal · R$ {formatPriceBRL(PRO_MONTHLY_BRL)}/mês
-            </p>
-            <p className="lp-price-desc">
-              Finanças, investidor e assistente — sem pagar três apps.
-            </p>
+            <p className="lp-price-desc">30 dias grátis · cancele quando quiser</p>
           </div>
           <ul>
             <li>✓ Contas e transações ilimitadas</li>
