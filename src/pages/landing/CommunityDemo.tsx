@@ -144,10 +144,10 @@ export function CommunityDemo() {
         setLikeBump(false)
         setNotif(null)
         setCardMoving(false)
-        await wait(900)
+        await wait(2600)
 
         setPhase('highlight')
-        await wait(700)
+        await wait(1500)
 
         setPhase('modal')
         await wait(500)
@@ -231,8 +231,8 @@ export function CommunityDemo() {
       aria-live={activated ? 'polite' : 'off'}
     >
       {showWatchHint ? (
-        <div className="lp-interact-hint lp-interact-hint--community" role="status">
-          <span className="lp-interact-hint__icon" aria-hidden>
+        <div className="lp-community-watch-banner" role="status">
+          <span className="lp-community-watch-banner__icon" aria-hidden>
             ▶
           </span>
           <p>

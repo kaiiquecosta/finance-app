@@ -177,7 +177,6 @@ export function ProductPreview() {
                   >
                     <span className="lp-tab-icon">{tab.icon}</span>
                     {tab.label}
-                    {isTourFocus ? <em className="lp-tour-tab-hint">Clique aqui</em> : null}
                   </button>
                 )
               })}
@@ -688,9 +687,10 @@ export function ProductPreview() {
         <PreviewTabTour
           active={tourActive}
           stepIndex={tourStep}
+          totalSteps={PREVIEW_TOUR_STEPS.length}
           tabId={currentTour.id}
+          title={currentTour.short}
           message={currentTour.message}
-          stepLabel={`${tourStep + 1} de ${PREVIEW_TOUR_STEPS.length} · ${currentTour.short}`}
           tabRefs={tabRefs}
           anchorRef={productRef}
           onNext={advanceTour}

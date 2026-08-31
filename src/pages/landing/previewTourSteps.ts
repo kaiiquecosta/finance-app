@@ -13,27 +13,27 @@ export const PREVIEW_TOUR_STEPS: Array<{ id: PreviewId; message: string; short: 
   {
     id: 'overview',
     short: 'Visão geral',
-    message: 'Clique aqui para conhecer receitas, gastos e saldo do mês.',
+    message: 'Toque nesta aba para ver receitas, gastos e saldo do mês em um só lugar.',
   },
   {
     id: 'transactions',
     short: 'Transações',
-    message: 'Clique aqui para ver lançamentos, categorias e histórico.',
+    message: 'Aqui ficam lançamentos, categorias e o histórico completo do mês.',
   },
   {
     id: 'cards',
     short: 'Cartões',
-    message: 'Clique aqui para explorar faturas, limites e parcelas.',
+    message: 'Explore faturas, limites e lançamentos de cada cartão de crédito.',
   },
   {
     id: 'investments',
     short: 'Investimentos',
-    message: 'Clique aqui para conhecer B3, FIIs, ETFs e cripto ao vivo.',
+    message: 'Conheça B3, FIIs, ETFs e cripto com cotações em tempo real.',
   },
   {
     id: 'community',
     short: 'Comunidade',
-    message: 'Clique aqui para ver sugestões, votos e o roadmap aberto.',
+    message: 'Veja sugestões, votos e o roadmap aberto construído com os usuários.',
   },
 ]
 
