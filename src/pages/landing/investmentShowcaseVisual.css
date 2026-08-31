@@ -5,17 +5,25 @@
 .lp-inv-show-tabs {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 6px;
   margin-bottom: 14px;
   font-size: 10px;
   color: rgba(255, 255, 255, 0.45);
 }
 
-.lp-inv-show-tabs span.on {
+.lp-inv-show-tabs span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 5px 10px;
   border-radius: 999px;
+}
+
+.lp-inv-show-tabs span.on {
   background: rgba(168, 85, 247, 0.35);
   color: #fff;
+  font-weight: 600;
 }
 
 .lp-inv-show-head {

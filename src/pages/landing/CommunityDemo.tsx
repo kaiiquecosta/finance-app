@@ -171,11 +171,11 @@ export function CommunityDemo() {
           setNotif,
           setCardMoving,
         })
-        await wait(2600)
+        await wait(1300)
         if (!alive()) return
 
         setPhase('highlight')
-        await wait(1500)
+        await wait(750)
         if (!alive()) return
 
         setPhase('modal')
