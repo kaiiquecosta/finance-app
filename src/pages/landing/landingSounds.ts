@@ -7,9 +7,13 @@ const SILENT_WAV =
 const PRIME_AUDIO_ID = 'flux-silent-prime'
 
 let audioCtx: AudioContext | null = null
+let masterGain: GainNode | null = null
+let keyClickBuffer: AudioBuffer | null = null
+let successBuffer: AudioBuffer | null = null
 let inflightReady: Promise<boolean> | null = null
 let passiveBound = false
 let retryTimer: number | null = null
+let keyVariant = 0
 
 function prefersReducedSound(): boolean {
   if (typeof window === 'undefined') return true
@@ -43,6 +47,100 @@ async function primeMutedAutoplay(): Promise<void> {
   await el.play()
 }
 
+/** Clique seco estilo Magic Keyboard — transient curto com corpo audível. */
+function bakeKeyClickBuffer(c: AudioContext, variant: number): AudioBuffer {
+  const sr = c.sampleRate
+  const dur = 0.032
+  const length = Math.max(1, Math.floor(sr * dur))
+  const buffer = c.createBuffer(1, length, sr)
+  const data = buffer.getChannelData(0)
+  const pitch = 2900 + variant * 180 + (variant % 3) * 90
+
+  for (let i = 0; i < length; i++) {
+    const t = i / sr
+    const clickEnv = Math.exp(-t * 140)
+    const bodyEnv = Math.exp(-t * 55)
+    const noise = (Math.random() * 2 - 1) * clickEnv * 0.95
+    const tick = Math.sin(2 * Math.PI * pitch * t) * clickEnv * 0.72
+    const snap = Math.sin(2 * Math.PI * pitch * 1.18 * t) * clickEnv * 0.28
+    const body = Math.sin(2 * Math.PI * (820 + variant * 40) * t) * bodyEnv * 0.18
+    data[i] = Math.max(-1, Math.min(1, noise + tick + snap + body))
+  }
+
+  return buffer
+}
+
+/** Confirmação clara de sucesso — melodia curta, bem diferente do teclado. */
+function bakeSuccessBuffer(c: AudioContext): AudioBuffer {
+  const sr = c.sampleRate
+  const dur = 0.52
+  const length = Math.max(1, Math.floor(sr * dur))
+  const buffer = c.createBuffer(1, length, sr)
+  const data = buffer.getChannelData(0)
+  const notes = [
+    { freq: 392, at: 0, hold: 0.22, amp: 0.34 },
+    { freq: 494, at: 0.1, hold: 0.24, amp: 0.32 },
+    { freq: 587, at: 0.2, hold: 0.28, amp: 0.3 },
+    { freq: 784, at: 0.32, hold: 0.34, amp: 0.26 },
+  ]
+
+  for (let i = 0; i < length; i++) {
+    const t = i / sr
+    let sample = 0
+    for (const note of notes) {
+      const local = t - note.at
+      if (local < 0 || local > note.hold) continue
+      const attack = 1 - Math.exp(-local * 55)
+      const release = Math.exp(-Math.max(0, local - note.hold * 0.35) * 7)
+      const env = attack * release
+      sample += Math.sin(2 * Math.PI * note.freq * local) * env * note.amp
+      sample += Math.sin(2 * Math.PI * note.freq * 2 * local) * env * note.amp * 0.08
+    }
+    data[i] = Math.max(-1, Math.min(1, sample))
+  }
+
+  return buffer
+}
+
+function ensureBuffers(c: AudioContext) {
+  if (!masterGain || masterGain.context !== c) {
+    masterGain = c.createGain()
+    masterGain.gain.value = 1.65
+    masterGain.connect(c.destination)
+  }
+
+  keyClickBuffer ??= bakeKeyClickBuffer(c, 0)
+  successBuffer ??= bakeSuccessBuffer(c)
+}
+
+function playBuffer(
+  c: AudioContext,
+  buffer: AudioBuffer,
+  { gain = 1, playbackRate = 1 }: { gain?: number; playbackRate?: number } = {},
+) {
+  ensureBuffers(c)
+  const src = c.createBufferSource()
+  src.buffer = buffer
+  src.playbackRate.value = playbackRate
+  const g = c.createGain()
+  g.gain.value = gain
+  src.connect(g)
+  g.connect(masterGain ?? c.destination)
+  src.start()
+}
+
+function playKeyClick(c: AudioContext) {
+  keyVariant = (keyVariant + 1) % 5
+  const variantBuffer = bakeKeyClickBuffer(c, keyVariant)
+  playBuffer(c, variantBuffer, { gain: 1.15, playbackRate: 0.96 + (keyVariant % 3) * 0.03 })
+}
+
+function playSuccessChime(c: AudioContext) {
+  ensureBuffers(c)
+  if (!successBuffer) return
+  playBuffer(c, successBuffer, { gain: 1.05 })
+}
+
 async function attemptReady(): Promise<boolean> {
   if (prefersReducedSound()) return false
 
@@ -50,6 +148,7 @@ async function attemptReady(): Promise<boolean> {
     await primeMutedAutoplay().catch(() => undefined)
     audioCtx ??= new AudioContext()
     if (audioCtx.state === 'suspended') await audioCtx.resume()
+    if (audioCtx.state === 'running') ensureBuffers(audioCtx)
     return audioCtx.state === 'running'
   } catch {
     return false
@@ -131,6 +230,7 @@ function tone(
     release?: number
   },
 ) {
+  ensureBuffers(c)
   const osc = c.createOscillator()
   const g = c.createGain()
   osc.type = type
@@ -139,85 +239,9 @@ function tone(
   g.gain.exponentialRampToValueAtTime(gain, at + attack)
   g.gain.exponentialRampToValueAtTime(0.0001, at + dur + release)
   osc.connect(g)
-  g.connect(c.destination)
+  g.connect(masterGain ?? c.destination)
   osc.start(at)
   osc.stop(at + dur + release + 0.02)
-}
-
-function noiseBurst(
-  c: AudioContext,
-  at: number,
-  dur = 0.018,
-  gain = 0.025,
-  filterHz = 1200,
-  filterType: BiquadFilterType = 'highpass',
-) {
-  const bufferSize = Math.max(1, Math.floor(c.sampleRate * dur))
-  const buffer = c.createBuffer(1, bufferSize, c.sampleRate)
-  const data = buffer.getChannelData(0)
-  for (let i = 0; i < bufferSize; i++) {
-    const t = i / bufferSize
-    data[i] = (Math.random() * 2 - 1) * (1 - t) * (1 - t)
-  }
-  const src = c.createBufferSource()
-  src.buffer = buffer
-  const filter = c.createBiquadFilter()
-  filter.type = filterType
-  filter.frequency.value = filterHz
-  if (filterType === 'bandpass') filter.Q.value = 1.4
-  const g = c.createGain()
-  g.gain.setValueAtTime(gain, at)
-  g.gain.exponentialRampToValueAtTime(0.0001, at + dur)
-  src.connect(filter)
-  filter.connect(g)
-  g.connect(c.destination)
-  src.start(at)
-  src.stop(at + dur + 0.01)
-}
-
-/** Clique seco estilo Magic Keyboard — tick alto, curto e bem audível. */
-function keyboardClick(c: AudioContext, at: number) {
-  const pitch = 2100 + Math.random() * 1100
-  noiseBurst(c, at, 0.004, 0.078, 2600, 'highpass')
-  noiseBurst(c, at + 0.001, 0.005, 0.062, 3400, 'bandpass')
-  noiseBurst(c, at + 0.002, 0.007, 0.04, 1800, 'highpass')
-  tone(c, {
-    freq: pitch,
-    at,
-    dur: 0.004,
-    gain: 0.058,
-    type: 'sine',
-    attack: 0.0004,
-    release: 0.005,
-  })
-  tone(c, {
-    freq: pitch * 1.14,
-    at: at + 0.001,
-    dur: 0.003,
-    gain: 0.042,
-    type: 'triangle',
-    attack: 0.0004,
-    release: 0.004,
-  })
-  tone(c, {
-    freq: 760 + Math.random() * 160,
-    at: at + 0.002,
-    dur: 0.007,
-    gain: 0.014,
-    type: 'sine',
-    attack: 0.001,
-    release: 0.006,
-  })
-}
-
-/** Confirmação positiva — gasto registrado com sucesso (sem tom de perda). */
-function successRegistered(c: AudioContext, at: number) {
-  tone(c, { freq: 523, at, dur: 0.07, gain: 0.048, type: 'sine', attack: 0.003, release: 0.06 })
-  tone(c, { freq: 659, at: at + 0.055, dur: 0.08, gain: 0.044, type: 'sine', attack: 0.003, release: 0.065 })
-  tone(c, { freq: 784, at: at + 0.11, dur: 0.09, gain: 0.04, type: 'triangle', attack: 0.003, release: 0.07 })
-  tone(c, { freq: 988, at: at + 0.16, dur: 0.12, gain: 0.036, type: 'sine', attack: 0.004, release: 0.08 })
-  tone(c, { freq: 1175, at: at + 0.22, dur: 0.14, gain: 0.028, type: 'sine', attack: 0.004, release: 0.1 })
-  noiseBurst(c, at + 0.18, 0.012, 0.012, 4200, 'highpass')
 }
 
 function playKind(c: AudioContext, kind: SfxKind) {
@@ -225,7 +249,7 @@ function playKind(c: AudioContext, kind: SfxKind) {
 
   switch (kind) {
     case 'key':
-      keyboardClick(c, t)
+      playKeyClick(c)
       break
     case 'send':
       tone(c, { freq: 520, at: t, dur: 0.07, gain: 0.05, type: 'sine' })
@@ -241,11 +265,15 @@ function playKind(c: AudioContext, kind: SfxKind) {
       tone(c, { freq: 988, at: t + 0.24, dur: 0.16, gain: 0.045, type: 'triangle' })
       break
     case 'money':
-      successRegistered(c, t)
+      playSuccessChime(c)
       break
     default:
       break
   }
+}
+
+function canPlayNow(): boolean {
+  return !prefersReducedSound() && audioCtx?.state === 'running'
 }
 
 async function playLandingSfxInternal(kind: SfxKind) {
@@ -255,6 +283,10 @@ async function playLandingSfxInternal(kind: SfxKind) {
 }
 
 export function playLandingSfx(kind: SfxKind) {
+  if (canPlayNow() && audioCtx) {
+    playKind(audioCtx, kind)
+    return
+  }
   void playLandingSfxInternal(kind)
 }
 
