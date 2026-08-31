@@ -65,7 +65,7 @@ const features = [
 
 const faq = [
   ['Preciso de cartão para começar?', 'Não. Você pode criar sua conta e experimentar o Flux Pro por 30 dias sem informar cartão de crédito.'],
-  ['Quanto custa depois do trial?', `O Pro custa R$ ${formatPriceBRL(PRO_MONTHLY_BRL)}/mês ou R$ ${formatPriceBRL(PRO_ANNUAL_TOTAL_BRL / 12)}/mês no plano anual (${formatPriceBRL(PRO_ANNUAL_TOTAL_BRL)}/ano, cerca de ${annualSavingsPercent()}% de desconto). Você pode continuar no plano gratuito com recursos limitados.`],
+  ['Quanto custa depois do trial?', `O Pro custa R$ ${formatPriceBRL(PRO_MONTHLY_BRL)}/mês ou R$ ${formatPriceBRL(PRO_ANNUAL_TOTAL_BRL / 12)}/mês no plano anual (cerca de ${annualSavingsPercent()}% de desconto). Você pode continuar no plano gratuito com recursos limitados.`],
   ['Meus dados ficam seguros?', 'Seus dados ficam isolados por conta no Supabase com Row Level Security. Só você acessa o seu histórico financeiro.'],
   ['Funciona no celular?', 'Sim. O Flux é responsivo e pode ser instalado como PWA no celular, além de funcionar no computador e tablet.'],
   ['Quais investimentos posso acompanhar?', 'Ações brasileiras e americanas, FIIs, ETFs, criptomoedas, CDB, LCI/LCA, Tesouro, poupança e outros ativos.'],
@@ -198,7 +198,7 @@ export function LandingPage() {
               <small>/mês</small>
             </p>
             <p className="lp-price-sub">
-              {formatPriceBRL(PRO_ANNUAL_TOTAL_BRL)}/ano · economize {annualSavingsPercent()}% vs mensal
+              Economize {annualSavingsPercent()}% em relação ao mensal
             </p>
             <p className="lp-price-alt">
               Mensal · R$ {formatPriceBRL(PRO_MONTHLY_BRL)}/mês

@@ -80,7 +80,7 @@ export function UpgradeModal({ open, onClose, trialDaysLeft = 0 }: Props) {
             R$ {formatPriceBRL(PRO_ANNUAL_TOTAL_BRL / 12)}
             <small>/mês</small>
           </span>
-          <span className={styles.planSub}>Cobrado {formatPriceBRL(PRO_ANNUAL_TOTAL_BRL)}/ano</span>
+          <span className={styles.planSub}>Plano anual · cancele quando quiser</span>
         </button>
         <button
           type="button"
