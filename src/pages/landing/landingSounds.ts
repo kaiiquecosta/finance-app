@@ -144,7 +144,14 @@ function tone(
   osc.stop(at + dur + release + 0.02)
 }
 
-function noiseBurst(c: AudioContext, at: number, dur = 0.018, gain = 0.025) {
+function noiseBurst(
+  c: AudioContext,
+  at: number,
+  dur = 0.018,
+  gain = 0.025,
+  filterHz = 1200,
+  filterType: BiquadFilterType = 'highpass',
+) {
   const bufferSize = Math.max(1, Math.floor(c.sampleRate * dur))
   const buffer = c.createBuffer(1, bufferSize, c.sampleRate)
   const data = buffer.getChannelData(0)
@@ -155,8 +162,9 @@ function noiseBurst(c: AudioContext, at: number, dur = 0.018, gain = 0.025) {
   const src = c.createBufferSource()
   src.buffer = buffer
   const filter = c.createBiquadFilter()
-  filter.type = 'highpass'
-  filter.frequency.value = 1200
+  filter.type = filterType
+  filter.frequency.value = filterHz
+  if (filterType === 'bandpass') filter.Q.value = 1.4
   const g = c.createGain()
   g.gain.setValueAtTime(gain, at)
   g.gain.exponentialRampToValueAtTime(0.0001, at + dur)
@@ -167,37 +175,49 @@ function noiseBurst(c: AudioContext, at: number, dur = 0.018, gain = 0.025) {
   src.stop(at + dur + 0.01)
 }
 
+/** Clique seco estilo Magic Keyboard — tick alto, curto e bem audível. */
 function keyboardClick(c: AudioContext, at: number) {
-  const pitch = 1200 + Math.random() * 700
-  noiseBurst(c, at, 0.005, 0.058)
-  noiseBurst(c, at + 0.003, 0.009, 0.034)
+  const pitch = 2100 + Math.random() * 1100
+  noiseBurst(c, at, 0.004, 0.078, 2600, 'highpass')
+  noiseBurst(c, at + 0.001, 0.005, 0.062, 3400, 'bandpass')
+  noiseBurst(c, at + 0.002, 0.007, 0.04, 1800, 'highpass')
   tone(c, {
     freq: pitch,
     at,
-    dur: 0.007,
-    gain: 0.042,
-    type: 'square',
-    attack: 0.001,
-    release: 0.009,
-  })
-  tone(c, {
-    freq: pitch * 0.52,
-    at: at + 0.002,
-    dur: 0.011,
-    gain: 0.026,
-    type: 'triangle',
-    attack: 0.001,
-    release: 0.012,
-  })
-  tone(c, {
-    freq: 240 + Math.random() * 90,
-    at: at + 0.001,
-    dur: 0.016,
-    gain: 0.018,
+    dur: 0.004,
+    gain: 0.058,
     type: 'sine',
-    attack: 0.002,
-    release: 0.014,
+    attack: 0.0004,
+    release: 0.005,
   })
+  tone(c, {
+    freq: pitch * 1.14,
+    at: at + 0.001,
+    dur: 0.003,
+    gain: 0.042,
+    type: 'triangle',
+    attack: 0.0004,
+    release: 0.004,
+  })
+  tone(c, {
+    freq: 760 + Math.random() * 160,
+    at: at + 0.002,
+    dur: 0.007,
+    gain: 0.014,
+    type: 'sine',
+    attack: 0.001,
+    release: 0.006,
+  })
+}
+
+/** Confirmação positiva — gasto registrado com sucesso (sem tom de perda). */
+function successRegistered(c: AudioContext, at: number) {
+  tone(c, { freq: 523, at, dur: 0.07, gain: 0.048, type: 'sine', attack: 0.003, release: 0.06 })
+  tone(c, { freq: 659, at: at + 0.055, dur: 0.08, gain: 0.044, type: 'sine', attack: 0.003, release: 0.065 })
+  tone(c, { freq: 784, at: at + 0.11, dur: 0.09, gain: 0.04, type: 'triangle', attack: 0.003, release: 0.07 })
+  tone(c, { freq: 988, at: at + 0.16, dur: 0.12, gain: 0.036, type: 'sine', attack: 0.004, release: 0.08 })
+  tone(c, { freq: 1175, at: at + 0.22, dur: 0.14, gain: 0.028, type: 'sine', attack: 0.004, release: 0.1 })
+  noiseBurst(c, at + 0.18, 0.012, 0.012, 4200, 'highpass')
 }
 
 function playKind(c: AudioContext, kind: SfxKind) {
@@ -221,10 +241,7 @@ function playKind(c: AudioContext, kind: SfxKind) {
       tone(c, { freq: 988, at: t + 0.24, dur: 0.16, gain: 0.045, type: 'triangle' })
       break
     case 'money':
-      tone(c, { freq: 180, at: t, dur: 0.07, gain: 0.055, type: 'square' })
-      tone(c, { freq: 120, at: t + 0.06, dur: 0.09, gain: 0.05, type: 'square' })
-      noiseBurst(c, t + 0.02, 0.035, 0.018)
-      tone(c, { freq: 880, at: t + 0.08, dur: 0.05, gain: 0.02, type: 'sine' })
+      successRegistered(c, t)
       break
     default:
       break
