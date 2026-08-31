@@ -85,8 +85,19 @@ function MockRow({
   )
 }
 
-export function ProductPreview() {
-  const [preview, setPreview] = useState<PreviewId>('overview')
+export function ProductPreview({
+  tab: controlledTab,
+  onTabChange,
+}: {
+  tab?: PreviewId
+  onTabChange?: (tab: PreviewId) => void
+} = {}) {
+  const [internalTab, setInternalTab] = useState<PreviewId>('overview')
+  const preview = controlledTab ?? internalTab
+  const setPreview = (id: PreviewId) => {
+    onTabChange?.(id)
+    if (controlledTab === undefined) setInternalTab(id)
+  }
   const [tourStep, setTourStep] = useState<number | null>(null)
   const productRef = useRef<HTMLDivElement>(null)
   const tabsScrollRef = useRef<HTMLDivElement>(null)
@@ -97,6 +108,13 @@ export function ProductPreview() {
   useEffect(() => {
     if (!isPreviewTourDismissed()) setTourStep(0)
   }, [])
+
+  useEffect(() => {
+    if (controlledTab === undefined) return
+    window.requestAnimationFrame(() => {
+      tabRefs.current[controlledTab]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+    })
+  }, [controlledTab])
 
   const tourActive = tourStep !== null
   const currentTour = tourStep != null ? PREVIEW_TOUR_STEPS[tourStep] : null

@@ -8,6 +8,7 @@ import {
   PRO_MONTHLY_BRL,
 } from '@/domain/pricing'
 import { ProductPreview } from './landing/ProductPreview'
+import type { PreviewId } from './landing/previewTourSteps'
 import { AssistantDemo } from './landing/AssistantDemo'
 import { CommunityDemo } from './landing/CommunityDemo'
 import { InvestmentShowcaseVisual } from './landing/InvestmentShowcaseVisual'
@@ -25,30 +26,40 @@ function readStoredTheme(): LandingTheme {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
-const features = [
+const features: Array<{
+  icon: string
+  title: string
+  text: string
+  href: string
+  previewTab?: PreviewId
+}> = [
   {
     icon: '◫',
     title: 'Visão completa',
     text: 'Saldos, rendas, gastos e compromissos reunidos em um painel que explica o seu mês.',
     href: '#demo-app',
+    previewTab: 'overview',
   },
   {
     icon: '↗',
     title: 'Investidor',
     text: 'Ações, FIIs, ETFs, renda fixa e cripto com cotações, gráficos e fundamentos.',
-    href: '#investimentos',
+    href: '#demo-app',
+    previewTab: 'investments',
   },
   {
     icon: '◉',
     title: 'Cartões',
     text: 'Limites, faturas, parcelas e importação OFX sem perder nenhum lançamento.',
     href: '#demo-app',
+    previewTab: 'cards',
   },
   {
     icon: '◎',
     title: 'Metas',
     text: 'Objetivos com prazo, progresso visual e clareza sobre quanto ainda falta.',
     href: '#demo-app',
+    previewTab: 'goals',
   },
   {
     icon: '⌁',
@@ -60,7 +71,8 @@ const features = [
     icon: '◇',
     title: 'Comunidade',
     text: 'Compartilhe ideias, vote em sugestões e acompanhe novidades com outros usuários.',
-    href: '#comunidade',
+    href: '#demo-app',
+    previewTab: 'community',
   },
 ]
 
@@ -80,10 +92,22 @@ export function LandingPage() {
   const navigate = useNavigate()
   const [menu, setMenu] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [previewTab, setPreviewTab] = useState<PreviewId>('overview')
   const [theme, setTheme] = useState<LandingTheme>(() => readStoredTheme())
   const go = (path: string) => (event: MouseEvent) => {
     event.preventDefault()
     navigate(path)
+  }
+
+  const handleFeatureClick = (feature: (typeof features)[number]) => (event: MouseEvent) => {
+    setMenu(false)
+    if (feature.previewTab) {
+      event.preventDefault()
+      setPreviewTab(feature.previewTab)
+      window.requestAnimationFrame(() => {
+        document.getElementById('demo-app')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    }
   }
 
   useEffect(() => {
@@ -139,7 +163,7 @@ export function LandingPage() {
           <a className="lp-secondary" href="#produto">Conhecer o Flux <span>↓</span></a>
         </div>
         <div className="lp-trust"><span>30 dias grátis</span><span>Sem cartão</span><span>Dados protegidos</span></div>
-        <ProductPreview />
+        <ProductPreview tab={previewTab} onTabChange={setPreviewTab} />
       </section>
 
       <AssistantDemo />
@@ -154,7 +178,7 @@ export function LandingPage() {
               key={feature.title}
               href={feature.href}
               className={`lp-bento-card${i === 0 || i === 5 ? ' wide' : ''}`}
-              onClick={() => setMenu(false)}
+              onClick={handleFeatureClick(feature)}
             >
               <i>{feature.icon}</i>
               <h3>{feature.title}</h3>
