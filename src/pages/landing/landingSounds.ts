@@ -1,3 +1,5 @@
+import { APPLE_KEY_CLICKS } from './landingKeyboardSamples'
+
 type SfxKind = 'key' | 'send' | 'like' | 'notify' | 'money'
 
 /** WAV silencioso (~0,05s) — autoplay permitido quando muted. */
@@ -9,6 +11,7 @@ const PRIME_AUDIO_ID = 'flux-silent-prime'
 let audioCtx: AudioContext | null = null
 let masterGain: GainNode | null = null
 let successBuffer: AudioBuffer | null = null
+let keyClickBuffers: AudioBuffer[] | null = null
 let inflightReady: Promise<boolean> | null = null
 let passiveBound = false
 let retryTimer: number | null = null
@@ -46,39 +49,50 @@ async function primeMutedAutoplay(): Promise<void> {
   await el.play()
 }
 
-/** Magic Keyboard — toque seco, limpo, sem ruído; só senoides curtas. */
+function decodeWavBase64(c: AudioContext, b64: string): AudioBuffer {
+  const binary = atob(b64)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+  const view = new DataView(bytes.buffer)
+  const sampleRate = view.getUint32(24, true)
+  const dataOffset = 44
+  const sampleCount = (bytes.length - dataOffset) / 2
+  const buffer = c.createBuffer(1, sampleCount, sampleRate)
+  const channel = buffer.getChannelData(0)
+  for (let i = 0; i < sampleCount; i++) {
+    channel[i] = view.getInt16(dataOffset + i * 2, true) / 32768
+  }
+  return buffer
+}
+
+function ensureKeyBuffers(c: AudioContext) {
+  if (keyClickBuffers) return
+  keyClickBuffers = APPLE_KEY_CLICKS.map((sample) => decodeWavBase64(c, sample))
+}
+
+/** Sample pré-renderizado estilo Magic Keyboard — macio, curto, sem ruído áspero. */
 function playKeyClick(c: AudioContext) {
   ensureBuffers(c)
-  if (!masterGain) return
+  ensureKeyBuffers(c)
+  if (!masterGain || !keyClickBuffers?.length) return
 
-  keyVariant = (keyVariant + 1) % 8
-  const t = c.currentTime
-  const base = 2520 + keyVariant * 68 + (keyVariant % 3) * 42
-  const overtone = base * 1.496
+  keyVariant = (keyVariant + 1) % keyClickBuffers.length
+  const src = c.createBufferSource()
+  src.buffer = keyClickBuffers[keyVariant]
+  src.playbackRate.value = 0.985 + (keyVariant % 3) * 0.012
 
-  const click = c.createOscillator()
-  const clickGain = c.createGain()
-  click.type = 'sine'
-  click.frequency.setValueAtTime(base, t)
-  clickGain.gain.setValueAtTime(0.0001, t)
-  clickGain.gain.linearRampToValueAtTime(0.34, t + 0.0007)
-  clickGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.013)
-  click.connect(clickGain)
-  clickGain.connect(masterGain)
-  click.start(t)
-  click.stop(t + 0.018)
+  const filter = c.createBiquadFilter()
+  filter.type = 'lowpass'
+  filter.frequency.value = 4800
+  filter.Q.value = 0.65
 
-  const ring = c.createOscillator()
-  const ringGain = c.createGain()
-  ring.type = 'sine'
-  ring.frequency.setValueAtTime(overtone, t + 0.0004)
-  ringGain.gain.setValueAtTime(0.0001, t + 0.0004)
-  ringGain.gain.linearRampToValueAtTime(0.09, t + 0.0011)
-  ringGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.009)
-  ring.connect(ringGain)
-  ringGain.connect(masterGain)
-  ring.start(t + 0.0004)
-  ring.stop(t + 0.012)
+  const g = c.createGain()
+  g.gain.value = 0.88
+
+  src.connect(filter)
+  filter.connect(g)
+  g.connect(masterGain)
+  src.start()
 }
 
 /** Confirmação clara de sucesso — melodia curta, bem diferente do teclado. */
@@ -116,7 +130,7 @@ function bakeSuccessBuffer(c: AudioContext): AudioBuffer {
 function ensureBuffers(c: AudioContext) {
   if (!masterGain || masterGain.context !== c) {
     masterGain = c.createGain()
-    masterGain.gain.value = 1.22
+    masterGain.gain.value = 1.08
     masterGain.connect(c.destination)
   }
 
@@ -152,7 +166,10 @@ async function attemptReady(): Promise<boolean> {
     await primeMutedAutoplay().catch(() => undefined)
     audioCtx ??= new AudioContext()
     if (audioCtx.state === 'suspended') await audioCtx.resume()
-    if (audioCtx.state === 'running') ensureBuffers(audioCtx)
+    if (audioCtx.state === 'running') {
+      ensureBuffers(audioCtx)
+      ensureKeyBuffers(audioCtx)
+    }
     return audioCtx.state === 'running'
   } catch {
     return false
