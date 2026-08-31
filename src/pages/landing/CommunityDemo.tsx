@@ -269,8 +269,14 @@ export function CommunityDemo() {
       ref={rootRef}
       aria-live={inView ? 'polite' : 'off'}
     >
-      <div className="lp-community-watch-banner lp-community-watch-banner--fixed" role="status">
-        <span className="lp-community-watch-banner__eyebrow">Demonstração automática</span>
+      <div
+        className={`lp-community-watch-banner lp-community-watch-banner--fixed${inView ? ' is-live' : ''}`}
+        role="status"
+      >
+        <span className="lp-community-watch-banner__eyebrow">
+          <i className="lp-community-watch-banner__live" aria-hidden />
+          Demonstração automática
+        </span>
         <p className="lp-community-watch-banner__title">Como funciona a comunidade</p>
         <p className="lp-community-watch-banner__body">
           A sequência abaixo roda sozinha — é só acompanhar sugestão, votos e entrega.

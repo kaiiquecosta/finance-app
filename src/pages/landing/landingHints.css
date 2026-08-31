@@ -289,6 +289,8 @@
 
 /* Banner da demo da comunidade — estilo Apple, só informativo */
 .lp-community-watch-banner {
+  position: relative;
+  overflow: hidden;
   margin-bottom: 14px;
   padding: 14px 16px;
   border-radius: 18px;
@@ -297,6 +299,49 @@
   box-shadow: 0 8px 28px rgba(60, 25, 80, 0.06);
   backdrop-filter: blur(18px) saturate(160%);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
+  transition: box-shadow 0.4s ease, transform 0.4s ease;
+}
+
+.lp-community-watch-banner.is-live {
+  animation: lp-comm-banner-breathe 4.2s ease-in-out infinite;
+}
+
+.lp-community-watch-banner.is-live::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgba(130, 10, 209, 0.045) 50%,
+    transparent 62%
+  );
+  background-size: 220% 100%;
+  animation: lp-comm-banner-shimmer 5.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes lp-comm-banner-breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 8px 28px rgba(60, 25, 80, 0.06);
+  }
+  50% {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 36px rgba(60, 25, 80, 0.09);
+  }
+}
+
+@keyframes lp-comm-banner-shimmer {
+  0%,
+  100% {
+    background-position: 120% 0;
+  }
+  50% {
+    background-position: -20% 0;
+  }
 }
 
 .lp-community-watch-banner--fixed {
@@ -306,7 +351,11 @@
 }
 
 .lp-community-watch-banner__eyebrow {
-  display: block;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
   margin-bottom: 4px;
   font-size: 11px;
   font-weight: 600;
@@ -314,7 +363,33 @@
   color: #86868b;
 }
 
+.lp-community-watch-banner__live {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #820ad1;
+  box-shadow: 0 0 0 0 rgba(130, 10, 209, 0.35);
+  animation: lp-comm-live-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes lp-comm-live-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(130, 10, 209, 0.2);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 4px rgba(130, 10, 209, 0);
+  }
+}
+
 .lp-community-watch-banner__title {
+  position: relative;
+  z-index: 1;
   margin: 0 0 4px;
   font-size: 15px;
   font-weight: 650;
@@ -324,6 +399,8 @@
 }
 
 .lp-community-watch-banner__body {
+  position: relative;
+  z-index: 1;
   margin: 0;
   font-size: 12px;
   line-height: 1.5;
@@ -397,6 +474,36 @@
   background: rgba(255, 255, 255, 0.12);
 }
 
+.lp[data-theme='dark'] .lp-community-watch-banner.is-live {
+  animation-name: lp-comm-banner-breathe-dark;
+}
+
+@keyframes lp-comm-banner-breathe-dark {
+  0%,
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+  }
+  50% {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.32);
+  }
+}
+
+.lp[data-theme='dark'] .lp-community-watch-banner.is-live::before {
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgba(168, 85, 247, 0.07) 50%,
+    transparent 62%
+  );
+}
+
+.lp[data-theme='dark'] .lp-community-watch-banner__live {
+  background: #a855f7;
+  box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.35);
+}
+
 .lp[data-theme='dark'] .lp-community-watch-banner {
   background: rgba(28, 28, 30, 0.82);
   border-color: rgba(255, 255, 255, 0.08);
@@ -433,8 +540,15 @@
 @media (prefers-reduced-motion: reduce) {
   .lp-interact-hint--demo,
   .lp-preview-tabs button.lp-tour-focus,
-  .lp-tour-tab-ring {
+  .lp-tour-tab-ring,
+  .lp-community-watch-banner.is-live,
+  .lp-community-watch-banner.is-live::before,
+  .lp-community-watch-banner__live {
     animation: none;
+  }
+
+  .lp-community-watch-banner.is-live {
+    transform: none;
   }
 
   .lp-tour-callout {
