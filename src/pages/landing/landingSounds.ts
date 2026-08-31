@@ -8,7 +8,6 @@ const PRIME_AUDIO_ID = 'flux-silent-prime'
 
 let audioCtx: AudioContext | null = null
 let masterGain: GainNode | null = null
-let keyClickBuffer: AudioBuffer | null = null
 let successBuffer: AudioBuffer | null = null
 let inflightReady: Promise<boolean> | null = null
 let passiveBound = false
@@ -47,27 +46,39 @@ async function primeMutedAutoplay(): Promise<void> {
   await el.play()
 }
 
-/** Clique seco estilo Magic Keyboard — transient curto com corpo audível. */
-function bakeKeyClickBuffer(c: AudioContext, variant: number): AudioBuffer {
-  const sr = c.sampleRate
-  const dur = 0.032
-  const length = Math.max(1, Math.floor(sr * dur))
-  const buffer = c.createBuffer(1, length, sr)
-  const data = buffer.getChannelData(0)
-  const pitch = 2900 + variant * 180 + (variant % 3) * 90
+/** Magic Keyboard — toque seco, limpo, sem ruído; só senoides curtas. */
+function playKeyClick(c: AudioContext) {
+  ensureBuffers(c)
+  if (!masterGain) return
 
-  for (let i = 0; i < length; i++) {
-    const t = i / sr
-    const clickEnv = Math.exp(-t * 140)
-    const bodyEnv = Math.exp(-t * 55)
-    const noise = (Math.random() * 2 - 1) * clickEnv * 0.95
-    const tick = Math.sin(2 * Math.PI * pitch * t) * clickEnv * 0.72
-    const snap = Math.sin(2 * Math.PI * pitch * 1.18 * t) * clickEnv * 0.28
-    const body = Math.sin(2 * Math.PI * (820 + variant * 40) * t) * bodyEnv * 0.18
-    data[i] = Math.max(-1, Math.min(1, noise + tick + snap + body))
-  }
+  keyVariant = (keyVariant + 1) % 8
+  const t = c.currentTime
+  const base = 2520 + keyVariant * 68 + (keyVariant % 3) * 42
+  const overtone = base * 1.496
 
-  return buffer
+  const click = c.createOscillator()
+  const clickGain = c.createGain()
+  click.type = 'sine'
+  click.frequency.setValueAtTime(base, t)
+  clickGain.gain.setValueAtTime(0.0001, t)
+  clickGain.gain.linearRampToValueAtTime(0.34, t + 0.0007)
+  clickGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.013)
+  click.connect(clickGain)
+  clickGain.connect(masterGain)
+  click.start(t)
+  click.stop(t + 0.018)
+
+  const ring = c.createOscillator()
+  const ringGain = c.createGain()
+  ring.type = 'sine'
+  ring.frequency.setValueAtTime(overtone, t + 0.0004)
+  ringGain.gain.setValueAtTime(0.0001, t + 0.0004)
+  ringGain.gain.linearRampToValueAtTime(0.09, t + 0.0011)
+  ringGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.009)
+  ring.connect(ringGain)
+  ringGain.connect(masterGain)
+  ring.start(t + 0.0004)
+  ring.stop(t + 0.012)
 }
 
 /** Confirmação clara de sucesso — melodia curta, bem diferente do teclado. */
@@ -105,11 +116,10 @@ function bakeSuccessBuffer(c: AudioContext): AudioBuffer {
 function ensureBuffers(c: AudioContext) {
   if (!masterGain || masterGain.context !== c) {
     masterGain = c.createGain()
-    masterGain.gain.value = 1.65
+    masterGain.gain.value = 1.22
     masterGain.connect(c.destination)
   }
 
-  keyClickBuffer ??= bakeKeyClickBuffer(c, 0)
   successBuffer ??= bakeSuccessBuffer(c)
 }
 
@@ -127,12 +137,6 @@ function playBuffer(
   src.connect(g)
   g.connect(masterGain ?? c.destination)
   src.start()
-}
-
-function playKeyClick(c: AudioContext) {
-  keyVariant = (keyVariant + 1) % 5
-  const variantBuffer = bakeKeyClickBuffer(c, keyVariant)
-  playBuffer(c, variantBuffer, { gain: 1.15, playbackRate: 0.96 + (keyVariant % 3) * 0.03 })
 }
 
 function playSuccessChime(c: AudioContext) {
