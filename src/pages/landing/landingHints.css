@@ -299,6 +299,12 @@
   -webkit-backdrop-filter: blur(18px) saturate(160%);
 }
 
+.lp-community-watch-banner--fixed {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
 .lp-community-watch-banner__eyebrow {
   display: block;
   margin-bottom: 4px;

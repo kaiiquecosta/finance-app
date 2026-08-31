@@ -263,23 +263,19 @@ export function CommunityDemo() {
     )
   }
 
-  const showWatchHint = inView && (phase === 'idle' || phase === 'highlight') && !cardCol && !notif
-
   return (
     <div
       className="lp-showcase-mock lp-showcase-kanban lp-community-demo"
       ref={rootRef}
       aria-live={inView ? 'polite' : 'off'}
     >
-      {showWatchHint ? (
-        <div className="lp-community-watch-banner" role="status">
-          <span className="lp-community-watch-banner__eyebrow">Demonstração automática</span>
-          <p className="lp-community-watch-banner__title">Como funciona a comunidade</p>
-          <p className="lp-community-watch-banner__body">
-            A sequência abaixo roda sozinha — é só acompanhar sugestão, votos e entrega.
-          </p>
-        </div>
-      ) : null}
+      <div className="lp-community-watch-banner lp-community-watch-banner--fixed" role="status">
+        <span className="lp-community-watch-banner__eyebrow">Demonstração automática</span>
+        <p className="lp-community-watch-banner__title">Como funciona a comunidade</p>
+        <p className="lp-community-watch-banner__body">
+          A sequência abaixo roda sozinha — é só acompanhar sugestão, votos e entrega.
+        </p>
+      </div>
       <div className="lp-sm-kanban-head">
         <b>Comunidade</b>
         <span className={highlightBtn ? 'pulse' : ''}>＋ Nova sugestão</span>
