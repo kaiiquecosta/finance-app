@@ -17,6 +17,7 @@ let passiveBound = false
 let retryTimer: number | null = null
 let keyVariant = 0
 let activeDemoSoundSessions = 0
+let demoSoundGeneration = 0
 
 function prefersReducedSound(): boolean {
   if (typeof window === 'undefined') return true
@@ -311,12 +312,16 @@ export function enterLandingDemoSounds() {
 /** Encerra sessão de som da demo; suspende áudio quando nenhuma demo estiver ativa. */
 export function leaveLandingDemoSounds() {
   activeDemoSoundSessions = Math.max(0, activeDemoSoundSessions - 1)
-  if (activeDemoSoundSessions === 0) stopLandingDemoSfx()
+  if (activeDemoSoundSessions === 0) {
+    demoSoundGeneration += 1
+    stopLandingDemoSfx()
+  }
 }
 
 async function playLandingSfxInternal(kind: SfxKind) {
+  const generation = demoSoundGeneration
   const ready = await ensureLandingAudioReady()
-  if (!mayPlayDemoSfx() || !ready || !audioCtx || audioCtx.state !== 'running') return
+  if (generation !== demoSoundGeneration || !mayPlayDemoSfx() || !ready || !audioCtx || audioCtx.state !== 'running') return
   playKind(audioCtx, kind)
 }
 

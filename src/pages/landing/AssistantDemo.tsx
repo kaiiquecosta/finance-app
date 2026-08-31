@@ -19,7 +19,11 @@ const WAVE = [18, 34, 52, 28, 66, 45, 24, 58, 38, 20]
 
 export function AssistantDemo() {
   const rootRef = useRef<HTMLElement>(null)
-  const { inView, inViewRef } = useLandingDemoSession(rootRef, 0.42, '-10% 0px -12% 0px')
+  const { inView, inViewRef } = useLandingDemoSession(rootRef, {
+    topMax: 0.52,
+    bottomMin: 0.12,
+    minVisiblePx: 160,
+  })
   const [phase, setPhase] = useState<Phase>('idle')
   const [typed, setTyped] = useState('')
   const [balance, setBalance] = useState(BALANCE_BEFORE)
