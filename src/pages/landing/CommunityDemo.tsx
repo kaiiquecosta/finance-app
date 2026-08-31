@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { communityColumnTitle } from '@/domain/community'
 import {
-  ensureLandingAudioReady,
   playKeyTap,
   playLikeSfx,
   playNotifySfx,
   playSendSfx,
   stopLandingDemoSfx,
 } from './landingSounds'
-import { useScrollVisible } from './useScrollVisible'
+import { useLandingDemoSession } from './useLandingDemoSession'
 import './communityDemo.css'
 import './landingHints.css'
 
@@ -93,9 +92,7 @@ function resetCommunityDemoState(setters: {
 
 export function CommunityDemo() {
   const rootRef = useRef<HTMLDivElement>(null)
-  const inView = useScrollVisible(rootRef, 0.28, '0px')
-  const inViewRef = useRef(inView)
-  inViewRef.current = inView
+  const { inView, inViewRef } = useLandingDemoSession(rootRef, 0.45, '-12% 0px -18% 0px')
 
   const [phase, setPhase] = useState<Phase>('idle')
   const [typed, setTyped] = useState('')
@@ -160,7 +157,6 @@ export function CommunityDemo() {
     }
 
     async function runLoop() {
-      void ensureLandingAudioReady()
       while (alive()) {
         resetCommunityDemoState({
           setPhase,

@@ -16,6 +16,7 @@ let inflightReady: Promise<boolean> | null = null
 let passiveBound = false
 let retryTimer: number | null = null
 let keyVariant = 0
+let activeDemoSoundSessions = 0
 
 function prefersReducedSound(): boolean {
   if (typeof window === 'undefined') return true
@@ -169,6 +170,7 @@ async function attemptReady(): Promise<boolean> {
     if (audioCtx.state === 'running') {
       ensureBuffers(audioCtx)
       ensureKeyBuffers(audioCtx)
+      if (masterGain) masterGain.gain.setValueAtTime(1.08, audioCtx.currentTime)
     }
     return audioCtx.state === 'running'
   } catch {
@@ -297,13 +299,29 @@ function canPlayNow(): boolean {
   return !prefersReducedSound() && audioCtx?.state === 'running'
 }
 
+function mayPlayDemoSfx(): boolean {
+  return activeDemoSoundSessions > 0
+}
+
+/** Marca uma demo da landing como visível — sons só tocam enquanto houver sessão ativa. */
+export function enterLandingDemoSounds() {
+  activeDemoSoundSessions += 1
+}
+
+/** Encerra sessão de som da demo; suspende áudio quando nenhuma demo estiver ativa. */
+export function leaveLandingDemoSounds() {
+  activeDemoSoundSessions = Math.max(0, activeDemoSoundSessions - 1)
+  if (activeDemoSoundSessions === 0) stopLandingDemoSfx()
+}
+
 async function playLandingSfxInternal(kind: SfxKind) {
   const ready = await ensureLandingAudioReady()
-  if (!ready || !audioCtx || audioCtx.state !== 'running') return
+  if (!mayPlayDemoSfx() || !ready || !audioCtx || audioCtx.state !== 'running') return
   playKind(audioCtx, kind)
 }
 
 export function playLandingSfx(kind: SfxKind) {
+  if (!mayPlayDemoSfx()) return
   if (canPlayNow() && audioCtx) {
     playKind(audioCtx, kind)
     return
@@ -331,14 +349,11 @@ export function playMoneyOutSfx() {
   playLandingSfx('money')
 }
 
-/** Corta sons em andamento quando a demo sai da tela. */
+/** Corta sons em andamento quando nenhuma demo está visível. */
 export function stopLandingDemoSfx() {
   if (!audioCtx || !masterGain) return
   const t = audioCtx.currentTime
   masterGain.gain.cancelScheduledValues(t)
   masterGain.gain.setValueAtTime(0, t)
-  window.setTimeout(() => {
-    if (!audioCtx || !masterGain || audioCtx.state !== 'running') return
-    masterGain.gain.setValueAtTime(1.08, audioCtx.currentTime)
-  }, 80)
+  if (audioCtx.state === 'running') void audioCtx.suspend()
 }

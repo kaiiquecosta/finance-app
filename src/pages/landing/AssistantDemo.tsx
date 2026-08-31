@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { ensureLandingAudioReady, playKeyTap, playMoneyOutSfx, playSendSfx, stopLandingDemoSfx } from './landingSounds'
-import { useScrollVisible } from './useScrollVisible'
+import { playKeyTap, playMoneyOutSfx, playSendSfx, stopLandingDemoSfx } from './landingSounds'
+import { useLandingDemoSession } from './useLandingDemoSession'
 import './assistantDemo.css'
 
 type Phase =
@@ -19,19 +19,12 @@ const WAVE = [18, 34, 52, 28, 66, 45, 24, 58, 38, 20]
 
 export function AssistantDemo() {
   const rootRef = useRef<HTMLElement>(null)
-  const inView = useScrollVisible(rootRef, 0.4)
-  const inViewRef = useRef(inView)
-  inViewRef.current = inView
+  const { inView, inViewRef } = useLandingDemoSession(rootRef, 0.42, '-10% 0px -12% 0px')
   const [phase, setPhase] = useState<Phase>('idle')
   const [typed, setTyped] = useState('')
   const [balance, setBalance] = useState(BALANCE_BEFORE)
   const [speaking, setSpeaking] = useState(false)
   const loopRef = useRef(0)
-
-  useEffect(() => {
-    if (!inView) return
-    void ensureLandingAudioReady()
-  }, [inView])
 
   useEffect(() => {
     if (inView) return
@@ -57,7 +50,6 @@ export function AssistantDemo() {
       })
 
     async function runLoop() {
-      void ensureLandingAudioReady()
       while (alive()) {
         setPhase('idle')
         setTyped('')
