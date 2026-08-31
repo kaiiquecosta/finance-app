@@ -232,11 +232,10 @@ export function CommunityDemo() {
     >
       {showWatchHint ? (
         <div className="lp-community-watch-banner" role="status">
-          <span className="lp-community-watch-banner__icon" aria-hidden>
-            ▶
-          </span>
-          <p>
-            <strong>Como funciona a comunidade?</strong> Assista — a demonstração roda sozinha abaixo.
+          <span className="lp-community-watch-banner__eyebrow">Demonstração automática</span>
+          <p className="lp-community-watch-banner__title">Como funciona a comunidade</p>
+          <p className="lp-community-watch-banner__body">
+            A sequência abaixo roda sozinha — é só acompanhar sugestão, votos e entrega.
           </p>
         </div>
       ) : null}

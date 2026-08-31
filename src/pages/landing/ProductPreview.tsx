@@ -100,6 +100,8 @@ export function ProductPreview() {
 
   const tourActive = tourStep !== null
   const currentTour = tourStep != null ? PREVIEW_TOUR_STEPS[tourStep] : null
+  const isExploreStep = currentTour?.kind === 'explore'
+  const currentTabId = currentTour?.kind === 'tab' ? currentTour.id : null
 
   const endTour = () => {
     setTourStep(null)
@@ -118,6 +120,7 @@ export function ProductPreview() {
   useEffect(() => {
     if (tourStep == null) return
     const step = PREVIEW_TOUR_STEPS[tourStep]
+    if (step.kind !== 'tab') return
     setPreview(step.id)
     window.requestAnimationFrame(() => {
       tabRefs.current[step.id]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
@@ -128,6 +131,10 @@ export function ProductPreview() {
     setPreview(tabId)
     if (tourStep == null) return
     const step = PREVIEW_TOUR_STEPS[tourStep]
+    if (step.kind === 'explore') {
+      endTour()
+      return
+    }
     if (step.id === tabId) advanceTour()
   }
 
@@ -158,7 +165,8 @@ export function ProductPreview() {
           >
             <div className="lp-preview-tabs" ref={tabsScrollRef}>
               {PREVIEW_TABS.map((tab) => {
-                const isTourFocus = tourActive && currentTour?.id === tab.id
+                const isTourFocus = tourActive && currentTabId === tab.id
+                const isDimmed = tourActive && !isExploreStep && !isTourFocus
                 return (
                   <button
                     key={tab.id}
@@ -169,7 +177,7 @@ export function ProductPreview() {
                     className={[
                       preview === tab.id ? 'active' : '',
                       isTourFocus ? 'lp-tour-focus' : '',
-                      tourActive && !isTourFocus ? 'lp-tour-dim' : '',
+                      isDimmed ? 'lp-tour-dim' : '',
                     ]
                       .filter(Boolean)
                       .join(' ')}
@@ -190,7 +198,7 @@ export function ProductPreview() {
           <span className="lp-avatar">KC</span>
         </div>
 
-        {tourActive ? <div className="lp-tour-scrim" aria-hidden /> : null}
+        {tourActive && !isExploreStep ? <div className="lp-tour-scrim" aria-hidden /> : null}
 
         {preview === 'overview' && (
           <div className="lp-mock-screen">
@@ -688,11 +696,13 @@ export function ProductPreview() {
           active={tourActive}
           stepIndex={tourStep}
           totalSteps={PREVIEW_TOUR_STEPS.length}
-          tabId={currentTour.id}
+          tabId={currentTabId}
+          exploreMode={isExploreStep}
           title={currentTour.short}
           message={currentTour.message}
           tabRefs={tabRefs}
           anchorRef={productRef}
+          tabsWrapRef={tabsWrapRef}
           onNext={advanceTour}
           onDismiss={endTour}
         />

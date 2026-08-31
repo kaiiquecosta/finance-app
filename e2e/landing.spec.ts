@@ -103,7 +103,7 @@ test.describe('Landing page', () => {
     const section = page.locator('#comunidade')
     const demo = section.locator('.lp-community-demo')
     await demo.scrollIntoViewIfNeeded()
-    await expect(demo.getByText(/como funciona a comunidade\?/i)).toBeVisible()
+    await expect(demo.getByText(/como funciona a comunidade/i)).toBeVisible()
     await expect(demo.getByText('Queria uma parte de investimentos')).toBeVisible({ timeout: 15000 })
     await expect(demo.locator('.lp-comm-notif.kind-done')).toBeVisible({ timeout: 40000 })
   })

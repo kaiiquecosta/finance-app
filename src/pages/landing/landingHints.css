@@ -100,6 +100,30 @@
   overflow: visible;
 }
 
+.lp-tour-tab-ring {
+  position: absolute;
+  z-index: 8;
+  border-radius: 11px;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  box-shadow:
+    0 0 0 1px rgba(130, 10, 209, 0.28),
+    0 10px 28px rgba(0, 0, 0, 0.14);
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 0.35s ease,
+    left 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: lp-tour-ring-breathe 2.4s ease-in-out infinite;
+}
+
+.lp-tour-tab-ring.is-ready {
+  opacity: 1;
+  animation: lp-tour-ring-breathe 2.4s ease-in-out infinite;
+}
+
 .lp-tour-scrim {
   position: absolute;
   inset: 86px 0 0;
@@ -123,33 +147,6 @@
   z-index: 7;
   opacity: 1;
   filter: none;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-  transform: translateY(-1px);
-}
-
-.lp-preview-tabs button.lp-tour-focus::after {
-  content: '';
-  position: absolute;
-  inset: -5px -6px;
-  border-radius: 11px;
-  border: 2px solid rgba(255, 255, 255, 0.92);
-  box-shadow:
-    0 0 0 1px rgba(130, 10, 209, 0.28),
-    0 10px 28px rgba(0, 0, 0, 0.14);
-  pointer-events: none;
-  animation: lp-tour-ring-breathe 2.4s ease-in-out infinite;
-}
-
-@keyframes lp-tour-ring-breathe {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.88;
-    transform: scale(1.02);
-  }
 }
 
 .lp-tour-callout {
@@ -276,14 +273,25 @@
   color: #1d1d1f;
 }
 
-/* Banner da demo da comunidade — acima do board, sem sobrepor colunas */
+.lp-tour-callout.is-explore::before {
+  display: none;
+}
+
+@keyframes lp-tour-ring-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.015);
+  }
+}
+
+/* Banner da demo da comunidade — estilo Apple, só informativo */
 .lp-community-watch-banner {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   margin-bottom: 14px;
-  padding: 13px 15px;
-  border-radius: 16px;
+  padding: 14px 16px;
+  border-radius: 18px;
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow: 0 8px 28px rgba(60, 25, 80, 0.06);
@@ -291,30 +299,29 @@
   -webkit-backdrop-filter: blur(18px) saturate(160%);
 }
 
-.lp-community-watch-banner p {
+.lp-community-watch-banner__eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #86868b;
+}
+
+.lp-community-watch-banner__title {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: #1d1d1f;
+}
+
+.lp-community-watch-banner__body {
   margin: 0;
   font-size: 12px;
   line-height: 1.5;
-  color: #3d3348;
-  text-align: left;
-}
-
-.lp-community-watch-banner strong {
-  color: #1d1d1f;
-  font-weight: 650;
-}
-
-.lp-community-watch-banner__icon {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: rgba(130, 10, 209, 0.1);
-  color: #820ad1;
-  font-size: 11px;
-  font-weight: 800;
+  color: #6e6e73;
 }
 
 @keyframes lp-hint-float-demo {
@@ -327,21 +334,15 @@
   }
 }
 
-@keyframes lp-hint-float-community {
-  0%,
-  100% {
-    transform: translateX(-50%) translateY(0);
-  }
-  50% {
-    transform: translateX(-50%) translateY(-4px);
-  }
-}
-
 .lp[data-theme='dark'] .lp-tour-scrim {
   background: rgba(0, 0, 0, 0.42);
 }
 
 .lp[data-theme='dark'] .lp-preview-tabs button.lp-tour-focus::after {
+  display: none;
+}
+
+.lp[data-theme='dark'] .lp-tour-tab-ring {
   border-color: rgba(255, 255, 255, 0.78);
   box-shadow:
     0 0 0 1px rgba(168, 85, 247, 0.35),
@@ -396,17 +397,16 @@
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
 }
 
-.lp[data-theme='dark'] .lp-community-watch-banner p {
-  color: #a1a1a6;
+.lp[data-theme='dark'] .lp-community-watch-banner__eyebrow {
+  color: #98989d;
 }
 
-.lp[data-theme='dark'] .lp-community-watch-banner strong {
+.lp[data-theme='dark'] .lp-community-watch-banner__title {
   color: #f5f5f7;
 }
 
-.lp[data-theme='dark'] .lp-community-watch-banner__icon {
-  background: rgba(168, 85, 247, 0.16);
-  color: #c084fc;
+.lp[data-theme='dark'] .lp-community-watch-banner__body {
+  color: #a1a1a6;
 }
 
 .lp[data-theme='dark'] .lp-interact-hint {
@@ -427,7 +427,7 @@
 @media (prefers-reduced-motion: reduce) {
   .lp-interact-hint--demo,
   .lp-preview-tabs button.lp-tour-focus,
-  .lp-preview-tabs button.lp-tour-focus::after {
+  .lp-tour-tab-ring {
     animation: none;
   }
 
