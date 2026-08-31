@@ -1,130 +1,127 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  enterWalkthroughSounds,
+  leaveWalkthroughSounds,
+  playWalkthroughClick,
+  playWalkthroughImpact,
+  playWalkthroughKey,
+  playWalkthroughSend,
+  playWalkthroughWhoosh,
+  startWalkthroughMusic,
+  stopWalkthroughMusic,
+} from './walkthroughSounds'
 import './fluxWalkthroughVideo.css'
 
-type SceneId = 'overview' | 'cards' | 'invest' | 'assistant' | 'goals'
+type SceneCue = {
+  atMs: number
+  kind: 'click' | 'impact' | 'type' | 'send'
+  x?: number
+  y?: number
+}
 
 type Scene = {
-  id: SceneId
+  id: string
+  image: string
   label: string
-  title: string
+  impact: string
   caption: string
   durationMs: number
+  kenBurns: 'in' | 'out' | 'pan-left' | 'pan-right'
+  cues: SceneCue[]
 }
 
 const SCENES: Scene[] = [
   {
     id: 'overview',
+    image: '/landing/walkthrough/overview.png',
     label: 'Visão geral',
-    title: 'Tudo em um só lugar',
-    caption: 'Receitas, gastos, saldo e categorias do mês — clareza em segundos.',
-    durationMs: 5500,
+    impact: 'Tudo em um só lugar',
+    caption: 'Rendas, gastos, contas fixas e insights — a foto real do seu mês.',
+    durationMs: 7200,
+    kenBurns: 'in',
+    cues: [
+      { atMs: 350, kind: 'impact' },
+      { atMs: 1800, kind: 'click', x: 91, y: 17 },
+      { atMs: 3200, kind: 'click', x: 48, y: 38 },
+      { atMs: 4800, kind: 'click', x: 52, y: 72 },
+    ],
   },
   {
     id: 'cards',
+    image: '/landing/walkthrough/cards.png',
     label: 'Cartões',
-    title: 'Faturas sob controle',
-    caption: 'Limites, vencimentos, parcelas e importação OFX sem planilha.',
-    durationMs: 5500,
+    impact: 'Faturas que batem',
+    caption: 'Limites, vencimentos, lançamentos e importação OFX no app real.',
+    durationMs: 6500,
+    kenBurns: 'pan-right',
+    cues: [
+      { atMs: 300, kind: 'impact' },
+      { atMs: 2000, kind: 'click', x: 72, y: 28 },
+      { atMs: 3800, kind: 'click', x: 45, y: 55 },
+    ],
   },
   {
     id: 'invest',
+    image: '/landing/walkthrough/investments.png',
     label: 'Investidor',
-    title: 'Do CDI à bolsa',
-    caption: 'Cotações ao vivo, maiores altas e baixas, FIIs, ETFs e cripto.',
-    durationMs: 6000,
+    impact: 'Do CDI à bolsa',
+    caption: 'Cotações, maiores altas e baixas — a tela de investimentos de verdade.',
+    durationMs: 6800,
+    kenBurns: 'out',
+    cues: [
+      { atMs: 300, kind: 'impact' },
+      { atMs: 2200, kind: 'click', x: 38, y: 22 },
+      { atMs: 4200, kind: 'click', x: 62, y: 48 },
+    ],
   },
   {
     id: 'assistant',
+    image: '/landing/walkthrough/assistant.png',
     label: 'Assistente',
-    title: 'Registre falando ou digitando',
-    caption: '“Gastei 45 reais no mercado” — o Flux categoriza sozinho.',
-    durationMs: 5500,
+    impact: 'Fale ou digite',
+    caption: '“Gastei 45 no mercado” — registre em português, como no dia a dia.',
+    durationMs: 7500,
+    kenBurns: 'in',
+    cues: [
+      { atMs: 300, kind: 'impact' },
+      { atMs: 1400, kind: 'click', x: 93, y: 88 },
+      { atMs: 2600, kind: 'type' },
+      { atMs: 4200, kind: 'send' },
+      { atMs: 5200, kind: 'click', x: 78, y: 72 },
+    ],
   },
   {
     id: 'goals',
+    image: '/landing/walkthrough/goals.png',
     label: 'Metas',
-    title: 'Objetivos com prazo',
-    caption: 'Progresso visual, depósitos e clareza do quanto falta.',
-    durationMs: 5500,
+    impact: 'Objetivos com prazo',
+    caption: 'Progresso visual e clareza do quanto falta — sem planilha.',
+    durationMs: 6500,
+    kenBurns: 'pan-left',
+    cues: [
+      { atMs: 300, kind: 'impact' },
+      { atMs: 2400, kind: 'click', x: 55, y: 42 },
+      { atMs: 4400, kind: 'click', x: 82, y: 58 },
+    ],
   },
 ]
 
 const TOTAL_MS = SCENES.reduce((s, sc) => s + sc.durationMs, 0)
 
-function SceneMock({ id }: { id: SceneId }) {
-  if (id === 'overview') {
-    return (
-      <div className="lp-wt-mock lp-wt-mock--overview">
-        <div className="lp-wt-mock-bar">
-          <span>Flux</span>
-          <small>Agosto 2026</small>
-        </div>
-        <div className="lp-wt-mock-stats">
-          <div><span>Receitas</span><b className="green">R$ 8.500</b></div>
-          <div><span>Gastos</span><b className="red">R$ 4.212</b></div>
-          <div><span>Saldo</span><b className="green">+ R$ 4.288</b></div>
-        </div>
-        <div className="lp-wt-mock-chart">
-          <i style={{ height: '72%' }} />
-          <i style={{ height: '48%' }} className="hot" />
-          <i style={{ height: '58%' }} />
-          <i style={{ height: '38%' }} />
-        </div>
-      </div>
-    )
+type Pulse = { id: number; x: number; y: number }
+
+function getSceneProgress(globalMs: number) {
+  const looped = globalMs % TOTAL_MS
+  let acc = 0
+  for (let i = 0; i < SCENES.length; i++) {
+    const scene = SCENES[i]
+    if (looped < acc + scene.durationMs) {
+      return { index: i, localMs: looped - acc, scene, looped }
+    }
+    acc += scene.durationMs
   }
-  if (id === 'cards') {
-    return (
-      <div className="lp-wt-mock lp-wt-mock--cards">
-        <div className="lp-wt-cc">
-          <span>Nubank · Crédito</span>
-          <strong>R$ 2.168,05</strong>
-          <small>Fatura estimada · vence dia 12</small>
-          <div className="lp-wt-prog"><i style={{ width: '8%' }} /></div>
-        </div>
-      </div>
-    )
-  }
-  if (id === 'invest') {
-    return (
-      <div className="lp-wt-mock lp-wt-mock--invest">
-        <div className="lp-wt-mover">
-          <b>PETR4</b><span className="green">+1,99%</span><strong>R$ 43,55</strong>
-        </div>
-        <div className="lp-wt-mover">
-          <b>VALE3</b><span className="green">+1,12%</span><strong>R$ 58,90</strong>
-        </div>
-        <div className="lp-wt-mover">
-          <b>MGLU3</b><span className="red">−4,55%</span><strong>R$ 8,42</strong>
-        </div>
-        <small className="lp-wt-live">● tempo real · ~10s</small>
-      </div>
-    )
-  }
-  if (id === 'assistant') {
-    return (
-      <div className="lp-wt-mock lp-wt-mock--assistant">
-        <div className="lp-wt-bubble user">Gastei 187 reais no mercado hoje</div>
-        <div className="lp-wt-bubble bot">
-          Anotado em <b>Alimentação</b> · Mercado Extra · − R$ 187,00
-        </div>
-      </div>
-    )
-  }
-  return (
-    <div className="lp-wt-mock lp-wt-mock--goals">
-      <div className="lp-wt-goal">
-        <b>Viagem Europa</b>
-        <span>64% · R$ 8.000 de R$ 12.500</span>
-        <div className="lp-wt-prog"><i style={{ width: '64%' }} /></div>
-      </div>
-      <div className="lp-wt-goal">
-        <b>Reserva emergência</b>
-        <span>91% · R$ 18.200 de R$ 20.000</span>
-        <div className="lp-wt-prog green"><i style={{ width: '91%' }} /></div>
-      </div>
-    </div>
-  )
+  const last = SCENES[SCENES.length - 1]
+  return { index: SCENES.length - 1, localMs: 0, scene: last, looped }
 }
 
 function formatTime(ms: number) {
@@ -136,35 +133,74 @@ function formatTime(ms: number) {
 
 export function FluxWalkthroughVideo() {
   const [open, setOpen] = useState(false)
-  const [sceneIndex, setSceneIndex] = useState(0)
   const [elapsed, setElapsed] = useState(0)
   const [playing, setPlaying] = useState(true)
+  const [muted, setMuted] = useState(false)
+  const [pulses, setPulses] = useState<Pulse[]>([])
+  const [showImpact, setShowImpact] = useState(false)
   const rafRef = useRef<number>(0)
   const elapsedRef = useRef(0)
+  const firedCuesRef = useRef('')
+  const prevSceneRef = useRef(0)
+  const pulseIdRef = useRef(0)
 
-  const scene = SCENES[sceneIndex]
-  const progress = Math.min(100, (elapsed / TOTAL_MS) * 100)
+  const { index: sceneIndex, localMs, scene, looped } = getSceneProgress(elapsed)
+  const progress = (looped / TOTAL_MS) * 100
 
-  const resetPlayback = useCallback(() => {
-    setSceneIndex(0)
-    setElapsed(0)
-    elapsedRef.current = 0
-    setPlaying(true)
+  const addPulse = useCallback((x: number, y: number) => {
+    const id = ++pulseIdRef.current
+    setPulses((prev) => [...prev, { id, x, y }])
+    window.setTimeout(() => {
+      setPulses((prev) => prev.filter((p) => p.id !== id))
+    }, 700)
   }, [])
 
-  const resolveSceneIndex = (ms: number) => {
-    let acc = 0
-    for (let i = 0; i < SCENES.length; i++) {
-      acc += SCENES[i].durationMs
-      if (ms < acc) return i
-    }
-    return SCENES.length - 1
-  }
+  const handleCue = useCallback(
+    (cue: SceneCue) => {
+      if (muted) return
+      switch (cue.kind) {
+        case 'click':
+          if (cue.x != null && cue.y != null) addPulse(cue.x, cue.y)
+          void playWalkthroughClick()
+          break
+        case 'impact':
+          setShowImpact(true)
+          window.setTimeout(() => setShowImpact(false), 2200)
+          void playWalkthroughImpact()
+          break
+        case 'type':
+          void playWalkthroughKey()
+          window.setTimeout(() => void playWalkthroughKey(), 90)
+          window.setTimeout(() => void playWalkthroughKey(), 180)
+          break
+        case 'send':
+          void playWalkthroughSend()
+          break
+        default:
+          break
+      }
+    },
+    [addPulse, muted],
+  )
+
+  const resetPlayback = useCallback(() => {
+    setElapsed(0)
+    elapsedRef.current = 0
+    firedCuesRef.current = ''
+    prevSceneRef.current = 0
+    setPulses([])
+    setShowImpact(false)
+    setPlaying(true)
+  }, [])
 
   const openModal = () => {
     resetPlayback()
     setOpen(true)
     document.body.style.overflow = 'hidden'
+    if (!muted) {
+      enterWalkthroughSounds()
+      void startWalkthroughMusic()
+    }
   }
 
   const closeModal = () => {
@@ -172,6 +208,8 @@ export function FluxWalkthroughVideo() {
     setPlaying(false)
     document.body.style.overflow = ''
     cancelAnimationFrame(rafRef.current)
+    leaveWalkthroughSounds()
+    stopWalkthroughMusic()
   }
 
   useEffect(() => {
@@ -183,10 +221,8 @@ export function FluxWalkthroughVideo() {
     const tick = () => {
       if (cancelled) return
       const total = performance.now() - start
-      const looped = total % TOTAL_MS
-      elapsedRef.current = looped
-      setElapsed(looped)
-      setSceneIndex(resolveSceneIndex(looped))
+      elapsedRef.current = total
+      setElapsed(total)
       rafRef.current = requestAnimationFrame(tick)
     }
 
@@ -198,6 +234,27 @@ export function FluxWalkthroughVideo() {
   }, [open, playing])
 
   useEffect(() => {
+    if (!open || !playing) return
+
+    const prevLooped = (elapsed - 16) % TOTAL_MS
+    if (looped < prevLooped) firedCuesRef.current = ''
+
+    if (sceneIndex !== prevSceneRef.current) {
+      if (!muted && prevSceneRef.current !== sceneIndex) void playWalkthroughWhoosh()
+      prevSceneRef.current = sceneIndex
+    }
+
+    for (let ci = 0; ci < scene.cues.length; ci++) {
+      const cue = scene.cues[ci]
+      const key = `${sceneIndex}-${ci}`
+      if (localMs >= cue.atMs && !firedCuesRef.current.includes(`${key},`)) {
+        firedCuesRef.current += `${key},`
+        handleCue(cue)
+      }
+    }
+  }, [elapsed, open, playing, sceneIndex, localMs, scene, looped, handleCue, muted])
+
+  useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeModal()
@@ -206,6 +263,20 @@ export function FluxWalkthroughVideo() {
     return () => window.removeEventListener('keydown', onKey)
   }, [open])
 
+  const toggleMute = () => {
+    setMuted((m) => {
+      const next = !m
+      if (next) {
+        leaveWalkthroughSounds()
+        stopWalkthroughMusic()
+      } else if (open) {
+        enterWalkthroughSounds()
+        void startWalkthroughMusic()
+      }
+      return next
+    })
+  }
+
   return (
     <>
       <section className="lp-wt-section" id="como-funciona">
@@ -213,13 +284,13 @@ export function FluxWalkthroughVideo() {
           <span className="lp-kicker">Tour em vídeo</span>
           <h2>Entenda como funciona o Flux</h2>
           <p>
-            Visão geral, cartões, investidor, assistente e metas — o essencial do app em pouco mais de meio minuto,
-            no estilo de um walkthrough.
+            Telas reais do app — visão geral, cartões, investidor, assistente e metas — com trilha suave,
+            efeitos nos cliques e frases de impacto, no estilo dos melhores SaaS.
           </p>
           <ul>
-            <li>Finanças do dia a dia num painel só</li>
-            <li>Investidor com cotações ao vivo</li>
-            <li>Assistente em português natural</li>
+            <li>Capturas do sistema de verdade</li>
+            <li>Assistente: falar ou digitar</li>
+            <li>Trilha + efeitos sonoros discretos</li>
           </ul>
           <button type="button" className="lp-primary" onClick={openModal}>
             Ver como funciona <span aria-hidden>▶</span>
@@ -228,14 +299,14 @@ export function FluxWalkthroughVideo() {
 
         <button type="button" className="lp-wt-poster" onClick={openModal} aria-label="Reproduzir tour do Flux">
           <div className="lp-wt-poster-frame">
-            <SceneMock id="overview" />
+            <img src="/landing/walkthrough/overview.png" alt="" className="lp-wt-poster-img" />
             <div className="lp-wt-poster-dim" />
             <span className="lp-wt-play">
               <i aria-hidden>▶</i>
             </span>
-            <span className="lp-wt-poster-tag">0:{Math.ceil(TOTAL_MS / 1000)}</span>
+            <span className="lp-wt-poster-tag">{formatTime(TOTAL_MS)}</span>
           </div>
-          <span className="lp-wt-poster-caption">Demonstração · sem áudio</span>
+          <span className="lp-wt-poster-caption">Demonstração · trilha e efeitos</span>
         </button>
       </section>
 
@@ -245,17 +316,39 @@ export function FluxWalkthroughVideo() {
           <div className="lp-wt-modal-panel">
             <header className="lp-wt-modal-head">
               <b>Entenda como funciona o Flux</b>
-              <button type="button" className="lp-wt-close" onClick={closeModal} aria-label="Fechar">
-                ✕
-              </button>
+              <div className="lp-wt-head-actions">
+                <button type="button" className="lp-wt-mute" onClick={toggleMute} aria-label={muted ? 'Ativar som' : 'Silenciar'}>
+                  {muted ? '🔇' : '🔊'}
+                </button>
+                <button type="button" className="lp-wt-close" onClick={closeModal} aria-label="Fechar">
+                  ✕
+                </button>
+              </div>
             </header>
 
             <div className="lp-wt-player">
-              <div className="lp-wt-player-stage" key={scene.id}>
-                <p className="lp-wt-scene-kicker">{scene.label}</p>
-                <h3>{scene.title}</h3>
-                <p className="lp-wt-scene-caption">{scene.caption}</p>
-                <SceneMock id={scene.id} />
+              <div className="lp-wt-cinema" key={scene.id}>
+                <div
+                  className={`lp-wt-slide lp-wt-slide--${scene.kenBurns}`}
+                  style={{
+                    backgroundImage: `url(${scene.image})`,
+                    animationDuration: `${scene.durationMs}ms`,
+                  }}
+                />
+                <div className="lp-wt-vignette" aria-hidden />
+                {showImpact ? <p className="lp-wt-impact">{scene.impact}</p> : null}
+                {pulses.map((p) => (
+                  <span
+                    key={p.id}
+                    className="lp-wt-click-pulse"
+                    style={{ left: `${p.x}%`, top: `${p.y}%` }}
+                    aria-hidden
+                  />
+                ))}
+                <div className="lp-wt-subtitles">
+                  <span>{scene.label}</span>
+                  <p>{scene.caption}</p>
+                </div>
               </div>
             </div>
 
@@ -275,7 +368,7 @@ export function FluxWalkthroughVideo() {
               >
                 {playing ? '⏸' : '▶'}
               </button>
-              <span className="lp-wt-time">{formatTime(elapsed)}</span>
+              <span className="lp-wt-time">{formatTime(looped)}</span>
               <div className="lp-wt-progress" aria-hidden>
                 <i style={{ width: `${progress}%` }} />
               </div>
