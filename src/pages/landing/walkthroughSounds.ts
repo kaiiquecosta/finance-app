@@ -1,186 +1,213 @@
+/**
+ * Áudio do walkthrough — estilo Apple: baixo, suave, sem clipping.
+ * Pad ambiente + SFX discretos (nunca “estourados”).
+ */
 import { ensureLandingAudioReady } from './landingSounds'
 
-let walkthroughSessions = 0
+let sessions = 0
 let audioCtx: AudioContext | null = null
 let masterGain: GainNode | null = null
-let musicStop: (() => void) | null = null
+let musicNodes: Array<AudioNode | OscillatorNode> = []
+let musicRunning = false
 
-function prefersReducedSound(): boolean {
-  if (typeof window === 'undefined') return true
-  return window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false
+function reduced(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches === true
 }
 
-async function ctx(): Promise<AudioContext | null> {
-  if (prefersReducedSound()) return null
-  const ready = await ensureLandingAudioReady()
-  if (!ready) return null
+async function getCtx(): Promise<AudioContext | null> {
+  if (reduced()) return null
+  await ensureLandingAudioReady()
   audioCtx ??= new AudioContext()
   if (audioCtx.state === 'suspended') await audioCtx.resume()
   if (!masterGain || masterGain.context !== audioCtx) {
     masterGain = audioCtx.createGain()
-    masterGain.gain.value = 0.85
+    // Volume geral bem baixo (Apple-like)
+    masterGain.gain.value = 0.22
     masterGain.connect(audioCtx.destination)
   }
   return audioCtx.state === 'running' ? audioCtx : null
 }
 
-function tone(
+function softTone(
   c: AudioContext,
   {
     freq,
     at,
-    dur = 0.07,
+    dur = 0.08,
     type = 'sine',
-    gain = 0.05,
+    gain = 0.012,
   }: { freq: number; at: number; dur?: number; type?: OscillatorType; gain?: number },
 ) {
+  if (!masterGain) return
   const osc = c.createOscillator()
   const g = c.createGain()
+  const filter = c.createBiquadFilter()
+  filter.type = 'lowpass'
+  filter.frequency.value = 2800
   osc.type = type
   osc.frequency.setValueAtTime(freq, at)
   g.gain.setValueAtTime(0.0001, at)
-  g.gain.exponentialRampToValueAtTime(gain, at + 0.008)
+  g.gain.exponentialRampToValueAtTime(gain, at + 0.02)
   g.gain.exponentialRampToValueAtTime(0.0001, at + dur)
-  osc.connect(g)
-  g.connect(masterGain ?? c.destination)
+  osc.connect(filter)
+  filter.connect(g)
+  g.connect(masterGain)
   osc.start(at)
-  osc.stop(at + dur + 0.02)
+  osc.stop(at + dur + 0.03)
 }
 
-function mayPlay(): boolean {
-  return walkthroughSessions > 0 && !prefersReducedSound()
+function mayPlay() {
+  return sessions > 0 && !reduced()
 }
 
 export function enterWalkthroughSounds() {
-  walkthroughSessions += 1
+  sessions += 1
 }
 
 export function leaveWalkthroughSounds() {
-  walkthroughSessions = Math.max(0, walkthroughSessions - 1)
-  if (walkthroughSessions === 0) stopWalkthroughMusic()
+  sessions = Math.max(0, sessions - 1)
+  if (sessions === 0) stopWalkthroughMusic()
 }
 
+/** Pad cinematográfico suave — acordes abertos, quase ambient. */
 export async function startWalkthroughMusic() {
-  if (!mayPlay() || musicStop) return
-  const c = await ctx()
-  if (!c || !mayPlay()) return
+  if (!mayPlay() || musicRunning) return
+  const c = await getCtx()
+  if (!c || !mayPlay() || !masterGain) return
 
-  const t0 = c.currentTime + 0.05
-  const padFreqs = [261.63, 329.63, 392.0, 493.88]
-  const oscs: OscillatorNode[] = []
-  const padGain = c.createGain()
-  padGain.gain.setValueAtTime(0.0001, t0)
-  padGain.gain.linearRampToValueAtTime(0.028, t0 + 1.8)
+  musicRunning = true
+  const t0 = c.currentTime + 0.08
+
+  const pad = c.createGain()
+  pad.gain.setValueAtTime(0.0001, t0)
+  pad.gain.linearRampToValueAtTime(0.045, t0 + 2.4)
 
   const filter = c.createBiquadFilter()
   filter.type = 'lowpass'
-  filter.frequency.setValueAtTime(680, t0)
-  filter.frequency.linearRampToValueAtTime(920, t0 + 14)
-  filter.frequency.linearRampToValueAtTime(720, t0 + 28)
+  filter.frequency.setValueAtTime(420, t0)
+  filter.Q.value = 0.4
 
-  for (const freq of padFreqs) {
+  // Cmaj7 / Am7 vibe suave
+  const freqs = [130.81, 196.0, 261.63, 329.63, 392.0]
+  for (const freq of freqs) {
     const osc = c.createOscillator()
     osc.type = 'sine'
     osc.frequency.setValueAtTime(freq, t0)
-    osc.connect(padGain)
+    osc.connect(pad)
     osc.start(t0)
-    oscs.push(osc)
+    musicNodes.push(osc)
   }
 
-  padGain.connect(filter)
-  filter.connect(masterGain ?? c.destination)
+  // Harmônico muito baixo
+  const soft = c.createOscillator()
+  soft.type = 'triangle'
+  soft.frequency.setValueAtTime(523.25, t0)
+  const softGain = c.createGain()
+  softGain.gain.value = 0.18
+  soft.connect(softGain)
+  softGain.connect(pad)
+  soft.start(t0)
+  musicNodes.push(soft, softGain)
 
+  pad.connect(filter)
+  filter.connect(masterGain)
+  musicNodes.push(pad, filter)
+
+  // LFO quase imperceptível na amplitude
   const lfo = c.createOscillator()
-  const lfoGain = c.createGain()
-  lfo.frequency.setValueAtTime(0.07, t0)
-  lfoGain.gain.setValueAtTime(6, t0)
-  lfo.connect(lfoGain)
-  lfoGain.connect(padGain.gain)
+  const lfoG = c.createGain()
+  lfo.frequency.value = 0.05
+  lfoG.gain.value = 0.008
+  lfo.connect(lfoG)
+  lfoG.connect(pad.gain)
   lfo.start(t0)
-
-  musicStop = () => {
-    const stopAt = c.currentTime + 0.4
-    padGain.gain.cancelScheduledValues(c.currentTime)
-    padGain.gain.setValueAtTime(padGain.gain.value, c.currentTime)
-    padGain.gain.linearRampToValueAtTime(0.0001, stopAt)
-    for (const osc of oscs) {
-      try {
-        osc.stop(stopAt)
-      } catch {
-        /* already stopped */
-      }
-    }
-    try {
-      lfo.stop(stopAt)
-    } catch {
-      /* noop */
-    }
-    musicStop = null
-  }
+  musicNodes.push(lfo, lfoG)
 }
 
 export function stopWalkthroughMusic() {
-  musicStop?.()
+  if (!audioCtx || !musicRunning) {
+    musicRunning = false
+    musicNodes = []
+    return
+  }
+  const t = audioCtx.currentTime
+  for (const node of musicNodes) {
+    if (node instanceof GainNode) {
+      try {
+        node.gain.cancelScheduledValues(t)
+        node.gain.setValueAtTime(node.gain.value, t)
+        node.gain.linearRampToValueAtTime(0.0001, t + 0.5)
+      } catch {
+        /* noop */
+      }
+    }
+    if (node instanceof OscillatorNode) {
+      try {
+        node.stop(t + 0.55)
+      } catch {
+        /* noop */
+      }
+    }
+  }
+  musicNodes = []
+  musicRunning = false
 }
 
 export async function playWalkthroughClick() {
   if (!mayPlay()) return
-  const c = await ctx()
+  const c = await getCtx()
   if (!c) return
-  const t = c.currentTime
-  tone(c, { freq: 880, at: t, dur: 0.04, gain: 0.035, type: 'triangle' })
-  tone(c, { freq: 1320, at: t + 0.02, dur: 0.03, gain: 0.02, type: 'sine' })
+  softTone(c, { freq: 720, at: c.currentTime, dur: 0.05, gain: 0.01, type: 'sine' })
 }
 
 export async function playWalkthroughWhoosh() {
   if (!mayPlay()) return
-  const c = await ctx()
-  if (!c) return
+  const c = await getCtx()
+  if (!c || !masterGain) return
   const t = c.currentTime
-  const noise = c.createBufferSource()
-  const buffer = c.createBuffer(1, c.sampleRate * 0.25, c.sampleRate)
+  const buffer = c.createBuffer(1, Math.floor(c.sampleRate * 0.28), c.sampleRate)
   const data = buffer.getChannelData(0)
-  for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length)
-  noise.buffer = buffer
+  for (let i = 0; i < data.length; i++) {
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 1.8) * 0.35
+  }
+  const src = c.createBufferSource()
+  src.buffer = buffer
   const filter = c.createBiquadFilter()
-  filter.type = 'bandpass'
-  filter.frequency.setValueAtTime(900, t)
-  filter.frequency.exponentialRampToValueAtTime(2400, t + 0.12)
-  filter.Q.value = 0.8
+  filter.type = 'lowpass'
+  filter.frequency.setValueAtTime(600, t)
+  filter.frequency.exponentialRampToValueAtTime(1400, t + 0.12)
   const g = c.createGain()
   g.gain.setValueAtTime(0.0001, t)
-  g.gain.linearRampToValueAtTime(0.045, t + 0.04)
-  g.gain.linearRampToValueAtTime(0.0001, t + 0.22)
-  noise.connect(filter)
+  g.gain.linearRampToValueAtTime(0.018, t + 0.05)
+  g.gain.linearRampToValueAtTime(0.0001, t + 0.26)
+  src.connect(filter)
   filter.connect(g)
-  g.connect(masterGain ?? c.destination)
-  noise.start(t)
-  noise.stop(t + 0.25)
+  g.connect(masterGain)
+  src.start(t)
+  src.stop(t + 0.28)
 }
 
 export async function playWalkthroughImpact() {
   if (!mayPlay()) return
-  const c = await ctx()
+  const c = await getCtx()
   if (!c) return
   const t = c.currentTime
-  tone(c, { freq: 392, at: t, dur: 0.14, gain: 0.055, type: 'sine' })
-  tone(c, { freq: 523.25, at: t + 0.06, dur: 0.16, gain: 0.05, type: 'sine' })
-  tone(c, { freq: 659.25, at: t + 0.12, dur: 0.2, gain: 0.04, type: 'triangle' })
+  softTone(c, { freq: 261.63, at: t, dur: 0.22, gain: 0.014, type: 'sine' })
+  softTone(c, { freq: 392.0, at: t + 0.08, dur: 0.28, gain: 0.011, type: 'sine' })
 }
 
 export async function playWalkthroughSend() {
   if (!mayPlay()) return
-  const c = await ctx()
+  const c = await getCtx()
   if (!c) return
   const t = c.currentTime
-  tone(c, { freq: 520, at: t, dur: 0.07, gain: 0.045, type: 'sine' })
-  tone(c, { freq: 780, at: t + 0.05, dur: 0.09, gain: 0.04, type: 'sine' })
+  softTone(c, { freq: 440, at: t, dur: 0.06, gain: 0.01, type: 'sine' })
+  softTone(c, { freq: 660, at: t + 0.05, dur: 0.08, gain: 0.009, type: 'sine' })
 }
 
 export async function playWalkthroughKey() {
   if (!mayPlay()) return
-  const c = await ctx()
+  const c = await getCtx()
   if (!c) return
-  const t = c.currentTime
-  tone(c, { freq: 740, at: t, dur: 0.035, gain: 0.028, type: 'triangle' })
+  softTone(c, { freq: 680, at: c.currentTime, dur: 0.028, gain: 0.007, type: 'triangle' })
 }
