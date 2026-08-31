@@ -1,4 +1,4 @@
-import { APPLE_KEY_CLICKS } from './landingKeyboardSamples'
+import { IOS_KEY_CLICKS } from './landingKeyboardSamples'
 
 type SfxKind = 'key' | 'send' | 'like' | 'notify' | 'money'
 
@@ -67,10 +67,10 @@ function decodeWavBase64(c: AudioContext, b64: string): AudioBuffer {
 
 function ensureKeyBuffers(c: AudioContext) {
   if (keyClickBuffers) return
-  keyClickBuffers = APPLE_KEY_CLICKS.map((sample) => decodeWavBase64(c, sample))
+  keyClickBuffers = IOS_KEY_CLICKS.map((sample) => decodeWavBase64(c, sample))
 }
 
-/** Sample pré-renderizado estilo Magic Keyboard — macio, curto, sem ruído áspero. */
+/** Teclado iOS (iPhone) — toque curto; ganho calibrado para alto-falantes de PC. */
 function playKeyClick(c: AudioContext) {
   ensureBuffers(c)
   ensureKeyBuffers(c)
@@ -79,15 +79,15 @@ function playKeyClick(c: AudioContext) {
   keyVariant = (keyVariant + 1) % keyClickBuffers.length
   const src = c.createBufferSource()
   src.buffer = keyClickBuffers[keyVariant]
-  src.playbackRate.value = 0.985 + (keyVariant % 3) * 0.012
+  src.playbackRate.value = 0.992 + (keyVariant % 4) * 0.008
 
   const filter = c.createBiquadFilter()
   filter.type = 'lowpass'
-  filter.frequency.value = 4800
-  filter.Q.value = 0.65
+  filter.frequency.value = 6200
+  filter.Q.value = 0.55
 
   const g = c.createGain()
-  g.gain.value = 0.88
+  g.gain.value = 1.18
 
   src.connect(filter)
   filter.connect(g)
