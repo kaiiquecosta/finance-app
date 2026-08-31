@@ -274,10 +274,13 @@ Revise com advogado antes de publicar — os textos legais têm disclaimer de n�
 
 ### 5.5 Testes antes de produção
 
-1. **Internal testing** — adicione e-mails de teste → instale via link da Play Store
-2. Valide: OTP, Google login (navegador do sistema), reset de senha, assinatura Pro
-3. **Closed testing** — grupo maior (opcional)
-4. **Production** — rollout gradual (ex.: 20% → 100%)
+1. **Internal testing** — instale **pela Play Store** (obrigatório para Google Play Billing)
+2. Valide: OTP, Google login, assinatura **Pro via Play Store** no Android
+3. Valide no **site**: assinatura Pro via Stripe
+4. **Closed testing** — grupo maior (opcional)
+5. **Production** — rollout gradual (ex.: 20% → 100%)
+
+Guia billing: [`docs/BILLING.md`](./BILLING.md).
 
 ### 5.6 Atualizações futuras
 
