@@ -4,7 +4,7 @@
  * espelhando o comportamento do legado.
  */
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { deleteRow, upsertRows } from '@/data/api'
+import { deleteRow, deleteTransactionsByInvestmentId, upsertRows } from '@/data/api'
 import { toInvestmentRow, toTransactionRow } from '@/data/mappers'
 import { newId } from '@/data/useEntityMutations'
 import { queryKeys } from '@/data/queryKeys'
@@ -55,6 +55,8 @@ export function useInvestmentMutations(userId: string | undefined) {
 
   const remove = useMutation({
     mutationFn: async (id: number) => {
+      if (!userId) throw new Error('Sessão expirada. Entre novamente.')
+      await deleteTransactionsByInvestmentId(userId, id)
       await deleteRow('investments', id)
     },
     onSuccess: invalidate,

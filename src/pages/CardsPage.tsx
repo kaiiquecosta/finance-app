@@ -440,7 +440,9 @@ export function CardsPage() {
               loading={removeBill.isPending}
               onClick={() => {
                 if (!confirmDeleteBill) return
-                void removeBill.mutateAsync(confirmDeleteBill.id).then(() => {
+                void removeBill
+                  .mutateAsync({ id: confirmDeleteBill.id, recurring: confirmDeleteBill.recurring })
+                  .then(() => {
                   showSaveToast('Lançamento removido', 'var(--muted)', undefined, '🗑️')
                   setConfirmDeleteBill(null)
                 })
@@ -455,6 +457,12 @@ export function CardsPage() {
           <p style={{ margin: 0, fontSize: 14, lineHeight: 1.55, color: 'var(--muted)' }}>
             Remover <b style={{ color: 'var(--text)' }}>{confirmDeleteBill.description}</b> (
             {formatBRL(confirmDeleteBill.amt)}) desta fatura? Isso não pode ser desfeito.
+            {confirmDeleteBill.recurring ? (
+              <>
+                {' '}
+                Este lançamento é de uma assinatura — a assinatura também será removida.
+              </>
+            ) : null}
           </p>
         )}
       </Modal>

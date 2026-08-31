@@ -4,13 +4,20 @@ import { fetchInvestorFavorites, saveInvestorFavorites } from '@/data/api'
 import { queryKeys } from '@/data/queryKeys'
 import { loadFavorites, saveFavorites } from './favorites'
 
+function persistFavoritesLocal(list: string[]) {
+  saveFavorites(list)
+}
+
+function mergeTickerLists(...lists: string[][]): string[] {
+  return [...new Set(lists.flat())]
+}
+
 /**
- * Favoritos do Investidor — sincronizados na conta (Supabase) quando logado.
- * Offline / sem login: fallback em localStorage neste dispositivo.
+ * Favoritos do Investidor — localStorage imediato + Supabase quando logado.
  */
 export function useFavorites(userId: string | undefined) {
   const queryClient = useQueryClient()
-  const migratedRef = useRef(false)
+  const bootstrappedRef = useRef(false)
   const [localFavorites, setLocalFavorites] = useState<string[]>(() => loadFavorites())
 
   const query = useQuery({
@@ -27,57 +34,80 @@ export function useFavorites(userId: string | undefined) {
       await queryClient.cancelQueries({ queryKey: queryKeys.investorFavorites(userId) })
       const prev = queryClient.getQueryData<string[]>(queryKeys.investorFavorites(userId))
       queryClient.setQueryData(queryKeys.investorFavorites(userId), tickers)
+      persistFavoritesLocal(tickers)
+      setLocalFavorites(tickers)
       return { prev }
     },
     onError: (_err, _tickers, ctx) => {
-      if (userId && ctx?.prev) {
-        queryClient.setQueryData(queryKeys.investorFavorites(userId), ctx.prev)
-      }
+      if (!userId) return
+      const rollback = ctx?.prev ?? loadFavorites()
+      queryClient.setQueryData(queryKeys.investorFavorites(userId), rollback)
+      persistFavoritesLocal(rollback)
+      setLocalFavorites(rollback)
+    },
+    onSuccess: (_data, tickers) => {
+      if (!userId) return
+      queryClient.setQueryData(queryKeys.investorFavorites(userId), tickers)
+      persistFavoritesLocal(tickers)
+      setLocalFavorites(tickers)
     },
   })
 
-  // Migra favoritos do localStorage para a conta (uma vez, se o servidor estiver vazio).
+  // Primeira carga: une servidor + localStorage e garante persistência nos dois lados.
   useEffect(() => {
-    if (!userId || !query.isSuccess || migratedRef.current) return
-    migratedRef.current = true
-    const server = query.data ?? []
+    if (!userId || !query.isSuccess || query.data === undefined || bootstrappedRef.current) return
+    bootstrappedRef.current = true
+
+    const server = query.data
     const local = loadFavorites()
-    if (server.length === 0 && local.length > 0) {
-      void saveInvestorFavorites(userId, local).then(() => {
-        queryClient.setQueryData(queryKeys.investorFavorites(userId), local)
-        saveFavorites([])
-        setLocalFavorites([])
-      })
-    } else if (server.length > 0) {
-      saveFavorites([])
-      setLocalFavorites([])
+    const merged = mergeTickerLists(server, local)
+
+    queryClient.setQueryData(queryKeys.investorFavorites(userId), merged)
+    persistFavoritesLocal(merged)
+    setLocalFavorites(merged)
+
+    const sameAsServer =
+      merged.length === server.length && merged.every((ticker) => server.includes(ticker))
+    if (!sameAsServer) {
+      void saveInvestorFavorites(userId, merged)
     }
   }, [userId, query.isSuccess, query.data, queryClient])
 
-  const favorites = userId ? (query.data ?? []) : localFavorites
+  useEffect(() => {
+    bootstrappedRef.current = false
+  }, [userId])
+
+  const favorites = userId ? (query.data ?? localFavorites) : localFavorites
+
+  const resolveCurrent = useCallback((): string[] => {
+    if (!userId) return loadFavorites()
+    return (
+      queryClient.getQueryData<string[]>(queryKeys.investorFavorites(userId)) ??
+      query.data ??
+      loadFavorites()
+    )
+  }, [userId, queryClient, query.data])
 
   const toggleFavorite = useCallback(
     (yahoo: string) => {
+      const current = resolveCurrent()
+      const next = current.includes(yahoo) ? current.filter((s) => s !== yahoo) : [...current, yahoo]
+
+      persistFavoritesLocal(next)
+      setLocalFavorites(next)
+
       if (userId) {
-        const current = queryClient.getQueryData<string[]>(queryKeys.investorFavorites(userId)) ?? []
-        const next = current.includes(yahoo) ? current.filter((s) => s !== yahoo) : [...current, yahoo]
         queryClient.setQueryData(queryKeys.investorFavorites(userId), next)
         saveMutation.mutate(next)
-        return
       }
-      setLocalFavorites((prev) => {
-        const next = prev.includes(yahoo) ? prev.filter((s) => s !== yahoo) : [...prev, yahoo]
-        saveFavorites(next)
-        return next
-      })
     },
-    [userId, queryClient, saveMutation],
+    [userId, queryClient, saveMutation, resolveCurrent],
   )
 
   return {
     favorites,
     toggleFavorite,
-    isLoading: Boolean(userId && query.isLoading),
+    isLoading: Boolean(userId && query.isLoading && query.data === undefined),
     isSaving: saveMutation.isPending,
   }
 }

@@ -1,4 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
+import { loadEnvLocal } from './e2e/helpers/loadEnvLocal'
+
+loadEnvLocal()
 
 /**
  * E2E dos fluxos públicos (landing, auth, legal) — não dependem de conta

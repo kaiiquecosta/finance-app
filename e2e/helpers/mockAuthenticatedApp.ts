@@ -1,4 +1,7 @@
 import type { Page } from '@playwright/test'
+import { loadEnvLocal, supabaseAuthStorageKey } from './loadEnvLocal'
+
+loadEnvLocal()
 
 const MOCK_USER_ID = 'e2e00000-0000-4000-8000-000000000001'
 
@@ -6,9 +9,8 @@ export { MOCK_USER_ID }
 
 /** Sessão mínima + dados vazios para navegar em /app nos E2E. */
 export async function mockAuthenticatedApp(page: Page) {
-  const supabaseUrl = process.env.VITE_SUPABASE_URL ?? ''
-  const ref = supabaseUrl.match(/https:\/\/([^.]+)\./)?.[1] ?? 'local'
-  const storageKey = `sb-${ref}-auth-token`
+  const storageKey = supabaseAuthStorageKey()
+  let investorFavoriteTickers: string[] = []
 
   const session = {
     access_token: 'e2e-mock-access-token',
@@ -75,6 +77,27 @@ export async function mockAuthenticatedApp(page: Page) {
       return route.fulfill({ status: 201, contentType: 'application/json', body: '{}' })
     })
   }
+
+  await page.route('**/rest/v1/investor_favorites**', (route) => {
+    if (route.request().method() === 'GET') {
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(
+          investorFavoriteTickers.length
+            ? [{ user_id: MOCK_USER_ID, tickers: investorFavoriteTickers }]
+            : [],
+        ),
+      })
+    }
+    try {
+      const body = route.request().postDataJSON() as { tickers?: string[] }
+      if (Array.isArray(body?.tickers)) investorFavoriteTickers = body.tickers
+    } catch {
+      /* upsert em lote ou corpo vazio */
+    }
+    return route.fulfill({ status: 201, contentType: 'application/json', body: '{}' })
+  })
 
   await page.route('**/rest/v1/profiles*', (route) =>
     route.fulfill({

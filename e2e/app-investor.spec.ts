@@ -18,4 +18,21 @@ test.describe('Investidor — busca por categoria', () => {
     await page.getByTestId('investor-category-etfs_us').click()
     await expect(search).toHaveValue('')
   })
+
+  test('favorito persiste após recarregar a página', async ({ page }) => {
+    await page.goto('/app/investimentos')
+    await page.getByRole('tab', { name: /Investidor/i }).click()
+    await page.getByTestId('investor-category-acoes_br').click()
+
+    const star = page.locator('button[title="Favoritar"]').first()
+    await expect(star).toBeVisible({ timeout: 15_000 })
+    await star.click()
+    await expect(page.locator('button[title="Remover dos favoritos"]').first()).toBeVisible()
+
+    await page.reload()
+    await page.getByRole('tab', { name: /Investidor/i }).click()
+    await page.getByTestId('investor-category-acoes_br').click()
+
+    await expect(page.locator('button[title="Remover dos favoritos"]').first()).toBeVisible()
+  })
 })

@@ -57,9 +57,6 @@ export function BillsPage() {
     ),
   ].sort((a, b) => a.dueDay - b.dueDay)
 
-  const txIdForBill = (billId: number): number | null =>
-    data.transactions.find((t) => t.billId === billId)?.id ?? null
-
   const openNew = () => {
     setEditing(null)
     setModalOpen(true)
@@ -117,7 +114,6 @@ export function BillsPage() {
                         void setPaid.mutateAsync({
                           bill: row.bill,
                           paid: false,
-                          existingTxId: txIdForBill(row.bill.id),
                         })
                       } else {
                         setPayBill(row.bill)

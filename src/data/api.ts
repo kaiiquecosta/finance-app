@@ -152,3 +152,17 @@ export async function deleteRow(table: string, id: number): Promise<void> {
   const { error } = await supabase.from(table).delete().eq('id', id)
   if (error) throw error
 }
+
+export async function deleteTransactionsByInvestmentId(userId: string, investmentId: number): Promise<void> {
+  const { error } = await supabase
+    .from('transactions')
+    .delete()
+    .eq('user_id', userId)
+    .eq('investment_id', investmentId)
+  if (error) throw error
+}
+
+export async function deleteTransactionsByBillId(userId: string, billId: number): Promise<void> {
+  const { error } = await supabase.from('transactions').delete().eq('user_id', userId).eq('bill_id', billId)
+  if (error) throw error
+}

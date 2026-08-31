@@ -33,6 +33,18 @@ describe('useFavorites', () => {
     expect(result.current.favorites).toEqual(['ITUB4.SA'])
   })
 
+  it('persiste toggle anônimo no localStorage', () => {
+    const client = new QueryClient()
+    const { result } = renderHook(() => useFavorites(undefined), { wrapper: wrapper(client) })
+
+    act(() => {
+      result.current.toggleFavorite('PETR4.SA')
+    })
+
+    expect(result.current.favorites).toEqual(['PETR4.SA'])
+    expect(loadFavorites()).toEqual(['PETR4.SA'])
+  })
+
   it('sincroniza toggle com Supabase quando logado', async () => {
     vi.mocked(fetchInvestorFavorites).mockResolvedValue(['PETR4.SA'])
     vi.mocked(saveInvestorFavorites).mockResolvedValue()
@@ -49,5 +61,39 @@ describe('useFavorites', () => {
       expect(saveInvestorFavorites).toHaveBeenCalledWith('user-1', ['PETR4.SA', 'VALE3.SA'])
     })
     expect(result.current.favorites).toEqual(['PETR4.SA', 'VALE3.SA'])
+    expect(loadFavorites()).toEqual(['PETR4.SA', 'VALE3.SA'])
+  })
+
+  it('não perde favorito local ao togglear antes do fetch terminar', async () => {
+    saveFavorites(['ITUB4.SA'])
+    let resolveFetch: (value: string[]) => void = () => {}
+    vi.mocked(fetchInvestorFavorites).mockImplementation(
+      () =>
+        new Promise<string[]>((resolve) => {
+          resolveFetch = resolve
+        }),
+    )
+    vi.mocked(saveInvestorFavorites).mockResolvedValue()
+
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const { result } = renderHook(() => useFavorites('user-1'), { wrapper: wrapper(client) })
+
+    await waitFor(() => expect(result.current.favorites).toEqual(['ITUB4.SA']))
+
+    act(() => {
+      result.current.toggleFavorite('PETR4.SA')
+    })
+
+    expect(result.current.favorites).toEqual(['ITUB4.SA', 'PETR4.SA'])
+    expect(loadFavorites()).toEqual(['ITUB4.SA', 'PETR4.SA'])
+
+    await act(async () => {
+      resolveFetch([])
+      await Promise.resolve()
+    })
+
+    await waitFor(() => {
+      expect(saveInvestorFavorites).toHaveBeenCalledWith('user-1', ['ITUB4.SA', 'PETR4.SA'])
+    })
   })
 })

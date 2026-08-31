@@ -48,7 +48,7 @@ test.describe('Persona Mariana — app preenchido', () => {
     await expect(page.getByRole('tab', { name: /Carteira/i })).toBeVisible()
     await page.getByRole('tab', { name: /Carteira/i }).click()
     await expect(page.getByText('CDB Sofisa')).toBeVisible()
-    await expect(page.getByText(/MXRF11|Maxi Renda/i)).toBeVisible()
+    await expect(page.getByText('Maxi Renda').first()).toBeVisible()
   })
 
   test('Parcelas lista iPhone e geladeira', async ({ page }) => {

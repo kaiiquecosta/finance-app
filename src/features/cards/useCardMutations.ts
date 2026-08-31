@@ -46,8 +46,12 @@ export function useCardMutations(userId: string | undefined) {
   })
 
   const removeBill = useMutation({
-    mutationFn: async (id: number) => {
-      await deleteRow('card_bills', id)
+    mutationFn: async (bill: Pick<CardBill, 'id' | 'recurring'>) => {
+      if (!userId) throw new Error('Sessão expirada. Entre novamente.')
+      if (bill.recurring) {
+        await deleteRow('subscriptions', bill.id)
+      }
+      await deleteRow('card_bills', bill.id)
     },
     onSuccess: invalidate,
   })

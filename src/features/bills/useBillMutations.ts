@@ -4,7 +4,7 @@
  * desfazer remove essa transação.
  */
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { deleteRow, upsertRows } from '@/data/api'
+import { deleteRow, deleteTransactionsByBillId, upsertRows } from '@/data/api'
 import { toFixedBillRow, toTransactionRow } from '@/data/mappers'
 import { newId } from '@/data/useEntityMutations'
 import { queryKeys } from '@/data/queryKeys'
@@ -18,7 +18,6 @@ export interface SetPaidInput {
   bill: FixedBill
   paid: boolean
   accountId?: number | null
-  existingTxId?: number | null
 }
 
 export function useBillMutations(userId: string | undefined) {
@@ -41,6 +40,8 @@ export function useBillMutations(userId: string | undefined) {
 
   const remove = useMutation({
     mutationFn: async (id: number) => {
+      if (!userId) throw new Error('Sessão expirada. Entre novamente.')
+      await deleteTransactionsByBillId(userId, id)
       await deleteRow('fixed_bills', id)
     },
     onSuccess: () => {
@@ -50,7 +51,7 @@ export function useBillMutations(userId: string | undefined) {
   })
 
   const setPaid = useMutation({
-    mutationFn: async ({ bill, paid, accountId, existingTxId }: SetPaidInput) => {
+    mutationFn: async ({ bill, paid, accountId }: SetPaidInput) => {
       if (!userId) throw new Error('Sessão expirada. Entre novamente.')
       if (paid) {
         const date = toISODate(new Date())
@@ -71,7 +72,7 @@ export function useBillMutations(userId: string | undefined) {
       } else {
         const updated: FixedBill = { ...bill, paid: false, paidAt: null, paidAmount: null }
         await upsertRows('fixed_bills', [toFixedBillRow(updated, userId)])
-        if (existingTxId != null) await deleteRow('transactions', existingTxId)
+        await deleteTransactionsByBillId(userId, bill.id)
       }
     },
     onSuccess: (_void, { paid, bill }) => {
