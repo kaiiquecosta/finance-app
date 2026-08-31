@@ -157,6 +157,10 @@ export interface PlanRow {
   current_period_end: string | null
   stripe_customer_id: string | null
   stripe_sub_id: string | null
+  billing_provider: string | null
+  google_product_id: string | null
+  google_base_plan_id: string | null
+  google_purchase_token: string | null
   updated_at?: string
 }
 

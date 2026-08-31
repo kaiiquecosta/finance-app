@@ -10,7 +10,8 @@ supabase/
 │  ├─ 0004_community.sql                # roadmap da Comunidade (sugestões, likes, comentários)
 │  ├─ 0005_open_finance_pluggy.sql       # Open Finance / Pluggy
 │  ├─ 0006_community_realtime.sql        # notificações realtime na Comunidade
-│  └─ 0007_card_bills_external_id.sql    # FITID do OFX — dedup na importação de fatura
+│  └─ 0009_investor_favorites.sql
+│  └─ 0010_billing_google_play.sql      # Stripe + Google Play em plans
 ├─ functions/                            # Edge Functions (Stripe, exclusão de conta)
 config.toml                              # template Magic Link (OTP) — ver docs/AUTH.md
 email-templates/magic-link.html          # corpo do e-mail com {{ .Token }}
@@ -40,7 +41,8 @@ atual que já tem as tabelas com dados.
 5. Open Finance (se usar): `0005_open_finance_pluggy.sql` → **Run**
 6. Realtime Comunidade: `0006_community_realtime.sql` → **Run**
 7. Importação OFX (cartões): `0007_card_bills_external_id.sql` → **Run**
-8. Admin do roadmap (mover colunas): `scripts/comunidade-tornar-admin.sql` → **Run**
+8. Favoritos investidor: `0009_investor_favorites.sql` → **Run**
+9. Billing Google Play: `0010_billing_google_play.sql` → **Run**
    (ou use só o `update` com join em `auth.users` — **não** use `select name from auth.users`, essa coluna não existe)
 
 Guia completo de deploy: [`docs/DEPLOY.md`](../docs/DEPLOY.md).

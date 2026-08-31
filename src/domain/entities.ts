@@ -186,6 +186,7 @@ export interface Profile {
 
 export type PlanTier = 'free' | 'pro'
 export type PlanStatus = 'active' | 'trialing' | 'canceled' | 'past_due' | 'incomplete'
+export type BillingProvider = 'stripe' | 'google_play'
 
 export interface Plan {
   userId: string
@@ -194,4 +195,5 @@ export interface Plan {
   trialEndsAt?: string | null
   currentPeriodEnd?: string | null
   stripeSubId?: string | null
+  billingProvider?: BillingProvider | null
 }

@@ -61,6 +61,10 @@ export function rowToPlan(r: PlanRow): Plan {
     trialEndsAt: r.trial_ends_at,
     currentPeriodEnd: r.current_period_end,
     stripeSubId: r.stripe_sub_id,
+    billingProvider:
+      r.billing_provider === 'stripe' || r.billing_provider === 'google_play'
+        ? r.billing_provider
+        : null,
   }
 }
 

@@ -101,7 +101,8 @@ Marque conforme concluir. Bloqueadores primeiro; itens “should-have” podem s
 - [ ] **Internal testing** — instalado via link da Play Store
 - [ ] OTP por e-mail no app nativo
 - [ ] Login Google (abre navegador do sistema → deep link de volta)
-- [ ] Assinatura Pro via Stripe no app
+- [ ] Assinatura Pro via **Google Play Billing** no Android (Internal testing)
+- [ ] Assinatura Pro via **Stripe** no site
 - [ ] Sem crashes em cold start e após background
 
 ### Publicação

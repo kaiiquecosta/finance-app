@@ -53,7 +53,10 @@ supabase functions deploy stripe-checkout
 supabase functions deploy stripe-portal
 supabase functions deploy stripe-webhook --no-verify-jwt   # webhook NÃO usa JWT
 supabase functions deploy delete-account
+supabase functions deploy google-play-verify
 ```
+
+Guia completo web + Play Store: [`docs/BILLING.md`](../docs/BILLING.md).
 
 > `SUPABASE_URL`, `SUPABASE_ANON_KEY` e `SUPABASE_SERVICE_ROLE_KEY` já existem
 > automaticamente no runtime das funções — não precisa setar.

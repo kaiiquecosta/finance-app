@@ -1,10 +1,11 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/app/SessionProvider'
 import { usePlan, useFinanceData, useProfile } from '@/data/hooks'
 import { useTheme, themeToggleLabel } from '@/app/theme'
 import { signOut } from '@/data/auth'
-import { openBillingPortal } from '@/data/billing'
+import { openSubscriptionManagement } from '@/data/billing'
 import { isPro, planLabel, trialDaysLeft } from '@/domain/plan'
 import { UpgradeModal } from '@/features/billing/UpgradeModal'
 import { AccountModal } from '@/features/account/AccountModal'
@@ -16,11 +17,13 @@ import { CommunityStatusPopup } from '@/features/community/CommunityStatusPopup'
 import { useCommunityStatusAlerts } from '@/features/community/useCommunityStatusAlerts'
 import { FinanceAssistant } from '@/features/assistant/FinanceAssistant'
 import { isDemoPersonaEnabled, DEMO_PERSONA_LABEL } from '@/demo/isDemoPersona'
+import { queryKeys } from '@/data/queryKeys'
 import { NAV_ITEMS } from './navItems'
 import styles from './AppShell.module.css'
 
 export function AppShell() {
   const { user } = useAuth()
+  const queryClient = useQueryClient()
   const plan = usePlan(user?.id)
   const finance = useFinanceData(user?.id)
   const profileQuery = useProfile(user?.id)
@@ -52,7 +55,7 @@ export function AppShell() {
   const themeActionLabel = themeToggleLabel(theme)
 
   const onBadgeClick = () => {
-    if (label === 'PRO') void openBillingPortal().catch(() => setUpgradeOpen(true))
+    if (label === 'PRO') void openSubscriptionManagement().catch(() => setUpgradeOpen(true))
     else setUpgradeOpen(true)
   }
 
@@ -167,6 +170,9 @@ export function AppShell() {
         open={upgradeOpen}
         onClose={() => setUpgradeOpen(false)}
         trialDaysLeft={trialDaysLeft(plan.data)}
+        onSuccess={() => {
+          if (user?.id) void queryClient.invalidateQueries({ queryKey: queryKeys.plan(user.id) })
+        }}
       />
       <ProfileModal
         open={profileOpen}

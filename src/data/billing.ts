@@ -1,9 +1,15 @@
 /**
- * Chamadas às Edge Functions de pagamento. O `invoke` do supabase-js já envia
- * o JWT do usuário no Authorization, então a função identifica quem está pagando.
+ * Pagamentos unificados: Stripe (web) + Google Play (Android).
  */
 import type { BillingInterval } from '@/domain/pricing'
+import { billingChannel } from '@/lib/billingPlatform'
 import { supabase } from './supabase'
+import {
+  isPlayBillingAvailable,
+  openPlaySubscriptionManagement,
+  purchasePlaySubscription,
+  restorePlayPurchases,
+} from './playBilling'
 
 async function invokeRedirect(
   fn: 'stripe-checkout' | 'stripe-portal',
@@ -18,12 +24,44 @@ async function invokeRedirect(
   window.location.href = data.url
 }
 
-/** Redireciona para o Checkout do Stripe (assinar o Pro). */
-export function startCheckout(interval: BillingInterval = 'year'): Promise<void> {
-  return invokeRedirect('stripe-checkout', { interval })
+/** Inicia assinatura Pro no canal correto (Play Store ou Stripe). */
+export async function startProCheckout(interval: BillingInterval = 'year'): Promise<void> {
+  if (billingChannel() === 'google_play') {
+    const ok = await isPlayBillingAvailable()
+    if (!ok) {
+      throw new Error(
+        'Compras in-app indisponíveis. Instale o app pela Play Store (teste interno) com conta de teste.',
+      )
+    }
+    await purchasePlaySubscription(interval)
+    return
+  }
+  await invokeRedirect('stripe-checkout', { interval })
 }
 
-/** Redireciona para o Billing Portal do Stripe (gerenciar/cancelar). */
-export function openBillingPortal(): Promise<void> {
-  return invokeRedirect('stripe-portal')
+/** @deprecated Use startProCheckout */
+export function startCheckout(interval: BillingInterval = 'year'): Promise<void> {
+  return startProCheckout(interval)
 }
+
+/** Gerencia/cancela assinatura no provedor ativo. */
+export async function openSubscriptionManagement(): Promise<void> {
+  if (billingChannel() === 'google_play') {
+    await openPlaySubscriptionManagement()
+    return
+  }
+  await invokeRedirect('stripe-portal')
+}
+
+/** @deprecated Use openSubscriptionManagement */
+export function openBillingPortal(): Promise<void> {
+  return openSubscriptionManagement()
+}
+
+export async function restorePurchases(): Promise<boolean> {
+  if (billingChannel() !== 'google_play') return false
+  return restorePlayPurchases()
+}
+
+export { billingChannel } from '@/lib/billingPlatform'
+export { fetchPlayProductQuotes, type PlayProductQuote } from './playBilling'
