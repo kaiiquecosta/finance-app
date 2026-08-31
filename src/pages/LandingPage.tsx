@@ -191,10 +191,12 @@ export function LandingPage() {
         <h2>Comece no seu ritmo.</h2>
         <p>30 dias com tudo liberado. Depois, continue no Free ou assine o Pro.</p>
         <div className="lp-price-card">
-          <div>
-            <span>Flux Pro</span>
-            <p className="lp-price-lead">
-              <b>Anual</b> · R$ {formatPriceBRL(PRO_ANNUAL_TOTAL_BRL / 12)}
+          <div className="lp-price-copy">
+            <span className="lp-price-brand">Flux Pro</span>
+            <span className="lp-price-label">Anual</span>
+            <p className="lp-price-amount">
+              <sup>R$</sup>
+              {formatPriceBRL(PRO_ANNUAL_TOTAL_BRL / 12)}
               <small>/mês</small>
             </p>
             <p className="lp-price-sub">
@@ -203,7 +205,9 @@ export function LandingPage() {
             <p className="lp-price-alt">
               Mensal · R$ {formatPriceBRL(PRO_MONTHLY_BRL)}/mês
             </p>
-            <p>Finanças, investidor e assistente — sem pagar três apps.</p>
+            <p className="lp-price-desc">
+              Finanças, investidor e assistente — sem pagar três apps.
+            </p>
           </div>
           <ul>
             <li>✓ Contas e transações ilimitadas</li>

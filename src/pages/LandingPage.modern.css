@@ -110,3 +110,81 @@ html{scroll-behavior:smooth}
 .lp[data-theme='dark'] .lp-bento-card>i{background:rgba(168,85,247,.15);color:#c084fc}
 @media(max-width:900px){.lp-bento-card.wide{grid-column:span 1}}
 @media(max-width:600px){.lp-bento-card{min-height:230px;padding:23px}}
+
+/* —— Preços (corrigido: evita .lp-price-card p genérico apagar destaque) —— */
+.lp-price-card .lp-price-brand {
+  color: #7812b1;
+  font-size: 13px;
+  font-weight: 700;
+}
+.lp-price-card .lp-price-brand::after {
+  content: ' · 30 dias grátis';
+  margin-left: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #ecfdf3;
+  color: #158943;
+  font-size: 10px;
+  font-weight: 700;
+}
+.lp-price-card .lp-price-label {
+  display: block;
+  margin-top: 14px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7812b1;
+}
+.lp-price-card .lp-price-amount {
+  margin: 6px 0 8px;
+  font-size: clamp(44px, 6.5vw, 58px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  color: #0f0f0f;
+  font-variant-numeric: tabular-nums;
+}
+.lp-price-card .lp-price-amount sup {
+  font-size: 0.34em;
+  font-weight: 700;
+  vertical-align: super;
+  margin-right: 2px;
+  letter-spacing: 0;
+}
+.lp-price-card .lp-price-amount small {
+  font-size: 0.3em;
+  font-weight: 600;
+  color: #666;
+  letter-spacing: 0;
+  margin-left: 2px;
+}
+.lp-price-card .lp-price-sub {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #158943 !important;
+}
+.lp-price-card .lp-price-alt {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #444 !important;
+}
+.lp-price-card .lp-price-desc {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #888 !important;
+}
+.lp[data-theme='dark'] .lp-price-card .lp-price-amount {
+  color: var(--ink);
+}
+.lp[data-theme='dark'] .lp-price-card .lp-price-amount small,
+.lp[data-theme='dark'] .lp-price-card .lp-price-desc {
+  color: var(--muted) !important;
+}
+.lp[data-theme='dark'] .lp-price-card .lp-price-alt {
+  color: var(--ink) !important;
+  opacity: 0.85;
+}
