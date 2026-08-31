@@ -29,8 +29,10 @@ supabase functions deploy pluggy-register-item pluggy-sync pluggy-connect-token
 
 ## 1. Pré-requisitos no Stripe (dashboard.stripe.com)
 
-1. **Produto + preço**: crie um produto "Finance Pro" com um **preço recorrente** (ex.: R$ 14/mês).
-   Copie o **Price ID** (`price_...`).
+1. **Produtos + preços** no Stripe (BRL, recorrentes):
+   - **Mensal:** R$ 24,90/mês → copie o Price ID (`price_...`) → `STRIPE_PRICE_PRO_MONTHLY`
+   - **Anual:** R$ 239,88/ano (equivalente a R$ 19,99/mês) → `STRIPE_PRICE_PRO_ANNUAL`
+   - `STRIPE_PRICE_PRO` continua aceito como alias do mensal (legado).
 2. **Chave secreta**: Developers → API keys → **Secret key** (`sk_...`).
 
 ## 2. Configurar e publicar (Supabase CLI)
@@ -42,7 +44,8 @@ supabase link --project-ref rxireyhmphkybjvqbawf
 
 # Segredos (nunca vão pro git nem pro frontend)
 supabase secrets set STRIPE_SECRET_KEY=sk_...
-supabase secrets set STRIPE_PRICE_PRO=price_...
+supabase secrets set STRIPE_PRICE_PRO_MONTHLY=price_...
+supabase secrets set STRIPE_PRICE_PRO_ANNUAL=price_...
 supabase secrets set APP_URL=https://finance-app-one-weld.vercel.app
 
 # Publicar as funções

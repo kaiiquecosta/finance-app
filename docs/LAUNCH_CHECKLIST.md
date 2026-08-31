@@ -26,7 +26,8 @@ Marque conforme concluir. Bloqueadores primeiro; itens “should-have” podem s
 
 ### Stripe / Pro
 
-- [ ] Produto + preço recorrente criados (live)
+- [ ] Produtos Stripe: **Pro mensal R$ 24,90** + **Pro anual R$ 239,88** (live)
+- [ ] Secrets: `STRIPE_PRICE_PRO_MONTHLY` e `STRIPE_PRICE_PRO_ANNUAL`
 - [ ] Edge Functions deployadas ([`supabase/functions/README.md`](../supabase/functions/README.md))
 - [ ] Webhook Stripe apontando para `stripe-webhook` (eventos de subscription)
 - [ ] Checkout live testado ponta a ponta (assinar → PRO no app)

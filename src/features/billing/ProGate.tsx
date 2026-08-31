@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { useAuth } from '@/app/SessionProvider'
 import { usePlan } from '@/data/hooks'
 import { isPro, trialDaysLeft } from '@/domain/plan'
+import { formatPriceBRL, PRO_ANNUAL_TOTAL_BRL } from '@/domain/pricing'
 import { PageHeader } from '@/components/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -38,7 +39,8 @@ export function ProGate({ feature, icon, description, children }: Props) {
         <p className={styles.desc}>{description}</p>
         <Button onClick={() => setUpgradeOpen(true)}>Assinar Pro</Button>
         <p className={styles.hint}>
-          🎁 Todo novo cadastro tem <b>30 dias grátis</b> com tudo liberado, sem cartão.
+          🎁 Todo novo cadastro tem <b>30 dias grátis</b> com tudo liberado. Depois, Pro a partir de{' '}
+          <b>R$ {formatPriceBRL(PRO_ANNUAL_TOTAL_BRL / 12)}/mês</b> no anual.
         </p>
       </Card>
       <UpgradeModal

@@ -2,7 +2,8 @@
 // Chamada pelo app (usuário autenticado). A chave secreta fica só aqui, no servidor.
 //
 // Segredos necessários (supabase secrets set):
-//   STRIPE_SECRET_KEY, STRIPE_PRICE_PRO, APP_URL
+//   STRIPE_SECRET_KEY, STRIPE_PRICE_PRO_MONTHLY, STRIPE_PRICE_PRO_ANNUAL, APP_URL
+//   (STRIPE_PRICE_PRO continua válido como alias do mensal, legado)
 // Disponíveis automaticamente no runtime:
 //   SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
 import Stripe from 'https://esm.sh/stripe@16.12.0?target=deno'
@@ -57,11 +58,29 @@ Deno.serve(async (req) => {
         .upsert({ user_id: user.id, stripe_customer_id: customerId }, { onConflict: 'user_id' })
     }
 
+    const body = (await req.json().catch(() => ({}))) as { interval?: string }
+    const interval = body.interval === 'month' ? 'month' : 'year'
+    const priceId =
+      interval === 'month'
+        ? Deno.env.get('STRIPE_PRICE_PRO_MONTHLY') ?? Deno.env.get('STRIPE_PRICE_PRO')
+        : Deno.env.get('STRIPE_PRICE_PRO_ANNUAL')
+    if (!priceId) {
+      return json(
+        {
+          error:
+            interval === 'month'
+              ? 'Configure STRIPE_PRICE_PRO_MONTHLY (ou STRIPE_PRICE_PRO) nos secrets.'
+              : 'Configure STRIPE_PRICE_PRO_ANNUAL nos secrets.',
+        },
+        500,
+      )
+    }
+
     const appUrl = Deno.env.get('APP_URL') ?? 'http://localhost:5173'
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
-      line_items: [{ price: Deno.env.get('STRIPE_PRICE_PRO')!, quantity: 1 }],
+      line_items: [{ price: priceId, quantity: 1 }],
       allow_promotion_codes: true,
       success_url: `${appUrl}/app?checkout=success`,
       cancel_url: `${appUrl}/app?checkout=cancel`,

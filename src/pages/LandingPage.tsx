@@ -1,5 +1,11 @@
 import { useEffect, useState, type MouseEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import {
+  annualSavingsPercent,
+  formatPriceBRL,
+  PRO_ANNUAL_TOTAL_BRL,
+  PRO_MONTHLY_BRL,
+} from '@/domain/pricing'
 import { ProductPreview } from './landing/ProductPreview'
 import { AssistantDemo } from './landing/AssistantDemo'
 import { CommunityDemo } from './landing/CommunityDemo'
@@ -58,7 +64,8 @@ const features = [
 ]
 
 const faq = [
-  ['Preciso de cartão para começar?', 'Não. Você pode criar sua conta e experimentar o Flux por 30 dias sem informar cartão de crédito.'],
+  ['Preciso de cartão para começar?', 'Não. Você pode criar sua conta e experimentar o Flux Pro por 30 dias sem informar cartão de crédito.'],
+  ['Quanto custa depois do trial?', `O Pro custa R$ ${formatPriceBRL(PRO_MONTHLY_BRL)}/mês ou R$ ${formatPriceBRL(PRO_ANNUAL_TOTAL_BRL / 12)}/mês no plano anual (${formatPriceBRL(PRO_ANNUAL_TOTAL_BRL)}/ano, cerca de ${annualSavingsPercent()}% de desconto). Você pode continuar no plano gratuito com recursos limitados.`],
   ['Meus dados ficam seguros?', 'Seus dados ficam isolados por conta no Supabase com Row Level Security. Só você acessa o seu histórico financeiro.'],
   ['Funciona no celular?', 'Sim. O Flux é responsivo e pode ser instalado como PWA no celular, além de funcionar no computador e tablet.'],
   ['Quais investimentos posso acompanhar?', 'Ações brasileiras e americanas, FIIs, ETFs, criptomoedas, CDB, LCI/LCA, Tesouro, poupança e outros ativos.'],
@@ -182,10 +189,28 @@ export function LandingPage() {
       <section className="lp-pricing" id="precos">
         <span className="lp-kicker">Simples e transparente</span>
         <h2>Comece no seu ritmo.</h2>
-        <p>Experimente todos os recursos por 30 dias. Sem cartão, sem compromisso.</p>
+        <p>30 dias com tudo liberado. Depois, continue no Free ou assine o Pro.</p>
         <div className="lp-price-card">
-          <div><span>Flux Pro</span><h3><sup>R$</sup>14<small>,90 / mês</small></h3><p>Para transformar organização em hábito.</p></div>
-          <ul><li>✓ Contas e transações ilimitadas</li><li>✓ Cartões, faturas e OFX</li><li>✓ Investimentos completos</li><li>✓ Metas, assistente e comunidade</li></ul>
+          <div>
+            <span>Flux Pro</span>
+            <p className="lp-price-lead">
+              <b>Anual</b> · R$ {formatPriceBRL(PRO_ANNUAL_TOTAL_BRL / 12)}
+              <small>/mês</small>
+            </p>
+            <p className="lp-price-sub">
+              {formatPriceBRL(PRO_ANNUAL_TOTAL_BRL)}/ano · economize {annualSavingsPercent()}% vs mensal
+            </p>
+            <p className="lp-price-alt">
+              Mensal · R$ {formatPriceBRL(PRO_MONTHLY_BRL)}/mês
+            </p>
+            <p>Finanças, investidor e assistente — sem pagar três apps.</p>
+          </div>
+          <ul>
+            <li>✓ Contas e transações ilimitadas</li>
+            <li>✓ Cartões, faturas e OFX</li>
+            <li>✓ Investidor com cotações ao vivo</li>
+            <li>✓ Metas, assistente e comunidade</li>
+          </ul>
           <a className="lp-primary" href="/criar-conta" onClick={go('/criar-conta')}>Testar grátis <Arrow /></a>
         </div>
       </section>

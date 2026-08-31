@@ -9,6 +9,64 @@
 .intro {
   font-size: 14px;
   color: var(--muted);
+  margin-bottom: 12px;
+}
+.plans {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.plan {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border2);
+  background: var(--card2);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.planActive {
+  border-color: var(--green);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--green) 35%, transparent);
+}
+.planBadge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--green);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.planTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+.planPrice {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: var(--num, inherit);
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+.planPrice small {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.planSub {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+@media (max-width: 480px) {
+  .plans {
+    grid-template-columns: 1fr;
+  }
 }
 .list {
   list-style: none;
