@@ -9,35 +9,40 @@ export type PreviewId =
   | 'investments'
   | 'community'
 
-export const PREVIEW_TOUR_STEPS: Array<{ id: PreviewId; message: string }> = [
+export const PREVIEW_TOUR_STEPS: Array<{ id: PreviewId; message: string; short: string }> = [
   {
     id: 'overview',
-    message: 'Clique aqui para conhecer sua visão geral — receitas, gastos e saldo do mês.',
+    short: 'Visão geral',
+    message: 'Clique aqui para conhecer receitas, gastos e saldo do mês.',
   },
   {
     id: 'transactions',
-    message: 'Clique aqui para ver transações, categorias e o histórico completo.',
+    short: 'Transações',
+    message: 'Clique aqui para ver lançamentos, categorias e histórico.',
   },
   {
     id: 'cards',
-    message: 'Clique aqui para explorar cartões, faturas e limites.',
+    short: 'Cartões',
+    message: 'Clique aqui para explorar faturas, limites e parcelas.',
   },
   {
     id: 'investments',
-    message: 'Clique aqui para conhecer o investidor — B3, FIIs, ETFs e cripto.',
+    short: 'Investimentos',
+    message: 'Clique aqui para conhecer B3, FIIs, ETFs e cripto ao vivo.',
   },
   {
     id: 'community',
-    message: 'Clique aqui para ver como a comunidade sugere e vota melhorias.',
+    short: 'Comunidade',
+    message: 'Clique aqui para ver sugestões, votos e o roadmap aberto.',
   },
 ]
 
-export const DEMO_TOUR_KEY = 'flux-landing-hint-demo'
+/** v3 — chave nova para não herdar dismiss do card antigo */
+export const DEMO_TOUR_KEY = 'flux-landing-tab-tour-v3'
 
-export function readPreviewTourStep(): number | null {
-  if (typeof sessionStorage === 'undefined') return 0
-  if (sessionStorage.getItem(DEMO_TOUR_KEY) === '1') return null
-  return 0
+export function isPreviewTourDismissed(): boolean {
+  if (typeof sessionStorage === 'undefined') return false
+  return sessionStorage.getItem(DEMO_TOUR_KEY) === '1'
 }
 
 export function dismissPreviewTour() {

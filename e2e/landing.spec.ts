@@ -31,7 +31,7 @@ test.describe('Landing page', () => {
   test('barras de scroll hint aparecem no mockup', async ({ page }) => {
     await page.goto('/')
     const preview = page.locator('.lp-product')
-    await expect(preview.getByText(/clique aqui para conhecer sua visão geral/i)).toBeVisible()
+    await expect(preview.getByText(/clique aqui para conhecer receitas/i)).toBeVisible()
     await expect(preview.getByText('← Arraste para ver todas as telas do Flux →')).toBeVisible()
     await expect(preview.locator('.lp-hscroll-bar--tabs .lp-hscroll-bar__thumb')).toBeVisible()
     await preview.getByRole('button', { name: 'Investimentos' }).click()

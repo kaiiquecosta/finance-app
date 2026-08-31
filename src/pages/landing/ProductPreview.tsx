@@ -6,8 +6,8 @@ import { InvestmentMockPanel } from './InvestmentMockPanel'
 import { PreviewTabTour } from './PreviewTabTour'
 import {
   dismissPreviewTour,
+  isPreviewTourDismissed,
   PREVIEW_TOUR_STEPS,
-  readPreviewTourStep,
   type PreviewId,
 } from './previewTourSteps'
 import './landingHints.css'
@@ -87,11 +87,16 @@ function MockRow({
 
 export function ProductPreview() {
   const [preview, setPreview] = useState<PreviewId>('overview')
-  const [tourStep, setTourStep] = useState<number | null>(readPreviewTourStep)
+  const [tourStep, setTourStep] = useState<number | null>(null)
+  const productRef = useRef<HTMLDivElement>(null)
   const tabsScrollRef = useRef<HTMLDivElement>(null)
   const tabsWrapRef = useRef<HTMLDivElement>(null)
   const tabRefs = useRef<Partial<Record<PreviewId, HTMLButtonElement>>>({})
   useHorizontalDragScroll(tabsScrollRef)
+
+  useEffect(() => {
+    if (!isPreviewTourDismissed()) setTourStep(0)
+  }, [])
 
   const tourActive = tourStep !== null
   const currentTour = tourStep != null ? PREVIEW_TOUR_STEPS[tourStep] : null
@@ -114,22 +119,9 @@ export function ProductPreview() {
     if (tourStep == null) return
     const step = PREVIEW_TOUR_STEPS[tourStep]
     setPreview(step.id)
-    tabRefs.current[step.id]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
-  }, [tourStep])
-
-  useEffect(() => {
-    if (tourStep == null) return
-    const timer = window.setTimeout(() => {
-      setTourStep((current) => {
-        if (current == null) return null
-        if (current >= PREVIEW_TOUR_STEPS.length - 1) {
-          dismissPreviewTour()
-          return null
-        }
-        return current + 1
-      })
-    }, 6500)
-    return () => window.clearTimeout(timer)
+    window.requestAnimationFrame(() => {
+      tabRefs.current[step.id]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+    })
   }, [tourStep])
 
   const handleTabClick = (tabId: PreviewId) => {
@@ -140,7 +132,11 @@ export function ProductPreview() {
   }
 
   return (
-    <div className={`lp-product${tourActive ? ' is-tour-active' : ''}`} id="demo-app">
+    <div
+      ref={productRef}
+      className={`lp-product${tourActive ? ' is-tour-active' : ''}`}
+      id="demo-app"
+    >
       <div className={`lp-window${tourActive ? ' is-tour-active' : ''}`}>
         <div className="lp-windowbar">
           <div className="lp-dots">
@@ -181,6 +177,7 @@ export function ProductPreview() {
                   >
                     <span className="lp-tab-icon">{tab.icon}</span>
                     {tab.label}
+                    {isTourFocus ? <em className="lp-tour-tab-hint">Clique aqui</em> : null}
                   </button>
                 )
               })}
@@ -190,19 +187,6 @@ export function ProductPreview() {
               label="← Arraste para ver todas as telas do Flux →"
               variant="tabs"
             />
-            {currentTour && tourStep != null ? (
-              <PreviewTabTour
-                active={tourActive}
-                stepIndex={tourStep}
-                tabId={currentTour.id}
-                message={currentTour.message}
-                stepLabel={`${tourStep + 1} de ${PREVIEW_TOUR_STEPS.length}`}
-                tabRefs={tabRefs}
-                wrapRef={tabsWrapRef}
-                onNext={advanceTour}
-                onDismiss={endTour}
-              />
-            ) : null}
           </div>
           <span className="lp-avatar">KC</span>
         </div>
@@ -699,6 +683,20 @@ export function ProductPreview() {
           </div>
         )}
       </div>
+
+      {currentTour && tourStep != null ? (
+        <PreviewTabTour
+          active={tourActive}
+          stepIndex={tourStep}
+          tabId={currentTour.id}
+          message={currentTour.message}
+          stepLabel={`${tourStep + 1} de ${PREVIEW_TOUR_STEPS.length} · ${currentTour.short}`}
+          tabRefs={tabRefs}
+          anchorRef={productRef}
+          onNext={advanceTour}
+          onDismiss={endTour}
+        />
+      ) : null}
     </div>
   )
 }

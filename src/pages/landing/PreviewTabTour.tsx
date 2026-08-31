@@ -8,7 +8,7 @@ type PreviewTabTourProps = {
   message: string
   stepLabel: string
   tabRefs: MutableRefObject<Partial<Record<PreviewId, HTMLButtonElement>>>
-  wrapRef: RefObject<HTMLDivElement | null>
+  anchorRef: RefObject<HTMLElement | null>
   onNext: () => void
   onDismiss: () => void
 }
@@ -20,7 +20,7 @@ export function PreviewTabTour({
   message,
   stepLabel,
   tabRefs,
-  wrapRef,
+  anchorRef,
   onNext,
   onDismiss,
 }: PreviewTabTourProps) {
@@ -28,26 +28,45 @@ export function PreviewTabTour({
 
   useLayoutEffect(() => {
     if (!active) {
-      setCallout((prev) => ({ ...prev, ready: false }))
+      setCallout({ left: 0, top: 0, ready: false })
       return
     }
 
+    let raf = 0
+    let attempts = 0
+
     const place = () => {
       const tab = tabRefs.current[tabId]
-      const wrap = wrapRef.current
-      if (!tab || !wrap) return
+      const anchor = anchorRef.current
+      if (!tab || !anchor) {
+        if (attempts < 12) {
+          attempts += 1
+          raf = window.requestAnimationFrame(place)
+        }
+        return
+      }
 
       const tabBox = tab.getBoundingClientRect()
-      const wrapBox = wrap.getBoundingClientRect()
-      const left = tabBox.left - wrapBox.left + tabBox.width / 2
-      const top = tabBox.bottom - wrapBox.top + 10
+      const anchorBox = anchor.getBoundingClientRect()
+      const calloutWidth = Math.min(300, anchorBox.width - 16)
+      const rawLeft = tabBox.left - anchorBox.left + tabBox.width / 2
+      const minLeft = calloutWidth / 2 + 8
+      const maxLeft = anchorBox.width - calloutWidth / 2 - 8
+      const left = Math.max(minLeft, Math.min(maxLeft, rawLeft))
+      const top = tabBox.bottom - anchorBox.top + 12
+
       setCallout({ left, top, ready: true })
     }
 
     place()
     window.addEventListener('resize', place)
-    return () => window.removeEventListener('resize', place)
-  }, [active, stepIndex, tabId, tabRefs, wrapRef])
+    window.addEventListener('scroll', place, true)
+    return () => {
+      window.cancelAnimationFrame(raf)
+      window.removeEventListener('resize', place)
+      window.removeEventListener('scroll', place, true)
+    }
+  }, [active, stepIndex, tabId, tabRefs, anchorRef])
 
   if (!active) return null
 
@@ -56,17 +75,18 @@ export function PreviewTabTour({
       className={`lp-tour-callout${callout.ready ? ' is-ready' : ''}`}
       style={{ left: callout.left, top: callout.top }}
       role="status"
+      aria-live="polite"
     >
-        <span className="lp-tour-callout__step">{stepLabel}</span>
-        <p>{message}</p>
-        <div className="lp-tour-callout__actions">
-          <button type="button" className="lp-tour-callout__next" onClick={onNext}>
-            Próximo
-          </button>
-          <button type="button" className="lp-tour-callout__skip" onClick={onDismiss}>
-            Pular tour
-          </button>
-        </div>
+      <span className="lp-tour-callout__step">{stepLabel}</span>
+      <p>{message}</p>
+      <div className="lp-tour-callout__actions">
+        <button type="button" className="lp-tour-callout__next" onClick={onNext}>
+          Próximo
+        </button>
+        <button type="button" className="lp-tour-callout__skip" onClick={onDismiss}>
+          Pular tour
+        </button>
       </div>
+    </div>
   )
 }
