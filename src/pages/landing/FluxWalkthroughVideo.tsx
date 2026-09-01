@@ -42,7 +42,7 @@ const SCENES: Scene[] = [
   {
     kind: 'slide',
     id: 'intro',
-    duration: 3.4,
+    duration: 3.2,
     eyebrow: 'Flux',
     title: 'tudo em um só lugar',
     accent: 'um só lugar',
@@ -51,20 +51,20 @@ const SCENES: Scene[] = [
   {
     kind: 'footage',
     id: 'overview',
-    duration: 5.8,
-    srcFrom: 0.4,
-    srcTo: 6.2,
+    duration: 6.4,
+    srcFrom: 0.6,
+    srcTo: 7.0,
     label: 'Visão geral',
     caption: 'Rendas, gastos e o mês inteiro com clareza.',
     clicks: [
-      { at: 1.2, x: 90, y: 16 },
-      { at: 3.2, x: 48, y: 42 },
+      { at: 1.0, x: 86, y: 14 },
+      { at: 3.2, x: 48, y: 36 },
     ],
   },
   {
     kind: 'slide',
     id: 'slide-cards',
-    duration: 2.6,
+    duration: 2.3,
     eyebrow: 'Cartões',
     title: 'faturas sob controle',
     accent: 'sob controle',
@@ -73,20 +73,20 @@ const SCENES: Scene[] = [
   {
     kind: 'footage',
     id: 'cards',
-    duration: 5.2,
-    srcFrom: 10.8,
-    srcTo: 16,
+    duration: 4.4,
+    srcFrom: 19.2,
+    srcTo: 23.6,
     label: 'Cartões',
     caption: 'Nubank, Itaú e o restante — sem planilha.',
     clicks: [
-      { at: 1.4, x: 72, y: 30 },
-      { at: 3.0, x: 40, y: 58 },
+      { at: 1.1, x: 70, y: 30 },
+      { at: 2.6, x: 40, y: 54 },
     ],
   },
   {
     kind: 'slide',
     id: 'slide-goals',
-    duration: 2.6,
+    duration: 2.3,
     eyebrow: 'Metas',
     title: 'progresso que você vê',
     accent: 'você vê',
@@ -95,17 +95,17 @@ const SCENES: Scene[] = [
   {
     kind: 'footage',
     id: 'goals',
-    duration: 4.4,
-    srcFrom: 16.2,
-    srcTo: 20.5,
+    duration: 4.0,
+    srcFrom: 24.2,
+    srcTo: 28.2,
     label: 'Metas',
     caption: 'Disney, reserva, entrada do apê — no mesmo lugar.',
-    clicks: [{ at: 1.8, x: 82, y: 48 }],
+    clicks: [{ at: 1.4, x: 76, y: 48 }],
   },
   {
     kind: 'slide',
     id: 'slide-invest',
-    duration: 2.6,
+    duration: 2.3,
     eyebrow: 'Investidor',
     title: 'do CDI à bolsa',
     accent: 'à bolsa',
@@ -114,20 +114,20 @@ const SCENES: Scene[] = [
   {
     kind: 'footage',
     id: 'invest',
-    duration: 4.8,
-    srcFrom: 20.7,
-    srcTo: 25.4,
+    duration: 4.2,
+    srcFrom: 29.0,
+    srcTo: 33.2,
     label: 'Investimentos',
     caption: 'Carteira e mercado sem trocar de app.',
     clicks: [
-      { at: 1.2, x: 28, y: 20 },
-      { at: 2.8, x: 55, y: 45 },
+      { at: 0.9, x: 24, y: 24 },
+      { at: 2.4, x: 52, y: 42 },
     ],
   },
   {
     kind: 'slide',
     id: 'slide-assistant',
-    duration: 2.6,
+    duration: 2.3,
     eyebrow: 'Assistente',
     title: 'fale ou digite',
     accent: 'ou digite',
@@ -136,20 +136,20 @@ const SCENES: Scene[] = [
   {
     kind: 'footage',
     id: 'assistant',
-    duration: 6.0,
-    srcFrom: 25.8,
-    srcTo: 31.8,
+    duration: 6.6,
+    srcFrom: 33.6,
+    srcTo: 40.2,
     label: 'Assistente',
     caption: '“Gastei 45 no mercado” — e o Flux anota.',
     clicks: [
-      { at: 0.8, x: 92, y: 88 },
-      { at: 3.2, x: 55, y: 82 },
+      { at: 0.6, x: 90, y: 86 },
+      { at: 2.8, x: 70, y: 82 },
     ],
   },
   {
     kind: 'slide',
     id: 'slide-community',
-    duration: 2.6,
+    duration: 2.4,
     eyebrow: 'Comunidade',
     title: 'peça. vote. acompanhe.',
     accent: 'vote.',
@@ -158,17 +158,24 @@ const SCENES: Scene[] = [
   {
     kind: 'footage',
     id: 'community',
-    duration: 3.6,
-    srcFrom: 32.2,
-    srcTo: 35.8,
+    duration: 15.6,
+    srcFrom: 41.2,
+    srcTo: 56.8,
     label: 'Comunidade',
-    caption: 'Sugestões que viram produto.',
-    clicks: [{ at: 1.4, x: 70, y: 24 }],
+    caption: 'Curta, sugira e acompanhe o que vira produto.',
+    clicks: [
+      { at: 1.4, x: 28, y: 40 },
+      { at: 3.2, x: 30, y: 46 },
+      { at: 5.8, x: 84, y: 18 },
+      { at: 8.4, x: 50, y: 36 },
+      { at: 11.6, x: 58, y: 60 },
+      { at: 13.8, x: 30, y: 50 },
+    ],
   },
   {
     kind: 'slide',
     id: 'outro',
-    duration: 3.8,
+    duration: 3.5,
     eyebrow: 'Flux Pro',
     title: 'e tem muito mais',
     accent: 'muito mais',
@@ -318,22 +325,62 @@ export function FluxWalkthroughVideo() {
     if (!playing && !v.paused) v.pause()
   }, [local, scene, open, playing, scrubbing])
 
-  // Clicks animados
+  // Cursor Apple: move entre os pontos e pulsa no clique
   useEffect(() => {
-    if (!open || scene.kind !== 'footage' || !playing || muted === undefined) return
-    for (let i = 0; i < (scene.clicks?.length ?? 0); i++) {
-      const cue = scene.clicks![i]
+    if (!open || scene.kind !== 'footage') {
+      setCursor(null)
+      return
+    }
+    const cues = scene.clicks ?? []
+    if (!cues.length) {
+      setCursor({ x: 52, y: 42, pulse: false })
+      return
+    }
+
+    let x = cues[0].x
+    let y = cues[0].y
+
+    if (local < cues[0].at) {
+      const t = Math.max(0, Math.min(1, local / Math.max(0.01, cues[0].at)))
+      const ease = 1 - (1 - t) ** 3
+      x = 48 + (cues[0].x - 48) * ease
+      y = 36 + (cues[0].y - 36) * ease
+    } else {
+      for (let i = 0; i < cues.length; i++) {
+        const cue = cues[i]
+        const next = cues[i + 1]
+        if (!next || local < next.at) {
+          if (!next) {
+            x = cue.x
+            y = cue.y
+          } else {
+            const span = Math.max(0.01, next.at - cue.at)
+            const t = Math.max(0, Math.min(1, (local - cue.at) / span))
+            const ease = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2
+            x = cue.x + (next.x - cue.x) * ease
+            y = cue.y + (next.y - cue.y) * ease
+          }
+          break
+        }
+      }
+    }
+
+    let pulse = false
+    for (let i = 0; i < cues.length; i++) {
+      const cue = cues[i]
       const key = `${scene.id}-${i}`
       if (local >= cue.at && !firedClicksRef.current.includes(`${key},`)) {
         firedClicksRef.current += `${key},`
-        setCursor({ x: cue.x, y: cue.y, pulse: true })
+        pulse = true
         if (!muted) void playWalkthroughClick()
         window.setTimeout(() => {
           setCursor((c) => (c ? { ...c, pulse: false } : null))
-        }, 450)
+        }, 480)
       }
     }
-  }, [local, scene, open, playing, muted])
+
+    setCursor((prev) => ({ x, y, pulse: pulse || Boolean(prev?.pulse) }))
+  }, [local, scene, open, muted])
 
   useEffect(() => {
     if (!open) return
@@ -490,7 +537,21 @@ export function FluxWalkthroughVideo() {
                         className={`lp-wt-cursor${cursor.pulse ? ' is-pulse' : ''}`}
                         style={{ left: `${cursor.x}%`, top: `${cursor.y}%` }}
                         aria-hidden
-                      />
+                      >
+                        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M5.5 2.8v22.4l5.8-5.5 3.8 9.1 3.5-1.45-3.8-9.05H23.2L5.5 2.8z"
+                            fill="#1d1d1f"
+                          />
+                          <path
+                            d="M5.5 2.8v22.4l5.8-5.5 3.8 9.1 3.5-1.45-3.8-9.05H23.2L5.5 2.8z"
+                            fill="none"
+                            stroke="#fff"
+                            strokeWidth="1.35"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </span>
                     ) : null}
                     <div className="lp-wt-subtitles">
                       <span>{scene.label}</span>

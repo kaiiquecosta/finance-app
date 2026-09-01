@@ -322,48 +322,58 @@
   }
 }
 
-/* Cursor de clique */
+/* Cursor estilo Apple (ponteiro macOS clássico) */
 .lp-wt-cursor {
   position: absolute;
   z-index: 5;
-  width: 22px;
-  height: 22px;
-  margin: -4px 0 0 -4px;
+  width: 32px;
+  height: 32px;
+  margin: 0;
   pointer-events: none;
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-15deg) scale(0.92);
-  background: #fff;
-  box-shadow:
-    0 4px 14px rgba(0, 0, 0, 0.35),
-    0 0 0 1px rgba(0, 0, 0, 0.08);
-  transition: left 0.35s cubic-bezier(0.22, 1, 0.36, 1), top 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translate(-1px, -1px);
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25)) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.18));
+  transition:
+    left 0.08s linear,
+    top 0.08s linear;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  will-change: left, top;
+}
+
+.lp-wt-cursor svg {
+  display: block;
+  width: 32px;
+  height: 32px;
 }
 
 .lp-wt-cursor::after {
   content: '';
   position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 36px;
-  height: 36px;
-  margin: -18px 0 0 -18px;
+  left: 2px;
+  top: 2px;
+  width: 30px;
+  height: 30px;
+  margin: 0;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.7);
+  border: 1.5px solid rgba(29, 29, 31, 0.28);
+  background: rgba(29, 29, 31, 0.08);
   opacity: 0;
+  transform: scale(0.35);
 }
 
 .lp-wt-cursor.is-pulse::after {
-  animation: lp-wt-cursor-ring 0.5s ease-out;
+  animation: lp-wt-cursor-ring 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes lp-wt-cursor-ring {
-  from {
-    opacity: 0.9;
-    transform: scale(0.4);
+  0% {
+    opacity: 0.5;
+    transform: scale(0.35);
   }
-  to {
+  100% {
     opacity: 0;
-    transform: scale(1.25);
+    transform: scale(1.7);
   }
 }
 

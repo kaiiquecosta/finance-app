@@ -4,6 +4,8 @@ import { loadEnvLocal } from './e2e/helpers/loadEnvLocal'
 loadEnvLocal()
 
 const captureVideo = process.env.CAPTURE_WALKTHROUGH === '1'
+const CAPTURE_W = 3840
+const CAPTURE_H = 2160
 
 /**
  * E2E dos fluxos públicos (landing, auth, legal) — não dependem de conta
@@ -22,10 +24,14 @@ export default defineConfig({
     video: captureVideo
       ? {
           mode: 'on',
-          size: { width: 1280, height: 720 },
+          size: { width: CAPTURE_W, height: CAPTURE_H },
         }
       : 'off',
-    viewport: { width: 1280, height: 720 },
+    // Grava em 4K com UI mais preenchida (viewport QHD + scale 1.5 ≈ retina 4K)
+    viewport: captureVideo
+      ? { width: 2560, height: 1440 }
+      : { width: 1280, height: 720 },
+    deviceScaleFactor: captureVideo ? 1.5 : undefined,
   },
   outputDir: captureVideo ? 'test-results/walkthrough-video' : 'test-results',
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
