@@ -20,7 +20,8 @@
     "auth:push-email-template": "vite-node scripts/push-magic-link-email-template.ts",
     "cap:sync": "npm run build && npx cap sync",
     "android:open": "npx cap open android",
-    "ios:open": "npx cap open ios"
+    "ios:open": "npx cap open ios",
+    "capture:film-coxinha": "CAPTURE_WALKTHROUGH=1 CAPTURE_FILM=1 playwright test e2e/record-film-coxinha.spec.ts --project=chromium"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.0",

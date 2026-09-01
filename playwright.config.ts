@@ -4,8 +4,9 @@ import { loadEnvLocal } from './e2e/helpers/loadEnvLocal'
 loadEnvLocal()
 
 const captureVideo = process.env.CAPTURE_WALKTHROUGH === '1'
-const CAPTURE_W = 3840
-const CAPTURE_H = 2160
+const captureFilm = process.env.CAPTURE_FILM === '1'
+const CAPTURE_W = captureFilm ? 390 : 3840
+const CAPTURE_H = captureFilm ? 844 : 2160
 
 /**
  * E2E dos fluxos públicos (landing, auth, legal) — não dependem de conta
@@ -27,13 +28,18 @@ export default defineConfig({
           size: { width: CAPTURE_W, height: CAPTURE_H },
         }
       : 'off',
-    // Grava em 4K com UI mais preenchida (viewport QHD + scale 1.5 ≈ retina 4K)
     viewport: captureVideo
-      ? { width: 2560, height: 1440 }
+      ? captureFilm
+        ? { width: 390, height: 844 }
+        : { width: 2560, height: 1440 }
       : { width: 1280, height: 720 },
-    deviceScaleFactor: captureVideo ? 1.5 : undefined,
+    deviceScaleFactor: captureVideo ? (captureFilm ? 2 : 1.5) : undefined,
   },
-  outputDir: captureVideo ? 'test-results/walkthrough-video' : 'test-results',
+  outputDir: captureVideo
+    ? captureFilm
+      ? 'test-results/film-coxinha'
+      : 'test-results/walkthrough-video'
+    : 'test-results',
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
     command: 'npm run dev',

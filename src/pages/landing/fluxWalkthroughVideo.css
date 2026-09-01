@@ -206,6 +206,52 @@
   overflow: hidden;
 }
 
+.lp-wt-cinema--film {
+  background: #000;
+}
+
+.lp-wt-film {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+
+.lp-wt-film-captions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  padding: 40px 28px 22px;
+  text-align: left;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), transparent 75%);
+  pointer-events: none;
+  animation: lp-wt-slide-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.lp-wt-film-captions span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(192, 132, 252, 0.95);
+}
+
+.lp-wt-film-captions p {
+  margin: 0;
+  max-width: 640px;
+  font-size: clamp(16px, 2vw, 22px);
+  line-height: 1.3;
+  color: rgba(245, 245, 247, 0.94);
+  font-weight: 560;
+  letter-spacing: -0.02em;
+}
+
 /* —— Title slides —— */
 .lp-wt-title-slide {
   position: absolute;

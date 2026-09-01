@@ -4,217 +4,36 @@ import {
   leaveWalkthroughSounds,
   playWalkthroughClick,
   playWalkthroughImpact,
-  playWalkthroughWhoosh,
   startWalkthroughMusic,
   stopWalkthroughMusic,
 } from './walkthroughSounds'
 import './fluxWalkthroughVideo.css'
 
-type TapCue = { at: number; x: number; y: number }
-
-type Scene =
-  | {
-      kind: 'slide'
-      id: string
-      duration: number
-      eyebrow?: string
-      title: string
-      accent?: string
-      subtitle?: string
-    }
-  | {
-      kind: 'lifestyle'
-      id: string
-      duration: number
-      image: string
-      eyebrow?: string
-      line?: string
-      motion?: 'ken-in' | 'ken-out' | 'ken-left'
-    }
-  | {
-      kind: 'phone'
-      id: string
-      duration: number
-      screen: string
-      label: string
-      caption: string
-      motion?: 'zoom-in' | 'zoom-out' | 'rise' | 'drift'
-      taps?: TapCue[]
-    }
+type Chapter = {
+  id: string
+  from: number
+  to: number
+  label: string
+  caption: string
+}
 
 /**
- * Tour cinematográfico estilo Apple:
- * lifestyle (pessoa + celular) → título → close do iPhone com UI real + zooms.
+ * Filme profissional: pessoa no estabelecimento com coxinha + UI real do Flux.
+ * Legendas sincronizadas (Cartões, Metas, Comunidade…) sobre o vídeo full-bleed.
  */
-const SCENES: Scene[] = [
-  {
-    kind: 'lifestyle',
-    id: 'open-life',
-    duration: 3.6,
-    image: '/landing/walkthrough/lifestyle/cafe.jpg',
-    eyebrow: 'Flux',
-    line: 'No bolso. No café. No dia a dia.',
-    motion: 'ken-in',
-  },
-  {
-    kind: 'slide',
-    id: 'intro',
-    duration: 3.0,
-    eyebrow: 'Flux',
-    title: 'tudo em um só lugar',
-    accent: 'um só lugar',
-    subtitle: 'Finanças claras — com o ritmo de um product film.',
-  },
-  {
-    kind: 'phone',
-    id: 'overview',
-    duration: 5.2,
-    screen: '/landing/walkthrough/mobile/overview.jpg',
-    label: 'Visão geral',
-    caption: 'Rendas, gastos e o mês inteiro — num olhar.',
-    motion: 'rise',
-    taps: [
-      { at: 1.2, x: 78, y: 18 },
-      { at: 3.0, x: 50, y: 42 },
-    ],
-  },
-  {
-    kind: 'slide',
-    id: 'slide-cards',
-    duration: 2.2,
-    eyebrow: 'Cartões',
-    title: 'faturas sob controle',
-    accent: 'sob controle',
-  },
-  {
-    kind: 'phone',
-    id: 'cards',
-    duration: 4.6,
-    screen: '/landing/walkthrough/mobile/cards.jpg',
-    label: 'Cartões',
-    caption: 'Limites, vencimentos e lançamentos.',
-    motion: 'zoom-in',
-    taps: [
-      { at: 1.1, x: 72, y: 48 },
-      { at: 2.8, x: 50, y: 62 },
-    ],
-  },
-  {
-    kind: 'slide',
-    id: 'slide-goals',
-    duration: 2.2,
-    eyebrow: 'Metas',
-    title: 'progresso que você vê',
-    accent: 'você vê',
-  },
-  {
-    kind: 'phone',
-    id: 'goals',
-    duration: 4.4,
-    screen: '/landing/walkthrough/mobile/goals.jpg',
-    label: 'Metas',
-    caption: 'Disney, reserva, entrada do apê.',
-    motion: 'drift',
-    taps: [{ at: 1.6, x: 50, y: 55 }],
-  },
-  {
-    kind: 'slide',
-    id: 'slide-invest',
-    duration: 2.2,
-    eyebrow: 'Investidor',
-    title: 'do CDI à bolsa',
-    accent: 'à bolsa',
-  },
-  {
-    kind: 'phone',
-    id: 'invest',
-    duration: 4.4,
-    screen: '/landing/walkthrough/mobile/invest.jpg',
-    label: 'Investimentos',
-    caption: 'Mercado ao vivo, sem trocar de app.',
-    motion: 'zoom-in',
-    taps: [
-      { at: 1.0, x: 40, y: 30 },
-      { at: 2.6, x: 55, y: 52 },
-    ],
-  },
-  {
-    kind: 'lifestyle',
-    id: 'mid-life',
-    duration: 3.2,
-    image: '/landing/walkthrough/lifestyle/sofa.jpg',
-    eyebrow: 'Assistente',
-    line: 'Fale. Digite. O Flux anota.',
-    motion: 'ken-left',
-  },
-  {
-    kind: 'phone',
-    id: 'assistant',
-    duration: 5.0,
-    screen: '/landing/walkthrough/mobile/assistant.jpg',
-    label: 'Assistente',
-    caption: '“Gastei 45 no mercado” — e pronto.',
-    motion: 'rise',
-    taps: [
-      { at: 0.8, x: 50, y: 78 },
-      { at: 2.6, x: 82, y: 86 },
-    ],
-  },
-  {
-    kind: 'slide',
-    id: 'slide-community',
-    duration: 2.4,
-    eyebrow: 'Comunidade',
-    title: 'peça. vote. acompanhe.',
-    accent: 'vote.',
-  },
-  {
-    kind: 'phone',
-    id: 'community',
-    duration: 5.0,
-    screen: '/landing/walkthrough/mobile/community.jpg',
-    label: 'Comunidade',
-    caption: 'Roadmap aberto — curta o que importa.',
-    motion: 'zoom-in',
-    taps: [
-      { at: 1.2, x: 78, y: 22 },
-      { at: 2.8, x: 72, y: 48 },
-    ],
-  },
-  {
-    kind: 'phone',
-    id: 'community-modal',
-    duration: 5.2,
-    screen: '/landing/walkthrough/mobile/community-modal.jpg',
-    label: 'Nova sugestão',
-    caption: 'Descreva. Publique. Acompanhe o que vira produto.',
-    motion: 'zoom-out',
-    taps: [
-      { at: 1.4, x: 50, y: 38 },
-      { at: 3.2, x: 70, y: 72 },
-    ],
-  },
-  {
-    kind: 'lifestyle',
-    id: 'close-life',
-    duration: 3.4,
-    image: '/landing/walkthrough/lifestyle/cafe.jpg',
-    eyebrow: 'Flux Pro',
-    line: 'E tem muito mais.',
-    motion: 'ken-out',
-  },
-  {
-    kind: 'slide',
-    id: 'outro',
-    duration: 3.4,
-    eyebrow: 'Flux Pro',
-    title: 'e tem muito mais',
-    accent: 'muito mais',
-    subtitle: 'Parcelas · assinaturas · contas · OFX · e o que vier a seguir.',
-  },
+const CHAPTERS: Chapter[] = [
+  { id: 'open', from: 0, to: 5.5, label: 'Flux', caption: 'Acabei de comprar uma coxinha.' },
+  { id: 'phone', from: 5.5, to: 8.6, label: 'No celular', caption: 'Abre o Flux. Registra a coxinha.' },
+  { id: 'overview', from: 8.6, to: 11.8, label: 'Visão geral', caption: 'O mês inteiro, num olhar.' },
+  { id: 'gasto', from: 11.8, to: 22.2, label: 'Gasto rápido', caption: 'Coxinha — padaria da esquina · R$ 8,00' },
+  { id: 'life', from: 22.2, to: 24.4, label: 'No estabelecimento', caption: 'Coxinha na mão. Flux no bolso.' },
+  { id: 'cards', from: 24.4, to: 30.0, label: 'Cartões', caption: 'Faturas e limites sob controle.' },
+  { id: 'goals', from: 30.0, to: 33.2, label: 'Metas', caption: 'Disney, reserva, entrada do apê.' },
+  { id: 'community', from: 33.2, to: 41.4, label: 'Comunidade', caption: 'Peça. Vote. Acompanhe o que vira produto.' },
+  { id: 'outro', from: 41.4, to: 47.0, label: 'Flux Pro', caption: 'E tem muito mais.' },
 ]
 
-const TOTAL = SCENES.reduce((s, sc) => s + sc.duration, 0)
+const FILM_DURATION = 47
 
 function formatTime(sec: number) {
   if (!Number.isFinite(sec) || sec < 0) return '0:00'
@@ -222,32 +41,9 @@ function formatTime(sec: number) {
   return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`
 }
 
-function resolveScene(t: number) {
-  const looped = ((t % TOTAL) + TOTAL) % TOTAL
-  let acc = 0
-  for (let i = 0; i < SCENES.length; i++) {
-    const scene = SCENES[i]
-    if (looped < acc + scene.duration) {
-      return { index: i, local: looped - acc, scene, looped }
-    }
-    acc += scene.duration
-  }
-  const last = SCENES.length - 1
-  return { index: last, local: 0, scene: SCENES[last], looped: TOTAL }
-}
-
-function renderSlideTitle(title: string, accent?: string) {
-  if (!accent || !title.includes(accent)) {
-    return <span className="lp-wt-slide-title-grad">{title}</span>
-  }
-  const i = title.indexOf(accent)
-  return (
-    <>
-      {title.slice(0, i)}
-      <span className="lp-wt-slide-title-grad">{accent}</span>
-      {title.slice(i + accent.length)}
-    </>
-  )
+function chapterAt(t: number) {
+  const x = Math.min(FILM_DURATION - 0.01, Math.max(0, t))
+  return CHAPTERS.find((c) => x >= c.from && x < c.to) ?? CHAPTERS[CHAPTERS.length - 1]
 }
 
 export function FluxWalkthroughVideo() {
@@ -256,18 +52,14 @@ export function FluxWalkthroughVideo() {
   const [muted, setMuted] = useState(false)
   const [elapsed, setElapsed] = useState(0)
   const [scrubbing, setScrubbing] = useState(false)
-  const [tap, setTap] = useState<{ x: number; y: number; pulse: boolean } | null>(null)
+  const [duration, setDuration] = useState(FILM_DURATION)
 
-  const barRef = useRef<HTMLDivElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const elapsedRef = useRef(0)
-  const rafRef = useRef(0)
-  const sceneIdRef = useRef('')
-  const firedTapsRef = useRef('')
   const wasPlayingRef = useRef(false)
 
-  const { local, scene, looped } = resolveScene(elapsed)
-  const progress = (looped / TOTAL) * 100
-  const sceneProgress = scene.duration > 0 ? Math.min(1, local / scene.duration) : 0
+  const chapter = chapterAt(elapsed)
+  const progress = duration > 0 ? (elapsed / duration) * 100 : 0
 
   const syncAudio = useCallback(
     (on: boolean) => {
@@ -286,102 +78,33 @@ export function FluxWalkthroughVideo() {
     setOpen(true)
     setElapsed(0)
     elapsedRef.current = 0
-    sceneIdRef.current = ''
-    firedTapsRef.current = ''
-    setTap(null)
     setPlaying(true)
     document.body.style.overflow = 'hidden'
     syncAudio(true)
     void playWalkthroughImpact()
+    requestAnimationFrame(() => {
+      const v = videoRef.current
+      if (!v) return
+      v.currentTime = 0
+      void v.play().catch(() => undefined)
+    })
   }
 
   const closeModal = () => {
-    cancelAnimationFrame(rafRef.current)
+    videoRef.current?.pause()
     setPlaying(false)
     setOpen(false)
-    setTap(null)
     document.body.style.overflow = ''
     syncAudio(false)
   }
 
   useEffect(() => {
-    if (!open || !playing || scrubbing) return
-    let cancelled = false
-    const start = performance.now() - elapsedRef.current * 1000
-    const tick = () => {
-      if (cancelled) return
-      const t = (performance.now() - start) / 1000
-      elapsedRef.current = t
-      setElapsed(t)
-      rafRef.current = requestAnimationFrame(tick)
-    }
-    rafRef.current = requestAnimationFrame(tick)
-    return () => {
-      cancelled = true
-      cancelAnimationFrame(rafRef.current)
-    }
-  }, [open, playing, scrubbing])
-
-  useEffect(() => {
     if (!open) return
-    if (scene.id !== sceneIdRef.current) {
-      sceneIdRef.current = scene.id
-      firedTapsRef.current = ''
-      setTap(null)
-      if (!muted) void playWalkthroughWhoosh()
-    }
-  }, [scene, open, muted])
-
-  // Toques no celular (anel estilo Apple)
-  useEffect(() => {
-    if (!open || scene.kind !== 'phone') {
-      setTap(null)
-      return
-    }
-    const cues = scene.taps ?? []
-    if (!cues.length) return
-
-    let x = cues[0].x
-    let y = cues[0].y
-    if (local < cues[0].at) {
-      const t = Math.max(0, Math.min(1, local / Math.max(0.01, cues[0].at)))
-      const ease = 1 - (1 - t) ** 3
-      x = 50 + (cues[0].x - 50) * ease
-      y = 40 + (cues[0].y - 40) * ease
-    } else {
-      for (let i = 0; i < cues.length; i++) {
-        const cue = cues[i]
-        const next = cues[i + 1]
-        if (!next || local < next.at) {
-          if (!next) {
-            x = cue.x
-            y = cue.y
-          } else {
-            const span = Math.max(0.01, next.at - cue.at)
-            const t = Math.max(0, Math.min(1, (local - cue.at) / span))
-            const ease = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2
-            x = cue.x + (next.x - cue.x) * ease
-            y = cue.y + (next.y - cue.y) * ease
-          }
-          break
-        }
-      }
-    }
-
-    let pulse = false
-    for (let i = 0; i < cues.length; i++) {
-      const cue = cues[i]
-      const key = `${scene.id}-${i}`
-      if (local >= cue.at && !firedTapsRef.current.includes(`${key},`)) {
-        firedTapsRef.current += `${key},`
-        pulse = true
-        if (!muted) void playWalkthroughClick()
-        window.setTimeout(() => setTap((c) => (c ? { ...c, pulse: false } : null)), 480)
-      }
-    }
-
-    setTap((prev) => ({ x, y, pulse: pulse || Boolean(prev?.pulse) }))
-  }, [local, scene, open, muted])
+    const v = videoRef.current
+    if (!v) return
+    if (playing && !scrubbing) void v.play().catch(() => undefined)
+    else v.pause()
+  }, [open, playing, scrubbing])
 
   useEffect(() => {
     if (!open) return
@@ -400,13 +123,11 @@ export function FluxWalkthroughVideo() {
     return () => window.removeEventListener('keydown', onKey)
   }, [open, syncAudio])
 
-  const seekTimeline = (nextSec: number) => {
-    const clamped = Math.min(TOTAL - 0.05, Math.max(0, nextSec))
+  const seek = (nextSec: number) => {
+    const clamped = Math.min(duration - 0.05, Math.max(0, nextSec))
     elapsedRef.current = clamped
     setElapsed(clamped)
-    sceneIdRef.current = ''
-    firedTapsRef.current = ''
-    setTap(null)
+    if (videoRef.current) videoRef.current.currentTime = clamped
   }
 
   const onBarPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -416,20 +137,20 @@ export function FluxWalkthroughVideo() {
     setScrubbing(true)
     e.currentTarget.setPointerCapture(e.pointerId)
     const rect = e.currentTarget.getBoundingClientRect()
-    seekTimeline(((e.clientX - rect.left) / rect.width) * TOTAL)
+    seek(((e.clientX - rect.left) / rect.width) * duration)
   }
 
   const onBarPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!scrubbing) return
     const rect = e.currentTarget.getBoundingClientRect()
-    seekTimeline(((e.clientX - rect.left) / rect.width) * TOTAL)
+    seek(((e.clientX - rect.left) / rect.width) * duration)
   }
 
   const onBarPointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!scrubbing) return
     setScrubbing(false)
     const rect = e.currentTarget.getBoundingClientRect()
-    seekTimeline(((e.clientX - rect.left) / rect.width) * TOTAL)
+    seek(((e.clientX - rect.left) / rect.width) * duration)
     void playWalkthroughClick()
     if (wasPlayingRef.current) {
       setPlaying(true)
@@ -441,27 +162,27 @@ export function FluxWalkthroughVideo() {
     <>
       <section className="lp-wt-section" id="como-funciona">
         <div className="lp-wt-section-copy">
-          <span className="lp-kicker">Tour em vídeo</span>
+          <span className="lp-kicker">Filme do produto</span>
           <h2>Entenda como funciona o Flux</h2>
           <p>
-            Um product film no celular: pessoa usando o Flux, closes da interface, zooms e a comunidade
-            funcionando — no ritmo Apple.
+            Acabou de comprar uma coxinha? Abre o celular, registra no Flux — e segue: cartões, metas e
+            comunidade, no ritmo de um product film.
           </p>
           <ul>
-            <li>Lifestyle + iPhone em close</li>
-            <li>Focos e aproximações na UI real</li>
-            <li>Trilha suave · arraste a barra</li>
+            <li>Pessoa real no estabelecimento</li>
+            <li>UI real do Flux no celular</li>
+            <li>Cartões, metas e comunidade em movimento</li>
           </ul>
           <button type="button" className="lp-primary" onClick={openModal}>
-            Ver como funciona <span aria-hidden>▶</span>
+            Assistir o filme <span aria-hidden>▶</span>
           </button>
         </div>
 
-        <button type="button" className="lp-wt-poster" onClick={openModal} aria-label="Reproduzir tour do Flux">
+        <button type="button" className="lp-wt-poster" onClick={openModal} aria-label="Assistir filme do Flux">
           <div className="lp-wt-poster-frame">
             <img
               className="lp-wt-poster-life"
-              src="/landing/walkthrough/lifestyle/cafe.jpg"
+              src="/landing/walkthrough/lifestyle/hands-flux.jpg"
               alt=""
               loading="lazy"
             />
@@ -469,14 +190,14 @@ export function FluxWalkthroughVideo() {
             <span className="lp-wt-play">
               <i aria-hidden>▶</i>
             </span>
-            <span className="lp-wt-poster-tag">{formatTime(TOTAL)}</span>
+            <span className="lp-wt-poster-tag">{formatTime(FILM_DURATION)}</span>
           </div>
-          <span className="lp-wt-poster-caption">Product film · celular + app real</span>
+          <span className="lp-wt-poster-caption">Product film · coxinha → Flux no celular</span>
         </button>
       </section>
 
       {open ? (
-        <div className="lp-wt-modal" role="dialog" aria-modal aria-label="Tour do Flux">
+        <div className="lp-wt-modal" role="dialog" aria-modal aria-label="Filme do Flux">
           <div className="lp-wt-modal-backdrop" onClick={closeModal} aria-hidden />
           <div className="lp-wt-modal-panel">
             <header className="lp-wt-modal-head">
@@ -504,51 +225,38 @@ export function FluxWalkthroughVideo() {
             </header>
 
             <div className="lp-wt-player">
-              <div className="lp-wt-cinema" style={{ ['--scene-p' as string]: String(sceneProgress) }}>
-                {scene.kind === 'slide' ? (
-                  <div className="lp-wt-title-slide" key={scene.id}>
-                    <div className="lp-wt-title-slide-glow" aria-hidden />
-                    {scene.eyebrow ? <span className="lp-wt-slide-eyebrow">{scene.eyebrow}</span> : null}
-                    <h3 className="lp-wt-slide-title">{renderSlideTitle(scene.title, scene.accent)}</h3>
-                    {scene.subtitle ? <p className="lp-wt-slide-sub">{scene.subtitle}</p> : null}
-                  </div>
-                ) : null}
+              <div className="lp-wt-cinema lp-wt-cinema--film">
+                <video
+                  ref={videoRef}
+                  className="lp-wt-film"
+                  playsInline
+                  muted
+                  preload="auto"
+                  poster="/landing/walkthrough/lifestyle/hands-flux.jpg"
+                  onLoadedMetadata={(e) => {
+                    if (e.currentTarget.duration && Number.isFinite(e.currentTarget.duration)) {
+                      setDuration(e.currentTarget.duration)
+                    }
+                  }}
+                  onTimeUpdate={(e) => {
+                    if (scrubbing) return
+                    const t = e.currentTarget.currentTime
+                    elapsedRef.current = t
+                    setElapsed(t)
+                  }}
+                  onEnded={() => {
+                    setPlaying(false)
+                    syncAudio(false)
+                  }}
+                >
+                  <source src="/landing/walkthrough/film/flux-filme.mp4" type="video/mp4" />
+                  <source src="/landing/walkthrough/film/flux-filme.webm" type="video/webm" />
+                </video>
 
-                {scene.kind === 'lifestyle' ? (
-                  <div className={`lp-wt-life lp-wt-life--${scene.motion ?? 'ken-in'}`} key={scene.id}>
-                    <img src={scene.image} alt="" draggable={false} />
-                    <div className="lp-wt-life-veil" aria-hidden />
-                    <div className="lp-wt-life-copy">
-                      {scene.eyebrow ? <span>{scene.eyebrow}</span> : null}
-                      {scene.line ? <p>{scene.line}</p> : null}
-                    </div>
-                  </div>
-                ) : null}
-
-                {scene.kind === 'phone' ? (
-                  <div className={`lp-wt-phone-stage lp-wt-phone-stage--${scene.motion ?? 'rise'}`} key={scene.id}>
-                    <div className="lp-wt-phone-glow" aria-hidden />
-                    <div className="lp-wt-phone">
-                      <div className="lp-wt-phone-bezel">
-                        <span className="lp-wt-phone-island" aria-hidden />
-                        <div className="lp-wt-phone-screen">
-                          <img src={scene.screen} alt="" draggable={false} />
-                          {tap ? (
-                            <span
-                              className={`lp-wt-finger${tap.pulse ? ' is-pulse' : ''}`}
-                              style={{ left: `${tap.x}%`, top: `${tap.y}%` }}
-                              aria-hidden
-                            />
-                          ) : null}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="lp-wt-subtitles">
-                      <span>{scene.label}</span>
-                      <p>{scene.caption}</p>
-                    </div>
-                  </div>
-                ) : null}
+                <div className="lp-wt-film-captions" key={chapter.id}>
+                  <span>{chapter.label}</span>
+                  <p>{chapter.caption}</p>
+                </div>
               </div>
             </div>
 
@@ -567,29 +275,28 @@ export function FluxWalkthroughVideo() {
               >
                 {playing ? '⏸' : '▶'}
               </button>
-              <span className="lp-wt-time">{formatTime(looped)}</span>
+              <span className="lp-wt-time">{formatTime(elapsed)}</span>
               <div
-                ref={barRef}
                 className={`lp-wt-progress${scrubbing ? ' is-scrubbing' : ''}`}
                 role="slider"
                 tabIndex={0}
-                aria-label="Posição do tour"
+                aria-label="Posição do filme"
                 aria-valuemin={0}
-                aria-valuemax={Math.round(TOTAL)}
-                aria-valuenow={Math.round(looped)}
+                aria-valuemax={Math.round(duration)}
+                aria-valuenow={Math.round(elapsed)}
                 onPointerDown={onBarPointerDown}
                 onPointerMove={onBarPointerMove}
                 onPointerUp={onBarPointerUp}
                 onPointerCancel={onBarPointerUp}
                 onKeyDown={(e) => {
-                  if (e.key === 'ArrowRight') seekTimeline(elapsedRef.current + 2)
-                  if (e.key === 'ArrowLeft') seekTimeline(elapsedRef.current - 2)
+                  if (e.key === 'ArrowRight') seek(elapsedRef.current + 2)
+                  if (e.key === 'ArrowLeft') seek(elapsedRef.current - 2)
                 }}
               >
                 <i style={{ width: `${progress}%` }} />
                 <span className="lp-wt-thumb" style={{ left: `${progress}%` }} aria-hidden />
               </div>
-              <span className="lp-wt-time">{formatTime(TOTAL)}</span>
+              <span className="lp-wt-time">{formatTime(duration)}</span>
             </footer>
           </div>
         </div>
