@@ -238,8 +238,8 @@ export function FluxWalkthroughVideo() {
                     syncAudio(false)
                   }}
                 >
-                  <source src="/landing/walkthrough/film/flux-filme.mp4?v=4" type="video/mp4" />
-                  <source src="/landing/walkthrough/film/flux-filme.webm?v=4" type="video/webm" />
+                  <source src="/landing/walkthrough/film/flux-apple-take.mp4" type="video/mp4" />
+                  <source src="/landing/walkthrough/film/flux-apple-take.webm" type="video/webm" />
                 </video>
 
                 <div className="lp-wt-film-captions lp-wt-film-captions--center" key={chapter.id}>
