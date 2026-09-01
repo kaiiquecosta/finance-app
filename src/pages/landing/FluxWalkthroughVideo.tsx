@@ -17,23 +17,18 @@ type Chapter = {
   caption: string
 }
 
-/**
- * Filme profissional: pessoa no estabelecimento com coxinha + UI real do Flux.
- * Legendas sincronizadas (Cartões, Metas, Comunidade…) sobre o vídeo full-bleed.
- */
+/** Capítulos alinhados ao filme (~37.5s) — uma legenda só, centralizada. */
 const CHAPTERS: Chapter[] = [
-  { id: 'open', from: 0, to: 5.5, label: 'Flux', caption: 'Acabei de comprar uma coxinha.' },
-  { id: 'phone', from: 5.5, to: 8.6, label: 'No celular', caption: 'Abre o Flux. Registra a coxinha.' },
-  { id: 'overview', from: 8.6, to: 11.8, label: 'Visão geral', caption: 'O mês inteiro, num olhar.' },
-  { id: 'gasto', from: 11.8, to: 22.2, label: 'Gasto rápido', caption: 'Coxinha — padaria da esquina · R$ 8,00' },
-  { id: 'life', from: 22.2, to: 24.4, label: 'No estabelecimento', caption: 'Coxinha na mão. Flux no bolso.' },
-  { id: 'cards', from: 24.4, to: 30.0, label: 'Cartões', caption: 'Faturas e limites sob controle.' },
-  { id: 'goals', from: 30.0, to: 33.2, label: 'Metas', caption: 'Disney, reserva, entrada do apê.' },
-  { id: 'community', from: 33.2, to: 41.4, label: 'Comunidade', caption: 'Peça. Vote. Acompanhe o que vira produto.' },
-  { id: 'outro', from: 41.4, to: 47.0, label: 'Flux Pro', caption: 'E tem muito mais.' },
+  { id: 'life', from: 0, to: 4.3, label: 'Flux', caption: 'Acabei de comprar uma coxinha.' },
+  { id: 'hands', from: 4.3, to: 8.8, label: 'No celular', caption: 'Abre o Flux e registra na hora.' },
+  { id: 'gasto', from: 8.8, to: 17.2, label: 'Gasto rápido', caption: 'Coxinha · R$ 8,00' },
+  { id: 'cards', from: 17.2, to: 22.8, label: 'Cartões', caption: 'Faturas e limites sob controle.' },
+  { id: 'goals', from: 22.8, to: 26.0, label: 'Metas', caption: 'Progresso que você vê.' },
+  { id: 'community', from: 26.0, to: 34.6, label: 'Comunidade', caption: 'Peça, vote e acompanhe.' },
+  { id: 'outro', from: 34.6, to: 37.5, label: 'Flux', caption: 'E tem muito mais.' },
 ]
 
-const FILM_DURATION = 47
+const FILM_DURATION = 37.5
 
 function formatTime(sec: number) {
   if (!Number.isFinite(sec) || sec < 0) return '0:00'
@@ -41,8 +36,8 @@ function formatTime(sec: number) {
   return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`
 }
 
-function chapterAt(t: number) {
-  const x = Math.min(FILM_DURATION - 0.01, Math.max(0, t))
+function chapterAt(t: number, duration: number) {
+  const x = Math.min(duration - 0.01, Math.max(0, t))
   return CHAPTERS.find((c) => x >= c.from && x < c.to) ?? CHAPTERS[CHAPTERS.length - 1]
 }
 
@@ -58,7 +53,7 @@ export function FluxWalkthroughVideo() {
   const elapsedRef = useRef(0)
   const wasPlayingRef = useRef(false)
 
-  const chapter = chapterAt(elapsed)
+  const chapter = chapterAt(elapsed, duration)
   const progress = duration > 0 ? (elapsed / duration) * 100 : 0
 
   const syncAudio = useCallback(
@@ -165,13 +160,13 @@ export function FluxWalkthroughVideo() {
           <span className="lp-kicker">Filme do produto</span>
           <h2>Entenda como funciona o Flux</h2>
           <p>
-            Acabou de comprar uma coxinha? Abre o celular, registra no Flux — e segue: cartões, metas e
-            comunidade, no ritmo de um product film.
+            Do café à tela: registra a coxinha, vê cartões, metas e comunidade — com o app se mexendo de
+            verdade.
           </p>
           <ul>
-            <li>Pessoa real no estabelecimento</li>
-            <li>UI real do Flux no celular</li>
-            <li>Cartões, metas e comunidade em movimento</li>
+            <li>Pessoa no estabelecimento</li>
+            <li>Flux real no celular</li>
+            <li>Cartões · metas · comunidade</li>
           </ul>
           <button type="button" className="lp-primary" onClick={openModal}>
             Assistir o filme <span aria-hidden>▶</span>
@@ -192,7 +187,7 @@ export function FluxWalkthroughVideo() {
             </span>
             <span className="lp-wt-poster-tag">{formatTime(FILM_DURATION)}</span>
           </div>
-          <span className="lp-wt-poster-caption">Product film · coxinha → Flux no celular</span>
+          <span className="lp-wt-poster-caption">Coxinha no café → Flux no celular</span>
         </button>
       </section>
 
@@ -249,11 +244,11 @@ export function FluxWalkthroughVideo() {
                     syncAudio(false)
                   }}
                 >
-                  <source src="/landing/walkthrough/film/flux-filme.mp4" type="video/mp4" />
-                  <source src="/landing/walkthrough/film/flux-filme.webm" type="video/webm" />
+                  <source src="/landing/walkthrough/film/flux-filme.mp4?v=3" type="video/mp4" />
+                  <source src="/landing/walkthrough/film/flux-filme.webm?v=3" type="video/webm" />
                 </video>
 
-                <div className="lp-wt-film-captions" key={chapter.id}>
+                <div className="lp-wt-film-captions lp-wt-film-captions--center" key={chapter.id}>
                   <span>{chapter.label}</span>
                   <p>{chapter.caption}</p>
                 </div>

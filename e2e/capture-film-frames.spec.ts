@@ -105,19 +105,19 @@ test('capture film frames coxinha story', async ({ page }) => {
   await page.waitForTimeout(900)
   await page.keyboard.press('Escape').catch(() => undefined)
   await page.getByRole('button', { name: /Fechar/i }).first().click({ timeout: 800 }).catch(() => undefined)
-  await shot('overview', 4)
+  await shot('overview', 8)
 
   // Gasto rápido = registrar a coxinha no sistema
   await page.getByRole('button', { name: /Gasto rápido/i }).click({ timeout: 8000 })
   await page.waitForTimeout(500)
-  await shot('gasto-open', 3)
+  await shot('gasto-open', 6)
 
   const desc = page.getByPlaceholder(/Mercado|iFood|Descri/i).first()
   await desc.click({ timeout: 5000 })
   const phrase = 'Coxinha — padaria da esquina'
   for (let i = 1; i <= phrase.length; i++) {
     await desc.fill(phrase.slice(0, i))
-    if (i % 5 === 0 || i === phrase.length) await shot(`desc-${i}`, 1)
+    if (i % 2 === 0 || i === phrase.length) await shot(`desc-${i}`, 2)
   }
 
   const valor = page.getByPlaceholder(/0,00|Valor/i).or(page.locator('input[inputmode="decimal"]')).first()
@@ -136,35 +136,35 @@ test('capture film frames coxinha story', async ({ page }) => {
 
   await page.getByRole('button', { name: /^Adicionar$|Salvar|Lançar/i }).last().click({ timeout: 5000 })
   await page.waitForTimeout(800)
-  await shot('gasto-saved', 4)
+  await shot('gasto-saved', 8)
 
   await page.getByRole('link', { name: /Cartões/i }).first().click({ timeout: 8000 })
   await page.waitForTimeout(800)
-  await shot('cards', 5)
+  await shot('cards', 10)
   await page.mouse.wheel(0, 140)
-  await shot('cards-scroll', 3)
+  await shot('cards-scroll', 6)
 
   await page.getByRole('link', { name: /Metas/i }).first().click({ timeout: 8000 })
   await page.waitForTimeout(800)
-  await shot('goals', 5)
+  await shot('goals', 10)
 
   await page.getByRole('link', { name: /Comunidade/i }).first().click({ timeout: 8000 })
   await page.waitForTimeout(800)
-  await shot('community', 5)
+  await shot('community', 10)
 
   await page.getByRole('button', { name: /Nova sugestão/i }).click({ timeout: 5000 })
   await page.waitForTimeout(350)
   await page.getByPlaceholder('Ex.: Modo escuro automático').fill('Atalho pra coxinha favorita')
   await page.getByPlaceholder('Como isso te ajudaria no dia a dia?').fill('Registrar lanches rápidos em um toque.')
-  await shot('community-modal', 5)
+  await shot('community-modal', 10)
 
   await page.getByRole('button', { name: /Publicar sugestão/i }).click({ timeout: 5000 })
   await page.waitForTimeout(700)
-  await shot('community-published', 4)
+  await shot('community-published', 8)
 
   await page.getByRole('link', { name: /Visão geral/i }).first().click({ timeout: 8000 })
   await page.waitForTimeout(700)
-  await shot('end', 4)
+  await shot('end', 6)
 
   console.log('TOTAL_FRAMES', n)
 })

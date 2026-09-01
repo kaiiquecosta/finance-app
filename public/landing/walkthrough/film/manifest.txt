@@ -1,0 +1,3 @@
+frames=1125
+fps=30
+duration=37.50

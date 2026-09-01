@@ -232,6 +232,15 @@
   animation: lp-wt-slide-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+.lp-wt-film-captions--center {
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 48px 32px 28px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.35) 55%, transparent 100%);
+}
+
 .lp-wt-film-captions span {
   display: block;
   margin-bottom: 6px;
@@ -242,6 +251,10 @@
   color: rgba(192, 132, 252, 0.95);
 }
 
+.lp-wt-film-captions--center span {
+  margin-bottom: 0;
+}
+
 .lp-wt-film-captions p {
   margin: 0;
   max-width: 640px;
@@ -250,6 +263,10 @@
   color: rgba(245, 245, 247, 0.94);
   font-weight: 560;
   letter-spacing: -0.02em;
+}
+
+.lp-wt-film-captions--center p {
+  max-width: 520px;
 }
 
 /* —— Title slides —— */
