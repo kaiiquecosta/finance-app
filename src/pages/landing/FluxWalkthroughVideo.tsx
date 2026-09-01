@@ -17,18 +17,12 @@ type Chapter = {
   caption: string
 }
 
-/** Capítulos alinhados ao filme (~37.5s) — uma legenda só, centralizada. */
+/** Um take contínuo estilo Apple (~14s) — mulher no café com Flux no celular. */
 const CHAPTERS: Chapter[] = [
-  { id: 'life', from: 0, to: 4.3, label: 'Flux', caption: 'Acabei de comprar uma coxinha.' },
-  { id: 'hands', from: 4.3, to: 8.8, label: 'No celular', caption: 'Abre o Flux e registra na hora.' },
-  { id: 'gasto', from: 8.8, to: 17.2, label: 'Gasto rápido', caption: 'Coxinha · R$ 8,00' },
-  { id: 'cards', from: 17.2, to: 22.8, label: 'Cartões', caption: 'Faturas e limites sob controle.' },
-  { id: 'goals', from: 22.8, to: 26.0, label: 'Metas', caption: 'Progresso que você vê.' },
-  { id: 'community', from: 26.0, to: 34.6, label: 'Comunidade', caption: 'Peça, vote e acompanhe.' },
-  { id: 'outro', from: 34.6, to: 37.5, label: 'Flux', caption: 'E tem muito mais.' },
+  { id: 'take', from: 0, to: 14, label: 'Flux', caption: 'Visão geral. No bolso. No dia a dia.' },
 ]
 
-const FILM_DURATION = 37.5
+const FILM_DURATION = 14
 
 function formatTime(sec: number) {
   if (!Number.isFinite(sec) || sec < 0) return '0:00'
@@ -160,13 +154,13 @@ export function FluxWalkthroughVideo() {
           <span className="lp-kicker">Filme do produto</span>
           <h2>Entenda como funciona o Flux</h2>
           <p>
-            Do café à tela: registra a coxinha, vê cartões, metas e comunidade — com o app se mexendo de
-            verdade.
+            Um take contínuo, estilo Apple: pessoa real no café, Flux aberto no celular — foco no
+            produto, sem cortes.
           </p>
           <ul>
-            <li>Pessoa no estabelecimento</li>
-            <li>Flux real no celular</li>
-            <li>Cartões · metas · comunidade</li>
+            <li>Um plano. Uma mão. Um app.</li>
+            <li>Visão geral do Flux no iPhone</li>
+            <li>Zoom lento e cinematográfico</li>
           </ul>
           <button type="button" className="lp-primary" onClick={openModal}>
             Assistir o filme <span aria-hidden>▶</span>
@@ -187,7 +181,7 @@ export function FluxWalkthroughVideo() {
             </span>
             <span className="lp-wt-poster-tag">{formatTime(FILM_DURATION)}</span>
           </div>
-          <span className="lp-wt-poster-caption">Coxinha no café → Flux no celular</span>
+          <span className="lp-wt-poster-caption">Flux no celular — estilo Apple</span>
         </button>
       </section>
 
@@ -244,8 +238,8 @@ export function FluxWalkthroughVideo() {
                     syncAudio(false)
                   }}
                 >
-                  <source src="/landing/walkthrough/film/flux-filme.mp4?v=3" type="video/mp4" />
-                  <source src="/landing/walkthrough/film/flux-filme.webm?v=3" type="video/webm" />
+                  <source src="/landing/walkthrough/film/flux-filme.mp4?v=4" type="video/mp4" />
+                  <source src="/landing/walkthrough/film/flux-filme.webm?v=4" type="video/webm" />
                 </video>
 
                 <div className="lp-wt-film-captions lp-wt-film-captions--center" key={chapter.id}>

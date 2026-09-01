@@ -1,3 +1,4 @@
-frames=1125
+frames=420
 fps=30
-duration=37.50
+duration=14.00
+style=apple-single-take
