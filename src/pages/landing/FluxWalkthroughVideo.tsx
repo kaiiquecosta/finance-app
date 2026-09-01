@@ -10,7 +10,7 @@ import {
 } from './walkthroughSounds'
 import './fluxWalkthroughVideo.css'
 
-type ClickCue = { at: number; x: number; y: number }
+type TapCue = { at: number; x: number; y: number }
 
 type Scene =
   | {
@@ -23,127 +23,141 @@ type Scene =
       subtitle?: string
     }
   | {
-      kind: 'footage'
+      kind: 'lifestyle'
       id: string
       duration: number
-      /** Faixa no vídeo fonte (segundos). */
-      srcFrom: number
-      srcTo: number
+      image: string
+      eyebrow?: string
+      line?: string
+      motion?: 'ken-in' | 'ken-out' | 'ken-left'
+    }
+  | {
+      kind: 'phone'
+      id: string
+      duration: number
+      screen: string
       label: string
       caption: string
-      clicks?: ClickCue[]
+      motion?: 'zoom-in' | 'zoom-out' | 'rise' | 'drift'
+      taps?: TapCue[]
     }
 
 /**
- * Timeline estilo Pora: slides de impacto (texto/degradê) + gravação real do app.
- * Sem texto flutuando por cima da UI.
+ * Tour cinematográfico estilo Apple:
+ * lifestyle (pessoa + celular) → título → close do iPhone com UI real + zooms.
  */
 const SCENES: Scene[] = [
   {
+    kind: 'lifestyle',
+    id: 'open-life',
+    duration: 3.6,
+    image: '/landing/walkthrough/lifestyle/cafe.jpg',
+    eyebrow: 'Flux',
+    line: 'No bolso. No café. No dia a dia.',
+    motion: 'ken-in',
+  },
+  {
     kind: 'slide',
     id: 'intro',
-    duration: 3.2,
+    duration: 3.0,
     eyebrow: 'Flux',
     title: 'tudo em um só lugar',
     accent: 'um só lugar',
-    subtitle: 'Finanças, cartões, metas e investidor — como no dia a dia.',
+    subtitle: 'Finanças claras — com o ritmo de um product film.',
   },
   {
-    kind: 'footage',
+    kind: 'phone',
     id: 'overview',
-    duration: 6.4,
-    srcFrom: 0.6,
-    srcTo: 7.0,
+    duration: 5.2,
+    screen: '/landing/walkthrough/mobile/overview.jpg',
     label: 'Visão geral',
-    caption: 'Rendas, gastos e o mês inteiro com clareza.',
-    clicks: [
-      { at: 1.0, x: 86, y: 14 },
-      { at: 3.2, x: 48, y: 36 },
+    caption: 'Rendas, gastos e o mês inteiro — num olhar.',
+    motion: 'rise',
+    taps: [
+      { at: 1.2, x: 78, y: 18 },
+      { at: 3.0, x: 50, y: 42 },
     ],
   },
   {
     kind: 'slide',
     id: 'slide-cards',
-    duration: 2.3,
+    duration: 2.2,
     eyebrow: 'Cartões',
     title: 'faturas sob controle',
     accent: 'sob controle',
-    subtitle: 'Limites, vencimentos e lançamentos.',
   },
   {
-    kind: 'footage',
+    kind: 'phone',
     id: 'cards',
-    duration: 4.4,
-    srcFrom: 19.2,
-    srcTo: 23.6,
+    duration: 4.6,
+    screen: '/landing/walkthrough/mobile/cards.jpg',
     label: 'Cartões',
-    caption: 'Nubank, Itaú e o restante — sem planilha.',
-    clicks: [
-      { at: 1.1, x: 70, y: 30 },
-      { at: 2.6, x: 40, y: 54 },
+    caption: 'Limites, vencimentos e lançamentos.',
+    motion: 'zoom-in',
+    taps: [
+      { at: 1.1, x: 72, y: 48 },
+      { at: 2.8, x: 50, y: 62 },
     ],
   },
   {
     kind: 'slide',
     id: 'slide-goals',
-    duration: 2.3,
+    duration: 2.2,
     eyebrow: 'Metas',
     title: 'progresso que você vê',
     accent: 'você vê',
-    subtitle: 'Objetivos com prazo e depósitos claros.',
   },
   {
-    kind: 'footage',
+    kind: 'phone',
     id: 'goals',
-    duration: 4.0,
-    srcFrom: 24.2,
-    srcTo: 28.2,
+    duration: 4.4,
+    screen: '/landing/walkthrough/mobile/goals.jpg',
     label: 'Metas',
-    caption: 'Disney, reserva, entrada do apê — no mesmo lugar.',
-    clicks: [{ at: 1.4, x: 76, y: 48 }],
+    caption: 'Disney, reserva, entrada do apê.',
+    motion: 'drift',
+    taps: [{ at: 1.6, x: 50, y: 55 }],
   },
   {
     kind: 'slide',
     id: 'slide-invest',
-    duration: 2.3,
+    duration: 2.2,
     eyebrow: 'Investidor',
     title: 'do CDI à bolsa',
     accent: 'à bolsa',
-    subtitle: 'Cotações ao vivo, FIIs, ETFs e cripto.',
   },
   {
-    kind: 'footage',
+    kind: 'phone',
     id: 'invest',
-    duration: 4.2,
-    srcFrom: 29.0,
-    srcTo: 33.2,
+    duration: 4.4,
+    screen: '/landing/walkthrough/mobile/invest.jpg',
     label: 'Investimentos',
-    caption: 'Carteira e mercado sem trocar de app.',
-    clicks: [
-      { at: 0.9, x: 24, y: 24 },
-      { at: 2.4, x: 52, y: 42 },
+    caption: 'Mercado ao vivo, sem trocar de app.',
+    motion: 'zoom-in',
+    taps: [
+      { at: 1.0, x: 40, y: 30 },
+      { at: 2.6, x: 55, y: 52 },
     ],
   },
   {
-    kind: 'slide',
-    id: 'slide-assistant',
-    duration: 2.3,
+    kind: 'lifestyle',
+    id: 'mid-life',
+    duration: 3.2,
+    image: '/landing/walkthrough/lifestyle/sofa.jpg',
     eyebrow: 'Assistente',
-    title: 'fale ou digite',
-    accent: 'ou digite',
-    subtitle: 'Registre gastos em português natural.',
+    line: 'Fale. Digite. O Flux anota.',
+    motion: 'ken-left',
   },
   {
-    kind: 'footage',
+    kind: 'phone',
     id: 'assistant',
-    duration: 6.6,
-    srcFrom: 33.6,
-    srcTo: 40.2,
+    duration: 5.0,
+    screen: '/landing/walkthrough/mobile/assistant.jpg',
     label: 'Assistente',
-    caption: '“Gastei 45 no mercado” — e o Flux anota.',
-    clicks: [
-      { at: 0.6, x: 90, y: 86 },
-      { at: 2.8, x: 70, y: 82 },
+    caption: '“Gastei 45 no mercado” — e pronto.',
+    motion: 'rise',
+    taps: [
+      { at: 0.8, x: 50, y: 78 },
+      { at: 2.6, x: 82, y: 86 },
     ],
   },
   {
@@ -153,29 +167,46 @@ const SCENES: Scene[] = [
     eyebrow: 'Comunidade',
     title: 'peça. vote. acompanhe.',
     accent: 'vote.',
-    subtitle: 'Roadmap aberto com quem usa o Flux.',
   },
   {
-    kind: 'footage',
+    kind: 'phone',
     id: 'community',
-    duration: 15.6,
-    srcFrom: 41.2,
-    srcTo: 56.8,
+    duration: 5.0,
+    screen: '/landing/walkthrough/mobile/community.jpg',
     label: 'Comunidade',
-    caption: 'Curta, sugira e acompanhe o que vira produto.',
-    clicks: [
-      { at: 1.4, x: 28, y: 40 },
-      { at: 3.2, x: 30, y: 46 },
-      { at: 5.8, x: 84, y: 18 },
-      { at: 8.4, x: 50, y: 36 },
-      { at: 11.6, x: 58, y: 60 },
-      { at: 13.8, x: 30, y: 50 },
+    caption: 'Roadmap aberto — curta o que importa.',
+    motion: 'zoom-in',
+    taps: [
+      { at: 1.2, x: 78, y: 22 },
+      { at: 2.8, x: 72, y: 48 },
     ],
+  },
+  {
+    kind: 'phone',
+    id: 'community-modal',
+    duration: 5.2,
+    screen: '/landing/walkthrough/mobile/community-modal.jpg',
+    label: 'Nova sugestão',
+    caption: 'Descreva. Publique. Acompanhe o que vira produto.',
+    motion: 'zoom-out',
+    taps: [
+      { at: 1.4, x: 50, y: 38 },
+      { at: 3.2, x: 70, y: 72 },
+    ],
+  },
+  {
+    kind: 'lifestyle',
+    id: 'close-life',
+    duration: 3.4,
+    image: '/landing/walkthrough/lifestyle/cafe.jpg',
+    eyebrow: 'Flux Pro',
+    line: 'E tem muito mais.',
+    motion: 'ken-out',
   },
   {
     kind: 'slide',
     id: 'outro',
-    duration: 3.5,
+    duration: 3.4,
     eyebrow: 'Flux Pro',
     title: 'e tem muito mais',
     accent: 'muito mais',
@@ -225,18 +256,18 @@ export function FluxWalkthroughVideo() {
   const [muted, setMuted] = useState(false)
   const [elapsed, setElapsed] = useState(0)
   const [scrubbing, setScrubbing] = useState(false)
-  const [cursor, setCursor] = useState<{ x: number; y: number; pulse: boolean } | null>(null)
+  const [tap, setTap] = useState<{ x: number; y: number; pulse: boolean } | null>(null)
 
-  const videoRef = useRef<HTMLVideoElement>(null)
   const barRef = useRef<HTMLDivElement>(null)
   const elapsedRef = useRef(0)
   const rafRef = useRef(0)
   const sceneIdRef = useRef('')
-  const firedClicksRef = useRef('')
+  const firedTapsRef = useRef('')
   const wasPlayingRef = useRef(false)
 
   const { local, scene, looped } = resolveScene(elapsed)
   const progress = (looped / TOTAL) * 100
+  const sceneProgress = scene.duration > 0 ? Math.min(1, local / scene.duration) : 0
 
   const syncAudio = useCallback(
     (on: boolean) => {
@@ -256,8 +287,8 @@ export function FluxWalkthroughVideo() {
     setElapsed(0)
     elapsedRef.current = 0
     sceneIdRef.current = ''
-    firedClicksRef.current = ''
-    setCursor(null)
+    firedTapsRef.current = ''
+    setTap(null)
     setPlaying(true)
     document.body.style.overflow = 'hidden'
     syncAudio(true)
@@ -266,15 +297,13 @@ export function FluxWalkthroughVideo() {
 
   const closeModal = () => {
     cancelAnimationFrame(rafRef.current)
-    videoRef.current?.pause()
     setPlaying(false)
     setOpen(false)
-    setCursor(null)
+    setTap(null)
     document.body.style.overflow = ''
     syncAudio(false)
   }
 
-  // Clock da timeline virtual
   useEffect(() => {
     if (!open || !playing || scrubbing) return
     let cancelled = false
@@ -293,58 +322,32 @@ export function FluxWalkthroughVideo() {
     }
   }, [open, playing, scrubbing])
 
-  // Troca de cena: slide vs footage + seek no vídeo
   useEffect(() => {
     if (!open) return
     if (scene.id !== sceneIdRef.current) {
       sceneIdRef.current = scene.id
-      firedClicksRef.current = ''
-      setCursor(null)
+      firedTapsRef.current = ''
+      setTap(null)
       if (!muted) void playWalkthroughWhoosh()
-
-      const v = videoRef.current
-      if (scene.kind === 'footage' && v) {
-        v.currentTime = scene.srcFrom + Math.min(local, scene.srcTo - scene.srcFrom - 0.05)
-        if (playing) void v.play().catch(() => undefined)
-      } else {
-        v?.pause()
-      }
     }
-  }, [scene, open, muted, playing, local])
+  }, [scene, open, muted])
 
-  // Mantém vídeo sincronizado dentro da faixa
+  // Toques no celular (anel estilo Apple)
   useEffect(() => {
-    if (!open || scene.kind !== 'footage' || scrubbing) return
-    const v = videoRef.current
-    if (!v) return
-    const target = scene.srcFrom + local
-    if (Math.abs(v.currentTime - target) > 0.35) {
-      v.currentTime = Math.min(target, scene.srcTo - 0.05)
-    }
-    if (playing && v.paused) void v.play().catch(() => undefined)
-    if (!playing && !v.paused) v.pause()
-  }, [local, scene, open, playing, scrubbing])
-
-  // Cursor Apple: move entre os pontos e pulsa no clique
-  useEffect(() => {
-    if (!open || scene.kind !== 'footage') {
-      setCursor(null)
+    if (!open || scene.kind !== 'phone') {
+      setTap(null)
       return
     }
-    const cues = scene.clicks ?? []
-    if (!cues.length) {
-      setCursor({ x: 52, y: 42, pulse: false })
-      return
-    }
+    const cues = scene.taps ?? []
+    if (!cues.length) return
 
     let x = cues[0].x
     let y = cues[0].y
-
     if (local < cues[0].at) {
       const t = Math.max(0, Math.min(1, local / Math.max(0.01, cues[0].at)))
       const ease = 1 - (1 - t) ** 3
-      x = 48 + (cues[0].x - 48) * ease
-      y = 36 + (cues[0].y - 36) * ease
+      x = 50 + (cues[0].x - 50) * ease
+      y = 40 + (cues[0].y - 40) * ease
     } else {
       for (let i = 0; i < cues.length; i++) {
         const cue = cues[i]
@@ -369,17 +372,15 @@ export function FluxWalkthroughVideo() {
     for (let i = 0; i < cues.length; i++) {
       const cue = cues[i]
       const key = `${scene.id}-${i}`
-      if (local >= cue.at && !firedClicksRef.current.includes(`${key},`)) {
-        firedClicksRef.current += `${key},`
+      if (local >= cue.at && !firedTapsRef.current.includes(`${key},`)) {
+        firedTapsRef.current += `${key},`
         pulse = true
         if (!muted) void playWalkthroughClick()
-        window.setTimeout(() => {
-          setCursor((c) => (c ? { ...c, pulse: false } : null))
-        }, 480)
+        window.setTimeout(() => setTap((c) => (c ? { ...c, pulse: false } : null)), 480)
       }
     }
 
-    setCursor((prev) => ({ x, y, pulse: pulse || Boolean(prev?.pulse) }))
+    setTap((prev) => ({ x, y, pulse: pulse || Boolean(prev?.pulse) }))
   }, [local, scene, open, muted])
 
   useEffect(() => {
@@ -403,14 +404,9 @@ export function FluxWalkthroughVideo() {
     const clamped = Math.min(TOTAL - 0.05, Math.max(0, nextSec))
     elapsedRef.current = clamped
     setElapsed(clamped)
-    const resolved = resolveScene(clamped)
     sceneIdRef.current = ''
-    firedClicksRef.current = ''
-    setCursor(null)
-    const v = videoRef.current
-    if (resolved.scene.kind === 'footage' && v) {
-      v.currentTime = resolved.scene.srcFrom + resolved.local
-    }
+    firedTapsRef.current = ''
+    setTap(null)
   }
 
   const onBarPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -448,13 +444,13 @@ export function FluxWalkthroughVideo() {
           <span className="lp-kicker">Tour em vídeo</span>
           <h2>Entenda como funciona o Flux</h2>
           <p>
-            Slides de impacto e gravação real do app — cartões, metas, investidor, assistente e comunidade — no
-            ritmo de um walkthrough profissional.
+            Um product film no celular: pessoa usando o Flux, closes da interface, zooms e a comunidade
+            funcionando — no ritmo Apple.
           </p>
           <ul>
-            <li>Gravação real + cards de título</li>
-            <li>Cliques animados na interface</li>
-            <li>Trilha de intro · arraste a barra</li>
+            <li>Lifestyle + iPhone em close</li>
+            <li>Focos e aproximações na UI real</li>
+            <li>Trilha suave · arraste a barra</li>
           </ul>
           <button type="button" className="lp-primary" onClick={openModal}>
             Ver como funciona <span aria-hidden>▶</span>
@@ -463,19 +459,19 @@ export function FluxWalkthroughVideo() {
 
         <button type="button" className="lp-wt-poster" onClick={openModal} aria-label="Reproduzir tour do Flux">
           <div className="lp-wt-poster-frame">
-            <div className="lp-wt-poster-slide-preview" aria-hidden>
-              <span>Flux</span>
-              <b>
-                tudo em <em>um só lugar</em>
-              </b>
-            </div>
+            <img
+              className="lp-wt-poster-life"
+              src="/landing/walkthrough/lifestyle/cafe.jpg"
+              alt=""
+              loading="lazy"
+            />
             <div className="lp-wt-poster-dim" />
             <span className="lp-wt-play">
               <i aria-hidden>▶</i>
             </span>
             <span className="lp-wt-poster-tag">{formatTime(TOTAL)}</span>
           </div>
-          <span className="lp-wt-poster-caption">Walkthrough · slides + app real</span>
+          <span className="lp-wt-poster-caption">Product film · celular + app real</span>
         </button>
       </section>
 
@@ -508,20 +504,7 @@ export function FluxWalkthroughVideo() {
             </header>
 
             <div className="lp-wt-player">
-              <div className="lp-wt-cinema">
-                {/* Vídeo sempre montado (seek), oculto em slides */}
-                <video
-                  ref={videoRef}
-                  className={`lp-wt-video${scene.kind === 'footage' ? ' is-visible' : ''}`}
-                  playsInline
-                  muted
-                  preload="auto"
-                  poster="/landing/walkthrough/overview-app.png"
-                >
-                  <source src="/landing/walkthrough/flux-tour.mp4" type="video/mp4" />
-                  <source src="/landing/walkthrough/flux-tour.webm" type="video/webm" />
-                </video>
-
+              <div className="lp-wt-cinema" style={{ ['--scene-p' as string]: String(sceneProgress) }}>
                 {scene.kind === 'slide' ? (
                   <div className="lp-wt-title-slide" key={scene.id}>
                     <div className="lp-wt-title-slide-glow" aria-hidden />
@@ -529,36 +512,43 @@ export function FluxWalkthroughVideo() {
                     <h3 className="lp-wt-slide-title">{renderSlideTitle(scene.title, scene.accent)}</h3>
                     {scene.subtitle ? <p className="lp-wt-slide-sub">{scene.subtitle}</p> : null}
                   </div>
-                ) : (
-                  <>
-                    <div className="lp-wt-frame-glow" aria-hidden />
-                    {cursor ? (
-                      <span
-                        className={`lp-wt-cursor${cursor.pulse ? ' is-pulse' : ''}`}
-                        style={{ left: `${cursor.x}%`, top: `${cursor.y}%` }}
-                        aria-hidden
-                      >
-                        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path
-                            d="M5.5 2.8v22.4l5.8-5.5 3.8 9.1 3.5-1.45-3.8-9.05H23.2L5.5 2.8z"
-                            fill="#1d1d1f"
-                          />
-                          <path
-                            d="M5.5 2.8v22.4l5.8-5.5 3.8 9.1 3.5-1.45-3.8-9.05H23.2L5.5 2.8z"
-                            fill="none"
-                            stroke="#fff"
-                            strokeWidth="1.35"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </span>
-                    ) : null}
+                ) : null}
+
+                {scene.kind === 'lifestyle' ? (
+                  <div className={`lp-wt-life lp-wt-life--${scene.motion ?? 'ken-in'}`} key={scene.id}>
+                    <img src={scene.image} alt="" draggable={false} />
+                    <div className="lp-wt-life-veil" aria-hidden />
+                    <div className="lp-wt-life-copy">
+                      {scene.eyebrow ? <span>{scene.eyebrow}</span> : null}
+                      {scene.line ? <p>{scene.line}</p> : null}
+                    </div>
+                  </div>
+                ) : null}
+
+                {scene.kind === 'phone' ? (
+                  <div className={`lp-wt-phone-stage lp-wt-phone-stage--${scene.motion ?? 'rise'}`} key={scene.id}>
+                    <div className="lp-wt-phone-glow" aria-hidden />
+                    <div className="lp-wt-phone">
+                      <div className="lp-wt-phone-bezel">
+                        <span className="lp-wt-phone-island" aria-hidden />
+                        <div className="lp-wt-phone-screen">
+                          <img src={scene.screen} alt="" draggable={false} />
+                          {tap ? (
+                            <span
+                              className={`lp-wt-finger${tap.pulse ? ' is-pulse' : ''}`}
+                              style={{ left: `${tap.x}%`, top: `${tap.y}%` }}
+                              aria-hidden
+                            />
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
                     <div className="lp-wt-subtitles">
                       <span>{scene.label}</span>
                       <p>{scene.caption}</p>
                     </div>
-                  </>
-                )}
+                  </div>
+                ) : null}
               </div>
             </div>
 

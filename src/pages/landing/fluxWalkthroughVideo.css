@@ -66,45 +66,19 @@
   aspect-ratio: 16 / 10;
 }
 
-.lp-wt-poster-slide-preview {
+.lp-wt-poster-life {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-content: center;
-  gap: 10px;
-  text-align: center;
-  background: radial-gradient(ellipse at 50% 30%, #24132e, #0a0a0c 60%);
-  color: #fff;
-  padding: 24px;
-}
-
-.lp-wt-poster-slide-preview span {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(192, 132, 252, 0.85);
-}
-
-.lp-wt-poster-slide-preview b {
-  font-size: clamp(28px, 4vw, 40px);
-  letter-spacing: -0.04em;
-  line-height: 1.1;
-  font-weight: 700;
-}
-
-.lp-wt-poster-slide-preview em {
-  font-style: normal;
-  background: linear-gradient(90deg, #c084fc, #60a5fa 55%, #9ee870);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.04);
 }
 
 .lp-wt-poster-dim {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.2);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.15) 50%, rgba(0, 0, 0, 0.25));
 }
 
 .lp-wt-play {
@@ -120,65 +94,66 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.94);
-  color: #1d1d1f;
-  font-size: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #111;
   font-style: normal;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
-  transition: transform 0.25s ease;
+  font-size: 20px;
+  padding-left: 3px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .lp-wt-poster:hover .lp-wt-play i {
-  transform: scale(1.05);
+  transform: scale(1.06);
 }
 
 .lp-wt-poster-tag {
   position: absolute;
-  right: 12px;
+  right: 14px;
   bottom: 12px;
   padding: 4px 8px;
   border-radius: 6px;
   background: rgba(0, 0, 0, 0.55);
   color: #fff;
   font-size: 11px;
-  font-weight: 600;
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
 }
 
 .lp-wt-poster-caption {
   display: block;
-  margin-top: 10px;
-  font-size: 12px;
+  margin-top: 12px;
+  font-size: 13px;
   color: var(--muted);
 }
 
-/* —— Modal —— */
+/* —— Modal cinema (quase full-bleed) —— */
 .lp-wt-modal {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: 80;
   display: grid;
   place-items: center;
-  padding: 24px;
+  padding: max(12px, 2vw);
 }
 
 .lp-wt-modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(16px) saturate(140%);
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(18px) saturate(140%);
 }
 
 .lp-wt-modal-panel {
   position: relative;
-  width: min(960px, 100%);
+  width: min(1180px, 100%);
   display: flex;
   flex-direction: column;
-  border-radius: 18px;
+  border-radius: 20px;
   overflow: hidden;
-  background: #0c0c0e;
+  background: #050507;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.55);
 }
 
 .lp-wt-modal-head {
@@ -186,8 +161,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px 16px;
-  background: rgba(22, 22, 24, 0.98);
+  padding: 12px 18px;
+  background: rgba(12, 12, 14, 0.98);
   color: #f5f5f7;
   font-size: 13px;
   font-weight: 600;
@@ -226,34 +201,12 @@
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
+  min-height: min(72vh, 680px);
   background: #050508;
   overflow: hidden;
 }
 
-.lp-wt-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  background: #000;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease;
-}
-
-.lp-wt-video.is-visible {
-  opacity: 1;
-}
-
-.lp-wt-frame-glow {
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-}
-
-/* —— Title slides (Pora-like) —— */
+/* —— Title slides —— */
 .lp-wt-title-slide {
   position: absolute;
   inset: 0;
@@ -290,7 +243,7 @@
   z-index: 1;
   margin: 0;
   max-width: 820px;
-  font-size: clamp(34px, 5.2vw, 56px);
+  font-size: clamp(36px, 5.6vw, 64px);
   font-weight: 720;
   letter-spacing: -0.045em;
   line-height: 1.05;
@@ -318,62 +271,273 @@
 @keyframes lp-wt-slide-in {
   from {
     opacity: 0;
-    transform: scale(1.02);
+    transform: scale(1.03);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
-/* Cursor estilo Apple (ponteiro macOS clássico) */
-.lp-wt-cursor {
+/* —— Lifestyle full-bleed (pessoa + celular) —— */
+.lp-wt-life {
   position: absolute;
-  z-index: 5;
-  width: 32px;
-  height: 32px;
-  margin: 0;
+  inset: 0;
+  overflow: hidden;
+  animation: lp-wt-slide-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.lp-wt-life img {
+  position: absolute;
+  inset: -4%;
+  width: 108%;
+  height: 108%;
+  object-fit: cover;
+  will-change: transform;
+}
+
+.lp-wt-life--ken-in img {
+  animation: lp-wt-ken-in 4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.lp-wt-life--ken-out img {
+  animation: lp-wt-ken-out 4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.lp-wt-life--ken-left img {
+  animation: lp-wt-ken-left 4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes lp-wt-ken-in {
+  from {
+    transform: scale(1.08) translate3d(0, 1.5%, 0);
+  }
+  to {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+}
+
+@keyframes lp-wt-ken-out {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.1) translate3d(0, -1%, 0);
+  }
+}
+
+@keyframes lp-wt-ken-left {
+  from {
+    transform: scale(1.06) translate3d(2%, 0, 0);
+  }
+  to {
+    transform: scale(1.02) translate3d(-1.5%, 0, 0);
+  }
+}
+
+.lp-wt-life-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.15) 42%, rgba(0, 0, 0, 0.28) 100%),
+    radial-gradient(ellipse at 50% 40%, transparent 30%, rgba(0, 0, 0, 0.25) 100%);
   pointer-events: none;
-  transform: translate(-1px, -1px);
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25)) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.18));
-  transition:
-    left 0.08s linear,
-    top 0.08s linear;
-  background: transparent;
-  border-radius: 0;
-  box-shadow: none;
-  will-change: left, top;
 }
 
-.lp-wt-cursor svg {
+.lp-wt-life-copy {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 36px 32px 28px;
+  z-index: 2;
+}
+
+.lp-wt-life-copy span {
   display: block;
-  width: 32px;
-  height: 32px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(192, 132, 252, 0.92);
 }
 
-.lp-wt-cursor::after {
+.lp-wt-life-copy p {
+  margin: 0;
+  max-width: 640px;
+  font-size: clamp(26px, 3.6vw, 40px);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  color: #f5f5f7;
+}
+
+/* —— iPhone stage (close / zoom) —— */
+.lp-wt-phone-stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 42%, #1a1230 0%, #08080c 55%, #030305 100%);
+  animation: lp-wt-slide-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.lp-wt-phone-glow {
+  position: absolute;
+  width: min(48vw, 420px);
+  height: min(48vw, 420px);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.28), transparent 68%);
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+.lp-wt-phone {
+  position: relative;
+  z-index: 1;
+  width: min(42vw, 340px);
+  transform-origin: 50% 55%;
+  will-change: transform;
+}
+
+.lp-wt-phone-stage--rise .lp-wt-phone {
+  animation: lp-wt-phone-rise 5.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.lp-wt-phone-stage--zoom-in .lp-wt-phone {
+  animation: lp-wt-phone-zoom-in 5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.lp-wt-phone-stage--zoom-out .lp-wt-phone {
+  animation: lp-wt-phone-zoom-out 5.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.lp-wt-phone-stage--drift .lp-wt-phone {
+  animation: lp-wt-phone-drift 4.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes lp-wt-phone-rise {
+  from {
+    transform: translate3d(0, 28px, 0) scale(0.9);
+    opacity: 0.7;
+  }
+  to {
+    transform: translate3d(0, -6px, 0) scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes lp-wt-phone-zoom-in {
+  from {
+    transform: scale(0.92) translate3d(0, 8px, 0);
+  }
+  to {
+    transform: scale(1.22) translate3d(0, -4%, 0);
+  }
+}
+
+@keyframes lp-wt-phone-zoom-out {
+  from {
+    transform: scale(1.28) translate3d(0, -2%, 0);
+  }
+  to {
+    transform: scale(1.02) translate3d(0, 0, 0);
+  }
+}
+
+@keyframes lp-wt-phone-drift {
+  from {
+    transform: scale(1) rotate(-1.2deg) translate3d(-2%, 2%, 0);
+  }
+  to {
+    transform: scale(1.12) rotate(1deg) translate3d(2%, -1%, 0);
+  }
+}
+
+.lp-wt-phone-bezel {
+  position: relative;
+  aspect-ratio: 390 / 844;
+  border-radius: 38px;
+  padding: 10px;
+  background: linear-gradient(160deg, #2a2a2e 0%, #0c0c0e 40%, #1c1c1f 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 0 0 3px #0a0a0c,
+    0 28px 80px rgba(0, 0, 0, 0.55),
+    0 8px 24px rgba(124, 58, 237, 0.18);
+}
+
+.lp-wt-phone-island {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  z-index: 3;
+  width: 28%;
+  height: 18px;
+  margin-left: -14%;
+  border-radius: 20px;
+  background: #050507;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.lp-wt-phone-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 30px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.lp-wt-phone-screen img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* Toque circular estilo Apple (não cursor de desktop) */
+.lp-wt-finger {
+  position: absolute;
+  z-index: 4;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  transition:
+    left 0.1s linear,
+    top 0.1s linear;
+}
+
+.lp-wt-finger::after {
   content: '';
   position: absolute;
-  left: 2px;
-  top: 2px;
-  width: 30px;
-  height: 30px;
-  margin: 0;
+  inset: -6px;
   border-radius: 50%;
-  border: 1.5px solid rgba(29, 29, 31, 0.28);
-  background: rgba(29, 29, 31, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
   opacity: 0;
-  transform: scale(0.35);
+  transform: scale(0.4);
 }
 
-.lp-wt-cursor.is-pulse::after {
-  animation: lp-wt-cursor-ring 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+.lp-wt-finger.is-pulse::after {
+  animation: lp-wt-finger-ring 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-@keyframes lp-wt-cursor-ring {
+@keyframes lp-wt-finger-ring {
   0% {
-    opacity: 0.5;
-    transform: scale(0.35);
+    opacity: 0.7;
+    transform: scale(0.4);
   }
   100% {
     opacity: 0;
-    transform: scale(1.7);
+    transform: scale(2.1);
   }
 }
 
@@ -382,29 +546,31 @@
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 28px 22px 16px;
+  z-index: 5;
+  padding: 36px 28px 20px;
   text-align: left;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.78), transparent 70%);
   pointer-events: none;
 }
 
 .lp-wt-subtitles span {
   display: block;
-  margin-bottom: 4px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(192, 132, 252, 0.9);
+  color: rgba(192, 132, 252, 0.95);
 }
 
 .lp-wt-subtitles p {
   margin: 0;
-  max-width: 480px;
-  font-size: 13px;
-  line-height: 1.45;
-  color: rgba(245, 245, 247, 0.82);
-  font-weight: 500;
+  max-width: 520px;
+  font-size: clamp(15px, 1.8vw, 20px);
+  line-height: 1.35;
+  color: rgba(245, 245, 247, 0.9);
+  font-weight: 550;
+  letter-spacing: -0.02em;
 }
 
 .lp-wt-controls {
@@ -412,7 +578,7 @@
   align-items: center;
   gap: 12px;
   padding: 12px 16px 14px;
-  background: rgba(22, 22, 24, 0.98);
+  background: rgba(12, 12, 14, 0.98);
   color: #a1a1a6;
   font-size: 11px;
   font-variant-numeric: tabular-nums;
@@ -481,7 +647,9 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
   opacity: 0;
   transform: scale(0.85);
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
   pointer-events: none;
 }
 
@@ -514,14 +682,49 @@
     text-align: left;
   }
 
+  .lp-wt-cinema {
+    min-height: 52vh;
+    aspect-ratio: 9 / 14;
+  }
+
+  .lp-wt-phone {
+    width: min(58vw, 240px);
+  }
+
   .lp-wt-title-slide {
     padding: 28px 22px;
+  }
+
+  .lp-wt-life-copy {
+    padding: 28px 20px 22px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .lp-wt-phone {
+    width: min(38vw, 380px);
+  }
+
+  .lp-wt-phone-stage--zoom-in .lp-wt-phone {
+    animation-name: lp-wt-phone-zoom-in-lg;
+  }
+}
+
+@keyframes lp-wt-phone-zoom-in-lg {
+  from {
+    transform: scale(0.95) translate3d(0, 10px, 0);
+  }
+  to {
+    transform: scale(1.35) translate3d(0, -6%, 0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .lp-wt-title-slide,
-  .lp-wt-cursor.is-pulse::after {
+  .lp-wt-life,
+  .lp-wt-life img,
+  .lp-wt-phone,
+  .lp-wt-finger.is-pulse::after {
     animation: none !important;
   }
 }
