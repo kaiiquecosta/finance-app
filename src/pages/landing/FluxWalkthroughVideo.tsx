@@ -23,6 +23,8 @@ const CHAPTERS: Chapter[] = [
 ]
 
 const FILM_DURATION = 14
+const FILM_SRC = '/landing/walkthrough/film/flux-apple-take'
+const FILM_CACHE = '20260901'
 
 function formatTime(sec: number) {
   if (!Number.isFinite(sec) || sec < 0) return '0:00'
@@ -216,6 +218,7 @@ export function FluxWalkthroughVideo() {
             <div className="lp-wt-player">
               <div className="lp-wt-cinema lp-wt-cinema--film">
                 <video
+                  key={FILM_CACHE}
                   ref={videoRef}
                   className="lp-wt-film"
                   playsInline
@@ -223,9 +226,8 @@ export function FluxWalkthroughVideo() {
                   preload="auto"
                   poster="/landing/walkthrough/lifestyle/hands-flux.jpg"
                   onLoadedMetadata={(e) => {
-                    if (e.currentTarget.duration && Number.isFinite(e.currentTarget.duration)) {
-                      setDuration(e.currentTarget.duration)
-                    }
+                    const d = e.currentTarget.duration
+                    if (d && Number.isFinite(d) && d < 20) setDuration(d)
                   }}
                   onTimeUpdate={(e) => {
                     if (scrubbing) return
@@ -238,8 +240,8 @@ export function FluxWalkthroughVideo() {
                     syncAudio(false)
                   }}
                 >
-                  <source src="/landing/walkthrough/film/flux-apple-take.mp4" type="video/mp4" />
-                  <source src="/landing/walkthrough/film/flux-apple-take.webm" type="video/webm" />
+                  <source src={`${FILM_SRC}.mp4?v=${FILM_CACHE}`} type="video/mp4" />
+                  <source src={`${FILM_SRC}.webm?v=${FILM_CACHE}`} type="video/webm" />
                 </video>
 
                 <div className="lp-wt-film-captions lp-wt-film-captions--center" key={chapter.id}>
